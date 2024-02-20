@@ -1,0 +1,53 @@
+<svg width="100%" height="100%" viewBox="0 0 43 65" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <style>
+        path {fill: none; stroke: #21333a; stroke-width: 1px;}
+    </style>
+    <g id="winkel1" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M85.695,44.85L106.329,56.689L126.88,44.782"/>
+    </g>
+    <g id="winkel2" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M126.822,12.743L120.205,16.659L106.429,8.474L92.478,16.441L85.686,12.545"/>
+    </g>
+    <g id="winkel3" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M85.709,20.654L120.243,40.78L120.243,48.431"/>
+    </g>
+    <g id="up1" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M99.305,60.385L99.305,52.99"/>
+    </g>
+    <g id="up2" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M106.429,64.315L106.429,56.691"/>
+    </g>
+    <g id="diagonalup1" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M106.048,48.687L99.541,52.626"/>
+    </g>
+    <g id="diagonaldown1" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M120.022,48.468L113.135,44.642"/>
+    </g>
+    <g id="diagonalup2" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M120.355,40.856L126.897,36.741"/>
+    </g>
+    <g id="up3" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M92.477,16.37L92.477,24.247"/>
+    </g>
+    <g id="up4" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M106.394,16.472L106.394,8.839"/>
+    </g>
+    <g id="up5" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M120.289,24.073L120.289,16.888"/>
+    </g>
+    <g id="diagonalup3" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M106.603,8.39L112.98,4.688"/>
+    </g>
+    <g id="diagonalup4" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="innen" d="M99.275,20.517L92.762,24.295"/>
+    </g>
+    <style>
+        .umrisslinie {stroke-dasharray: 450; stroke-dashoffset: 450; animation: drawline 2s linear infinite;}
+        @keyframes drawline {to {stroke-dashoffset: 0;}}
+        .innen {opacity: 0; animation: blendlines 2s ease-out infinite;}
+        @keyframes blendlines {0% {opacity:0;} 60% {opacity:0;} 100% {opacity: 1;}}}
+    </style>
+    <g id="umriss" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="umrisslinie" d="M85.478,52.668L85.478,44.837L92.569,40.718L106.07,48.616L113.074,44.626L85.449,28.637L85.449,12.495L106.326,0.444L127.188,12.661L127.188,20.323L120.261,24.324L106.393,16.509L99.435,20.407L127.052,36.567L127.052,52.526L106.421,64.532L85.478,52.668"/>
+    </g>
+</svg>

@@ -1,0 +1,40 @@
+#customer_info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    position: fixed;
+	border: 1px solid #b8b8b8;
+	margin-top: -.9em;
+    max-width: 26.5em;
+}
+
+
+.data {
+    border-bottom: 1px solid $darkgrey;
+    padding: 5px;
+
+    &:nth-child(odd) {
+        border-right: 1px solid $darkgrey;
+    }
+    &:last-child {
+        border-bottom: none;
+    }
+
+    & label {
+        margin-left: 0;
+    }
+}
+
+// Zur Veranschaulichung:
+// Untenstehende Regeln entsprechen den obenstehenden
+
+// .data:nth-child(odd) {
+//     border-right: 1px solid black;
+// }
+
+// .data:last-child {
+//     border-bottom: none;
+// }
+
+// .data label {
+//     margin-left: 0;
+// }

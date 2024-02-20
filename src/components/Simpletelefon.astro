@@ -1,0 +1,20 @@
+---
+interface Props {
+	id: string;
+	name: string;
+	type: string;
+    required?: boolean;
+    maxlength?: string;
+	pattern?: string;
+}
+
+const { id, name, type, required, maxlength, pattern } = Astro.props;
+let errorname = id.replace("_", "_error_");
+// type={type as 'text'} statt type={type}, da das Attribute 'type' nicht alle strings zulässt, sondern nur eine Auswahl wie text, password, email, number, date, etc.
+---
+
+<div>
+	<label for={id}>{name}</label>
+	<span class="errormessage" id={errorname}></span>
+</div>
+<input id={id} type={type as 'text'} class="input-text" {required} maxlength={maxlength} pattern={pattern}>

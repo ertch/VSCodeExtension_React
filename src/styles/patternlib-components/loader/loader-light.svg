@@ -1,0 +1,10 @@
+<svg width="100%" height="100%" viewBox="0 0 43 65" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <style>
+        path {fill: none; stroke: #21333a; stroke-width: 1px;}
+        .umrisslinie {stroke-dasharray: 272; stroke-dashoffset: 272; animation: draw 3s linear infinite;}
+        @keyframes draw {0% {stroke-dashoffset: 272;} 50% {stroke-dashoffset: 0;} 100% {stroke-dashoffset: -272;}}
+    </style>
+    <g id="umriss" transform="matrix(1,0,0,1,-84.8186,0)">
+        <path class="umrisslinie" d="M85.478,52.668L85.478,44.837L92.569,40.718L106.07,48.616L113.074,44.626L85.449,28.637L85.449,12.495L106.326,0.444L127.188,12.661L127.188,20.323L120.261,24.324L106.393,16.509L99.435,20.407L127.052,36.567L127.052,52.526L106.421,64.532L85.478,52.668"/>
+    </g>
+</svg>

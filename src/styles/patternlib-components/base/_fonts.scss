@@ -1,0 +1,91 @@
+@import '../base/variables';
+@import '../base/colors';
+
+@font-face {
+  font-family: 'Hind';
+  font-style: normal;
+  font-weight: 300;
+  src:
+    local('Hind Light'),
+    local('Hind-Light'),
+    url('/fonts/hind-v10-latin-300.woff2') format('woff2');
+}
+
+// @font-face {
+//   font-family: 'Hind';
+//   font-style: normal;
+//   font-weight: 400;
+//   src: local('Hind Regular'), local('Hind-Regular'),
+//        url('../fonts/hind-v10-latin-regular.woff2') format('woff2')
+// }
+
+@font-face {
+  font-family: 'SalesFontor';
+  src: url('/fonts/salesfontor.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lineto Replica Pro';
+  font-style: normal;
+  font-weight: 700;
+  src:
+    local('Lineto Replica Pro'),
+    local('Lineto-Replica-Pro'),
+    url('/fonts/lineto-replica-pro-bold.woff2') format('woff2');
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Lineto Replica Pro', sans-serif;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: $baseunit * 1.75;
+  line-height: $baseunit * 1.5;
+}
+
+h2 {
+  font-size: $baseunit * 1.5;
+  line-height: $baseunit * 2;
+}
+
+h3 {
+  font-size: $baseunit * 1.25;
+  line-height: $baseunit * 1.2;
+}
+
+h4 {
+  color: $blue;
+  font-family: 'Hind', sans-serif;
+  font-size: $baseunit;
+  line-height: $baseunit * 1.5;
+  text-transform: uppercase;
+}
+
+.copy--medium {
+  font-size: $baseunit * 0.875;
+  line-height: $baseunit * 1.313;
+}
+
+.copy--small {
+  font-size: $baseunit * 0.75;
+  line-height: $baseunit * 1.125;
+}
+
+a {
+  color: $anthracite;
+  text-decoration: underline;
+
+  &:hover {
+    color: $blue;
+  }
+}
+
+::placeholder {
+  color: $darkgrey;
+}

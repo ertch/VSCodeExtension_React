@@ -1,0 +1,24 @@
+---
+import { Value } from 'sass';
+
+interface Props {
+	id: string;
+	label: string;
+	type: string;
+	call?: string;
+	value?: any;
+    required?: boolean;
+    maxlength?: string;
+	pattern?: string;
+}
+
+const { id, label, type, required, maxlength, pattern, call, value } = Astro.props;
+let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+---
+
+<div>
+	<label for={id}>{label}</label>
+	<span class="errormessage" id={errorname}></span>
+</div>
+
+<input id={id} type={type as 'text'} class="input-text" value={value} {required} maxlength={maxlength} pattern={pattern} onchange={call}>

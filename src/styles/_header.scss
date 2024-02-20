@@ -1,0 +1,14 @@
+* {
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5em 1em;
+    align-items: center;
+}
+
+header img {
+    width: 170px;
+}

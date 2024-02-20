@@ -1,0 +1,232 @@
+@import 'variables';
+@import 'patternlib-components/base/_colors.scss';
+@import 'patternlib-components/base/_fonts.scss';
+@import 'patternlib-components/base/_grid.scss';
+@import 'patternlib-components/base/_helper.scss';
+@import 'patternlib-components/base/_variables.scss';
+@import 'patternlib-components/buttons/_buttons.scss';
+@import 'patternlib-components/icons/_icons.scss';
+@import 'patternlib-components/icons/_status-icon.scss';
+@import 'patternlib-components/inputs/_checkbox.scss';
+@import 'patternlib-components/inputs/_dropdown.scss';
+@import 'patternlib-components/inputs/_inputs.scss';
+@import 'patternlib-components/loader/_loader.scss';
+@import 'patternlib-components/messages/_livenotifications';
+@import 'patternlib-components/messages/_modal';
+@import 'patternlib-components/messages/_systemmessages';
+@import 'patternlib-components/table/_table.scss';
+@import 'patternlib-components/tooltips/_tooltip-light';
+@import 'patternlib-components/tooltips/_tooltips';
+@import 'patternlib-components/tabs/_tabs';
+@import 'header';
+@import 'left-block';
+
+@font-face {
+    font-family: "salesfontor";
+    src: url("fonts/salesfontor.woff2") format('woff2');
+  }
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    background-color: $backgroundgray;
+    color: $black;
+    font-family: $family;
+    font-size: $basunit;
+    margin: 0;
+    padding: 0;
+}
+
+fieldset {
+    background-color: #f1f1f1;
+    position: relative;
+    margin-top: 10px;
+    border: 0;
+	padding: 15px 5px 5px 15px;
+    margin: 15px 5px;
+}
+
+legend {
+    position: relative;
+    top: -8px;
+    left: -15px;
+}
+
+label {
+    display: inline-block;
+    font-weight: bold;
+}
+
+h1 {
+    display: block;
+    text-align: center;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 410px 6fr 80px;
+    margin: 1.5em 1.5em 0 1.5em;
+    gap: 2.2em;
+}
+
+select {
+    margin-right: 3em;
+    
+}
+
+.d-none {
+    display: none;
+}
+
+table {
+    border: 1px solid #bbb;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .85em;
+}
+
+td {
+    border-top: 1px solid #bbb;
+    border-bottom: 2px solid #bbb;
+    padding: .2em .5em;
+}
+
+.vertrags-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#footer_button {
+    display: flex;
+    justify-content: center;
+    margin-left: 310px;
+    gap: 1.8em;
+}
+
+.nextTopic {
+    background-color: #bbb;
+    padding: 0 .2em;
+    text-align: left;
+}
+
+.kd {
+    margin: 0;
+
+    &--head {
+        border-bottom: 1px dotted #bbb;
+        margin: .2em auto;
+        font-weight: bold;
+    }
+    
+}
+
+.data_label--gray {
+    color: #777575;
+}
+
+.datenerf-bg {
+    background-color: $bg_graysuit;  
+    border-top: 1px solid #b8b8b8;
+    margin-top: -15px;
+    padding-bottom: 0.1em;
+}
+
+// .datenerf-block-border1 {
+// 	// border-left: 1px solid #b8b8b8;
+// 	// border-right: 1px solid #b8b8b8;
+//     background-color: #e4e3e3;
+// }
+
+.datenerf-block-border2 {
+    background-color:#c9c9c9;
+}
+
+.daten-kunde {
+    background-color: #c7cccf;
+	position: fixed;
+	border: 1px solid #b8b8b8;
+	margin-top: 2.2em;
+}
+
+.glyph {
+    font-size: 18px;
+  text-align: center;
+  font-family: "salesfontor";
+  font-weight: 100;
+  font-style: normal;
+}
+
+.bg-gray {
+    background-color: $bg_customer_blue;
+    min-height: 40px;
+    border: 1px solid #555454;
+}
+
+.bg-white {
+    background-color: $bg_customer_lightblue;
+}
+
+.data-kunde-m {
+    padding: 2px 5px;
+    margin: 0 0 4px 0;
+    width: 13em;
+    overflow-wrap: break-word;
+}
+
+.data-label-m {
+    margin-top: 2px;
+}
+
+.placeholder {
+    height: 784px;
+}
+
+.helper_bp-35 {
+    padding-bottom: 35px;
+}
+
+.hsp_div {
+    padding-bottom: 2em;
+}
+
+.button200 {
+    height: 40px;
+    font-weight: bold;
+
+    &--green {
+        @extend .button200;
+        background-image: linear-gradient(to right top, #32de41, #4ee44d, #64ea59, #76ef64, #87f570, #86f46e, #85f46d, #84f36b, #71eb5b, #5de449, #44dc36, #1fd41f);
+    }
+
+    &--red {
+        @extend .button200;
+        background-image: linear-gradient(to right top, #de3232, #e54341, #ec5250, #f2605e, #f76e6d, #f66d6c, #f66c6a, #f56b69, #ee5b57, #e64945, #dd3632, #d41f1f);
+    }
+
+    &--blue {
+        @extend .button200;
+        background-image: linear-gradient(to right top, #3fb4ff, #18c1ff, #00ceff, #00daff, #00e5ff, #00e4ff, #00e4ff, #00e3ff, #00d6ff, #00c8ff, #00b9ff, #21a9ff);
+    }
+
+    &--yellow {
+        @extend .button200;
+        background-image: linear-gradient(to right top, #ffe53f, #ffe738, #ffea30, #ffec27, #ffef1c, #fff117, #fff412, #fff60b, #fff812, #fffb18, #fffd1d, #ffff21);
+    }
+
+    &--gray {
+        @extend .button200;
+        background-image: linear-gradient(to right top, #dcc7d8, #dfc8db, #e2cadd, #e5cbe0, #e8cce3, #e8cce3, #e7cce2, #e7cce2, #e3cadf, #dfc8dc, #dcc6d8, #d8c4d5);
+    }
+
+    &--lightgreen {
+        @extend .button200;
+        background-image: linear-gradient(to top, #89e6ad, #8fecb3, #abe2c0, #dafae6, #abe2c0, #82cf9f, #87dfa9);
+    }
+
+    &:hover {
+        background-color: gray;
+    }
+}

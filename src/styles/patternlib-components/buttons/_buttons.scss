@@ -1,0 +1,119 @@
+@import '../base/colors';
+@import '../base/fonts';
+@import '../base/variables';
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+}
+
+/**
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+
+button,
+input {
+  overflow: visible;
+}
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+
+button,
+select {
+  text-transform: none;
+}
+
+/**
+ * Correct the inability to style clickable types in iOS and Safari.
+ */
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* btn styling */
+
+.btn {
+  padding: $baseunit * 0.5 $baseunit * 1.25;
+  border: transparent 1px solid;
+  margin: $baseunit 0;
+  background-color: $green;
+  border-radius: 2px;
+  color: $white;
+  cursor: pointer;
+  font-family: 'Hind', sans-serif;
+  font-size: $baseunit;
+
+  &[disabled],
+  &.disabled {
+    cursor: default;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &:hover {
+    background-color: $hovergreen;
+  }
+
+  &[disabled]:hover,
+  &.disabled:hover {
+    background-color: $magenta;
+  }
+
+  &--secondary {
+    background-color: $darkgrey;
+
+    &:hover {
+      background-color: $hovergrey;
+    }
+
+    &[disabled]:hover,
+    &.disabled:hover {
+      background-color: $darkgrey;
+    }
+  }
+
+  &--alternative {
+    background-color: $anthracite;
+
+    &:hover {
+      background-color: $hoveranthracite;
+    }
+
+    &[disabled]:hover,
+    &.disabled:hover {
+      background-color: $anthracite;
+    }
+  }
+
+  &__icon {
+    &--left svg {
+      margin-right: $baseunit * 0.938;
+    }
+
+    &--right svg {
+      margin-left: $baseunit * 0.938;
+    }
+  }
+}
+
+a.btn {
+  display: inline-block;
+  padding: 0.67em 1.25em;
+  text-decoration: none;
+
+  &:hover {
+    color: $white;
+  }
+}

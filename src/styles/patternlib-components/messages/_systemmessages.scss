@@ -1,0 +1,76 @@
+@import '../base/colors';
+@import '../base/variables';
+
+.system-message {
+  margin-bottom: $baseunit;
+  border-radius: 2px;
+
+  &--big {
+    display: flex;
+    border-right: 5px solid transparent;
+  }
+
+  &--small {
+    padding: $baseunit;
+    border: 1px solid transparent;
+  }
+
+  &__img {
+    display: flex;
+    width: $baseunit * 5;
+    height: $baseunit * 5;
+    align-items: center;
+    justify-content: center;
+    margin-right: $baseunit * 1.25;
+  }
+
+  &__headline {
+    margin: $baseunit * 0.938 0 0 0;
+    font-weight: bold;
+    line-height: $baseunit * 1.625;
+  }
+
+  &__copy {
+    margin: auto;
+  }
+
+  &--positiv {
+    border-color: $green;
+    background-color: $lightgreen;
+    color: $green;
+  }
+
+  &__img--positiv {
+    background-color: $green;
+  }
+
+  &--info {
+    border-color: $blue;
+    background-color: $lightblue;
+    color: $blue;
+  }
+
+  &__img--info {
+    background-color: $blue;
+  }
+
+  &--warning {
+    border-color: $orange;
+    background-color: $lightorange;
+    color: $orange;
+  }
+
+  &__img--warning {
+    background-color: $orange;
+  }
+
+  &--error {
+    border-color: $magenta;
+    background-color: $lightmagenta;
+    color: $magenta;
+  }
+
+  &__img--error {
+    background-color: $magenta;
+  }
+}

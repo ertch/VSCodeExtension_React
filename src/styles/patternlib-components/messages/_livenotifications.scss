@@ -1,0 +1,52 @@
+@import '../base/colors';
+@import '../base/variables';
+
+.live-notification {
+  display: flex;
+  width: $baseunit * 37.5;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  margin-bottom: $baseunit;
+  background-color: $anthracite;
+  border-radius: 2px;
+  color: $white;
+
+  &__bubble {
+    display: inline-block;
+    width: $baseunit * 1.25;
+    height: $baseunit * 1.25;
+    margin: 0 $baseunit * 0.938;
+    border-radius: 50%;
+
+    &--success {
+      background-color: $green;
+    }
+
+    &--warning {
+      background-color: $orange;
+    }
+
+    &--error {
+      background-color: $magenta;
+    }
+  }
+
+  &__closer {
+    display: flex;
+    border: 1px solid transparent;
+    background-color: transparent;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  &__cross {
+    stroke-width: 2px;
+  }
+
+  p {
+    flex-grow: 2;
+  }
+}

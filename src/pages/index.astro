@@ -1,0 +1,700 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Input from '../components/SimpleInput.astro';
+import Campaign from '../components/CampaignSelect.astro';
+import Field from '../components/SimpleFieldset.astro';
+import Select from '../components/SimpleSelect.astro';
+import SQL_Select from '../components/SQL_InsertSelect.astro';
+import BasicCampaign from "../components/BasicCampaign.astro";
+import Textfield from "../components/SimpleTextfield.astro";
+---
+
+<Layout title="Kampagne 001">
+  <!-- TODO: Wofür diese Form ohne Inhalt? -->
+  <form name="F1" onsubmit="return false"></form>
+  <div class="black_overlay" id="lightbox"></div>
+  <header>
+    <img src="../include_skon_v2/images/150x62_skon_logo_white.png" />
+    <img src="../include_skon_v2/images/freenet_logo.svg.png" />
+    <h1>Freenet Prevention</h1>
+  </header>
+
+  <main>
+    <aside class="left_block">
+      <div id="customer_info"></div>
+    </aside>
+    <div id="middle_block">
+      <!-- TODO: Wofür diese Form ohne Inhalt? -->
+      <form name="F1" onsubmit="return false"></form>
+      <div id="navigation">
+        <div class="tabs"> 
+          <button id="tab1" class="tab current" onclick="switchTab('tab_start');">Start</button>
+          <button id="tab2" class="tab" onclick="switchTab('tab_vertrag_1');">Vertrag 1</button>
+          <button id="tab3" class="tab" onclick="switchTab('tab_vertrag_2');">Vertrag 2</button>
+          <button id="tab4" class="tab" onclick="switchTab('tab_vertrag_3');">Vertrag 3</button>
+          <button id="tab5" class="tab" onclick="switchTab('tab_vertrag_4');">Vertrag 4</button>
+          <button id="tab6" class="tab" onclick="switchTab('tab_vertrag_5');">Vertrag 5</button>
+          <button id="tab7" class="tab" onclick="switchTab('tab_vertrag_6');">Vertrag 6</button>
+          <button id="tab8" class="tab" onclick="switchTab('tab_zusammenfassung');">
+            Verabschiedung
+          </button>
+        </div>
+      </div>
+      <section class="datenerf-bg">
+        <div class="tab_content" id="tab_start" style="display: block">
+          <div id="tarifmatrix"></div>
+          <div id="kundenhistorie" class="history">
+            <fieldset><legend>Kundenhistorie</legend></fieldset>
+          </div>
+          <div
+            id="begruessung_1"
+            class="input_form oneColumn"
+            style="display: block"
+          >
+            <fieldset>
+              <legend>Begrüßung Teil 1</legend>
+              <div id="begruessungstext_1" class="helper_bp-35"></div>
+            </fieldset>
+          </div>
+          <div id="abschliessen_complete" class="go" style="display: block">
+            <button onclick="recording_complete_start();return false;">
+             <strong class="glyph"></strong>
+              &nbsp;Aufnahme
+            </button>
+            <br />
+          </div>
+          <div
+            id="begruessung_2"
+            class="input_form oneColumn helper_bp-35"
+            style="display: block"
+          >
+            <fieldset>
+              <legend>Begr&uuml;&szlig;ung Teil 2</legend>
+              <div id="begruessungstext_2" class="helper_bp-35"></div>
+            </fieldset>
+          </div>
+        </div>
+        <!--  Ende div id="tab_start" -->
+        
+        <section class="tab_content d-none" id="tab_vertrag_1">
+          <!-- "Form aus Testzwecken deaktiviert" <form action="#" name="formular" method="POST" id="datenerfassung_form"> -->
+              
+            <span class="errormessage" id="datenerfassung_error_tarif_1"></span>
+              
+              <Campaign id='datenerfassung_produkt_1' title='VERTRAG 1' name='produkt_1' call="showprodukt($('datenerfassung_produkt_1').value)"/>
+
+              <div id="datenerfassung_tarife_tab_1" class="input_form oneColumn datenerf-block d-none">
+                  <div id="datenerfassung_tarif_1" class="input_form twoColumns">
+                  
+                      <Field title='Rufnummer Vertrag 1'>
+
+                          <Input 
+                              id='datenerfassung_tarif_1_rufnummer' 
+                              label='Rufnummer Vertrag 1:' 
+                              type='text' 
+                              value=""
+                              call="compareRufnummern();"
+                          />
+      
+                      </Field>
+
+
+                      <Field title='Hardware zu Vertrag 1' id='datenerfassung_tarif_1_hardware'>
+                          <Select 
+                              id='datenerfassung_handy_1' 
+                              label='Wünscht Kunde Hardware für Vertrag 1?' 
+                              name='datenerfassung_handy_1'
+                              options={[
+                                  ["ja", "Ja"],
+                                  ["nein", "Nein"]
+                              ]}
+                          />
+                          <SQL_Select 
+                              id='datenerfassung_handy_hersteller_1' 
+                              label='Hersteller:' 
+                              name='datenerfassung_handy_hersteller_1'
+                              call="showHandyModellTarif1($('datenerfassung_handy_hersteller_1').value)"
+                          />
+                          <SQL_Select 
+                              id='datenerfassung_handy_modell_1' 
+                              label='Modell:' 
+                              name='datenerfassung_handy_modell_1'
+                          />
+                      </Field>
+
+                      <Field title='Vergebene Gutschrift Vertrag 1'>
+                          <Input 
+                              id='datenerfassung_gutschrift_tarif_1' 
+                              label='Gutschrift Vertrag 1:' 
+                              type='text' 
+                              value=""
+                              call="fillZusammenfassungTarif1bis6();"
+                          />
+                      </Field>
+
+                      <Field title='Freitext Vertrag 1' klasse="helper_bp-35">
+                          <Textfield 
+                              id='datenerfassung_freitext_tarif_1' 
+                              label='Freitext:' 
+                              row="6"
+                              col="33"
+                              value=""
+                          />
+                      </Field>
+
+                      <Field title='Zusatzprodukte Vertrag 1' id='zusatzprodukt_tarif_1'>
+                          <Select 
+                              id='datenerfassung_zusatzprodukt_hsp_tarif_1' 
+                              label='HSP Vertrag 1:' 
+                              name='datenerfassung_zusatzprodukt_hsp_tarif_1'
+                              call="showHSP();"
+                              options={[
+                                  ["KV", "HSP nicht angesprochen"],
+                                  ["EP", "HSP gewuenscht"],
+                                  ["EN", "HSP nicht gewuenscht"] 
+                              ]}
+                          />
+                          
+                          <div id='hsp_tarif_1_div' class='d-none hsp_div'>
+                              <SQL_Select 
+                                  id='datenerfassung_hsp_handyhersteller_1' 
+                                  label='Hersteller:' 
+                                  name='datenerfassung_hsp_handyhersteller_1'
+                                  call="showHandyModellHSP1($('datenerfassung_hsp_handyhersteller_1').value)"
+                              />
+                              <SQL_Select 
+                                  id='datenerfassung_hsp_handymodell_1' 
+                                  label='Modell:' 
+                                  name='datenerfassung_hsp_handymodell_1'
+                                  call="showClassicPremiumHSP1()"
+                              />
+                              <Select 
+                                  id='datenerfassung_hsp_typ_1' 
+                                  label='HSP Variante Vertrag 1:' 
+                                  name='datenerfassung_hsp_typ_1'
+                                  call="recordOn()"
+                                  options={[
+                                      ["3457465", "WERTGARANTIE Ger�teschutz 100 CC (Smartphone)"],
+                                      ["E3457495", "WERTGARANTIE Ger�teschutz 800 CC (Smartphone)"],
+                                      ["3457475", "WERTGARANTIE Ger�teschutz 1.100 CC (Smartphone)"],
+                                      ["3457487", "WERTGARANTIE Ger�teschutz 3.000 CC (Smartphone)"],
+                                      ["3457528", "WERTGARANTIE Ger�teschutz Gebrauchtger�te CC(Smartphone)"]
+                                  ]}
+                              />    
+                              <Select 
+                                  id='datenerfassung_hsp_diebstahlschutz_1' 
+                                  label='Plus-Option Vertrag 1:' 
+                                  name='datenerfassung_hsp_diebstahlschutz_1'
+                                  call="recordOn()"
+                                  options={[
+                                      ["ja", "Ja"],
+                                      ["nein", "Nein"]
+                                  ]}
+                              />
+                          </div>
+
+                          <Select 
+                              id='datenerfassung_zusatzprodukt_norton_tarif_1' 
+                              label='Norton Vertrag 1:' 
+                              name='datenerfassung_zusatzprodukt_norton_tarif_1'
+                              call="fillSMS();fillZusammenfassungTarif1bis6();"
+                              options={[
+                                  ["KV", "Norton nicht angesprochen"],
+                                  ["EP", "Norton gewuenscht"],
+                                  ["EN", "Norton nicht gewuenscht"] 
+                              ]}
+                          />   
+                      </Field>
+                      
+                      <Field title="SMS-Link Vertrag 1" id="smslink_tarif_1" >
+                          <Select 
+                              id='datenerfassung_tarif_1_sms' 
+                              label='SMS-Link Vertrag 1' 
+                              name='datenerfassung_tarif_1_sms'
+                              call="fillSMS();fillZusammenfassungTarif1bis6()"
+                              options={[
+                                  ["ja", "Ja"],
+                                  ["nein", "Nein"]
+                              ]}
+                          />
+                      </Field>
+
+                      <Field title='SMS Vertrag 1' id='sms_1' klasse="helper_bp-35">
+                          <div id="sms_vertrag_1"></div>
+                          <!-- generiertes Select -->   
+                      </Field>
+
+                      <Field title='Zusammenfassung Vertrag 1' id='zusammenfassung_1' klasse="helper_bp-35">
+                          <div id="zusammenfassung_vertrag_1"></div>
+                          <!-- generierter Text -->   
+                      </Field>
+
+                      <Field title='Weitere Verträge' id='produkt_anzahl_tarif_1' klasse="d-none">
+                          <Select 
+                              id='datenerfassung_produkt_anzahl_tarif_1' 
+                              label='Weiterer Vertrag gewünscht?' 
+                              name='datenerfassung_produkt_anzahl_tarif_1'
+                              call="showVertraege($('datenerfassung_produkt_anzahl_tarif_1').value)"
+                              options={[
+                                  ["ja", "Ja"],
+                                  ["nein", "Nein"]
+                              ]}
+                          />  
+                      </Field>
+                  </div>
+                  
+                  <!-- Mittlerer Block, rechte Seite -->
+
+                    <div id="datenerfassung_hsp_adresse_tarif_1" class="d-none">
+                      <div class="placeholder"></div>
+                         <fieldset id="datenerfassung_hsp_bankverbindung_1">
+                          <legend>IBAN/BIC für HSP</legend>
+                          <label for="datenerfassung_hsp_iban_1">IBAN:</label>
+                          <span
+                            class="errormessage"
+                            id="datenerfassung_error_hsp_iban_1"></span><br />
+                          <input
+                            type="text"
+                            name="datenerfassung_hsp_iban_1"
+                            value=""
+                            id="datenerfassung_hsp_iban_1"
+                          /><br />
+                          <label for="datenerfassung_hsp_bic_1">BIC:</label>
+                          <span
+                            class="errormessage"
+                            id="datenerfassung_error_hsp_bic_1"></span><br />
+                          <input
+                            type="text"
+                            name="datenerfassung_hsp_bic_1"
+                            value=""
+                            id="datenerfassung_hsp_bic_1"
+                            >
+                        </fieldset>
+                      <fieldset>
+                        <legend>Str. und Hausnr. für HSP</legend>
+                        <label for="datenerfassung_strasse_1">Strasse:</label>
+                        <span
+                          class="errormessage"
+                          id="datenerfassung_error_strasse_1"></span><br />
+                        <input
+                          type="text"
+                          name="datenerfassung_strasse_1"
+                          value=""
+                          id="datenerfassung_strasse_1"
+                        /><br />
+                        <label for="datenerfassung_hausnummer_1"
+                          >Hausnummer:</label
+                        >
+                        <span
+                          class="errormessage"
+                          id="datenerfassung_error_hausnummer_1"></span><br />
+                        <input
+                          type="text"
+                          name="datenerfassung_hausnummer_1"
+                          value=""
+                          id="datenerfassung_hausnummer_1"
+                        />
+                      </fieldset>
+                    </div>
+      
+              </div>  
+              
+              <div class="d-none" id='datenerfassung_ablehnung'>
+                <Field title='Kein Vertragsabschluss'>
+                  <SQL_Select                     
+                      id='datenerfassung_ablehnungsgrund'
+                      label='Ablehnungsgrund:'
+                      name='datenerfassung_ablehnungsgrund'
+                  />
+              </Field>
+              </div>
+
+              <div>
+                <div id="tab_next_zusammenfassung_1" class="left_right d-none">
+                    <button onclick="switchTab('tab_zusammenfassung');return false;">
+                        <strong class="glyph"></strong>
+                        &nbsp;Verabschiedung
+                    </button>
+                
+                </div>
+                <div id="tab_next_tarif_1" class="left_right d-none">
+                    <button onclick="switchTab('tab_vertrag_6');return false;">
+                      <strong class="glyph"></strong>
+                        &nbsp;Zu Vertrag 2
+                    </button>
+                </div>
+              </div>
+                  
+          <!-- </form> -->
+        </section>
+
+        <section class="tab_content d-none" id="tab_vertrag_2">
+          <BasicCampaign Nr="2"/>
+        </section>
+         
+        <section class="tab_content d-none" id="tab_vertrag_3">
+          <BasicCampaign Nr="3"/>
+        </section>
+
+        <section class="tab_content d-none" id="tab_vertrag_4">
+          <BasicCampaign Nr="4"/>
+        </section>
+
+        <section class="tab_content d-none" id="tab_vertrag_5">
+          <BasicCampaign Nr="5"/>
+        </section>
+
+        <section class="tab_content d-none" id="tab_vertrag_6">
+          <BasicCampaign Nr="6"/>
+        </section>
+    
+        <!-- Ende DIV-Vertrag 6 -->
+        <div class="tab_content" id="tab_zusammenfassung" style="display: none">
+          <div id="zusammenfassung_errors"></div>
+          <div id="optin" class="input_form oneColumn" style="display: none">
+            <fieldset>
+              <legend>Optin</legend>
+              <label for="datenerfassung_optin">Optin:</label><span
+                class="errormessage"
+                id="datenerfassung_error_optin"></span><br />
+              <select
+                name="datenerfassung_optin"
+                id="datenerfassung_optin"
+                style="width:400px"
+                onchange="recordOn()"
+              >
+                <option value="" selected="selected"> [Bitte auswählen]</option>
+                <option value="ka">Optin nicht erteilt</option>
+                <option value="voice">Optin erteilt</option>
+              </select><br />
+              <br />
+            </fieldset>
+          </div>
+          <div
+            id="zusammenfassung"
+            class="input_form oneColumn"
+            style="display: none"
+          >
+            <fieldset>
+              <legend>Zusammenfassung</legend>
+              <div id="zusammenfassung_text" style="display: block"></div>
+            </fieldset>
+          </div>
+          <!--  <div id="verabschiedung" class="go"> -->
+          <div
+            id="verabschiedung"
+            class="input_form oneColumn"
+            style="display: block"
+          >
+            <fieldset class="helper_bp-35">
+              <legend>Verabschiedung</legend>
+              <div id="verabschiedungstext_1"></div>
+            </fieldset>
+          </div>
+          <div id="recording" class="input_form oneColumn" style="display: none">
+            <fieldset>
+              <legend>Aufnahme</legend>
+              <br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;
+              <button onclick="recordSummary('record_div');return false;">
+                <strong class="glyph"></strong> 
+                &nbsp;Bitte die Aufnahme starten
+              </button>
+            </fieldset>
+          </div>
+          <div id="abschliessen" class="input_form oneColumn" style="display: none">
+            <fieldset class="helper_bp-35">
+              <legend>Abschluss</legend>
+              <br />
+              <button class="button200" onclick="ConfirmPositiv();return false;">
+               <strong class="glyph"></strong>
+                &nbsp;Datensatz abschliessen
+              </button>
+              <br />
+            </fieldset>
+          </div>
+          <div id="tab_next_2" class="left_right"></div>
+        </div>
+      </section>
+        <!-- Ende Div-Datenerfassung -->
+      </div>
+  </main>
+  <!--  Ende div id="middle_block" -->
+
+  <!-- "right_block wird in ttFrame 4 nicht mehr benötigt -->
+  <!-- <div id="right_block"></div> -->
+  <div id="footer" class="footer">
+    <div id="footer_button">
+      <div class="go" id="div_go_negativ">
+        <button
+          id="go_negativ"
+          onclick="
+            document.getElementById('lightbox').style.display='block';
+            document.getElementById('negativ').style.display='block';
+            "
+        ><strong class="glyph"></strong>
+          &nbsp;Freedial
+        </button>
+      </div>
+
+      <div class="go" id="div_go_wiedervorlage">
+        <button
+          id="go_wiedervorlage"
+          onclick="document.getElementById('lightbox').style.display='block';
+            document.getElementById('wiedervorlage').style.display='block';"
+        >
+          <strong class="glyph"></strong>
+          &nbsp;Wiedervorlage
+        </button>
+      </div>
+
+      <div class="go" id="div_go_ane">
+        <button
+          id="go_ane"
+          onclick="document.getElementById('lightbox').style.display='block';
+            document.getElementById('apne').style.display='block';"
+        ><strong class="glyph"></strong>
+          &nbsp;APNE
+        </button>
+      </div>
+
+      <form action="#" method="POST" id="finish_abfax">
+        <div class="go" id="div_go_abfax">
+          <button id="go_abfax" onclick="finishAbFax();return false;">
+            <strong class="glyph"></strong>
+            &nbsp;AB/Fax/Modem
+          </button>
+        </div>
+      </form>
+
+      <div class="go" id="div_go_positiv">
+        <button id="go_positiv" onclick="switchTab('tab_vertrag_1');">
+          <strong class="glyph"></strong>
+          &nbsp;Abschluss
+        </button>
+      </div>
+    </div>
+    <div class="linebreaker"></div>
+  </div>
+  <!-- Ende Div id="footer" -->
+  <!--  Ende Div id="content" -->
+  <div class="popup-container">
+    <div id="negativ" class="popupdiv">
+      <div class="header">
+        <div class="title">Freedial</div>
+        &nbsp;
+        <a
+          href="#"
+          onclick="
+          document.getElementById('lightbox').style.display='none';
+          document.getElementById('negativ').style.display='none';
+          "
+        >
+          <img
+            src="../include_skon_v2/images/process-stop.gif"
+            title="Fenster schließen"
+          />
+        </a>
+      </div>
+      <div class="content">
+        <br />
+
+        <p>Bitte hier die W�hloptionen eingeben:</p>
+        <form action="#" method="POST" id="finish_negativ">
+          <label>Rufnummer:</label><br />
+          <input
+            required="1"
+            type="text"
+            name="recall_number"
+            value=""
+            id="recall_number"
+          />
+          <br />
+          <br />
+
+          <div style="float: right">
+            <input
+              type="submit"
+              value="OK"
+              onclick="
+                  blnSuccess=true;
+                  errMsg='';
+  
+                  if(document.getElementById('recall_number').value=='') {
+                    blnSuccess=false;
+                    errMsg=errMsg+'Bitte Rufnummer eingeben!';
+                  }
+  
+                  if(blnSuccess){
+                    document.getElementById('lightbox').style.display='none';
+                    document.getElementById('negativ').style.display='none';
+                    makeRecall();
+                    return false;
+                  }
+                  else  {
+                    alert(errMsg);
+                    return false;
+                  }
+                "
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      centerDiv("negativ", 350);
+    </script>
+
+    <div id="wiedervorlage" class="popupdiv">
+      <div class="header">
+        <div class="title">Wiedervorlage</div>
+        &nbsp;
+        <a
+          href="#"
+          onclick="
+              document.getElementById('lightbox').style.display='none';
+              document.getElementById('wiedervorlage').style.display='none';
+              "
+          ><img
+            src="../include_skon_v2/images/process-stop.gif"
+            title="Fenster schließen"
+          />
+        </a>
+      </div>
+      <div class="content">
+        <p>Bitte geben Sie hier alle Parameter f�r die Wiedervolage an.</p>
+
+        <div id="errors"></div>
+
+        <form action="#" method="POST" id="finish_wiedervorlage">
+          <label for="wiedervorlage_Date">Datum:</label>
+          <input
+            required="1"
+            type="text"
+            name="wiedervorlage[Date]"
+            id="wiedervorlage_Date"
+          />
+          <input
+            type="image"
+            src="../include_skon_v2/images/calendar.png"
+            id="wvDateTrigger"
+            title="Kalender öffnen"
+            alt="Kalender öffnen"
+          /><br />
+          <label for="wiedervorlage_Time">Uhrzeit:</label>
+          <input
+            required="1"
+            type="text"
+            name="wiedervorlage[Time]"
+            value="15:00"
+            id="wiedervorlage_Time"
+          />
+          <br />
+          <label for="wiedervorlage_Text">Notiz:</label>
+          <input
+            required="1"
+            type="text"
+            name="wiedervorlage[Text]"
+            id="wiedervorlage_Text"
+          />
+          <br />
+          <div style="width: 330px; text-align: right;">
+            <input
+              type="submit"
+              value="OK"
+              onclick="
+                  if((validateDate($('wiedervorlage_Date').value,'Datum',$('dummyText'),true,2008,2023)) &&
+                  (validateProductionTime($('wiedervorlage_Time').value,'Zeit',$('dummyText'),true))) {
+                  document.getElementById('lightbox').style.display='none';
+                  document.getElementById('wiedervorlage').style.display='none';
+                  finishCallback();
+                  return false;
+                  }
+                  else {
+                  alert($('dummyText').innerHTML);
+                  return false;
+                  }"
+            />
+          </div>
+        </form>
+
+        <br />
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      centerDiv("wiedervorlage", 350);
+
+      Calendar.setup({
+        inputField: "wiedervorlage_Date",
+        ifFormat: "%d.%m.%Y",
+        button: "wvDateTrigger",
+      });
+    </script>
+
+    <div id="apne" class="popupdiv">
+      <div class="header">
+        <div class="title">Ansprechpartner nicht erreicht</div>
+        &nbsp;
+        <a
+          href="#"
+          onclick="
+              document.getElementById('lightbox').style.display='none';
+              document.getElementById('apne').style.display='none';
+              "
+        >
+          <img
+            src="../include_skon_v2/images/process-stop.gif"
+            title="Fenster schließen"
+          />
+        </a>
+      </div>
+      <div class="content">
+        <br />
+        <p>
+          Bitte w�hlen Sie einen Zeitintervall, in dem der Kunde nochmals
+          angerufen werden soll.:
+        </p>
+        <br />
+        <form action="#" method="POST" id="finish_apne">
+          <label>Recall:</label>
+          <select id="apne_delay" name="apne_delay">
+            <option value="" selected="selected">Bitte w&auml;hlen</option>
+            <option value="0">Sofort</option>
+            <option value="1">In einer Stunde</option>
+            <option value="2">In zwei Stunden</option>
+            <option value="3">In drei Stunden</option>
+            <option value="4">In vier Stunden</option>
+            <option value="5">In f�nf Stunden</option>
+            <option value="6">In sechs Stunden</option>
+            <option value="8">In acht Stunden</option>
+            <option value="20">Morgen</option>
+          </select><br />
+
+          <label>Notiz:</label>
+          <input type="text" name="apne_notiz" id="apne_notiz" />
+          <input
+            type="submit"
+            value="OK"
+            onclick="
+                if(document.getElementById('apne_delay').value!='') {
+                  document.getElementById('lightbox').style.display='none';
+                  document.getElementById('apne').style.display='none';
+                  finishApne();
+                  // TODO: Warum return false? -->
+                  return false;
+                }
+                else  {
+                  alert('Bitte wählen Sie einen Zeitintervall!');
+                  return false;
+                }
+                "
+          />
+          <br />
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="dummyText" style="display: none"></div>
+  <div id="div_sqldebug" style="display: none;"></div>
+</Layout>

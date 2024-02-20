@@ -1,0 +1,43 @@
+.wrapper {
+  margin: 0 auto;
+  padding: 0 .6rem;
+}
+
+.helper-bm2 {
+  margin-bottom: $baseunit * 2;
+}
+
+.helper-tm2_5 {
+  margin-top: $baseunit * 2.5;
+  padding: 0 2em;
+}
+
+.helper-tm4 {
+  margin-top: $baseunit * 4;
+}
+
+.bg-gray {
+  background-color: $backgroundgray;
+}
+
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+@media only screen and (min-width: $page-width-md) {
+  .wrapper {
+    padding: 0 3em;
+  }
+}
+
+@media only screen and (min-width: $page-width-lg) {
+  .wrapper {
+    padding: 0 2em;
+    max-width: 75em;
+  }
+}

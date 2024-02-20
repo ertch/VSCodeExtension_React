@@ -1,0 +1,34 @@
+@import '../base/colors';
+@import '../base/variables';
+@import '../base/fonts';
+
+.table {
+  width: 100%;
+  border: 1px solid $lightgrey;
+  border-collapse: collapse;
+
+  .table__row {
+    border-bottom: 1px solid $lightgrey;
+    font-family: $basefont;
+
+    &:hover {
+      background-color: $softwhite;
+    }
+
+    &-headline {
+      padding: $baseunit;
+      border-bottom: 2px solid $lightgrey;
+      background-color: $softwhite;
+      color: $anthracite;
+      font-size: 0.8rem;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    &-data {
+      padding: $baseunit;
+      border-collapse: collapse;
+      color: $anthracite;
+    }
+  }
+}
