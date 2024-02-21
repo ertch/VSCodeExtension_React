@@ -10,9 +10,10 @@ interface Props {
     required?: boolean;
     maxlength?: string;
 	pattern?: string;
+	disabled?: boolean;
 }
 
-const { id, label, type, required, maxlength, pattern, call, value } = Astro.props;
+const { id, label, type, required, maxlength, pattern, call, value, disabled } = Astro.props;
 let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
 ---
 
@@ -21,4 +22,4 @@ let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
 	<span class="errormessage" id={errorname}></span>
 </div>
 
-<input id={id} type={type as 'text'} class="input-text" value={value} {required} maxlength={maxlength} pattern={pattern} onchange={call}>
+<input id={id} type={type as 'text'} class="input-text" value={value} {required} {disabled} maxlength={maxlength} pattern={pattern} onchange={call}>

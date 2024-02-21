@@ -68,8 +68,10 @@ h1 {
 main {
     display: grid;
     grid-template-columns: 410px 6fr 80px;
-    margin: 1.5em 1.5em 0 1.5em;
     gap: 2.2em;
+    margin: 1.5em 1.5em 0 1.5em;
+    padding: 0 1em 1em 0;
+    
 }
 
 select {
@@ -77,9 +79,6 @@ select {
     
 }
 
-.d-none {
-    display: none;
-}
 
 table {
     border: 1px solid #bbb;
@@ -94,16 +93,30 @@ td {
     padding: .2em .5em;
 }
 
-.vertrags-grid{
+.vertrags-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 65% 1fr;
+    margin: 0 1em 1em 0;
+
+    &--5050 {
+        @extend .vertrags-grid;
+        grid-template-columns: 1fr 1fr;
+    }
+    
+}
+
+.v-grid-col_1 {
+    grid-column: 1/2;
+}
+
+.v-grid-col_2 {
+    grid-column: 2/3;
 }
 
 #footer_button {
     display: flex;
     justify-content: center;
-    margin-left: 310px;
-    gap: 1.8em;
+    gap: .3em;
 }
 
 .nextTopic {
@@ -120,7 +133,6 @@ td {
         margin: .2em auto;
         font-weight: bold;
     }
-    
 }
 
 .data_label--gray {
@@ -131,14 +143,8 @@ td {
     background-color: $bg_graysuit;  
     border-top: 1px solid #b8b8b8;
     margin-top: -15px;
-    padding-bottom: 0.1em;
+    padding: 0 1em 0.1em 1em;
 }
-
-// .datenerf-block-border1 {
-// 	// border-left: 1px solid #b8b8b8;
-// 	// border-right: 1px solid #b8b8b8;
-//     background-color: #e4e3e3;
-// }
 
 .datenerf-block-border2 {
     background-color:#c9c9c9;
@@ -181,7 +187,7 @@ td {
 }
 
 .placeholder {
-    height: 784px;
+    height: 10px;
 }
 
 .helper_bp-35 {
@@ -229,4 +235,8 @@ td {
     &:hover {
         background-color: gray;
     }
+}
+
+.d-none {
+    display: none;
 }

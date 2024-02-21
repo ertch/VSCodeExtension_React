@@ -46,7 +46,7 @@ function fillVerabschiedung() {
 		query = "select Inhalt from " + texttabelle + " where Kategorie = '" + Verabschiedung_negativ + "' and aktiv = '1'";
 		ergebnis = executeSql(query);
 		var verabschiedungstext_negativ = ergebnis[0].rows[0].columns[0];    
-	    document.getElementById('verabschiedungstext_1').innerHTML=verabschiedungstext_negativ;
+	    document.getElementById('verabschiedungstext_1').innerHTML= verabschiedungstext_negativ;
 		
 	}	
     

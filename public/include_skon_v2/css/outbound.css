@@ -91,10 +91,7 @@ textarea:focus{
 	text-shadow: 1px 1px rgba(0, 0, 0, 0.445);
 }
 
-.twoColumns {
-	font-family: sans-serif;
-	width: 50%;
-}
+.twoColumns {}
 
 .twoColumns label {
 	font-size: 11px;
@@ -142,7 +139,7 @@ textarea:focus{
 
 .oneColumn textarea {
 	display: block;
-	width: 567px;
+	width: 98%;
 	margin-left: 0px;
 	margin-right: auto;
 }
@@ -164,8 +161,6 @@ textarea:focus{
 
 .go {
 	margin: 10px 5px 20px 0;
-	width: 160px;
-	padding: 5px;
 	text-align: center;
 	min-height: 50px;
 }

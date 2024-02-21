@@ -32,7 +32,7 @@ var currentTabName = "tab_start";
 
 function recordSummary(divId) {
 
-    document.getElementById(divId).innerHTML = '<br>&nbsp;Achtung: Aufnahme l&auml;uft ...';
+    document.getElementById(divId).innerHTML = '<p>Achtung: Aufnahme l&auml;uft ...</p>';
     document.getElementById('recording').style.display = 'none';
     document.getElementById('abschliessen').style.display = 'block';
     blnFinishPositive = true;
@@ -216,9 +216,9 @@ function switchTab($newTabName) {
         for (var i = 0; i < tabs.length; i++) {
             /* Die einzelnen Tabs aktivieren/deaktivieren */
             tabs[i].style.display = 'none';
-            $('tab' + (i + 1)).className = 'tab';
+            $('tab' + (i)).className = 'tab';
             if (tabs[i] == $newTab) {
-                $newTabIndex = i + 1;
+                $newTabIndex = i;
             }
         }
         $('tab' + $newTabIndex).className = 'tab current';

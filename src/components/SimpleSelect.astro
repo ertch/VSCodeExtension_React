@@ -5,16 +5,17 @@ interface Props {
   name: string;
   options: Array<Array<any>>;
   required?: boolean;
+  disabled?:boolean;
   call?: string;
 }
 
-const { id, label, name, required, call} = Astro.props;
+const { id, label, name, required, disabled, call} = Astro.props;
 const { options } = Astro.props as Props;
 let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
 ---
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
-<select class="dropdown h-drop" id={id} name={name} {required} onchange={call}>
+<select class="dropdown h-drop" id={id} name={name} {required} {disabled} onchange={call}>
   <option disabled value="" selected>[Bitte Auswählen]</option>
   {options.map((item) => <option value={item[0]}>{item[1]}</option>)}
 </select>

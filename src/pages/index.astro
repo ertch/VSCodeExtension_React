@@ -7,6 +7,8 @@ import Select from '../components/SimpleSelect.astro';
 import SQL_Select from '../components/SQL_InsertSelect.astro';
 import BasicCampaign from "../components/BasicCampaign.astro";
 import Textfield from "../components/SimpleTextfield.astro";
+import NavTabs from "../components/NavTabs.astro";
+import FootButtons from "../components/FootButtons.astro";
 ---
 
 <Layout title="Kampagne 001">
@@ -25,21 +27,19 @@ import Textfield from "../components/SimpleTextfield.astro";
     </aside>
     <div id="middle_block">
       <!-- TODO: Wofür diese Form ohne Inhalt? -->
-      <form name="F1" onsubmit="return false"></form>
-      <div id="navigation">
-        <div class="tabs"> 
-          <button id="tab1" class="tab current" onclick="switchTab('tab_start');">Start</button>
-          <button id="tab2" class="tab" onclick="switchTab('tab_vertrag_1');">Vertrag 1</button>
-          <button id="tab3" class="tab" onclick="switchTab('tab_vertrag_2');">Vertrag 2</button>
-          <button id="tab4" class="tab" onclick="switchTab('tab_vertrag_3');">Vertrag 3</button>
-          <button id="tab5" class="tab" onclick="switchTab('tab_vertrag_4');">Vertrag 4</button>
-          <button id="tab6" class="tab" onclick="switchTab('tab_vertrag_5');">Vertrag 5</button>
-          <button id="tab7" class="tab" onclick="switchTab('tab_vertrag_6');">Vertrag 6</button>
-          <button id="tab8" class="tab" onclick="switchTab('tab_zusammenfassung');">
-            Verabschiedung
-          </button>
-        </div>
-      </div>
+      <!-- <form name="F1" onsubmit="return false"></form> -->
+      
+      <NavTabs 
+          id="navigation"
+          tabs={[
+                "Vertrag 1",
+                "Vertrag 2",
+                "Vertrag 3",
+                "Vertrag 4",
+                "Vertrag 5",
+                "Vertrag 6",
+          ]}
+      />
       <section class="datenerf-bg">
         <div class="tab_content" id="tab_start" style="display: block">
           <div id="tarifmatrix"></div>
@@ -83,10 +83,10 @@ import Textfield from "../components/SimpleTextfield.astro";
               
               <Campaign id='datenerfassung_produkt_1' title='VERTRAG 1' name='produkt_1' call="showprodukt($('datenerfassung_produkt_1').value)"/>
 
-              <div id="datenerfassung_tarife_tab_1" class="input_form oneColumn datenerf-block d-none">
-                  <div id="datenerfassung_tarif_1" class="input_form twoColumns">
+              <div id="datenerfassung_tarife_tab_1" class="input_form oneColumn d-none">
+                  <div id="datenerfassung_tarif_1" class="input_form vertrags-grid">
                   
-                      <Field title='Rufnummer Vertrag 1'>
+                      <Field title='Rufnummer Vertrag 1' klasse="v-grid-col_1">
 
                           <Input 
                               id='datenerfassung_tarif_1_rufnummer' 
@@ -95,11 +95,11 @@ import Textfield from "../components/SimpleTextfield.astro";
                               value=""
                               call="compareRufnummern();"
                           />
-      
+                    
                       </Field>
 
 
-                      <Field title='Hardware zu Vertrag 1' id='datenerfassung_tarif_1_hardware'>
+                      <Field title='Hardware zu Vertrag 1' id='datenerfassung_tarif_1_hardware' klasse="v-grid-col_1">
                           <Select 
                               id='datenerfassung_handy_1' 
                               label='Wünscht Kunde Hardware für Vertrag 1?' 
@@ -122,7 +122,7 @@ import Textfield from "../components/SimpleTextfield.astro";
                           />
                       </Field>
 
-                      <Field title='Vergebene Gutschrift Vertrag 1'>
+                      <Field title='Vergebene Gutschrift Vertrag 1' klasse="v-grid-col_1">
                           <Input 
                               id='datenerfassung_gutschrift_tarif_1' 
                               label='Gutschrift Vertrag 1:' 
@@ -132,7 +132,7 @@ import Textfield from "../components/SimpleTextfield.astro";
                           />
                       </Field>
 
-                      <Field title='Freitext Vertrag 1' klasse="helper_bp-35">
+                      <Field title='Freitext Vertrag 1' klasse="helper_bp-35 v-grid-col_1">
                           <Textfield 
                               id='datenerfassung_freitext_tarif_1' 
                               label='Freitext:' 
@@ -142,7 +142,7 @@ import Textfield from "../components/SimpleTextfield.astro";
                           />
                       </Field>
 
-                      <Field title='Zusatzprodukte Vertrag 1' id='zusatzprodukt_tarif_1'>
+                      <Field title='Zusatzprodukte Vertrag 1' id='zusatzprodukt_tarif_1' klasse="v-grid-col_1">
                           <Select 
                               id='datenerfassung_zusatzprodukt_hsp_tarif_1' 
                               label='HSP Vertrag 1:' 
@@ -150,8 +150,8 @@ import Textfield from "../components/SimpleTextfield.astro";
                               call="showHSP();"
                               options={[
                                   ["KV", "HSP nicht angesprochen"],
-                                  ["EP", "HSP gewuenscht"],
-                                  ["EN", "HSP nicht gewuenscht"] 
+                                  ["EP", "HSP gewünscht"],
+                                  ["EN", "HSP nicht gewünscht"] 
                               ]}
                           />
                           
@@ -191,6 +191,58 @@ import Textfield from "../components/SimpleTextfield.astro";
                                       ["nein", "Nein"]
                                   ]}
                               />
+
+                              <div id="datenerfassung_hsp_adresse_tarif_1" class="d-none">
+                                <div class="placeholder"></div>
+                                   <fieldset id="datenerfassung_hsp_bankverbindung_1">
+                                    <legend>IBAN/BIC für HSP</legend>
+                                    <label for="datenerfassung_hsp_iban_1">IBAN:</label>
+                                    <span
+                                      class="errormessage"
+                                      id="datenerfassung_error_hsp_iban_1"></span><br />
+                                    <input
+                                      type="text"
+                                      name="datenerfassung_hsp_iban_1"
+                                      value=""
+                                      id="datenerfassung_hsp_iban_1"
+                                    /><br />
+                                    <label for="datenerfassung_hsp_bic_1">BIC:</label>
+                                    <span
+                                      class="errormessage"
+                                      id="datenerfassung_error_hsp_bic_1"></span><br />
+                                    <input
+                                      type="text"
+                                      name="datenerfassung_hsp_bic_1"
+                                      value=""
+                                      id="datenerfassung_hsp_bic_1"
+                                      >
+                                  </fieldset>
+                                <fieldset>
+                                  <legend>Str. und Hausnr. für HSP</legend>
+                                  <label for="datenerfassung_strasse_1">Strasse:</label>
+                                  <span
+                                    class="errormessage"
+                                    id="datenerfassung_error_strasse_1"></span><br />
+                                  <input
+                                    type="text"
+                                    name="datenerfassung_strasse_1"
+                                    value=""
+                                    id="datenerfassung_strasse_1"
+                                  /><br />
+                                  <label for="datenerfassung_hausnummer_1"
+                                    >Hausnummer:</label
+                                  >
+                                  <span
+                                    class="errormessage"
+                                    id="datenerfassung_error_hausnummer_1"></span><br />
+                                  <input
+                                    type="text"
+                                    name="datenerfassung_hausnummer_1"
+                                    value=""
+                                    id="datenerfassung_hausnummer_1"
+                                  />
+                                </fieldset>
+                              </div>
                           </div>
 
                           <Select 
@@ -206,7 +258,7 @@ import Textfield from "../components/SimpleTextfield.astro";
                           />   
                       </Field>
                       
-                      <Field title="SMS-Link Vertrag 1" id="smslink_tarif_1" >
+                      <Field title="SMS-Link Vertrag 1" id="smslink_tarif_1" klasse="v-grid-col_1">
                           <Select 
                               id='datenerfassung_tarif_1_sms' 
                               label='SMS-Link Vertrag 1' 
@@ -219,17 +271,17 @@ import Textfield from "../components/SimpleTextfield.astro";
                           />
                       </Field>
 
-                      <Field title='SMS Vertrag 1' id='sms_1' klasse="helper_bp-35">
+                      <Field title='SMS Vertrag 1' id='sms_1' klasse="helper_bp-35 v-grid-col_1">
                           <div id="sms_vertrag_1"></div>
-                          <!-- generiertes Select -->   
+                          <!-- generierter text -->   
                       </Field>
 
-                      <Field title='Zusammenfassung Vertrag 1' id='zusammenfassung_1' klasse="helper_bp-35">
+                      <Field title='Zusammenfassung Vertrag 1' id='zusammenfassung_1' klasse="helper_bp-35 v-grid-col_1">
                           <div id="zusammenfassung_vertrag_1"></div>
                           <!-- generierter Text -->   
                       </Field>
 
-                      <Field title='Weitere Verträge' id='produkt_anzahl_tarif_1' klasse="d-none">
+                      <Field title='Weitere Verträge' id='produkt_anzahl_tarif_1' klasse="d-none v-grid-col_1">
                           <Select 
                               id='datenerfassung_produkt_anzahl_tarif_1' 
                               label='Weiterer Vertrag gewünscht?' 
@@ -244,58 +296,6 @@ import Textfield from "../components/SimpleTextfield.astro";
                   </div>
                   
                   <!-- Mittlerer Block, rechte Seite -->
-
-                    <div id="datenerfassung_hsp_adresse_tarif_1" class="d-none">
-                      <div class="placeholder"></div>
-                         <fieldset id="datenerfassung_hsp_bankverbindung_1">
-                          <legend>IBAN/BIC für HSP</legend>
-                          <label for="datenerfassung_hsp_iban_1">IBAN:</label>
-                          <span
-                            class="errormessage"
-                            id="datenerfassung_error_hsp_iban_1"></span><br />
-                          <input
-                            type="text"
-                            name="datenerfassung_hsp_iban_1"
-                            value=""
-                            id="datenerfassung_hsp_iban_1"
-                          /><br />
-                          <label for="datenerfassung_hsp_bic_1">BIC:</label>
-                          <span
-                            class="errormessage"
-                            id="datenerfassung_error_hsp_bic_1"></span><br />
-                          <input
-                            type="text"
-                            name="datenerfassung_hsp_bic_1"
-                            value=""
-                            id="datenerfassung_hsp_bic_1"
-                            >
-                        </fieldset>
-                      <fieldset>
-                        <legend>Str. und Hausnr. für HSP</legend>
-                        <label for="datenerfassung_strasse_1">Strasse:</label>
-                        <span
-                          class="errormessage"
-                          id="datenerfassung_error_strasse_1"></span><br />
-                        <input
-                          type="text"
-                          name="datenerfassung_strasse_1"
-                          value=""
-                          id="datenerfassung_strasse_1"
-                        /><br />
-                        <label for="datenerfassung_hausnummer_1"
-                          >Hausnummer:</label
-                        >
-                        <span
-                          class="errormessage"
-                          id="datenerfassung_error_hausnummer_1"></span><br />
-                        <input
-                          type="text"
-                          name="datenerfassung_hausnummer_1"
-                          value=""
-                          id="datenerfassung_hausnummer_1"
-                        />
-                      </fieldset>
-                    </div>
       
               </div>  
               
@@ -395,7 +395,7 @@ import Textfield from "../components/SimpleTextfield.astro";
             <fieldset>
               <legend>Aufnahme</legend>
               <br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;
-              <button onclick="recordSummary('record_div');return false;">
+              <button onclick="recordSummary('record_info');return false;">
                 <strong class="glyph"></strong> 
                 &nbsp;Bitte die Aufnahme starten
               </button>
@@ -404,7 +404,7 @@ import Textfield from "../components/SimpleTextfield.astro";
           <div id="abschliessen" class="input_form oneColumn" style="display: none">
             <fieldset class="helper_bp-35">
               <legend>Abschluss</legend>
-              <br />
+              <p class="errormessage record-info" id="record_info"></p>
               <button class="button200" onclick="ConfirmPositiv();return false;">
                <strong class="glyph"></strong>
                 &nbsp;Datensatz abschliessen
@@ -415,6 +415,7 @@ import Textfield from "../components/SimpleTextfield.astro";
           <div id="tab_next_2" class="left_right"></div>
         </div>
       </section>
+      <FootButtons/>
         <!-- Ende Div-Datenerfassung -->
       </div>
   </main>
@@ -422,59 +423,7 @@ import Textfield from "../components/SimpleTextfield.astro";
 
   <!-- "right_block wird in ttFrame 4 nicht mehr benötigt -->
   <!-- <div id="right_block"></div> -->
-  <div id="footer" class="footer">
-    <div id="footer_button">
-      <div class="go" id="div_go_negativ">
-        <button
-          id="go_negativ"
-          onclick="
-            document.getElementById('lightbox').style.display='block';
-            document.getElementById('negativ').style.display='block';
-            "
-        ><strong class="glyph"></strong>
-          &nbsp;Freedial
-        </button>
-      </div>
-
-      <div class="go" id="div_go_wiedervorlage">
-        <button
-          id="go_wiedervorlage"
-          onclick="document.getElementById('lightbox').style.display='block';
-            document.getElementById('wiedervorlage').style.display='block';"
-        >
-          <strong class="glyph"></strong>
-          &nbsp;Wiedervorlage
-        </button>
-      </div>
-
-      <div class="go" id="div_go_ane">
-        <button
-          id="go_ane"
-          onclick="document.getElementById('lightbox').style.display='block';
-            document.getElementById('apne').style.display='block';"
-        ><strong class="glyph"></strong>
-          &nbsp;APNE
-        </button>
-      </div>
-
-      <form action="#" method="POST" id="finish_abfax">
-        <div class="go" id="div_go_abfax">
-          <button id="go_abfax" onclick="finishAbFax();return false;">
-            <strong class="glyph"></strong>
-            &nbsp;AB/Fax/Modem
-          </button>
-        </div>
-      </form>
-
-      <div class="go" id="div_go_positiv">
-        <button id="go_positiv" onclick="switchTab('tab_vertrag_1');">
-          <strong class="glyph"></strong>
-          &nbsp;Abschluss
-        </button>
-      </div>
-    </div>
-    <div class="linebreaker"></div>
-  </div>
+  
   <!-- Ende Div id="footer" -->
   <!--  Ende Div id="content" -->
   <div class="popup-container">

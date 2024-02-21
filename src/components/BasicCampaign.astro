@@ -24,9 +24,9 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
         <Campaign id={`datenerfassung_produkt_${Nr}`} title={`VERTRAG ${Nr}`} name={`produkt_${Nr}`} call={`showprodukt($('datenerfassung_produkt_${Nr}').value)`} />
 
         <div id={`datenerfassung_tarife_tab_${Nr}`} class="input_form oneColumn d-none">
-            <div id={`datenerfassung_tarife_${Nr}`} class="input_form twoColumns">
+            <div id={`datenerfassung_tarife_${Nr}`} class="input_form vertrags-grid">
              
-                <Field title={`Rufnummer Vertrag ${Nr}`}>
+                <Field title={`Rufnummer Vertrag ${Nr}`} klasse="v-grid-col_1">
                     <Input 
                         id={`datenerfassung_tarif_${Nr}_rufnummer`}
                         label={`Rufnummer Vertrag ${Nr}`} 
@@ -36,7 +36,7 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     />
                 </Field>
 
-                <Field title={`Hardware zu Vertrag ${Nr}`} id={`datenerfassung_tarif_${Nr}_hardware`}>
+                <Field title={`Hardware zu Vertrag ${Nr}`} id={`datenerfassung_tarif_${Nr}_hardware`} klasse="v-grid-col_1">
                     <Select 
                         id={`datenerfassung_handy_${Nr}`}
                         label={`Wünscht Kunde Hardware für Vertrag ${Nr}`}
@@ -59,7 +59,7 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     />
                 </Field>
 
-                <Field title={`Vergebene Gutschrift Vertrag ${Nr}`}>
+                <Field title={`Vergebene Gutschrift Vertrag ${Nr}`} klasse="v-grid-col_1">
                     <Input 
                         id={`datenerfassung_gutschrift_tarif_${Nr}`}
                         label={`Gutschrift Vertrag ${Nr}:`}
@@ -69,7 +69,7 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     />
                 </Field>
 
-                <Field title={`Freitext Vertrag ${Nr}`}>
+                <Field title={`Freitext Vertrag ${Nr}`} klasse="v-grid-col_1">
                     <Input 
                         id={`datenerfassung_freitext_tarif_${Nr}`}
                         label='Freitext:' 
@@ -78,7 +78,7 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     />
                 </Field>
 
-                <Field title={`Zusatzprodukte Vertrag ${Nr}`} id={`zusatzprodukt_tarif_${Nr}`}>
+                <Field title={`Zusatzprodukte Vertrag ${Nr}`} id={`zusatzprodukt_tarif_${Nr}`} klasse="v-grid-col_1">
                     <Select 
                         id={`datenerfassung_zusatzprodukt_hsp_tarif_${Nr}`}
                         label={`HSP Vertrag ${Nr}:`}
@@ -142,7 +142,7 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     />   
                 </Field>
                 
-                <Field title={`SMS-Link Vertrag ${Nr}`} id={`smslink_tarif_${Nr}`}>
+                <Field title={`SMS-Link Vertrag ${Nr}`} id={`smslink_tarif_${Nr}`} klasse="v-grid-col_1">
                     <Select 
                         id={`datenerfassung_tarif_${Nr}_sms`}
                         label='SMS-Link' 
@@ -155,17 +155,17 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     />
                 </Field>
 
-                <Field title={`SMS Vertrag ${Nr}`} id={`sms_${Nr}`}>
+                <Field title={`SMS Vertrag ${Nr}`} id={`sms_${Nr}`} klasse="helper_bp-35 v-grid-col_1">
                     <div id={`sms_vertrag_${Nr}`}></div>
                     <!-- generiertes Select -->  
                 </Field>
 
-                <Field title={`Zusammenfassung Vertrag ${Nr}`} id={`zusammenfassung_${Nr}`}>
+                <Field title={`Zusammenfassung Vertrag ${Nr}`} id={`zusammenfassung_${Nr}`} klasse="helper_bp-35 v-grid-col_1">
                     <div id={`zusammenfassung_vertrag_${Nr}`}></div>
                     <!-- generierter Text -->
                 </Field>
 
-                <Field title='Weitere Verträge' id={`produkt_anzahl_tarif_${Nr}`} klasse="d-none"> 
+                <Field title='Weitere Verträge' id={`produkt_anzahl_tarif_${Nr}`} klasse="d-none v-grid-col_1"> 
                     <Select 
                         id={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
                         label='Weiterer Vertrag gewünscht?' 
