@@ -411,7 +411,7 @@ function validateDatenerfassung(vertragsid) {
 		var productCancel = document.getElementById('datenerfassung_ablehnungsgrund');
 		blnSuccess &= validateSelect(productCancel.value, 'Ablehnungsgrund', $('datenerfassung_error_ablehnungsgrund'));
 	}
-	console.log(productTab.value);
+
 	if (productTab.value == "0") {
 		/*
 		 * 
@@ -569,19 +569,21 @@ function showprodukt(productselect) { //überarbeitet von Erik
 		document.getElementById('optin').className = "input_form oneColumn d-none";
 	};
 
-	if (product == "0") {
+	if (productselect == "datenerfassung_produkt_1" && product == "0") {
 		document.getElementById('datenerfassung_ablehnung').className = "";
 		document.getElementById('tab_next_zusammenfassung_1').className = "left_right";
+		document.getElementById('recording').className = "input_form oneColumn d-none"
 	} else {
 		document.getElementById('datenerfassung_ablehnung').className = "d-none";
 		document.getElementById('tab_next_zusammenfassung_1').className = "left_right d-none";
+		document.getElementById('recording').className = "input_form oneColumn"
 	};
-	console.log(product);
+
 	switch (product) {
 		case "0":
 			open_datatab.className = "input_form oneColumn d-none";
 			use_hardware.className = cls + " d-none";
-			console.log("case 0")
+			
 			break;
 		case "1":
 			open_datatab.className = "input_form oneColumn";
@@ -603,7 +605,7 @@ function showprodukt(productselect) { //überarbeitet von Erik
 			break;
 		default:
 			open_datatab.className = "input_form oneColumn d-none";
-			console.log("case default")
+		
 			break;
 	} 		
 	
@@ -611,28 +613,25 @@ function showprodukt(productselect) { //überarbeitet von Erik
 	return true;
 }
 
-function showVertraege() {
+function showVertraege(contractselect) {
+	
+	let contract = document.getElementById(contractselect).value;
+	let contractNr = contractselect.replace("datenerfassung_produkt_anzahl_tarif_", "");
+	console.log(contract)
+	// showprodukt();
 
-	showprodukt();
+		if (contract == "ja") {
+			document.getElementById('tab_next_zusammenfassung_' + contractNr).className = "left_right d-none";
+			document.getElementById('tab_next_tarif_' + contractNr).className = "left_right";
 
-	var i;
-	for (i = 1; i <= 6; i++) {
-
-		if ($('datenerfassung_produkt_anzahl_tarif_' + i + '').value == "ja") {
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "none";
-			document.getElementById('tab_next_tarif_' + i + '').style.display = "block";
-
-		} else if ($('datenerfassung_produkt_anzahl_tarif_' + i + '').value == "nein") {
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "block";
-			document.getElementById('tab_next_tarif_' + i + '').style.display = "none";
+		} else if (contract == "nein") {
+			document.getElementById('tab_next_zusammenfassung_' + contractNr).className = "left_right";
+			document.getElementById('tab_next_tarif_' + contractNr).className = "left_right d-none";
 
 		} else {
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "none";
-			document.getElementById('tab_next_tarif_' + i + '').style.display = "none";
-
+			document.getElementById('tab_next_zusammenfassung_' + contractNr).className = "left_right d-none";
+			document.getElementById('tab_next_tarif_' + contractNr).className = "left_right d-none";
 		}
-
-	}
 
 	return true;
 
@@ -723,7 +722,7 @@ function showzusammenfassung() {
 			//document.getElementById('optin').style.display = "block";
 
 		} else {
-			document.getElementById('abschliessen').style.display = "block";
+			document.getElementById('tab_zusammenfassung').className = "tab_content";
 			//document.getElementById('recording').style.display = "none";
 			//document.getElementById('optin').style.display = "none";
 		}
@@ -882,7 +881,7 @@ function finishPositive() {
 		var optin_code = 'ka';
 
 		if (optin_anlieferung != '') {
-			optin_code = $('datenerfassung_optin').value;
+			optin_code = document.getElementById('datenerfassung_optin').value;
 		}
 
 		if (optin_code == 'voice') {

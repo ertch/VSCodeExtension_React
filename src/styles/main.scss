@@ -23,7 +23,7 @@
 
 @font-face {
     font-family: "salesfontor";
-    src: url("fonts/salesfontor.woff2") format('woff2');
+    src: url("../include_skon_v2/fonts/salesfontor.woff2") format('woff2');
   }
 
 * {
@@ -32,7 +32,6 @@
 
 header {
     background-color: $backgroundgray;
-    float: inherit;
     height: 70px;
     position: fixed;
     top: 0;
@@ -192,8 +191,9 @@ td {
     overflow-wrap: break-word;
 
     &--seperator {
-        background-color: #555454;
+        background-color: $backgroundgray;
         height: 21px;
+        margin: 0 -1px;
     }
 }
 

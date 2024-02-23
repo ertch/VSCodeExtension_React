@@ -13,7 +13,7 @@ const {Nr} = Astro.props;
 let PageNr = Number(Nr);
 var plusNr = String( PageNr + 1 );
 let plusNrCall = "switchTab('tab_vertrag_" + plusNr + "');return false;";
-console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
+// console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
 ---
 
 <!-- <section class="tab_content d-none" id={`tab_vertrag_${Nr}`}></section> -->
@@ -217,12 +217,12 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                     <!-- generierter Text -->
                 </Field>
 
-                <Field title='Weitere Verträge' id={`produkt_anzahl_tarif_${Nr}`} klasse="d-none v-grid-col_1"> 
+                <Field title='Weitere Verträge' id={`produkt_anzahl_tarif_${Nr}`} klasse="v-grid-col_1"> 
                     <Select 
                         id={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
                         label='Weiterer Vertrag gewünscht?' 
                         name={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
-                        call={`showVertraege($('datenerfassung_produkt_anzahl_tarif_${Nr}').value)`}
+                        call={`showVertraege('datenerfassung_produkt_anzahl_tarif_${Nr}')`}
                         options={[
                             ["ja", "Ja"],
                             ["nein", "Nein"]

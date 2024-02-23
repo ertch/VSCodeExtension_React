@@ -199,6 +199,7 @@ function switchTab(newTabName) { // Gefixed von Erik
 
     currentTabName = document.querySelector(".activeTab")
     var clickedTab = document.getElementById(newTabName);
+   
     if (validateTab(currentTabName.id)) {
     
         if (clickedTab.className != 'tab_content d-none') {
@@ -220,8 +221,8 @@ function switchTab(newTabName) { // Gefixed von Erik
         }
         var newTab = document.getElementById('tab' + newTabIndex);
         newTab.className = 'tab current';
-        clickedTab.className = 'tab_content activeTab';
-    
+        clickedTab.className = "tab_content activeTab";
+   
         if (newTabName != "tab_start"){
             myStyle = "go d-none";
         }else{
@@ -236,10 +237,13 @@ function switchTab(newTabName) { // Gefixed von Erik
         div_go_positiv.className = myStyle;
     }
 
-    if (newTabName == 'tab_zusammenfassung') showzusammenfassung();
+    if (newTabName == 'tab_zusammenfassung'){ 
+        showzusammenfassung();
+        document.getElementById('tab_zusammenfassung').className = "tab_content activeTab";
+    }
     if (blnFinishPositive){
         var jumpToEnd = document.getElementById('abschliessen');
-        jumpToEnd.classList.toggle = 'd-none';
+        jumpToEnd.className = 'input_form onecolumn d-none';
     }    
 }
 
@@ -698,6 +702,6 @@ function dateConversion(date) {
     const formattedMonth = month < 10 ? `0${month}` : month;
 
     const formattedDate = `${formattedDay}.${formattedMonth}.${year}`;
-    console.log(formattedDate)
+    // console.log(formattedDate)
     return formattedDate
 }
