@@ -59,8 +59,11 @@ var recordingComplete = 0;
 var debugvoicerecording = 2;
 
 var debug = true; // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
-console.log("debug = " + debug)
+
 var logLevel = "debug"; // kann debug, info, warning, error, fatal sein
+var ttWeb = new Object();
+
+
 
 
 function filterSqlResult(s) {
@@ -84,8 +87,33 @@ function filterSqlResultForProduct(s, blnWithEuro) {
  * Initfunktion, die bei Aufruf der Maske alle noetigen Daten aus der DB zieht
  * und die globalen Variablen setzt
  */
-function gf_javaf_initialize() {
-	console.log("gf_javaf_initialize() called")
+ 
+ function gf_javaf_initialize(){
+	
+	if (!debug){
+
+		this.parent.contentInterface.initialize(window,
+
+			function onInitialized(contentInterface) {
+				//window.contentInterface= contentInterface;
+				ttWeb = contentInterface;
+				gf_initialize();
+			},
+			//Error
+			function onInitializeError(e) {
+				alert('Initialize contentInterface failed: '+e.message)
+			}
+		);
+	} else {
+		gf_initialize();
+	}
+	
+
+
+
+	}
+ 
+function gf_initialize() {
 
 	if (!debug) {
 		ttWeb.setRecordingState(0);
@@ -102,8 +130,10 @@ function gf_javaf_initialize() {
 	blnFinishPositive = false;
 
 	if (!debug) {
-		direction = ttWeb.getCallDirection();
-		calldatatableId = ttWeb.getCalltableField('ID');
+		direction = 1;
+		//direction = ttWeb.getCallDirection();
+		// DIES IST NEU
+		calldatatableId = ttWeb.getCalltableField('CUSTOMERID');
 		msisdn = ttWeb.getCalltableField('HOME');
 		indicator = ttWeb.getIndicator();
 		if (indicator == 1) {
@@ -117,7 +147,7 @@ function gf_javaf_initialize() {
 
 	} else {
 
-		calldatatableId = 80231751;
+		calldatatableId = 80693478;
 		msisdn = "01768655885";
 		telKontakt = "0190123123";
 		agentId = "2008";
@@ -145,7 +175,7 @@ function gf_javaf_initialize() {
 				"");
 			ttWeb.clearRecording();
 			alert("Kunde wurde schon positiv abgeschlossen!\n Achtung!\n Bei OK-Klicken wird aufgelegt!!");
-			ttWeb.terminateCall('100');
+			ttWeb.terminateCall(100);
 		}
 		if ((callResultId == resultIdNegativ)) {
 			insertIntoLog(
@@ -154,7 +184,7 @@ function gf_javaf_initialize() {
 				"");
 			ttWeb.clearRecording();
 			alert("Kunde wurde schon negativ abgeschlossen!\n Achtung!\n Bei OK-Klicken wird aufgelegt!!");
-			ttWeb.terminateCall('200');
+			ttWeb.terminateCall(200);
 		}
 	}
 
@@ -174,14 +204,14 @@ trim(if(isnull(strasse_kunde),'-',if(strasse_kunde = '','',strasse_kunde))), \
 trim(if(isnull(strasse_zusatz_kunde),'-',if(strasse_zusatz_kunde = '','',strasse_zusatz_kunde))), \
 trim(if(isnull(plz_kunde),'-',if(plz_kunde = '','',plz_kunde))), \
 trim(if(isnull(wohnort_kunde),'-',if(wohnort_kunde = '','',wohnort_kunde))), \
-trim(if(isnull(geburtstag_kunde),'-',if(geburtstag_kunde = '','',geburtstag_kunde))), \
+DATE_FORMAT(geburtstag_kunde, '%d.%m.%Y'), \
 trim(if(isnull(kunden_nummer),'-',if(kunden_nummer = '','',kunden_nummer))), \
 trim(if(isnull(vertrags_nummer),'-',if(vertrags_nummer = '','',vertrags_nummer))), \
 trim(if(isnull(tarif_text_aktuell),'-',if(tarif_text_aktuell = '','',tarif_text_aktuell))), \
 trim(if(isnull(handy_modell_netz),'-',if(handy_modell_netz = '','',handy_modell_netz))), \
-trim(if(isnull(aktivierungsdatum),'-',if(aktivierungsdatum = '','-',aktivierungsdatum))), \
-trim(if(isnull(beginn_mindestlaufzeit),'-',if(beginn_mindestlaufzeit = '','-',beginn_mindestlaufzeit))), \
-trim(if(isnull(voraussichtliches_vertragsendedatum),'-',if(voraussichtliches_vertragsendedatum = '','-',voraussichtliches_vertragsendedatum))), \
+DATE_FORMAT(aktivierungsdatum, '%d.%m.%Y'), \
+DATE_FORMAT(beginn_mindestlaufzeit, '%d.%m.%Y'), \
+DATE_FORMAT(voraussichtliches_vertragsendedatum, '%d.%m.%Y'), \
 trim(if(isnull(optin_anlieferung),'-',if(optin_anlieferung = '','-',optin_anlieferung))), \
 trim(if(isnull(markengruppe_kuerzel),'-',if(markengruppe_kuerzel = '','-',markengruppe_kuerzel))), \
 trim(if(isnull(email_privat_kunde),'-',if(email_privat_kunde = '','-',email_privat_kunde))), \
@@ -287,7 +317,8 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
 	ns = ns + getNavigationDiv('E-Mail', 'E-Mail', mail);
 
-	// ns = ns + "<div class='separator'> <div class='line'>";
+	// Hier wird die Trennline eingefügt
+	ns = ns + '<div class="data-kunde-m--seperator"></div><div class="data-kunde-m--seperator"></div>';
 
 	ns = ns + getNavigationDiv('Kundennummer', 'Kundennummer', kundennummer);
 	ns = ns + getNavigationDiv('Vertragsnummer', 'Vertragsnummer', vertragsnummer);
@@ -373,76 +404,85 @@ function validateDatenerfassung(vertragsid) {
 	var blnSuccess = true;
 
 	var i = vertragsid;
+	var productTab = document.getElementById('datenerfassung_produkt_' + i);
+	blnSuccess &= validateSelect(productTab.value, 'Vertrag', $('datenerfassung_error_produkt_' + i));
 
-	blnSuccess &= validateSelect($('datenerfassung_produkt_' + i + '').value, 'Vertrag', $('datenerfassung_error_produkt_' + i + ''));
-
-	if ($('datenerfassung_produkt_1').value == "0") {
-
-		blnSuccess &= validateSelect($('datenerfassung_ablehnungsgrund').value, 'Ablehnungsgrund', $('datenerfassung_error_ablehnungsgrund'));
-
+	if (productTab.value == "0") {
+		var productCancel = document.getElementById('datenerfassung_ablehnungsgrund');
+		blnSuccess &= validateSelect(productCancel.value, 'Ablehnungsgrund', $('datenerfassung_error_ablehnungsgrund'));
 	}
-
-	if ($('datenerfassung_produkt_' + i + '').value == "0") {
-
+	console.log(productTab.value);
+	if (productTab.value == "0") {
 		/*
 		 * 
 		 * Platzhalter, hier wird aktuell nichts validiert.
 		 * 
 		 */
-
 	} else {
 
-		blnSuccess &= validateMSISDN($('datenerfassung_tarif_' + i + '_rufnummer').value, 'Rufnummer Tarif', $('datenerfassung_error_tarif_' + i + '_rufnummer'), true);
+		var productPhoneNr = document.getElementById('datenerfassung_tarif_' + i + '_rufnummer');
+		blnSuccess &= validateMSISDN(productPhoneNr.value, 'Rufnummer Tarif', $('datenerfassung_error_tarif_' + i + '_rufnummer'), true);
 
+		if (productTab.value == "1" || productTab.value == "2") {
+			var productHandy = document.getElementById('datenerfassung_handy_' + i);
+			var productHandyCompany = document.getElementById('datenerfassung_handy_hersteller_' + i);
+			var productHandyModell = document.getElementById('datenerfassung_handy_modell_' + i);
+			blnSuccess &= validateSelect(productHandy.value, 'Hardware', $('datenerfassung_error_handy_' + i + ''));
 
-		if ($('datenerfassung_produkt_' + i + '').value == "1" || $('datenerfassung_produkt_' + i + '').value == "2") {
+			if (productHandy.value == "ja" || productHandy.value == "smieten") {
 
-			blnSuccess &= validateSelect($('datenerfassung_handy_' + i + '').value, 'Hardware', $('datenerfassung_error_handy_' + i + ''));
-
-			if ($('datenerfassung_handy_' + i + '').value == "ja" || $('datenerfassung_handy_' + i + '').value == "smieten") {
-
-				blnSuccess &= validateSelect($('datenerfassung_handy_hersteller_' + i + '').value, 'Hersteller', $('datenerfassung_error_handy_hersteller_' + i + ''));
-				blnSuccess &= validateSelect($('datenerfassung_handy_modell_' + i + '').value, 'Modell', $('datenerfassung_error_handy_modell_' + i + ''));
+				blnSuccess &= validateSelect(productHandyCompany.value, 'Hersteller', $('datenerfassung_error_handy_hersteller_' + i + ''));
+				blnSuccess &= validateSelect(productHandyModell.value, 'Modell', $('datenerfassung_error_handy_modell_' + i + ''));
 
 			}
 
 		}
+		
+		var productDiscount = document.getElementById('datenerfassung_gutschrift_tarif_' + i);
+		var productNotice = document.getElementById('datenerfassung_freitext_tarif_' + i);
+		var productExtra = document.getElementById('datenerfassung_zusatzprodukt_hsp_tarif_' + i);
+		blnSuccess &= validateInteger(productDiscount.value, 'Gutschrift', $('datenerfassung_error_gutschrift_tarif_' + i + ''), true, 0, 300);
+		blnSuccess &= validateString(productNotice.value, 'Freitext', $('datenerfassung_error_freitext_tarif_' + i + ''), false, 2000);
+		blnSuccess &= validateSelect(productExtra.value, 'HSP', $('datenerfassung_error_zusatzprodukt_hsp_tarif_' + i + ''));
 
-		blnSuccess &= validateInteger($('datenerfassung_gutschrift_tarif_' + i + '').value, 'Gutschrift', $('datenerfassung_error_gutschrift_tarif_' + i + ''), true, 0, 300);
-		blnSuccess &= validateString($('datenerfassung_freitext_tarif_' + i + '').value, 'Freitext', $('datenerfassung_error_freitext_tarif_' + i + ''), false, 2000);
-		blnSuccess &= validateSelect($('datenerfassung_zusatzprodukt_hsp_tarif_' + i + '').value, 'HSP', $('datenerfassung_error_zusatzprodukt_hsp_tarif_' + i + ''));
+		if (productExtra.value == "EP") {
 
-		if ($('datenerfassung_zusatzprodukt_hsp_tarif_' + i + '').value == "EP") {
+			var productHandyCompanyHSP = document.getElementById('datenerfassung_hsp_handyhersteller_' + i);
+			var productHandyModellHSP = document.getElementById('datenerfassung_hsp_handymodell_' + i);
+			var productTypHSP = document.getElementById('datenerfassung_hsp_typ_' + i);
+			var productProtectHSP = document.getElementById('datenerfassung_hsp_diebstahlschutz_' + i);
+			blnSuccess &= validateSelect(productHandyCompanyHSP.value, 'Handyhersteller', $('datenerfassung_error_hsp_handyhersteller_' + i + ''));
+			blnSuccess &= validateSelect(productHandyModellHSP.value, 'Handymodell', $('datenerfassung_error_hsp_handymodell_' + i + ''));
+			blnSuccess &= validateSelect(productTypHSP.value, 'HSP Variante', $('datenerfassung_error_hsp_typ_' + i + ''));
+			blnSuccess &= validateSelect(productProtectHSP.value, 'Plus-Option', $('datenerfassung_error_hsp_diebstahlschutz_' + i + ''));
+		
+			var product1Extra = document.getElementById('datenerfassung_zusatzprodukt_hsp_tarif_1');
+			if (product1Extra.value == "EP") {
 
-			blnSuccess &= validateSelect($('datenerfassung_hsp_handyhersteller_' + i + '').value, 'Handyhersteller', $('datenerfassung_error_hsp_handyhersteller_' + i + ''));
-			blnSuccess &= validateSelect($('datenerfassung_hsp_handymodell_' + i + '').value, 'Handymodell', $('datenerfassung_error_hsp_handymodell_' + i + ''));
-			blnSuccess &= validateSelect($('datenerfassung_hsp_typ_' + i + '').value, 'HSP Variante', $('datenerfassung_error_hsp_typ_' + i + ''));
-			blnSuccess &= validateSelect($('datenerfassung_hsp_diebstahlschutz_' + i + '').value, 'Plus-Option', $('datenerfassung_error_hsp_diebstahlschutz_' + i + ''));
-
-			if ($('datenerfassung_zusatzprodukt_hsp_tarif_1').value == "EP") {
-
-				blnSuccess &= validateString($('datenerfassung_strasse_1').value, 'Strasse', $('datenerfassung_error_strasse_1'), true, 200);
-				blnSuccess &= validateString($('datenerfassung_hausnummer_1').value, 'Hausnummer', $('datenerfassung_error_hausnummer_1'), true, 20);
+				var productCustomerStr = document.getElementById('datenerfassung_strasse_1');
+				var productCustomerHouseNr = document.getElementById('datenerfassung_hausnummer_1');
+				blnSuccess &= validateString(productCustomerStr.value, 'Strasse', $('datenerfassung_error_strasse_1'), true, 200);
+				blnSuccess &= validateString(productCustomerHouseNr.value, 'Hausnummer', $('datenerfassung_error_hausnummer_1'), true, 20);
 
 				if (!ibanAltOK) {
 
 					//checkIBANhsp();
-
-					blnSuccess &= validateIBAN($('datenerfassung_hsp_iban_1').value, 'IBAN', $('datenerfassung_error_hsp_iban_1'), true);
-					blnSuccess &= validateString($('datenerfassung_hsp_bic_1').value, 'BIC', $('datenerfassung_error_hsp_bic_1'), true, 11);
-
+					var productCustomerIBAN = document.getElementById('datenerfassung_hsp_iban_1');
+					var productCustomerBIC = document.getElementById('datenerfassung_hsp_bic_1');
+					blnSuccess &= validateIBAN(productCustomerIBAN.value, 'IBAN', $('datenerfassung_error_hsp_iban_1'), true);
+					blnSuccess &= validateString(productCustomerBIC.value, 'BIC', $('datenerfassung_error_hsp_bic_1'), true, 11);
 				}
 
 			}
 
 		}
 
+		var productSMS = document.getElementById('datenerfassung_tarif_' + i + '_sms');
+		var productNextTab = document.getElementById('datenerfassung_produkt_anzahl_tarif_' + i);
 		// blnSuccess &= validateSelect($('datenerfassung_zusatzprodukt_norton_tarif_' + i + '').value, 'Norton', $('datenerfassung_error_zusatzprodukt_norton_tarif_' + i + ''));
-		blnSuccess &= validateSelect($('datenerfassung_tarif_' + i + '_sms').value, 'SMS Link', $('datenerfassung_error_tarif_' + i + '_sms'));
-		blnSuccess &= validateSelect($('datenerfassung_produkt_anzahl_tarif_' + i + '').value, 'Weiterer Vertrag?', $('datenerfassung_error_produkt_anzahl_tarif_' + i + ''));
-
+		blnSuccess &= validateSelect(productSMS.value, 'SMS Link', $('datenerfassung_error_tarif_' + i + '_sms'));
+		blnSuccess &= validateSelect(productNextTab.value, 'Weiterer Vertrag?', $('datenerfassung_error_produkt_anzahl_tarif_' + i + ''));
 	}
-
 	return blnSuccess;
 }
 
@@ -513,98 +553,63 @@ function showmail() {
 
 }
 
-
-
-function showprodukt() {
+function showprodukt(productselect) { //überarbeitet von Erik
 
 	recordOn();
 
-	var i;
-	for (i = 1; i <= 6; i++) {
-
-		if ($('datenerfassung_produkt_' + i + '').value == "0") {
-
-			document.getElementById('datenerfassung_produkt_anzahl_tarif_' + i + '').style.display = "none";
-			document.getElementById('datenerfassung_tarife_tab_' + i + '').style.display = "none";
-			document.getElementById('produkt_anzahl_tarif_' + i + '').style.display = "none";
-
-			if (optin_anlieferung != '') {
-				document.getElementById('optin').style.display = "block";
-			} else {
-				document.getElementById('optin').style.display = "none";
-			}
-
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "block";
-
-
-		} else if ($('datenerfassung_produkt_' + i + '').value == "1" || $('datenerfassung_produkt_' + i + '').value == "2") {
-
-			document.getElementById('datenerfassung_produkt_anzahl_tarif_' + i + '').style.display = "block";
-			document.getElementById('datenerfassung_tarife_tab_' + i + '').style.display = "block";
-			document.getElementById('produkt_anzahl_tarif_' + i + '').style.display = "block";
-			document.getElementById('datenerfassung_tarif_' + i + '_hardware').style.display = "block";
-
-			if (optin_anlieferung == '') {
-				document.getElementById('optin').style.display = "none";
-			} else {
-				document.getElementById('optin').style.display = "block";
-			}
-
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "none";
-
-
-		} else if ($('datenerfassung_produkt_' + i + '').value > "2") {
-
-			document.getElementById('datenerfassung_produkt_anzahl_tarif_' + i + '').style.display = "block";
-			document.getElementById('datenerfassung_tarife_tab_' + i + '').style.display = "block";
-			document.getElementById('produkt_anzahl_tarif_' + i + '').style.display = "block";
-			document.getElementById('datenerfassung_tarif_' + i + '_hardware').style.display = "none";
-
-			if (optin_anlieferung == '') {
-				document.getElementById('optin').style.display = "none";
-			} else {
-				document.getElementById('optin').style.display = "block";
-			}
-
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "none";
-
-
-		} else {
-
-			document.getElementById('datenerfassung_produkt_anzahl_tarif_' + i + '').style.display = "none";
-			document.getElementById('datenerfassung_tarife_tab_' + i + '').style.display = "none";
-			document.getElementById('produkt_anzahl_tarif_' + i + '').style.display = "none";
-			document.getElementById('datenerfassung_tarif_' + i + '_hardware').style.display = "none";
-
-			if (optin_anlieferung == '') {
-				document.getElementById('optin').style.display = "none";
-			} else {
-				document.getElementById('optin').style.display = "block";
-			}
-
-			document.getElementById('tab_next_zusammenfassung_' + i + '').style.display = "none";
-
-		}
-
-
-	}
-
-	if ($('datenerfassung_produkt_1').value == "0") {
-
-		document.getElementById('datenerfassung_ablehnung').style.display = "block";
-		document.getElementById('tab_next_zusammenfassung_1').style.display = "block";
+	let product = document.getElementById(productselect).value;
+	let productNr = productselect.replace("datenerfassung_produkt_", "");
+	let open_datatab = document.getElementById("datenerfassung_tarife_tab_" + productNr);
+	let use_hardware = document.getElementById('datenerfassung_tarif_' + productNr + '_hardware');
+	let cls = use_hardware.className.replace(" d-none" , "");
+	
+	if (optin_anlieferung != '') {
+		document.getElementById('optin').className = "input_form oneColumn";
 	} else {
-		document.getElementById('datenerfassung_ablehnung').style.display = "none";
-		document.getElementById('tab_next_zusammenfassung_1').style.display = "none";
+		document.getElementById('optin').className = "input_form oneColumn d-none";
+	};
 
-	}
-
+	if (product == "0") {
+		document.getElementById('datenerfassung_ablehnung').className = "";
+		document.getElementById('tab_next_zusammenfassung_1').className = "left_right";
+	} else {
+		document.getElementById('datenerfassung_ablehnung').className = "d-none";
+		document.getElementById('tab_next_zusammenfassung_1').className = "left_right d-none";
+	};
+	console.log(product);
+	switch (product) {
+		case "0":
+			open_datatab.className = "input_form oneColumn d-none";
+			use_hardware.className = cls + " d-none";
+			console.log("case 0")
+			break;
+		case "1":
+			open_datatab.className = "input_form oneColumn";
+			use_hardware.className = cls;
+			
+			break;
+		case "2":
+			open_datatab.className = "input_form oneColumn";
+			use_hardware.className = cls;
+			
+			break;
+		case "3":
+			open_datatab.className = "input_form oneColumn";
+			use_hardware.className = cls + " d-none";
+			break;
+		case "4":
+			open_datatab.className = "input_form oneColumn";
+			use_hardware.className = cls + " d-none";
+			break;
+		default:
+			open_datatab.className = "input_form oneColumn d-none";
+			console.log("case default")
+			break;
+	} 		
+	
 	fillVerabschiedung();
-
 	return true;
-
 }
-
 
 function showVertraege() {
 

@@ -80,7 +80,7 @@ function getSimpleNavigationDiv(value) {
 
 function getNavigationSeparator() {
 
-    var s = '<div class="bg-gray" style="border: 0px">';
+    var s = '<div class="bg-gray">';
     s = s + '<hr style="margin: 10px; left: 10px; width:170px;" />';
     s = s + '</div>';
 
@@ -195,53 +195,84 @@ function centerDiv(divId, xSize) {
 
 
 
-function switchTab($newTabName) {
-    /*if ($newTabName == "tab_mofu")	{
-            showMofu();
-    }
-*/ 
-    if (validateTab(currentTabName)) {
+function switchTab(newTabName) { // Gefixed von Erik
 
-        currentTabName = $newTabName;
-
-        /* wenn der neue Tab bereits sichtbar ist, nix machen */
-        if ($($newTabName).style.display == 'block') {
-            return;
+    currentTabName = document.querySelector(".activeTab")
+    var clickedTab = document.getElementById(newTabName);
+    if (validateTab(currentTabName.id)) {
+    
+        if (clickedTab.className != 'tab_content d-none') {
+            return; 
         }
-
-        var $newTab = $($newTabName);
+             
         var newTabIndex = 0;
         /* Anzahl der Tabs finden und erst mal alle deaktivieren */
-        var tabs = $$('.tab_content');
+        let tabs = document.querySelectorAll('.tab_content');
+           
         for (var i = 0; i < tabs.length; i++) {
             /* Die einzelnen Tabs aktivieren/deaktivieren */
-            tabs[i].style.display = 'none';
-            $('tab' + (i)).className = 'tab';
-            if (tabs[i] == $newTab) {
-                $newTabIndex = i;
+            tabs[i].className = 'tab_content d-none';
+            let tabScope = document.getElementById('tab' + i);
+            tabScope.className = 'tab';
+            if (tabs[i] == clickedTab) {
+                newTabIndex = i ;
             }
         }
-        $('tab' + $newTabIndex).className = 'tab current';
-        $newTab.style.display = 'block';
+        var newTab = document.getElementById('tab' + newTabIndex);
+        newTab.className = 'tab current';
+        clickedTab.className = 'tab_content activeTab';
+    
+        if (newTabName != "tab_start"){
+            myStyle = "go d-none";
+        }else{
+            myStyle = "go";
+        }
+
+        var div_go_ane = document.getElementById('div_go_ane');
+        var div_go_abfax = document.getElementById('div_go_abfax');
+        var div_go_positiv = document.getElementById('div_go_positiv');
+        div_go_ane.className = myStyle;
+        div_go_abfax.className = myStyle;
+        div_go_positiv.className = myStyle;
     }
 
-    if ($newTabName != "tab_start")
-        myStyle = "none";
-    else
-        myStyle = "block";
-
-
-    $('div_go_ane').style.display = myStyle;
-    $('div_go_abfax').style.display = myStyle;
-    $('div_go_positiv').style.display = myStyle;
-
-    if ($newTabName == 'tab_zusammenfassung') showzusammenfassung();
-    if (blnFinishPositive)
-        document.getElementById('abschliessen').style.display = 'block';
-
-    //showzusammenfassung();
+    if (newTabName == 'tab_zusammenfassung') showzusammenfassung();
+    if (blnFinishPositive){
+        var jumpToEnd = document.getElementById('abschliessen');
+        jumpToEnd.classList.toggle = 'd-none';
+    }    
 }
 
+function validateTab(name) {
+
+	switch (name) {
+
+		case "tab_start":
+			return true;
+		case "tab_vertrag_1":
+			return validateDatenerfassung(1);
+		//return true;
+		case "tab_vertrag_2":
+			return validateDatenerfassung(2);
+		//return true;
+		case "tab_vertrag_3":
+			return validateDatenerfassung(3);
+		//return true;
+		case "tab_vertrag_4":
+			return validateDatenerfassung(4);
+		//return true;
+		case "tab_vertrag_5":
+			return validateDatenerfassung(5);
+		//return true;
+		case "tab_vertrag_6":
+			return validateDatenerfassung(6);
+		//return true;
+		case "tab_zusammenfassung":
+			return true;
+	}
+
+	return false;
+}
 
 
 
@@ -353,9 +384,9 @@ function getCampaignData(campaignId, agentId, addressdataId, addressdatatable, k
         kundenhistorie = kundenhistorie + "</fieldset>";
 
         document.getElementById('kundenhistorie').innerHTML = kundenhistorie;
-        console.log(kundenhistorie)
+        //console.log(kundenhistorie)
     }
-
+/*
     result = executeSql("SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=" + campaignId + " LIMIT 1");
     if (result[0].rows.length > 0) {
         quote = result[0].rows[0].fields.UMWANDLUNGSQUOTE;
@@ -366,7 +397,7 @@ function getCampaignData(campaignId, agentId, addressdataId, addressdatatable, k
         }
         $('stats_text').innerHTML = '[<span style="color: green">' + result[0].rows[0].fields.POSITIV + '</span>&nbsp;/&nbsp;' + nettos + '&nbsp;,&nbsp;Wandlungsquote: ' + quote + '%]';
     }
-
+*/
 }
 
 
@@ -431,10 +462,10 @@ function finishCallback() {
     updateSql(query);
 
     if (!debug) {
-        updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdWv + "','" + agentId + "')");
+        //updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdWv + "','" + agentId + "')");
         ttWeb.clearRecording();
         ttWeb.setIndicator(ttWeb.getIndicator());
-        ttWeb.terminateCall("300", zielDatum, blnPersonalAppointment, 0);
+        ttWeb.terminateCall(300, zielDatum, blnPersonalAppointment, 0);
     }
     /*}else{
         alert('Es duerfen keine Wiedervorlagen ueber das Monatsende gelegt werden!');
@@ -444,7 +475,7 @@ function finishCallback() {
 
 }
 
-/*
+
 function finishAbFax() {
 
     insertIntoLog("info","Versuch den Datensatz als AB/Fax zu deklarieren.","");
@@ -474,13 +505,13 @@ function finishAbFax() {
     if(!debug) {
         updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdAbfax + "','" + agentId + "')");
         ttWeb.clearRecording();
-        //ttWeb.terminateCall('400') ;
-        ttWeb.terminateCall("400",zielDatum,blnPersonalAppointment,0);
+        ttWeb.terminateCall(400) ;
+        //ttWeb.terminateCall("400",zielDatum,blnPersonalAppointment,0);
     }
 
 
 }
-*/
+
 
 function finishAbFax() {
 
@@ -497,9 +528,9 @@ function finishAbFax() {
             insertIntoLog("error", "Fehler beim AB Fax hochzaehlen ", "")
         }
 
-        updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdAbfax + "','" + agentId + "')");
+        //updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdAbfax + "','" + agentId + "')");
         ttWeb.clearRecording();
-        ttWeb.terminateCall('400');
+        ttWeb.terminateCall(400);
     }
 }
 
@@ -551,7 +582,7 @@ function finishApne() {
     updateSql("UPDATE calldatatable SET result_id = '" + resultId + "', calldate = now(), agent_id = '" + agentId + "' where id = '" + calldatatableId + "' and campaign_id = '" + campaignId + "' limit 1;");
 
     if (!debug) {
-        updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultId + "','" + agentId + "')");
+      //  updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultId + "','" + agentId + "')");
         ttWeb.clearRecording();
         ttWeb.terminateCall(terminateId, newDate, false, 0);
     }

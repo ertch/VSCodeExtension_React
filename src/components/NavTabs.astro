@@ -12,6 +12,6 @@ const { tabs } = Astro.props as Props;
     <div class="tabs">
         <button id="tab0" class="tab current" onclick="switchTab('tab_start');">Start</button>       
         {tabs.map((item, index) => <button id={`tab${index + 1}`} class="tab" onclick={`switchTab('tab_vertrag_${index + 1}')`}>{item}</button>)}
-        <button id={`tab${tabs.length + 1}`} class="tab" onclick="switchTab('tab_zusammenfassung');">Verabschiedung</button>
+        <button id={`tab${tabs.length + 1}`} class="tab" onclick="switchTab('tab_zusammenfassung');">Abschluss</button>
     </div>
   </div>

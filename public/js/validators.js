@@ -151,7 +151,8 @@ function validateSelect(value,description,errorId) {
 	var blnError=false;
 	errorId.innerHTML="";
 
-	if(trim(value).length==0) {
+	if(value.length == 0) {
+		console.log("Error bei: " + value + " " + errorId.id);
 		blnError=true;
 		errorId.innerHTML="Pflichtfeld: "+description;
 	}

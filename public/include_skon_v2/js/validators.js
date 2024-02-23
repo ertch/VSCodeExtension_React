@@ -53,7 +53,7 @@ function validateString(valueString, description, errorId, blnRequired, maxLengt
 
 	valueString=trim(valueString);
 
-	errorId.innerHTML=" ";
+	errorId.innerHTML="";
 
 	if(blnRequired && valueString.length==0) {
 		blnError=true;
@@ -70,8 +70,7 @@ function validateString(valueString, description, errorId, blnRequired, maxLengt
 
 function validateBankCheck(kto1, kto2, errorId){
  var blnError=false;
-    errorId.innerHTML=" ";
-
+    errorId.innerHTML="";
   if (kto1!=kto2) {
     blnError = true;
     errorId.innerHTML="Kontocheck falsch";
@@ -85,7 +84,8 @@ function validateImei(imei, description, errorId, blnRequired ){
   var blnError=false;
 
   imei=trim(imei);
-  errorId.innerHTML=" ";
+
+  errorId.innerHTML="";
 
   if(blnRequired && imei.length==0) {
     blnError=true;
@@ -125,7 +125,7 @@ function validateInteger(mynum,description, errorId,blnRequired,minValue,maxValu
 
 			if((maxValue>-1) && (mynum>maxValue)) {
 				blnError=true;
-				errorId.innerHTML="Zahl zu groß.";
+				errorId.innerHTML="Zahl zu gro�.";
 			}
 
 
@@ -146,10 +146,10 @@ function validateInteger(mynum,description, errorId,blnRequired,minValue,maxValu
 
 
 function validateSelect(value,description,errorId) {
-	
+	//alert("MOIN");
 
 	var blnError=false;
-	errorId.innerHTML=" ";
+	errorId.innerHTML="";
 
 	if(trim(value).length==0) {
 		blnError=true;
@@ -164,7 +164,7 @@ function validateSelect(value,description,errorId) {
 function validateDate(datum,description, errorId,blnRequired,minYear,maxYear) {
 
 	var blnError=false;
-	errorId.innerHTML=" ";
+	errorId.innerHTML="";
 
 	if (blnRequired || datum.length>0) {
 
@@ -200,7 +200,7 @@ function validateDate(datum,description, errorId,blnRequired,minYear,maxYear) {
 					
 					if(parseToInt(dateArray[0])>maxDay) {
 						blnError=true;
-						errorId.innerHTML="Tag zu groß.";
+						errorId.innerHTML="Tag zu gross.";
 					}
 				}
 
@@ -216,7 +216,7 @@ function validateDate(datum,description, errorId,blnRequired,minYear,maxYear) {
 
 				if((maxYear>-1) && (parseToInt(dateArray[2])>maxYear)) {
 					blnError=true;
-					errorId.innerHTML="Jahr zu groß";
+					errorId.innerHTML="Jahr zu gross";
 				}
 
 			}
@@ -259,7 +259,7 @@ function validateAdult(datum,description, errorId,blnRequired) {
 		
 	}
 
-	if(blnError) errorId.innerHTML='Nicht volljährig.';
+	if(blnError) errorId.innerHTML='Nicht vollj�hrig.';
 	
 	return !blnError;
 }
@@ -298,7 +298,7 @@ function validateAdultTooOld(datum,description, errorId,blnRequired) {
 function validateEmailUnity(s,description, errorId,blnRequired) {
 
 	var blnError=false;
-	errorId.innerHTML=" ";
+	errorId.innerHTML="";
 
 	if((blnRequired) || (s.length>0)) {
 
@@ -324,6 +324,8 @@ function validateEmailUnity(s,description, errorId,blnRequired) {
 			blnError=true;
 			errorId.innerHTML="Email falsch.";
 		}
+
+	}
 	if (!blnError){
 		var dummy = s.split('@');
 		var i = 0;
@@ -339,7 +341,6 @@ function validateEmailUnity(s,description, errorId,blnRequired) {
 			errorId.innerHTML="Email falsch. Nur 1 Punkt hinter dem @ erlaubt";
 		}
 	}
-}
 
 
 	return !blnError;
@@ -349,7 +350,7 @@ function validateEmailUnity(s,description, errorId,blnRequired) {
 function validateEmail(s,description, errorId,blnRequired) {
 
 	var blnError=false;
-	errorId.innerHTML=" ";
+	errorId.innerHTML="";
 
 	if((blnRequired) || (s.length>0)) {
 
@@ -387,7 +388,7 @@ function validateEmail(s,description, errorId,blnRequired) {
 	 
 	 var blnError = new Boolean(false);
 	 blnError=true;
- 	errorId.innerHTML=' ';
+ 	errorId.innerHTML='';
 	
 	if(blz=='00000000') return true;
 
@@ -423,7 +424,7 @@ function validateBankdataImei(iban,bic,errorId) {
 	 
 	 var blnError = new Boolean(false);
 	 blnError=true;
- 	errorId.innerHTML=' ';
+ 	errorId.innerHTML='';
 	
 	//if(iban=='00000000') return true;
 
@@ -459,7 +460,7 @@ function validateBankdataImei(iban,bic,errorId) {
  function validateTime(mytime,description,errorId,blnRequired) {
 
  	blnError=false;
- 	errorId.innerHTML=' ';
+ 	errorId.innerHTML='';
 
 	if((mytime.length>0) || blnRequired) {
 
@@ -496,7 +497,7 @@ function validateBankdataImei(iban,bic,errorId) {
   function validateProductionTime(mytime,description,errorId,blnRequired) {
 
   	blnError=false;
-  	errorId.innerHTML=' ';
+  	errorId.innerHTML='';
 
   	if(validateTime(mytime,description,errorId,blnRequired)) {
 
@@ -531,7 +532,7 @@ function validateBankdataImei(iban,bic,errorId) {
 
   	blnError=false;
 
-	errorId.innerHTML=' ';
+	errorId.innerHTML='';
 
   	split=zahlen.split(",");
 
@@ -583,7 +584,7 @@ function validateMobilenumber(valueString, description, errorId, blnRequired) {
 
 	blnError=false;
 	
-	errorId.innerHTML=' ';
+	errorId.innerHTML='';
 
 	if(!isInteger(valueString)) {
 		blnError=true;
@@ -607,7 +608,7 @@ function validateMobilenumber(valueString, description, errorId, blnRequired) {
 
 	if(!blnRequired && (valueString.length==0)) {
 		blnError=false;
-		errorId.innerHTML=' ';
+		errorId.innerHTML='';
 	}
 	
 	return !blnError;
@@ -626,7 +627,7 @@ function validateMSISDN(valueString, description, errorId, blnRequired) {
 
 	blnError=false;
 	
-	errorId.innerHTML=' ';
+	errorId.innerHTML='';
 
 	if(!isInteger(valueString)) {
 		blnError=true;
@@ -636,7 +637,7 @@ function validateMSISDN(valueString, description, errorId, blnRequired) {
 	
 		if(valueString.substr(0,1)!="0") {
 			blnError=true;
-			errorId.innerHTML='Keine g&uuml;ltige Rufnummer.';
+			errorId.innerHTML='Keine g�ltige Rufnummer.';
 		}
 		else {
 		
@@ -663,7 +664,7 @@ function validateSEPA(valueString, description, errorId, blnRequired, minLength,
 
 	valueString=trim(valueString);
 
-	errorId.innerHTML=" ";
+	errorId.innerHTML="";
 
 	if(blnRequired && valueString.length==0) {
 		blnError=true;
@@ -693,33 +694,4 @@ function validateSEPA(valueString, description, errorId, blnRequired, minLength,
 	}
 
 	return !blnError;
-}
-
-function validatePLZ(valueplz, description, errorId, blnRequired) {
-
-	var blnError=false;
-	errorId.innerHTML=" ";	
-	
-	var reg = new RegExp(/^[0-9]{5}$/);	
-
-	if(valueplz.length>0) {
-		
-		var result = reg.test(valueplz);
-
-		if (!result) {
-			blnError=true;
-			errorId.innerHTML="Keine g&uuml;ltige Postleitzahl!";
-		}
-		
-	}else{
-		
-		if(blnRequired) {
-			blnError=true;
-			errorId.innerHTML="Pflichtfeld: "+description;
-		}
-
-	}
-	
-	return !blnError;
-
 }

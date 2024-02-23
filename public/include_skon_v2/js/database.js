@@ -1,42 +1,62 @@
 function executeSql(sql) {
+    sqlReturnArray = "";
+    var url = 'http://admin/outbound.dbconnector/index.php';
 
-	sqlReturnArray="";
 
-	if(!debug) {
-		try {
-			sqlReturnArray = ttWeb.execDatabase(sql) ;
-		} catch (ex) {
-		
-			insertSql=buildLogInsert('error',sql,ex.Message);
-			try {
-				ttWeb.execDatabase(insertSql);
-			}
-			catch(ex1) {
-				//alert("Kann Sql-Fehler nicht loggen: " + ex1.Message);
-			}
-            
+	//if (newJquery){
+	if (false){
+        jQuery.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'text',
+            success: function (result) {
+               sqlReturnArray = result;
+            }
+
+
+        })
+
+
+    } else {
+
+
+        if (!debug) {
+            try {
+                sqlReturnArray = ttWeb.execDatabase(sql,2);
+            } catch (ex) {
+
+                insertSql = buildLogInsert('error', sql, ex.Message);
+                try {
+                    ttWeb.execDatabase(insertSql,2);
+                }
+                catch (ex1) {
+                    //alert("Kann Sql-Fehler nicht loggen: " + ex1.Message);
+                }
+
+            }
         }
-	}
-	else {
-		var result = null;
-        // alert(sql);
-        new Ajax.Request('http://admin/outbound.dbconnector/index.php?sql='+sql,
-		  {
-		    method:'get',
-		    asynchronous: false,
-		    onSuccess: function(transport){
-				result=transport.responseText.evalJSON();
+        else {
+            var result = null;
+            // alert(sql);
+            new Ajax.Request('http://admin/outbound.dbconnector/index.php?sql=' + sql,
+                {
+                    method: 'get',
+                    asynchronous: false,
+                    onSuccess: function (transport) {
+                        result = transport.responseText.evalJSON();
 
-		    },
-		    onFailure: function(){ alert('Kann mich nicht mit dem Debug-SQL-Connector verbinden' + sql) }
-		  });
+                    },
+                    onFailure: function () {
+                        alert('Kann mich nicht mit dem Debug-SQL-Connector verbinden' + sql)
+                    }
+                });
 
-		sqlReturnArray = result;
-	  
-	}
-	
-	return sqlReturnArray;
-}
+            sqlReturnArray = result;
+
+        }
+    }
+        return sqlReturnArray;
+    }
 
 
 function updateSql(sql) {
@@ -45,12 +65,12 @@ function updateSql(sql) {
 	
 	if(!debug) {
 		try {
-			ttWeb.execDatabase(sql) ;
+			ttWeb.execDatabase(sql,2) ;
 		} catch (ex) {
 
 			insertSql=buildLogInsert('error',sql,ex.Message);
 			try {
-				ttWeb.execDatabase(insertSql);
+				ttWeb.execDatabase(insertSql,2);
 			}
 			catch(ex1) {
 				//alert("Kann Sql-Fehler nicht loggen: " + ex1.Message);
@@ -86,7 +106,7 @@ function insertIntoLog(log_level,logmessage,logexception) {
 
 		insertSql=buildLogInsert(log_level,logmessage,logexception);
 		try {
-			if(!debug) ttWeb.execDatabase(insertSql);
+			if(!debug) ttWeb.execDatabase(insertSql,2);
 		}
 		catch(ex) {
 			//alert("Kann Logdatensatz nicht persistieren: " + ex.Message + insertSql);

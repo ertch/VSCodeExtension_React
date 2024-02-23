@@ -30,6 +30,15 @@
     box-sizing: border-box;
 }
 
+header {
+    background-color: $backgroundgray;
+    float: inherit;
+    height: 70px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
 
 body {
     background-color: $backgroundgray;
@@ -67,10 +76,10 @@ h1 {
 
 main {
     display: grid;
-    grid-template-columns: 410px 6fr 80px;
-    gap: 2.2em;
+    grid-template-columns: 375px 6fr 80px;
+    gap: 1.8em;
     margin: 1.5em 1.5em 0 1.5em;
-    padding: 0 1em 1em 0;
+    padding: 65px 1em 1em 0;
     
 }
 
@@ -176,14 +185,21 @@ td {
 }
 
 .data-kunde-m {
+    font-size: .85em;
     padding: 2px 5px;
     margin: 0 0 4px 0;
-    width: 13em;
+    width: 13.5em;
     overflow-wrap: break-word;
+
+    &--seperator {
+        background-color: #555454;
+        height: 21px;
+    }
 }
 
 .data-label-m {
     margin-top: 2px;
+    font-size: .9em;
 }
 
 .placeholder {

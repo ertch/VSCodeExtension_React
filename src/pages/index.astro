@@ -41,7 +41,7 @@ import FootButtons from "../components/FootButtons.astro";
           ]}
       />
       <section class="datenerf-bg">
-        <div class="tab_content" id="tab_start" style="display: block">
+        <div class="tab_content activeTab" id="tab_start">
           <div id="tarifmatrix"></div>
           <div id="kundenhistorie" class="history">
             <fieldset><legend>Kundenhistorie</legend></fieldset>
@@ -49,14 +49,13 @@ import FootButtons from "../components/FootButtons.astro";
           <div
             id="begruessung_1"
             class="input_form oneColumn"
-            style="display: block"
           >
             <fieldset>
               <legend>Begrüßung Teil 1</legend>
               <div id="begruessungstext_1" class="helper_bp-35"></div>
             </fieldset>
           </div>
-          <div id="abschliessen_complete" class="go" style="display: block">
+          <div id="abschliessen_complete" class="go">
             <button onclick="recording_complete_start();return false;">
              <strong class="glyph"></strong>
               &nbsp;Aufnahme
@@ -66,7 +65,6 @@ import FootButtons from "../components/FootButtons.astro";
           <div
             id="begruessung_2"
             class="input_form oneColumn helper_bp-35"
-            style="display: block"
           >
             <fieldset>
               <legend>Begr&uuml;&szlig;ung Teil 2</legend>
@@ -81,7 +79,7 @@ import FootButtons from "../components/FootButtons.astro";
               
             <span class="errormessage" id="datenerfassung_error_tarif_1"></span>
               
-              <Campaign id='datenerfassung_produkt_1' title='VERTRAG 1' name='produkt_1' call="showprodukt($('datenerfassung_produkt_1').value)"/>
+              <Campaign id='datenerfassung_produkt_1' title='VERTRAG 1' name='produkt_1' call="showprodukt('datenerfassung_produkt_1')"/>
 
               <div id="datenerfassung_tarife_tab_1" class="input_form oneColumn d-none">
                   <div id="datenerfassung_tarif_1" class="input_form vertrags-grid">
@@ -401,7 +399,7 @@ import FootButtons from "../components/FootButtons.astro";
               </button>
             </fieldset>
           </div>
-          <div id="abschliessen" class="input_form oneColumn" style="display: none">
+          <div id="abschliessen" class="input_form oneColumn d-none" >
             <fieldset class="helper_bp-35">
               <legend>Abschluss</legend>
               <p class="errormessage record-info" id="record_info"></p>

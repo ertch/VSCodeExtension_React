@@ -21,7 +21,7 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
         
         
         <span class="errormessage" id={`datenerfassung_error_tarif_${Nr}`}></span>
-        <Campaign id={`datenerfassung_produkt_${Nr}`} title={`VERTRAG ${Nr}`} name={`produkt_${Nr}`} call={`showprodukt($('datenerfassung_produkt_${Nr}').value)`} />
+        <Campaign id={`datenerfassung_produkt_${Nr}`} title={`VERTRAG ${Nr}`} name={`produkt_${Nr}`} call={`showprodukt('datenerfassung_produkt_${Nr}')`} />
 
         <div id={`datenerfassung_tarife_tab_${Nr}`} class="input_form oneColumn d-none">
             <div id={`datenerfassung_tarife_${Nr}`} class="input_form vertrags-grid">
@@ -128,6 +128,58 @@ console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
                             ]}
                         />
                     </div>
+                    
+                    <div id="datenerfassung_hsp_adresse_tarif_1" class="d-none">
+                        <div class="placeholder"></div>
+                           <fieldset id="datenerfassung_hsp_bankverbindung_1">
+                            <legend>IBAN/BIC für HSP</legend>
+                            <label for="datenerfassung_hsp_iban_1">IBAN:</label>
+                            <span
+                              class="errormessage"
+                              id="datenerfassung_error_hsp_iban_1"></span><br />
+                            <input
+                              type="text"
+                              name="datenerfassung_hsp_iban_1"
+                              value=""
+                              id="datenerfassung_hsp_iban_1"
+                            /><br />
+                            <label for="datenerfassung_hsp_bic_1">BIC:</label>
+                            <span
+                              class="errormessage"
+                              id="datenerfassung_error_hsp_bic_1"></span><br />
+                            <input
+                              type="text"
+                              name="datenerfassung_hsp_bic_1"
+                              value=""
+                              id="datenerfassung_hsp_bic_1"
+                              >
+                          </fieldset>
+                        <fieldset>
+                          <legend>Str. und Hausnr. für HSP</legend>
+                          <label for="datenerfassung_strasse_1">Strasse:</label>
+                          <span
+                            class="errormessage"
+                            id="datenerfassung_error_strasse_1"></span><br />
+                          <input
+                            type="text"
+                            name="datenerfassung_strasse_1"
+                            value=""
+                            id="datenerfassung_strasse_1"
+                          /><br />
+                          <label for="datenerfassung_hausnummer_1"
+                            >Hausnummer:</label
+                          >
+                          <span
+                            class="errormessage"
+                            id="datenerfassung_error_hausnummer_1"></span><br />
+                          <input
+                            type="text"
+                            name="datenerfassung_hausnummer_1"
+                            value=""
+                            id="datenerfassung_hausnummer_1"
+                          />
+                        </fieldset>
+                      </div>
 
                     <Select 
                         id={`datenerfassung_zusatzprodukt_norton_tarif_${Nr}`}

@@ -27,7 +27,7 @@ function selectboxSetOptions($selectBox,options,selectedValue,blnEmpty,arraySize
 
   if(blnEmpty) {
     newOpt=document.createElement('option');
-    newOpt.text="[Bitte auswählen]";
+    newOpt.text="[Bitte auswaehlen]";
     newOpt.value="";
     if (navigator.appName == 'Microsoft Internet Explorer') $selectBox.add(newOpt,0);
     else $selectBox.appendChild(newOpt);
