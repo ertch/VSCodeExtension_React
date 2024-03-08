@@ -1,15 +1,19 @@
---- 
-
+---
 interface Props {
   id: string;
-  tab_title: Array<String>;    
+  tab_title: Array<String>;
 }
 
 const { id } = Astro.props;
 const { tab_title } = Astro.props as Props;
-
---- 
+---
 
 <div class="tabs" id="tab">
-    {tab_title.map((title, index) => <button class="tab" aria-selected="false" aria-controls={index}>{title}</button>)}
+  {
+    tab_title.map((title, index) => (
+      <button class="tab" aria-selected="false" aria-controls={index}>
+        {title}
+      </button>
+    ))
+  }
 </div>
