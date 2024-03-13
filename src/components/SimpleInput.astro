@@ -1,6 +1,4 @@
 ---
-import { Value } from "sass";
-
 interface Props {
   id: string;
   label: string;
@@ -30,6 +28,7 @@ let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
   value={value}
   {required}
   {disabled}
+  name={id}
   maxlength={maxlength}
   pattern={pattern}
   onchange={call}

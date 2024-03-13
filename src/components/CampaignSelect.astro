@@ -4,7 +4,7 @@ import Fieldset from "@components/SimpleFieldset.astro";
 
 interface Props {
   id: string;
-  title: string;
+  legend: string;
   label: string;
   name: string;
   options: Array<String>;
@@ -12,7 +12,7 @@ interface Props {
   call?: string;
 }
 
-const { id, title, label, name, required, call } = Astro.props;
+const { id, legend, label, name, required, call } = Astro.props;
 const { options = [] } = Astro.props as Props;
 
 // Unten stehender Part anscheinend nicht notwendig?
@@ -24,7 +24,7 @@ let errorname = id.replace("_produkt_", "_error_produkt_");
 ---
 
 <div id={name} class="input_form oneColumn"></div>
-<Fieldset title={title}>
+<Fieldset legend={legend}>
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
 <select class="dropdown h-drop" id={id} name={id} {required} onchange={call}>

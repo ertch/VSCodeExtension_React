@@ -142,7 +142,7 @@ function switchTab($newTabName) {
     if (validateTab(currentTabName)) {
 
         currentTabName = $newTabName;
-        console.log(currentTabName)
+
         /* wenn der neue Tab bereits sichtbar ist, nix machen */
         if ($($newTabName).style.display == 'block') {
             return;
@@ -155,12 +155,12 @@ function switchTab($newTabName) {
         for ( var i = 0; i < tabs.length; i++) {
             /* Die einzelnen Tabs aktivieren/deaktivieren */
             tabs[i].style.display = 'none';
-            $('tab' + (i + 1)).className = 'tab';
+            $('tab' + (i + 1)).className = '';
             if (tabs[i] == $newTab) {
                 $newTabIndex = i + 1;
             }
         }
-        $('tab' + $newTabIndex).className = 'current tab';
+        $('tab' + $newTabIndex).className = 'current';
         $newTab.style.display = 'block';
     }
 

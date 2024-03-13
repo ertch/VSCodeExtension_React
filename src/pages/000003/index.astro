@@ -1,0 +1,154 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Input from "@components/SimpleInput.astro";
+import Campaign from "@components/CampaignSelect.astro";
+import Field from "@components/SimpleFieldset.astro";
+import Select from "@components/SimpleSelect.astro";
+import SQL_Select from "@components/SQL_InsertSelect.astro";
+import BasicCampaign from "@components/BasicCampaign.astro";
+import Textfield from "@components/SimpleTextfield.astro";
+import NavTabs from "@components/NavTabs.astro";
+import FootButtons from "@components/FootButtons.astro";
+import Bild from "@components/Bild.astro";
+import CampaignSelect from "@components/CampaignSelect.astro";
+import FinishBtn from "@components/FinishButton.astro";
+---
+
+<Layout
+  title="STE_WEL"
+  campaignNr="000003"
+  jsFiles={["outbound.js", "outbound_logic.js"]}
+>
+  <!-- ? Wofür diese Form ohne Inhalt? -->
+  <form name="F1" onsubmit="return false"></form>
+  <div class="black_overlay" id="lightbox"></div>
+
+  <header>
+    <Bild dateiname="skon.png" />
+    <Bild dateiname="stadtenergie.svg" />
+    <h1>Stadtenergie Welcome Call</h1>
+  </header>
+
+  <main>
+    <!-- Kundeninformationen links -->
+    <aside class="left_block">
+      <div id="customer_info"></div>
+    </aside>
+
+    <div class="middle_block">
+      <NavTabs
+        tabs={[
+          ["tab2", "tab_produkt", "Produkt"],
+          ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
+        ]}
+      />
+
+      <!-- Anfang <form> -->
+      <form
+        class="datenerf-bg"
+        action="#"
+        name="formular"
+        method="POST"
+        id="datenerfassung_form"
+      >
+        <!-- Anfang tab_start -->
+        <div
+          id="tab_start"
+          class="tab_content activeTab"
+          style="display: block;"
+        >
+          <div id="kundenhistorie" class="history">
+            <Field legend="Kundenhistorie" />
+          </div>
+        </div>
+        <!--  Ende tab_start -->
+
+        <!-- Anfang tab_produkt -->
+        <div id="tab_produkt" class="tab_content" style="display: none;">
+          <span id="datenerfassung_error_produkt" class="errormessage"></span>
+          <div id="produkt" class="input_form oneColumn">
+            <Field legend="Stadtenergie Welcome Call">
+              <Select
+                id="datenerfassung_produkt"
+                label="Kunde erreicht?"
+                options={[
+                  ["ja", "Ja"],
+                  ["nein", "Nein"],
+                ]}
+                call="showprodukt($('datenerfassung_produkt').value)"
+              />
+            </Field>
+          </div>
+
+          <div
+            id="datenerfassung_product"
+            class="input_form oneColumn"
+            style="display: none;"
+          >
+            <Field legend="Datenerfassung">
+              <Input
+                id="datenerfassung_email"
+                label="E-Mail-Adresse"
+                type="email"
+              />
+              <Input
+                id="datenerfassung_telefon"
+                label="Abweichende Telefonnummer?"
+                type="text"
+              />
+
+              <Select
+                id="datenerfassung_lead"
+                label="Lead"
+                firstOption={["Kein Lead", "Kein Lead"]}
+                options={[
+                  ["Strom", "Strom"],
+                  ["Gas", "Gas"],
+                ]}
+                call="showVertragsende($('datenerfassung_lead').value)"
+              />
+
+              <div
+                id="datenerfassung_vertragsende_div"
+                class="input_form oneColumn"
+                style="display: none;"
+              >
+                <Input
+                  id="datenerfassung_vertragsende"
+                  label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                  type="text"
+                />
+              </div>
+            </Field>
+
+            <Field legend="Optin">
+              <Select
+                id="datenerfassung_optin_detail"
+                label="Optin?"
+                firstOption={["keine", "Keine Änderung der Werbeerlaubnis"]}
+                options={[
+                  ["voll", "Volle Werbeerlaubnis"],
+                  ["schrift", "Nur schriftlich (Mail/Brief)"],
+                  ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
+                ]}
+              />
+            </Field>
+            <!-- Ende tab_produkt -->
+          </div>
+
+          <FinishBtn />
+        </div>
+
+        <!-- Anfang tab_zusammenfassung -->
+        <div
+          id="tab_zusammenfassung"
+          class="tab_content"
+          style="display: none;"
+        >
+          Bananenbrot
+        </div>
+      </form>
+      <FootButtons />
+    </div>
+  </main>
+</Layout>

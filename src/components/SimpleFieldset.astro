@@ -1,14 +1,14 @@
 ---
 interface Props {
-	title: string;
+	legend: string;
     id?: string;
     klasse?: string;
 }
 
-const {title, klasse, id} = Astro.props;
+const {legend, klasse, id} = Astro.props;
 ---
 
 <fieldset id={id} class={klasse as 'text'}>
-    <legend>{title}</legend>
+    <legend>{legend}</legend>
     <slot />
 </fieldset>

@@ -1,35 +1,28 @@
 ---
 interface Props {
-  id: string;
-  tabs: Array<string>;
+  tabs: Array<Array<string>>;
 }
 
-const { id } = Astro.props;
 const { tabs } = Astro.props as Props;
 ---
 
-<div id={id}>
+<div id="navigation">
   <div class="tabs">
-    <button id="tab0" class="tab current" onclick="switchTab('tab_start');">
+    <button id="tab1" class="tab current" onclick="switchTab('tab_start');">
       Start
     </button>
+
     {
-      tabs.map((item, index) => (
+      tabs.map((item) => (
         <button
-          id={`tab${index + 1}`}
+          id={item[0]}
           class="tab"
-          onclick={`switchTab('tab_vertrag_${index + 1}')`}
+          onclick={`switchTab('${item[1]}')`}
         >
-          {item}
+          {item[2]}
         </button>
       ))
     }
-    <button
-      id={`tab${tabs.length + 1}`}
-      class="tab"
-      onclick="switchTab('tab_zusammenfassung');"
-    >
-      Abschluss
-    </button>
+    
   </div>
 </div>

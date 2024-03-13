@@ -11,7 +11,7 @@ import NavTabs from "@components/NavTabs.astro";
 import FootButtons from "@components/FootButtons.astro";
 ---
 
-<Layout title="STE_WEL" campaignNr="000004" jsFiles={[
+<Layout title="freenet" campaignNr="000004" jsFiles={[
   "outbound.js",
   "outbound_logic.js"
 ]}> 
@@ -30,8 +30,7 @@ import FootButtons from "@components/FootButtons.astro";
     </aside>
     <div id="middle_block">
 
-      <NavTabs
-        id="navigation"
+      <!-- <NavTabs
         tabs={[
           "Vertrag 1",
           "Vertrag 2",
@@ -40,7 +39,8 @@ import FootButtons from "@components/FootButtons.astro";
           "Vertrag 5",
           "Vertrag 6",
         ]}
-      />
+      /> -->
+
       <section class="datenerf-bg">
         <div class="tab_content activeTab" id="tab_start">
           <div id="tarifmatrix"></div>
@@ -76,7 +76,7 @@ import FootButtons from "@components/FootButtons.astro";
 
           <Campaign
             id="datenerfassung_produkt_1"
-            title="VERTRAG 1"
+            legend="VERTRAG 1"
             name="produkt_1"
             label="VVL erfolgreich?"
             options={[
@@ -94,7 +94,7 @@ import FootButtons from "@components/FootButtons.astro";
             class="input_form oneColumn d-none"
           >
             <div id="datenerfassung_tarif_1" class="input_form vertrags-grid">
-              <Field title="Rufnummer Vertrag 1" klasse="v-grid-col_1">
+              <Field legend="Rufnummer Vertrag 1" klasse="v-grid-col_1">
                 <Input
                   id="datenerfassung_tarif_1_rufnummer"
                   label="Rufnummer Vertrag 1:"
@@ -105,14 +105,13 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="Hardware zu Vertrag 1"
+                legend="Hardware zu Vertrag 1"
                 id="datenerfassung_tarif_1_hardware"
                 klasse="v-grid-col_1"
               >
                 <Select
                   id="datenerfassung_handy_1"
                   label="Wünscht Kunde Hardware für Vertrag 1?"
-                  name="datenerfassung_handy_1"
                   options={[
                     ["ja", "Ja"],
                     ["nein", "Nein"],
@@ -132,7 +131,7 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="Vergebene Gutschrift Vertrag 1"
+                legend="Vergebene Gutschrift Vertrag 1"
                 klasse="v-grid-col_1"
               >
                 <Input
@@ -145,7 +144,7 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="Freitext Vertrag 1"
+                legend="Freitext Vertrag 1"
                 klasse="helper_bp-35 v-grid-col_1"
               >
                 <Textfield
@@ -158,14 +157,13 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="Zusatzprodukte Vertrag 1"
+                legend="Zusatzprodukte Vertrag 1"
                 id="zusatzprodukt_tarif_1"
                 klasse="v-grid-col_1"
               >
                 <Select
                   id="datenerfassung_zusatzprodukt_hsp_tarif_1"
                   label="HSP Vertrag 1:"
-                  name="datenerfassung_zusatzprodukt_hsp_tarif_1"
                   call="showHSP();"
                   options={[
                     ["KV", "HSP nicht angesprochen"],
@@ -190,7 +188,6 @@ import FootButtons from "@components/FootButtons.astro";
                   <Select
                     id="datenerfassung_hsp_typ_1"
                     label="HSP Variante Vertrag 1:"
-                    name="datenerfassung_hsp_typ_1"
                     call="recordOn()"
                     options={[
                       [
@@ -218,7 +215,6 @@ import FootButtons from "@components/FootButtons.astro";
                   <Select
                     id="datenerfassung_hsp_diebstahlschutz_1"
                     label="Plus-Option Vertrag 1:"
-                    name="datenerfassung_hsp_diebstahlschutz_1"
                     call="recordOn()"
                     options={[
                       ["ja", "Ja"],
@@ -282,7 +278,6 @@ import FootButtons from "@components/FootButtons.astro";
                 <Select
                   id="datenerfassung_zusatzprodukt_norton_tarif_1"
                   label="Norton Vertrag 1:"
-                  name="datenerfassung_zusatzprodukt_norton_tarif_1"
                   call="fillSMS();fillZusammenfassungTarif1bis6();"
                   options={[
                     ["KV", "Norton nicht angesprochen"],
@@ -293,14 +288,13 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="SMS-Link Vertrag 1"
+                legend="SMS-Link Vertrag 1"
                 id="smslink_tarif_1"
                 klasse="v-grid-col_1"
               >
                 <Select
                   id="datenerfassung_tarif_1_sms"
                   label="SMS-Link Vertrag 1"
-                  name="datenerfassung_tarif_1_sms"
                   call="fillSMS();fillZusammenfassungTarif1bis6()"
                   options={[
                     ["ja", "Ja"],
@@ -310,7 +304,7 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="SMS Vertrag 1"
+                legend="SMS Vertrag 1"
                 id="sms_1"
                 klasse="helper_bp-35 v-grid-col_1"
               >
@@ -319,7 +313,7 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="Zusammenfassung Vertrag 1"
+                legend="Zusammenfassung Vertrag 1"
                 id="zusammenfassung_1"
                 klasse="helper_bp-35 v-grid-col_1"
               >
@@ -328,14 +322,13 @@ import FootButtons from "@components/FootButtons.astro";
               </Field>
 
               <Field
-                title="Weitere Verträge"
+                legend="Weitere Verträge"
                 id="produkt_anzahl_tarif_1"
                 klasse="v-grid-col_1"
               >
                 <Select
                   id="datenerfassung_produkt_anzahl_tarif_1"
                   label="Weiterer Vertrag gewünscht?"
-                  name="datenerfassung_produkt_anzahl_tarif_1"
                   call="showVertraege('datenerfassung_produkt_anzahl_tarif_1')"
                   options={[
                     ["ja", "Ja"],
@@ -349,7 +342,7 @@ import FootButtons from "@components/FootButtons.astro";
           </div>
 
           <div class="d-none" id="datenerfassung_ablehnung">
-            <Field title="Kein Vertragsabschluss">
+            <Field legend="Kein Vertragsabschluss">
               <SQL_Select
                 id="datenerfassung_ablehnungsgrund"
                 label="Ablehnungsgrund:"
