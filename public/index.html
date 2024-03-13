@@ -10,33 +10,33 @@
 
 		<!-- do not touch  -->
 
-    <script type="text/javascript" src="../include_skon_v2/js/prototype/prototype.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/prototype/scriptaculous.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/prototype/builder.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/prototype/effects.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/prototype/dragdrop.js"></script>
-<!--    <script type="text/javascript" src="../include_skon_v2/jquery/jquery.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/jquery/jquery-ui.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/jquery/jquery.multi-select.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../include/js/prototype/prototype.js"></script>
+    <script type="text/javascript" src="../include/js/prototype/scriptaculous.js"></script>
+    <script type="text/javascript" src="../include/js/prototype/builder.js"></script>
+    <script type="text/javascript" src="../include/js/prototype/effects.js"></script>
+    <script type="text/javascript" src="../include/js/prototype/dragdrop.js"></script>
+<!--    <script type="text/javascript" src="../include/jquery/jquery.js"></script>
+    <script type="text/javascript" src="../include/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="../include/jquery/jquery.multi-select.js" type="text/javascript"></script>
     <script type="text/javascript" src="functions.js"></script>-->
     <script type="text/javascript" src="test.js"></script>
     <script type="text/javascript" src="texte.js"></script>
     <script type="text/javascript" src="tabs.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/general.js"></script>
+    <script type="text/javascript" src="../include/js/general.js"></script>
     <script type="text/javascript" src="outbound.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/validators.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/iban-perso.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/database.js"></script>
+    <script type="text/javascript" src="../include/js/validators.js"></script>
+    <script type="text/javascript" src="../include/js/iban-perso.js"></script>
+    <script type="text/javascript" src="../include/js/database.js"></script>
     <script type="text/javascript" src="outbound_logic.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/calendar/calendar.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/calendar/calendar-lang.js"></script>
-    <script type="text/javascript" src="../include_skon_v2/js/calendar/calendar-setup.js"></script>
+    <script type="text/javascript" src="../include/js/calendar/calendar.js"></script>
+    <script type="text/javascript" src="../include/js/calendar/calendar-lang.js"></script>
+    <script type="text/javascript" src="../include/js/calendar/calendar-setup.js"></script>
 <!--    <script language="javascript" type="text/javascript" src="....include	tWeb-interface.js"></script>-->
-    <link rel="stylesheet" type="text/css" media="screen" href="../include_skon_v2/css/general.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../include_skon_v2/css/outbound.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="../include_skon_v2/css/calendar.css">
-<!--    <link rel="stylesheet" href="../include_skon_v2/jquery/jquery-ui.css">
-    <link rel="stylesheet" href="../include_skon_v2/jquery/css/multi-select.css" media="screen" type="text/css">-->
+    <link rel="stylesheet" type="text/css" media="screen" href="../include/css/general.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="../include/css/outbound.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="../include/css/calendar.css">
+<!--    <link rel="stylesheet" href="../include/jquery/jquery-ui.css">
+    <link rel="stylesheet" href="../include/jquery/css/multi-select.css" media="screen" type="text/css">-->
     <!-- do not touch - END -->
 
 			
@@ -49,8 +49,8 @@
   <form name="F1" onsubmit="return false"></form>
   <div class="black_overlay" id="lightbox"></div>
   <header>
-    <img src="../include_skon_v2/images/150x62_skon_logo_white.png">
-    <img src="../include_skon_v2/images/freenet_logo.svg.png">
+    <img src="../include/images/150x62_skon_logo_white.png">
+    <img src="../include/images/freenet_logo.svg.png">
     <h1>Freenet Prevention</h1>
   </header>
 
@@ -1459,7 +1459,7 @@
           document.getElementById('lightbox').style.display='none';
           document.getElementById('negativ').style.display='none';
           ">
-          <img src="../include_skon_v2/images/process-stop.gif" title="Fenster schließen">
+          <img src="../include/images/process-stop.gif" title="Fenster schließen">
         </a>
       </div>
       <div class="content">
@@ -1509,7 +1509,7 @@
         <a href="#" onclick="
               document.getElementById('lightbox').style.display='none';
               document.getElementById('wiedervorlage').style.display='none';
-              "><img src="../include_skon_v2/images/process-stop.gif" title="Fenster schließen">
+              "><img src="../include/images/process-stop.gif" title="Fenster schließen">
         </a>
       </div>
       <div class="content">
@@ -1520,7 +1520,7 @@
         <form action="#" method="POST" id="finish_wiedervorlage">
           <label for="wiedervorlage_Date">Datum:</label>
           <input required="1" type="text" name="wiedervorlage[Date]" id="wiedervorlage_Date">
-          <input type="image" src="../include_skon_v2/images/calendar.png" id="wvDateTrigger" title="Kalender öffnen" alt="Kalender öffnen"><br>
+          <input type="image" src="../include/images/calendar.png" id="wvDateTrigger" title="Kalender öffnen" alt="Kalender öffnen"><br>
           <label for="wiedervorlage_Time">Uhrzeit:</label>
           <input required="1" type="text" name="wiedervorlage[Time]" value="15:00" id="wiedervorlage_Time">
           <br>
@@ -1565,7 +1565,7 @@
               document.getElementById('lightbox').style.display='none';
               document.getElementById('apne').style.display='none';
               ">
-          <img src="../include_skon_v2/images/process-stop.gif" title="Fenster schließen">
+          <img src="../include/images/process-stop.gif" title="Fenster schließen">
         </a>
       </div>
       <div class="content">

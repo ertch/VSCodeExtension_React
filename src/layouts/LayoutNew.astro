@@ -2,10 +2,12 @@
 interface Props {
 	title: string;
 	campaignNr: string;
+	jsFiles: Array<String>;
 }
 
-const { title, campaignNr } = Astro.props;
+const { title, campaignNr, jsFiles } = Astro.props;
 import "../styles/main.scss";
+
 ---
 
 <!doctype html>
@@ -19,10 +21,14 @@ import "../styles/main.scss";
 		<title>{title + campaignNr}</title>
 
 		<!-- do not touch  -->
-			<script type="text/javascript" src={campaignNr + "/outbound.js"}></script>
-			<script type="text/javascript" src={campaignNr + "/outbound_logic.js"}></script>
-			<script type="text/javascript" src={campaignNr + "/functions.js"}></script>
-			<script type="text/javascript" src={campaignNr + "/msxs.js"}></script>
+			{jsFiles.map((data) => (
+			<>
+			  <script type="text/javascript" src={`${campaignNr}/js/${data}`}></script></>
+			))}
+			<!-- <script type="text/javascript" src={campaignNr + "/js/outbound.js"}></script>
+			<script type="text/javascript" src={campaignNr + "/js/outbound_logic.js"}></script>
+			<script type="text/javascript" src={campaignNr + "/js/functions.js"}></script>
+			<script type="text/javascript" src={campaignNr + "/js/msxs.js"}></script> -->
 
 			<script type="text/javascript"    src="js/prototype/prototype.js"></script>
 			<script type="text/javascript"    src="js/prototype/scriptaculous.js"></script>
@@ -50,11 +56,11 @@ import "../styles/main.scss";
 			<script type="text/javascript" src="js/calendar/calendar-setup.js"></script>
 			<!-- <script language="javascript" type="text/javascript"  src="..\..\include\ttWeb-interface.js"></script> -->
 
-			<link rel="stylesheet" type="text/css" media="screen" href="include_skon_v2/css/general.css" />
-			<link rel="stylesheet" type="text/css" media="screen" href="include_skon_v2/css/outbound.css" />
-			<link rel="stylesheet" type="text/css" media="screen" href="include_skon_v2/css/calendar.css" />
-			<link rel="stylesheet" href="include_skon_v2/jquery/jquery-ui.css">
-			<link rel="stylesheet" href="include_skon_v2/jquery/css/multi-select.css" media="screen" type="text/css">
+			<link rel="stylesheet" type="text/css" media="screen" href="include/css/general.css" />
+			<link rel="stylesheet" type="text/css" media="screen" href="include/css/outbound.css" />
+			<link rel="stylesheet" type="text/css" media="screen" href="include/css/calendar.css" />
+			<link rel="stylesheet" href="include/jquery/jquery-ui.css">
+			<link rel="stylesheet" href="include/jquery/css/multi-select.css" media="screen" type="text/css">
 
 			
 		<!-- do not touch - END -->

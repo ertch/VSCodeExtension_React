@@ -4,8 +4,8 @@ interface Props {
 }
 
 const { logo }  = Astro.props;
-const path      = "../include_skon_v2/images/";
+const path      = "../include/images/";
 const suffix    = ".png";
 ---
 
-<img src={`${path}${logo}${suffix}`} alt>
+<img src={`${path}${logo}${suffix}`} alt="">
