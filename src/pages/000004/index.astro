@@ -1,5 +1,5 @@
 ---
-import Layout from "@layouts/LayoutNew.astro";
+import Layout from "@/layouts/Layout.astro";
 import Input from "@components/SimpleInput.astro";
 import Campaign from "@components/CampaignSelect.astro";
 import Field from "@components/SimpleFieldset.astro";
@@ -15,7 +15,7 @@ import FootButtons from "@components/FootButtons.astro";
   "outbound.js",
   "outbound_logic.js"
 ]}> 
-  <!-- TODO: Wofür diese Form ohne Inhalt? -->
+  <!-- ? Wofür diese Form ohne Inhalt? -->
   <form name="F1" onsubmit="return false"></form>
   <div class="black_overlay" id="lightbox"></div>
   <header>
@@ -29,8 +29,6 @@ import FootButtons from "@components/FootButtons.astro";
       <div id="customer_info"></div>
     </aside>
     <div id="middle_block">
-      <!-- TODO: Wofür diese Form ohne Inhalt? -->
-      <!-- <form name="F1" onsubmit="return false"></form> -->
 
       <NavTabs
         id="navigation"

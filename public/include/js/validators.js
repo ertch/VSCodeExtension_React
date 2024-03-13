@@ -125,7 +125,7 @@ function validateInteger(mynum,description, errorId,blnRequired,minValue,maxValu
 
 			if((maxValue>-1) && (mynum>maxValue)) {
 				blnError=true;
-				errorId.innerHTML="Zahl zu gro�.";
+				errorId.innerHTML="Zahl zu groß.";
 			}
 
 
@@ -151,7 +151,8 @@ function validateSelect(value,description,errorId) {
 	var blnError=false;
 	errorId.innerHTML="";
 
-	if(trim(value).length==0) {
+	if(value.length == 0) {
+		console.log("Error bei: " + value + " " + errorId.id);
 		blnError=true;
 		errorId.innerHTML="Pflichtfeld: "+description;
 	}
@@ -200,7 +201,7 @@ function validateDate(datum,description, errorId,blnRequired,minYear,maxYear) {
 					
 					if(parseToInt(dateArray[0])>maxDay) {
 						blnError=true;
-						errorId.innerHTML="Tag zu gross.";
+						errorId.innerHTML="Tag zu groß.";
 					}
 				}
 
@@ -216,7 +217,7 @@ function validateDate(datum,description, errorId,blnRequired,minYear,maxYear) {
 
 				if((maxYear>-1) && (parseToInt(dateArray[2])>maxYear)) {
 					blnError=true;
-					errorId.innerHTML="Jahr zu gross";
+					errorId.innerHTML="Jahr zu groß";
 				}
 
 			}
@@ -259,7 +260,7 @@ function validateAdult(datum,description, errorId,blnRequired) {
 		
 	}
 
-	if(blnError) errorId.innerHTML='Nicht vollj�hrig.';
+	if(blnError) errorId.innerHTML='Nicht volljährig.';
 	
 	return !blnError;
 }
@@ -324,8 +325,6 @@ function validateEmailUnity(s,description, errorId,blnRequired) {
 			blnError=true;
 			errorId.innerHTML="Email falsch.";
 		}
-
-	}
 	if (!blnError){
 		var dummy = s.split('@');
 		var i = 0;
@@ -341,6 +340,7 @@ function validateEmailUnity(s,description, errorId,blnRequired) {
 			errorId.innerHTML="Email falsch. Nur 1 Punkt hinter dem @ erlaubt";
 		}
 	}
+}
 
 
 	return !blnError;
@@ -637,7 +637,7 @@ function validateMSISDN(valueString, description, errorId, blnRequired) {
 	
 		if(valueString.substr(0,1)!="0") {
 			blnError=true;
-			errorId.innerHTML='Keine g�ltige Rufnummer.';
+			errorId.innerHTML='Keine g&uuml;ltige Rufnummer.';
 		}
 		else {
 		
@@ -694,4 +694,33 @@ function validateSEPA(valueString, description, errorId, blnRequired, minLength,
 	}
 
 	return !blnError;
+}
+
+function validatePLZ(valueplz, description, errorId, blnRequired) {
+
+	var blnError=false;
+	errorId.innerHTML="";	
+	
+	var reg = new RegExp(/^[0-9]{5}$/);	
+
+	if(valueplz.length>0) {
+		
+		var result = reg.test(valueplz);
+
+		if (!result) {
+			blnError=true;
+			errorId.innerHTML="Keine g&uuml;ltige Postleitzahl!";
+		}
+		
+	}else{
+		
+		if(blnRequired) {
+			blnError=true;
+			errorId.innerHTML="Pflichtfeld: "+description;
+		}
+
+	}
+	
+	return !blnError;
+
 }
