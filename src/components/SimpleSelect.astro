@@ -4,12 +4,13 @@ interface Props {
   label: string;
   options: Array<Array<any>>;
   firstOption?: Array<any>;
+  klasse?: string;
   required?: boolean;
   disabled?: boolean;
   call?: string;
 }
 
-const { id, label, firstOption, required, disabled, call } = Astro.props;
+const { id, label, firstOption, required, disabled, call, klasse } = Astro.props;
 const { options } = Astro.props as Props;
 let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
 ---
@@ -17,7 +18,7 @@ let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
 <select
-  class="dropdown h-drop"
+  class=`dropdown h-drop ${klasse}`
   id={id}
   name={id}
   {required}

@@ -20,7 +20,7 @@ import FinishBtn from "@components/FinishButton.astro";
   jsFiles={["outbound.js", "outbound_logic.js"]}
 >
   <!-- ? Wofür diese Form ohne Inhalt? -->
-  <form name="F1" onsubmit="return false"></form>
+  <!-- <form name="F1" onsubmit="return false"></form> -->
   <div class="black_overlay" id="lightbox"></div>
 
   <header>
@@ -67,7 +67,7 @@ import FinishBtn from "@components/FinishButton.astro";
         <div id="tab_produkt" class="tab_content" style="display: none;">
           <span id="datenerfassung_error_produkt" class="errormessage"></span>
           <div id="produkt" class="input_form oneColumn">
-            <Field legend="Stadtenergie Welcome Call">
+            <Field klasse="grid" legend="Stadtenergie Welcome Call">
               <Select
                 id="datenerfassung_produkt"
                 label="Kunde erreicht?"
