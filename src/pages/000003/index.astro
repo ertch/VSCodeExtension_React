@@ -12,6 +12,7 @@ import FootButtons from "@components/FootButtons.astro";
 import Bild from "@components/Bild.astro";
 import CampaignSelect from "@components/CampaignSelect.astro";
 import FinishBtn from "@components/FinishButton.astro";
+import PopupRotz from "@components/PopupRotz.astro";
 ---
 
 <Layout
@@ -19,8 +20,6 @@ import FinishBtn from "@components/FinishButton.astro";
   campaignNr="000003"
   jsFiles={["outbound.js", "outbound_logic.js"]}
 >
-  <!-- ? Wofür diese Form ohne Inhalt? -->
-  <!-- <form name="F1" onsubmit="return false"></form> -->
   <div class="black_overlay" id="lightbox"></div>
 
   <header>
@@ -33,6 +32,7 @@ import FinishBtn from "@components/FinishButton.astro";
     <!-- Kundeninformationen links -->
     <aside class="left_block">
       <div id="customer_info"></div>
+      <div id="nav_buttons"></div>
     </aside>
 
     <div class="middle_block">
@@ -133,22 +133,82 @@ import FinishBtn from "@components/FinishButton.astro";
                 ]}
               />
             </Field>
-            <!-- Ende tab_produkt -->
+
+            <!-- Quell-Datei index.html der STE_WEL hat an dieser Stelle <div> mit Email-Abgleich und Freitext. Wird nie benutzt? -->
           </div>
 
-          <FinishBtn />
+          <div
+            id="datenerfassung_ablehnung"
+            class="input_form oneColumn"
+            style="display: none"
+          >
+          <fieldset>
+            <legend>Negativgrund</legend>
+            
+            <!-- TODO: Change this select to SqlSelect  -->
+              <label for="datenerfassung_ablehnungsgrund">Negativgrund:</label>
+              <span
+                class="errormessage"
+                id="datenerfassung_error_ablehnungsgrund"></span><br />
+              <select
+                name="datenerfassung_ablehnungsgrund"
+                id="datenerfassung_ablehnungsgrund"
+                style="width: 500px"
+              >
+              </select><br />
+            </fieldset>
+          </div>
         </div>
+        <!-- Ende tab_produkt -->
 
         <!-- Anfang tab_zusammenfassung -->
-        <div
-          id="tab_zusammenfassung"
-          class="tab_content"
-          style="display: none;"
-        >
-          Bananenbrot
+        <div class="tab_content" id="tab_zusammenfassung" style="display: none">
+          <div id="zusammenfassung_errors"></div>
+
+          <div
+            id="zusammenfassung"
+            class="input_form oneColumn"
+            style="display: block"
+          >
+            <fieldset>
+              <legend>Zusammenfassung</legend>
+
+              <div id="zusammenfassung_text" style="display: block"></div>
+            </fieldset>
+          </div>
+
+          <div
+            id="recording"
+            class="input_form oneColumn"
+            style="display: none"
+          >
+            <fieldset>
+              <legend>Aufnahme</legend>
+              <br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;
+              <button onclick="recordSummary('record_div');return false;">
+                <img src="../include_skon_v2/images/media-record.png" />
+              </button>
+
+              <span id="record_div" style="float:left;">
+                &nbsp;Bitte die Aufnahme starten
+              </span>
+
+              <div
+                id="abschliessen"
+                class="input_form oneColumn"
+                style="display: none"
+              >
+              </div>
+            </fieldset>
+          </div>
         </div>
+        <!-- Ende tab_zusammenfassung -->
+
+        <FinishBtn />
       </form>
+
       <FootButtons />
     </div>
   </main>
+  <PopupRotz />
 </Layout>

@@ -94,7 +94,7 @@ function filterSqlResultForProduct(s, blnWithEuro) {
  * und die globalen Variablen setzt
  */
 function gf_initialize() {
-
+    console.log("gf_init was executed")
 
 
     ziel = "select tagesziel from livestat_settings where campaign_id = '" + campaignId + "'";
@@ -128,6 +128,8 @@ function gf_initialize() {
     }
 
     insertIntoLog("info", "Datensatz wurde Tel. " + telKontakt + " angerufen (Msisdn: " + msisdn + ")", "");
+    console.log("insertIntoLog was executed")
+
 
     callResultId = 0;
     var query = "SELECT result_id FROM calldatatable where id=" + calldatatableId + " LIMIT 1";
@@ -162,9 +164,11 @@ function gf_initialize() {
     }
 
     // Aufgrund des Flackerns wurde das Draggen der Popupdivs erstmal disabled:
-    new Draggable($('negativ'), {});
-    new Draggable($('wiedervorlage'), {});
-    new Draggable($('apne'), {});
+    // new Draggable($('negativ'), {});
+    // new Draggable($('wiedervorlage'), {});
+    // new Draggable($('apne'), {});
+
+    console.log("under Draggable")
 
 
     query = "SELECT "
@@ -211,6 +215,7 @@ join calldatatable on calldatatable.addressdata_id=" + addressdatatable
 where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     addressdata = executeSql(query);
+    console.log("addressdata:" + addressdata)
     insertIntoLog("debug", "Adressdaten wurden geladen.", "");
 
 
@@ -262,7 +267,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     ns = ns + getNavigationDiv('Kundennummer', 'Kundennummer', kunden_nr);
     ns = ns + getNavigationDiv('Vertragsnummer', 'Vertragsnummer', vertragsnr);
-    ns = ns + getNavigationDiv('Zählernummer', 'Zählernummer', zaehler_nr);
+    ns = ns + getNavigationDiv('Zï¿½hlernummer', 'Zï¿½hlernummer', zaehler_nr);
 
     ns = ns + "</div><div class='separator'> <div class='line'>";
 
@@ -290,7 +295,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     ns = ns + "<div class='separator'> <div class='line'>";
     
-    //ns = ns + getNavigationDiv('Zähler-Nr..', 'Zähler-Nr.', zaehler_nr);
+    //ns = ns + getNavigationDiv('Zï¿½hler-Nr..', 'Zï¿½hler-Nr.', zaehler_nr);
     ns = ns + getNavigationDiv('Produkt', 'Produkt', produkt);
     //ns = ns + getNavigationDiv('Energie', 'Energie', energie);
     
@@ -313,6 +318,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
     ns = ns + getNavigationDiv('Datensatz', 'Dataset', calldatatableId + ":" + addressdatatableId);
     ns = ns + getNavigationDiv('Gew&auml;hlte&nbsp;Nr.', 'PhoneNumber', telKontakt);
     ns = ns + "</div> </div> ";
+    console.log(ns)
     document.getElementById('nav_buttons').innerHTML = ns;
 
    $('datenerfassung_email').value = email;

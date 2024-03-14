@@ -1,0 +1,11 @@
+<?php
+
+	$My_Host = "localhost" ;		// Hostname of Database eg. localhost
+	$My_User = "root" ;			// Username to log on to database
+	$My_Pass = "" ;				// Password for the user above
+	$db = "skon20";			// Name of your database
+
+	$link = mysql_connect($My_Host, $My_User, $My_Pass) or die("Konnte keine Verbindung zu Datenbank aufbauen!");
+	mysql_select_db($db) or die ("Konnte Datenbank nicht selektieren!");
+
+?>
