@@ -17,7 +17,7 @@ fieldset {
 #abschliessen_complete{
 	    width: 305px;
 }
-
+/* 
 select{
 	border-style: solid;
     border-width: 1px;
@@ -67,7 +67,7 @@ textarea:focus{
 	border-width: 1px;
 	color: #444444;
 	font-family: sans-serif;
-}
+} */
 
 /* .data_label {
 	width:85px;
