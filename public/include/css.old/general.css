@@ -192,6 +192,7 @@ fieldset legend {
 
 
 .separator{
+		grid-column: span 2;
 	    margin-bottom: 15px;
 }
 

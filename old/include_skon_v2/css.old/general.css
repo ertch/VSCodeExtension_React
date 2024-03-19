@@ -201,6 +201,7 @@ fieldset legend {
 
 
 .separator{
+		grid-row: span 2;
 	    margin-bottom: 15px;
 }
 
@@ -211,8 +212,8 @@ fieldset legend {
 
 
 label {
-	margin: 0px 5px 0px 5px;
 	font-weight: bold;
+	margin: 0px 5px;
 }
 
 

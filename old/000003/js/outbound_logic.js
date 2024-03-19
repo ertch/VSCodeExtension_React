@@ -262,7 +262,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     ns = ns + getNavigationDiv('Kundennummer', 'Kundennummer', kunden_nr);
     ns = ns + getNavigationDiv('Vertragsnummer', 'Vertragsnummer', vertragsnr);
-    ns = ns + getNavigationDiv('Z�hlernummer', 'Z�hlernummer', zaehler_nr);
+    ns = ns + getNavigationDiv('Zaehlernummer', 'Zaehlernummer', zaehler_nr);
 
     ns = ns + "</div><div class='separator'> <div class='line'>";
 

@@ -43,7 +43,8 @@ function recordSummary(divId) {
 
 function getNavigationDiv(label,id,value) {
 
-    var s='<div class="data">';
+    // var s='<div class="data">';
+    var s = '<div class="bg-gray">'
     s=s+'<div class="data_label"><label>'+label+':</label></div>';
     s=s+'<div class="data_value" id="addr'+camelize(id)+'">'+value+'</div>';
     s=s+'</div>';

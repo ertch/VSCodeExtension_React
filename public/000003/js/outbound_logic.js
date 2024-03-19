@@ -261,29 +261,28 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     getCampaignData(campaignId, agentId, addressdatatableId, addressdatatable);
     
+    /* Neu ab hier */
+    let ns = "";
 
-    var ns = "";
-    ns = ns + "<div class='separator'> <div class='line dataSingleLine'>";
+    ns = ns + getNavigationDiv('Vorname', 'Vorname', vorname);
+    ns = ns + getNavigationDiv('Nachname', 'Nachname', nachname);    
+    ns = ns + getNavigationDiv('Geb.-Datum', 'Geb.-Datum', geb_datum);
+    ns = ns + getNavigationDiv('E-Mail', 'E-Mail', email);
+
+    ns = ns + "<div class='separator'></div>"; // Als Trenner zwischen Gruppen zu nutzen
 
     ns = ns + getNavigationDiv('Kundennummer', 'Kundennummer', kunden_nr);
     ns = ns + getNavigationDiv('Vertragsnummer', 'Vertragsnummer', vertragsnr);
-    ns = ns + getNavigationDiv('Z�hlernummer', 'Z�hlernummer', zaehler_nr);
+    ns = ns + getNavigationDiv('Zählernummer', 'Zählernummer', zaehler_nr);
 
-    ns = ns + "</div><div class='separator'> <div class='line'>";
+    ns = ns + "<div class='separator'></div>"; // Als Trenner zwischen Gruppen zu nutzen
 
     //ns = ns + getNavigationDiv('Anrede', 'Anrede', anrede);
     //ns = ns + getNavigationDiv('Titel', 'Titel', titel);
     //ns = ns + getNavigationDiv('Optin Telefon', 'Optin Telefon', ads_phone);
     //ns = ns + getNavigationDiv('Optin E-Mail', 'Optin E-Mail', ads_mail); 
     //ns = ns + getNavigationDiv('Optin Post', 'Optin Post', ads_post);
-    
-    ns = ns + "<div class='separator'> <div class='line'>";
-    
-    ns = ns + getNavigationDiv('Vorname', 'Vorname', vorname);
-    ns = ns + getNavigationDiv('Nachname', 'Nachname', nachname);    
-    ns = ns + getNavigationDiv('Geb.-Datum', 'Geb.-Datum', geb_datum);
-    ns = ns + getNavigationDiv('E-Mail', 'E-Mail', email);
-    
+        
     ns = ns + getNavigationDiv('Festnetz', 'Festnetz', tel_home_vorwahl + "-" + tel_home);
     ns = ns + getNavigationDiv('Mobil', 'Mobil', tel_mobile_vorwahl + "-" + tel_mobile);
 
@@ -293,8 +292,6 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
     ns = ns + getNavigationDiv('PLZ', 'PLZ', plz);
     ns = ns + getNavigationDiv('Ort', 'Ort', ort);      
 
-    ns = ns + "<div class='separator'> <div class='line'>";
-    
     //ns = ns + getNavigationDiv('Z�hler-Nr..', 'Z�hler-Nr.', zaehler_nr);
     ns = ns + getNavigationDiv('Produkt', 'Produkt', produkt);
     //ns = ns + getNavigationDiv('Energie', 'Energie', energie);
@@ -316,10 +313,9 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
     ns = ns + getNavigationDiv('Abschlag', 'Abschlag', abschlag);
 	*/
     ns = ns + getNavigationDiv('Datensatz', 'Dataset', calldatatableId + ":" + addressdatatableId);
-    ns = ns + getNavigationDiv('Gew&auml;hlte&nbsp;Nr.', 'PhoneNumber', telKontakt);
-    ns = ns + "</div> </div> ";
-    console.log(ns)
-    document.getElementById('nav_buttons').innerHTML = ns;
+    ns = ns + getNavigationDiv('Gewählte Nr.', 'PhoneNumber', telKontakt);
+    
+    document.getElementById('customer_info').innerHTML = ns; // Daten müssen in das DIV #customer_info geschrieben werden
 
    $('datenerfassung_email').value = email;
    $('datenerfassung_telefon').value = msisdn;

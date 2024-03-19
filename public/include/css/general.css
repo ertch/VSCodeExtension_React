@@ -105,22 +105,6 @@ fieldset legend {
 	text-align: center; 
 	width: 155px;
 }
-/* .customer_info{
-	margin-top: 15px;
-	margin-left: 20px;
-} */
-
-#copyright {
-}
-
-#progress {
-	padding-left: 150px;
-}
-
-#progress_text {
-	font-size: 9px;
-	padding-left: 150px;
-}
 
 
 /* #left_block {
@@ -186,7 +170,8 @@ fieldset legend {
 }
 
 .separator{
-	    margin-bottom: 15px;
+		grid-column: span 2;
+	    margin-bottom: 1em;
 }
 
 .line {
@@ -196,8 +181,8 @@ fieldset legend {
 
 
 label {
-	margin: 0px 5px 0px 5px;
 	font-weight: bold;
+	margin: 0px 5px;
 }
 
 

@@ -40,7 +40,7 @@ function recordSummary(divId) {
     startVoiceRecording();
 
 }
-
+/*
 function getNavigationDiv(label,id,value) {
 
     var s='<div class="data">';
@@ -79,7 +79,53 @@ function getNavigationSeparator() {
 
     return s;
 }
+*/
 
+function getNavigationDiv(label, id, value) {
+
+    var s = '<div class="bg-gray">';
+    if (value != "") {
+        s = s + '<div class="data_label data-label-m"><label>' + label + ':</label></div>';
+        s = s + '<div class="data_value data-kunde-m bg-white" id="addr' + camelize(id) + '">' + value + '</div>';
+    }else{
+        s = s + '<div class="data_label--gray data-label-m"><label>' + label + ':</label></div>';
+    };
+    s = s + '</div>';
+
+    return s;
+}
+
+function getNavigationDivGreen(label, id, value) {
+
+    var s = '<div class="bg-gray">';
+    if (value != "") {
+        s = s + '<div class="data_label data-label-m"><label>' + label + ':</label></div>';
+        s = s + '<div class="data_value data-kunde-m bg-white" id="addr' + camelize(id) + '"><span style="background-color: #e4e3e3;"><b>' + value + '</b></div>';
+    }else{
+        s = s + '<div class="data_label--gray data-label-m"><label>' + label + ':</label></div>';
+    };
+    s = s + '</div>';
+
+    return s;
+}
+
+
+function getSimpleNavigationDiv(value) {
+
+    var s = '<div class="bg-gray">';
+    s = s + '&nbsp;' + value + '</div>';
+
+    return s;
+}
+
+function getNavigationSeparator() {
+
+    var s = '<div class="bg-gray">';
+    s = s + '<hr style="margin: 10px; left: 10px; width:170px;" />';
+    s = s + '</div>';
+
+    return s;
+}
 
 
 function startVoiceRecording() {

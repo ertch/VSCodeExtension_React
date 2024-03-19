@@ -66,8 +66,8 @@ import PopupRotz from "@components/PopupRotz.astro";
         <!-- Anfang tab_produkt -->
         <div id="tab_produkt" class="tab_content" style="display: none;">
           <span id="datenerfassung_error_produkt" class="errormessage"></span>
-          <div id="produkt" class="input_form oneColumn">
-            <Field klasse="grid" legend="Stadtenergie Welcome Call">
+          <div id="produkt" class="input_form grid">
+            <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
               <Select
                 id="datenerfassung_produkt"
                 label="Kunde erreicht?"
@@ -82,10 +82,10 @@ import PopupRotz from "@components/PopupRotz.astro";
 
           <div
             id="datenerfassung_product"
-            class="input_form oneColumn"
+            class="input_form grid"
             style="display: none;"
           >
-            <Field legend="Datenerfassung">
+            <Field legend="Datenerfassung" klasse="grid-col_1">
               <Input
                 id="datenerfassung_email"
                 label="E-Mail-Adresse"
