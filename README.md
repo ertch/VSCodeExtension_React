@@ -320,47 +320,56 @@ ns = ns + "<div class='separator'></div>";
 
 Dabei ist es egal, ob im oberen Datenblock eine gerade oder eine ungerade Anzahl an Datensätzen vorhanden ist. Es wird immer ein optischer Trenner erzeugt, der über die gesamte Breite von `#customer_info` geht.
 
-### #TODO#
+#### Layout Haupt-Content-Bereich
 
-`.grid` und `grid-col_1`, bzw. `grid-col_2` 
+Wir haben in diesem Projekt ein simples Grid vorliegen. Es können Bereiche in der linken Hälfte des Hauptbereiches angezeigt werden, ebenso auf der rechten. Dazu bedarf es der folgenden Class-Selektoren: `.grid` und `grid-col_1`, bzw. `grid-col_2`.
 
-## 🚀 Project Structure
+Derzeit wird jeder Content-Bereich (oder "Tab") mit einem `style="display: none;"` zunächst ausgeblendet, später über JS eingeblendet:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
 ```
+<div
+ id="datenerfassung_product"
+ class="input_form"
+ style="display: none;"
+>
+(...)
+</div>
+```
+Durch das Inline-Styling ist es **nicht** möglich, dass das Grid bereits auf diesem `<div>` eingefügt wird. Es ist nötig, ein weiteres `<div>` um alle Fieldsets des "Tabs" zu legen:
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+```
+<div
+ id="datenerfassung_product"
+ class="input_form"
+style="display: none;"
+>
+ <div class="grid">
+  <Field legend="Datenerfassung" klasse="grid-col_1">
+   <Input
+    id="datenerfassung_email"
+    label="E-Mail-Adresse"
+    type="email"
+   />
+   (...)
+ </div>
+</div>
+```
+Um die Fieldsets muss `<div class="grid">` gelegt werden. In diesem Grid kann mit `klasse="grid-col_1"` bzw. `klasse="grid-col_2"` auf der Komponente `<Field>` bestimmt werden, ob dieses Fieldset links (1) oder rechts (2) abgezeigt wird.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
 
-Any static assets, like images, can be placed in the `public/` directory.
+## 🧞 Kommandos noch einmal in der Übersicht
 
-## 🧞 Commands
+Alle Befehle werden im root des Projekts in einem Terminal ausgeführt:
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
+| Kommando                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
+| `npm install`             | Installiert alle Abhängigkeiten                            |
+| `npm run dev`             | Startet den lokalen Server auf `localhost:4321`      |
+| `npm run build`           | Baut die produktive Seite nach `./dist/`          |
+| `npm run preview`         | Voransicht des Builds, bevor man deployed     |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+| `npm run astro -- --help` | Hilfe zur Astro CLI erhalten                    |
 
-## 👀 Want to learn more?
+## 👀 Du möchtest mehr zu Astro erfahren?
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Immer eine Empfehlung wert: [Die Dokumentation von Astro](https://docs.astro.build).
