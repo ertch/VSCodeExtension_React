@@ -13,8 +13,7 @@ interface Props {
 
 const { id, label, type, required, maxlength, pattern, call, value, disabled } =
   Astro.props;
-// TODO: ACHTUNG! Funktioniert nicht im Tab "Zusammenfassung", da das Errordiv "zusammenfassung_errors" heißt
-let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+let errorname = id.replace(/^([^_]*)_/, "$1_error_");
 ---
 
 <div>
