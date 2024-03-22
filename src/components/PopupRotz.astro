@@ -1,0 +1,220 @@
+<div class="popup-container">
+    <div id="negativ" class="popupdiv">
+      <div class="header">
+        <div class="title">Freedial</div>
+        &nbsp;
+        <a
+          href="#"
+          onclick="
+          document.getElementById('lightbox').style.display='none';
+          document.getElementById('negativ').style.display='none';
+          "
+        >
+          <img
+            src="../include/images/process-stop.gif"
+            title="Fenster schließen"
+          />
+        </a>
+      </div>
+      <div class="content">
+        <br />
+
+        <p>Bitte hier die W�hloptionen eingeben:</p>
+        <form action="#" method="POST" id="finish_negativ">
+          <label>Rufnummer:</label><br />
+          <input
+            required="1"
+            type="text"
+            name="recall_number"
+            value=""
+            id="recall_number"
+          />
+          <br />
+          <br />
+
+          <div style="float: right">
+            <input
+              type="submit"
+              value="OK"
+              onclick="
+                  blnSuccess=true;
+                  errMsg='';
+  
+                  if(document.getElementById('recall_number').value=='') {
+                    blnSuccess=false;
+                    errMsg=errMsg+'Bitte Rufnummer eingeben!';
+                  }
+  
+                  if(blnSuccess){
+                    document.getElementById('lightbox').style.display='none';
+                    document.getElementById('negativ').style.display='none';
+                    makeRecall();
+                    return false;
+                  }
+                  else  {
+                    alert(errMsg);
+                    return false;
+                  }
+                "
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      centerDiv("negativ", 350);
+    </script>
+
+    <div id="wiedervorlage" class="popupdiv">
+      <div class="header">
+        <div class="title">Wiedervorlage</div>
+        &nbsp;
+        <a
+          href="#"
+          onclick="
+              document.getElementById('lightbox').style.display='none';
+              document.getElementById('wiedervorlage').style.display='none';
+              "
+          ><img
+            src="../include/images/process-stop.gif"
+            title="Fenster schließen"
+          />
+        </a>
+      </div>
+      <div class="content">
+        <p>Bitte geben Sie hier alle Parameter f�r die Wiedervolage an.</p>
+
+        <div id="errors"></div>
+
+        <form action="#" method="POST" id="finish_wiedervorlage">
+          <label for="wiedervorlage_Date">Datum:</label>
+          <input
+            required="1"
+            type="text"
+            name="wiedervorlage[Date]"
+            id="wiedervorlage_Date"
+          />
+          <input
+            type="image"
+            src="../include/images/calendar.png"
+            id="wvDateTrigger"
+            title="Kalender öffnen"
+            alt="Kalender öffnen"
+          /><br />
+          <label for="wiedervorlage_Time">Uhrzeit:</label>
+          <input
+            required="1"
+            type="text"
+            name="wiedervorlage[Time]"
+            value="15:00"
+            id="wiedervorlage_Time"
+          />
+          <br />
+          <label for="wiedervorlage_Text">Notiz:</label>
+          <input
+            required="1"
+            type="text"
+            name="wiedervorlage[Text]"
+            id="wiedervorlage_Text"
+          />
+          <br />
+          <div style="width: 330px; text-align: right;">
+            <input
+              type="submit"
+              value="OK"
+              onclick="
+                  if((validateDate($('wiedervorlage_Date').value,'Datum',$('dummyText'),true,2008,2023)) &&
+                  (validateProductionTime($('wiedervorlage_Time').value,'Zeit',$('dummyText'),true))) {
+                  document.getElementById('lightbox').style.display='none';
+                  document.getElementById('wiedervorlage').style.display='none';
+                  finishCallback();
+                  return false;
+                  }
+                  else {
+                  alert($('dummyText').innerHTML);
+                  return false;
+                  }"
+            />
+          </div>
+        </form>
+
+        <br />
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      centerDiv("wiedervorlage", 350);
+
+      Calendar.setup({
+        inputField: "wiedervorlage_Date",
+        ifFormat: "%d.%m.%Y",
+        button: "wvDateTrigger",
+      });
+    </script>
+
+    <div id="apne" class="popupdiv">
+      <div class="header">
+        <div class="title">Ansprechpartner nicht erreicht</div>
+        &nbsp;
+        <a
+          href="#"
+          onclick="
+              document.getElementById('lightbox').style.display='none';
+              document.getElementById('apne').style.display='none';
+              "
+        >
+          <img
+            src="../include/images/process-stop.gif"
+            title="Fenster schließen"
+          />
+        </a>
+      </div>
+      <div class="content">
+        <br />
+        <p>
+          Bitte w�hlen Sie einen Zeitintervall, in dem der Kunde nochmals
+          angerufen werden soll.:
+        </p>
+        <br />
+        <form action="#" method="POST" id="finish_apne">
+          <label>Recall:</label>
+          <select id="apne_delay" name="apne_delay">
+            <option value="" selected="selected">Bitte w&auml;hlen</option>
+            <option value="0">Sofort</option>
+            <option value="1">In einer Stunde</option>
+            <option value="2">In zwei Stunden</option>
+            <option value="3">In drei Stunden</option>
+            <option value="4">In vier Stunden</option>
+            <option value="5">In f�nf Stunden</option>
+            <option value="6">In sechs Stunden</option>
+            <option value="8">In acht Stunden</option>
+            <option value="20">Morgen</option>
+          </select><br />
+
+          <label>Notiz:</label>
+          <input type="text" name="apne_notiz" id="apne_notiz" />
+          <input
+            type="submit"
+            value="OK"
+            onclick="
+                if(document.getElementById('apne_delay').value!='') {
+                  document.getElementById('lightbox').style.display='none';
+                  document.getElementById('apne').style.display='none';
+                  finishApne();
+                  // TODO: Warum return false? -->
+                  return false;
+                }
+                else  {
+                  alert('Bitte wählen Sie einen Zeitintervall!');
+                  return false;
+                }
+                "
+          />
+          <br />
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="dummyText" style="display: none"></div>
+  <div id="div_sqldebug" style="display: none;"></div>

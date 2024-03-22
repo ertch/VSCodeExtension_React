@@ -1,15 +1,19 @@
 ---
 // import { isRenderTemplateResult } from 'astro/runtime/server/render/astro/render-template.js';
+import Fieldset from "@components/SimpleFieldset.astro";
 
 interface Props {
   id: string;
-  title: string;
+  legend: string;
+  label: string;
   name: string;
+  options: Array<String>;
   required?: boolean;
   call?: string;
 }
 
-const { id, title, name, required, call} = Astro.props;
+const { id, legend, label, name, required, call } = Astro.props;
+const { options = [] } = Astro.props as Props;
 
 // Unten stehender Part anscheinend nicht notwendig?
 // export interface Props {
@@ -18,18 +22,13 @@ const { id, title, name, required, call} = Astro.props;
 
 let errorname = id.replace("_produkt_", "_error_produkt_");
 ---
+
 <div id={name} class="input_form oneColumn"></div>
-    <fieldset>
-        <legend>{title}</legend>
-        <label for={id}>VVL erfolgreich?:</label>
-        <span class="errormessage" id={errorname}></span>
-        <select class="dropdown h-drop" id={id} name={id} {required} onchange={call}>
-            <option value="" selected="selected">[Bitte ausw&auml;hlen]</option>
-            <option value="0">Nein, keine VVL</option>
-            <option value="1">VVL mit Tarifwechsel und mit Hardware</option>
-            <option value="2">VVL ohne Tarifwechsel und mit Hardware</option>
-            <option value="3">VVL mit Tarifwechsel</option>
-            <option value="4">VVL ohne Tarifwechsel</option>
-        </select>
-    </fieldset>
-</div>
+<Fieldset legend={legend}>
+<label for={id}>{label}</label>
+<span class="errormessage" id={errorname}></span>
+<select class="dropdown h-drop" id={id} name={id} {required} onchange={call}>
+  <option value="" selected="selected">[Bitte auswählen]</option>
+  {options.map((option, index) => <option value={index}>{option}</option>)}
+</select>
+</Fieldset>

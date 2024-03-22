@@ -1,0 +1,53 @@
+<div id="footer" class="footer">
+  <div id="footer_button">
+    <div class="go" id="div_go_negativ">
+      <button
+        id="go_negativ"
+        onclick="
+            document.getElementById('lightbox').style.display='block';
+            document.getElementById('negativ').style.display='block';
+            "
+        ><strong class="glyph"></strong>
+        &nbsp;Freedial
+      </button>
+    </div>
+
+    <div class="go" id="div_go_wiedervorlage">
+      <button
+        id="go_wiedervorlage"
+        onclick="document.getElementById('lightbox').style.display='block';
+            document.getElementById('wiedervorlage').style.display='block';"
+      >
+        <strong class="glyph"></strong>
+        &nbsp;Wiedervorlage
+      </button>
+    </div>
+
+    <div class="go" id="div_go_ane">
+      <button
+        id="go_ane"
+        onclick="document.getElementById('lightbox').style.display='block';
+            document.getElementById('apne').style.display='block';"
+        ><strong class="glyph"></strong>
+        &nbsp;APNE
+      </button>
+    </div>
+
+    <form action="#" method="POST" id="finish_abfax">
+      <div class="go" id="div_go_abfax">
+        <button id="go_abfax" onclick="finishAbFax();return false;">
+          <strong class="glyph"></strong>
+          &nbsp;AB/Fax/Modem
+        </button>
+      </div>
+    </form>
+
+    <div class="go" id="div_go_positiv">
+      <button id="go_positiv" onclick="switchTab('tab_vertrag_1');">
+        <strong class="glyph"></strong>
+        &nbsp;Abschluss
+      </button>
+    </div>
+  </div>
+  <div class="linebreaker"></div>
+</div>

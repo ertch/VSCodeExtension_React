@@ -2,19 +2,41 @@
 interface Props {
   id: string;
   label: string;
-  name: string;
-  options: Array<Array<any>>;
+  options?: Array<Array<any>>;
+  firstOption?: Array<any>;
+  klasse?: string;
   required?: boolean;
+  disabled?: boolean;
   call?: string;
 }
 
-const { id, label, name, required, call} = Astro.props;
+const { id, label, firstOption, required, disabled, call, klasse } = Astro.props;
 const { options } = Astro.props as Props;
-let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+// TODO: in anderen Komponenten errorname glattziehen
+let errorname = id.replace(/^([^_]*)_/, "$1_error_");
 ---
+
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
-<select class="dropdown h-drop" id={id} name={name} {required} onchange={call}>
-  <option disabled value="" selected>[Bitte Auswählen]</option>
+<select
+  class=`dropdown h-drop ${klasse}`
+  id={id}
+  name={id}
+  {required}
+  {disabled}
+  onchange={call}
+>
+  {
+    firstOption ? (
+      <option value={firstOption[0]} selected>
+        {firstOption[1]}
+      </option>
+    ) : (
+      <option disabled value="" selected>
+        [Bitte auswählen]
+      </option>
+    )
+  }
+
   {options.map((item) => <option value={item[0]}>{item[1]}</option>)}
 </select>

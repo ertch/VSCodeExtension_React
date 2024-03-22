@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> New Document </TITLE>
+  <META NAME="Generator" CONTENT="EditPlus">
+  <META NAME="Author" CONTENT="">
+  <META NAME="Keywords" CONTENT="">
+  <META NAME="Description" CONTENT="">
+ </HEAD>
+
+ <BODY>
+    <script language="javascript" type="text/javascript">
+        function Button1_onclick() {
+				var ttWeb = new Object();
+		
+	this.parent.contentInterface.initialize(window,
+
+		function onInitialized(contentInterface) {
+			//window.contentInterface= contentInterface;
+			ttWeb = contentInterface;
+			ttWeb.terminateCall('123');
+			},
+		//Error
+		function onInitializeError(e) {
+			alert('Initialize contentInterface failed: '+e.message)
+			}
+		);
+
+                
+
+        }
+	</script>
+
+    <p>
+        <input id="Button1" type="button" value="Auflegen" onclick="return Button1_onclick()" /></p>
+    <p>
+
+ </BODY>
+</HTML>

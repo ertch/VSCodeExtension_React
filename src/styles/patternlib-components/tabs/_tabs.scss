@@ -8,12 +8,21 @@
   }
   
   .tab {
-    width: 145px;
+    width:  fit-content;
+    min-width: 110px;
     height: 35px;
     border: 1px solid #c2c2c2;
     background-color: $tabs_gray;
+    font-size: .9em;
     color: #4d4b4b;
     margin: 0 1px 0 0;
+  }
+
+  @media only screen and (min-width:1600px) {
+    .tab {
+      width:  fit-content;
+      min-width: 140px;
+    }
   }
   
   .tab:hover {

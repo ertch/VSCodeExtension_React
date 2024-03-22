@@ -1,198 +1,272 @@
 ---
-import Campaign from './CampaignSelect.astro';
-import Field from './SimpleFieldset.astro';
-import Input from './SimpleInput.astro';
-import Select from './SimpleSelect.astro';
-import SQL_Select from './SQL_InsertSelect.astro';
+import Campaign from "./CampaignSelect.astro";
+import Field from "./SimpleFieldset.astro";
+import Input from "./SimpleInput.astro";
+import Select from "./SimpleSelect.astro";
+import SQL_Select from "./SQL_InsertSelect.astro";
 
 interface Props {
-	Nr?: string;
+  Nr?: string;
 }
 
-const {Nr} = Astro.props;
+const { Nr } = Astro.props;
 let PageNr = Number(Nr);
-var plusNr = String( PageNr + 1 );
+var plusNr = String(PageNr + 1);
 let plusNrCall = "switchTab('tab_vertrag_" + plusNr + "');return false;";
-console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
+// console.log("Seite " + PageNr + " " + Nr + " " + plusNr );
 ---
 
-<!-- <section class="tab_content d-none" id={`tab_vertrag_${Nr}`}></section> -->
-    <!-- "Form aus Testzwecken deaktiviert" <form action="#" name="formular" method="POST" id="datenerfassung_form"> --> 
-        
-        
-        <span class="errormessage" id={`datenerfassung_error_tarif_${Nr}`}></span>
-        <Campaign id={`datenerfassung_produkt_${Nr}`} title={`VERTRAG ${Nr}`} name={`produkt_${Nr}`} call={`showprodukt($('datenerfassung_produkt_${Nr}').value)`} />
+<!-- <section class="tab_content d-none" id={`tab_vertrag_${Nr}`}></section> --><!-- "Form aus Testzwecken deaktiviert" <form action="#" name="formular" method="POST" id="datenerfassung_form"> -->
+<span class="errormessage" id={`datenerfassung_error_tarif_${Nr}`}></span>
+<Campaign
+  id={`datenerfassung_produkt_${Nr}`}
+  title={`VERTRAG ${Nr}`}
+  name={`produkt_${Nr}`}
+  call={`showprodukt('datenerfassung_produkt_${Nr}')`}
+/>
 
-        <div id={`datenerfassung_tarife_tab_${Nr}`} class="input_form oneColumn d-none">
-            <div id={`datenerfassung_tarife_${Nr}`} class="input_form twoColumns">
-             
-                <Field title={`Rufnummer Vertrag ${Nr}`}>
-                    <Input 
-                        id={`datenerfassung_tarif_${Nr}_rufnummer`}
-                        label={`Rufnummer Vertrag ${Nr}`} 
-                        type='text' 
-                        value=""
-                        call="compareRufnummern();"
-                    />
-                </Field>
+<div id={`datenerfassung_tarife_tab_${Nr}`} class="input_form oneColumn d-none">
+  <div id={`datenerfassung_tarife_${Nr}`} class="input_form vertrags-grid">
+    <Field title={`Rufnummer Vertrag ${Nr}`} klasse="v-grid-col_1">
+      <Input
+        id={`datenerfassung_tarif_${Nr}_rufnummer`}
+        label={`Rufnummer Vertrag ${Nr}`}
+        type="text"
+        value=""
+        call="compareRufnummern();"
+      />
+    </Field>
 
-                <Field title={`Hardware zu Vertrag ${Nr}`} id={`datenerfassung_tarif_${Nr}_hardware`}>
-                    <Select 
-                        id={`datenerfassung_handy_${Nr}`}
-                        label={`Wünscht Kunde Hardware für Vertrag ${Nr}`}
-                        name={`datenerfassung_handy_${Nr}`}
-                        options={[
-                            ["ja", "Ja"],
-                            ["nein", "Nein"]
-                        ]}
-                    />
-                    <SQL_Select 
-                        id={`datenerfassung_handy_hersteller_${Nr}`}
-                        label='Hersteller:' 
-                        name={`datenerfassung_handy_hersteller_${Nr}`}
-                        call={`showHandyModellTarif${Nr}($('datenerfassung_handy_hersteller_${Nr}').value)`}
-                    />
-                    <SQL_Select 
-                        id={`datenerfassung_handy_modell_${Nr}`}
-                        label='Modell:' 
-                        name={`datenerfassung_handy_modell_${Nr}`}
-                    />
-                </Field>
+    <Field
+      title={`Hardware zu Vertrag ${Nr}`}
+      id={`datenerfassung_tarif_${Nr}_hardware`}
+      klasse="v-grid-col_1"
+    >
+      <Select
+        id={`datenerfassung_handy_${Nr}`}
+        label={`Wünscht Kunde Hardware für Vertrag ${Nr}`}
+        name={`datenerfassung_handy_${Nr}`}
+        options={[
+          ["ja", "Ja"],
+          ["nein", "Nein"],
+        ]}
+      />
+      <SQL_Select
+        id={`datenerfassung_handy_hersteller_${Nr}`}
+        label="Hersteller:"
+        name={`datenerfassung_handy_hersteller_${Nr}`}
+        call={`showHandyModellTarif${Nr}($('datenerfassung_handy_hersteller_${Nr}').value)`}
+      />
+      <SQL_Select
+        id={`datenerfassung_handy_modell_${Nr}`}
+        label="Modell:"
+        name={`datenerfassung_handy_modell_${Nr}`}
+      />
+    </Field>
 
-                <Field title={`Vergebene Gutschrift Vertrag ${Nr}`}>
-                    <Input 
-                        id={`datenerfassung_gutschrift_tarif_${Nr}`}
-                        label={`Gutschrift Vertrag ${Nr}:`}
-                        type='text' 
-                        value=""
-                        call="fillZusammenfassungTarif1bis6();"
-                    />
-                </Field>
+    <Field title={`Vergebene Gutschrift Vertrag ${Nr}`} klasse="v-grid-col_1">
+      <Input
+        id={`datenerfassung_gutschrift_tarif_${Nr}`}
+        label={`Gutschrift Vertrag ${Nr}:`}
+        type="text"
+        value=""
+        call="fillZusammenfassungTarif1bis6();"
+      />
+    </Field>
 
-                <Field title={`Freitext Vertrag ${Nr}`}>
-                    <Input 
-                        id={`datenerfassung_freitext_tarif_${Nr}`}
-                        label='Freitext:' 
-                        type='text' 
-                        value=""
-                    />
-                </Field>
+    <Field title={`Freitext Vertrag ${Nr}`} klasse="v-grid-col_1">
+      <Input
+        id={`datenerfassung_freitext_tarif_${Nr}`}
+        label="Freitext:"
+        type="text"
+        value=""
+      />
+    </Field>
 
-                <Field title={`Zusatzprodukte Vertrag ${Nr}`} id={`zusatzprodukt_tarif_${Nr}`}>
-                    <Select 
-                        id={`datenerfassung_zusatzprodukt_hsp_tarif_${Nr}`}
-                        label={`HSP Vertrag ${Nr}:`}
-                        name={`datenerfassung_zusatzprodukt_hsp_tarif_${Nr}`}
-                        call="showHSP();"
-                        options={[
-                            ["KV", "HSP nicht angesprochen"],
-                            ["EP", "HSP gewuenscht"],
-                            ["EN", "HSP nicht gewuenscht"] 
-                        ]}
-                    />
-                
-                    <div id={`hsp_tarif_${Nr}_div`} class="d-none hsp_div">
-                        <SQL_Select
-                            id={`datenerfassung_hsp_handyhersteller_${Nr}`}
-                            label='Hersteller:'
-                            name={`datenerfassung_hsp_handyhersteller_${Nr}`}
-                            call={`showHandyModellHSP${Nr}($('datenerfassung_hsp_handyhersteller_${Nr}').value)`}
-                        />
-                        <SQL_Select
-                            id={`datenerfassung_hsp_handymodell_${Nr}`}
-                            label='Modell:'
-                            name={`datenerfassung_hsp_handymodell_${Nr}`}
-                            call={`showClassicPremiumHSP${Nr}()`}
-                        />
-                        <Select
-                            id={`datenerfassung_hsp_typ_${Nr}`}
-                            label={`HSP Variante Vertrag ${Nr}`}
-                            name={`datenerfassung_hsp_typ_${Nr}`}
-                            call="recordOn()"
-                            options={[
-                                ["3457465", "WERTGARANTIE Ger�teschutz 500 CC (Smartphone)"],
-                                ["E3457495", "WERTGARANTIE Ger�teschutz 800 CC (Smartphone)"],
-                                ["3457475", "WERTGARANTIE Ger�teschutz 1.100 CC (Smartphone)"],
-                                ["3457487", "WERTGARANTIE Ger�teschutz 3.000 CC (Smartphone)"],
-                                ["3457528", "WERTGARANTIE Ger�teschutz Gebrauchtger�te CC(Smartphone)"]
-                            ]}
-                        />
-                        <Select
-                            id={`datenerfassung_hsp_diebstahlschutz_${Nr}`}
-                            label={`Plus-Option Vertrag ${Nr}`}
-                            name={`datenerfassung_hsp_diebstahlschutz_${Nr}`}
-                            call="recordOn()"
-                            options={[
-                                ["ja", "Ja"],
-                                ["nein", "Nein"]
-                            ]}
-                        />
-                    </div>
+    <Field
+      title={`Zusatzprodukte Vertrag ${Nr}`}
+      id={`zusatzprodukt_tarif_${Nr}`}
+      klasse="v-grid-col_1"
+    >
+      <Select
+        id={`datenerfassung_zusatzprodukt_hsp_tarif_${Nr}`}
+        label={`HSP Vertrag ${Nr}:`}
+        name={`datenerfassung_zusatzprodukt_hsp_tarif_${Nr}`}
+        call="showHSP();"
+        options={[
+          ["KV", "HSP nicht angesprochen"],
+          ["EP", "HSP gewuenscht"],
+          ["EN", "HSP nicht gewuenscht"],
+        ]}
+      />
 
-                    <Select 
-                        id={`datenerfassung_zusatzprodukt_norton_tarif_${Nr}`}
-                        label={`Norton Vertrag ${Nr}`}
-                        name={`datenerfassung_zusatzprodukt_norton_tarif_${Nr}`}
-                        call="fillSMS(); fillZusammenfassungTarif1bis6();"
-                        options={[
-                            ["KV", "Norton nicht angesprochen"],
-                            ["EP", "Norton gewuenscht"],
-                            ["EN", "Norton nicht gewuenscht"] 
-                        ]}
-                    />   
-                </Field>
-                
-                <Field title={`SMS-Link Vertrag ${Nr}`} id={`smslink_tarif_${Nr}`}>
-                    <Select 
-                        id={`datenerfassung_tarif_${Nr}_sms`}
-                        label='SMS-Link' 
-                        name={`datenerfassung_tarif_${Nr}_sms`}
-                        call="fillSMS(); fillZusammenfassungTarif1bis6()"
-                        options={[
-                            ["ja", "Ja"],
-                            ["nein", "Nein"]
-                        ]}
-                    />
-                </Field>
+      <div id={`hsp_tarif_${Nr}_div`} class="d-none hsp_div">
+        <SQL_Select
+          id={`datenerfassung_hsp_handyhersteller_${Nr}`}
+          label="Hersteller:"
+          name={`datenerfassung_hsp_handyhersteller_${Nr}`}
+          call={`showHandyModellHSP${Nr}($('datenerfassung_hsp_handyhersteller_${Nr}').value)`}
+        />
+        <SQL_Select
+          id={`datenerfassung_hsp_handymodell_${Nr}`}
+          label="Modell:"
+          name={`datenerfassung_hsp_handymodell_${Nr}`}
+          call={`showClassicPremiumHSP${Nr}()`}
+        />
+        <Select
+          id={`datenerfassung_hsp_typ_${Nr}`}
+          label={`HSP Variante Vertrag ${Nr}`}
+          name={`datenerfassung_hsp_typ_${Nr}`}
+          call="recordOn()"
+          options={[
+            ["3457465", "WERTGARANTIE Ger�teschutz 500 CC (Smartphone)"],
+            ["E3457495", "WERTGARANTIE Ger�teschutz 800 CC (Smartphone)"],
+            ["3457475", "WERTGARANTIE Ger�teschutz 1.100 CC (Smartphone)"],
+            ["3457487", "WERTGARANTIE Ger�teschutz 3.000 CC (Smartphone)"],
+            [
+              "3457528",
+              "WERTGARANTIE Ger�teschutz Gebrauchtger�te CC(Smartphone)",
+            ],
+          ]}
+        />
+        <Select
+          id={`datenerfassung_hsp_diebstahlschutz_${Nr}`}
+          label={`Plus-Option Vertrag ${Nr}`}
+          name={`datenerfassung_hsp_diebstahlschutz_${Nr}`}
+          call="recordOn()"
+          options={[
+            ["ja", "Ja"],
+            ["nein", "Nein"],
+          ]}
+        />
+      </div>
 
-                <Field title={`SMS Vertrag ${Nr}`} id={`sms_${Nr}`}>
-                    <div id={`sms_vertrag_${Nr}`}></div>
-                    <!-- generiertes Select -->  
-                </Field>
+      <div id="datenerfassung_hsp_adresse_tarif_1" class="d-none">
+        <div class="placeholder"></div>
+        <fieldset id="datenerfassung_hsp_bankverbindung_1">
+          <legend>IBAN/BIC für HSP</legend>
+          <label for="datenerfassung_hsp_iban_1">IBAN:</label>
+          <span class="errormessage" id="datenerfassung_error_hsp_iban_1"
+          ></span><br />
+          <input
+            type="text"
+            name="datenerfassung_hsp_iban_1"
+            value=""
+            id="datenerfassung_hsp_iban_1"
+          /><br />
+          <label for="datenerfassung_hsp_bic_1">BIC:</label>
+          <span class="errormessage" id="datenerfassung_error_hsp_bic_1"
+          ></span><br />
+          <input
+            type="text"
+            name="datenerfassung_hsp_bic_1"
+            value=""
+            id="datenerfassung_hsp_bic_1"
+          />
+        </fieldset>
+        <fieldset>
+          <legend>Str. und Hausnr. für HSP</legend>
+          <label for="datenerfassung_strasse_1">Strasse:</label>
+          <span class="errormessage" id="datenerfassung_error_strasse_1"
+          ></span><br />
+          <input
+            type="text"
+            name="datenerfassung_strasse_1"
+            value=""
+            id="datenerfassung_strasse_1"
+          /><br />
+          <label for="datenerfassung_hausnummer_1">Hausnummer:</label>
+          <span class="errormessage" id="datenerfassung_error_hausnummer_1"
+          ></span><br />
+          <input
+            type="text"
+            name="datenerfassung_hausnummer_1"
+            value=""
+            id="datenerfassung_hausnummer_1"
+          />
+        </fieldset>
+      </div>
 
-                <Field title={`Zusammenfassung Vertrag ${Nr}`} id={`zusammenfassung_${Nr}`}>
-                    <div id={`zusammenfassung_vertrag_${Nr}`}></div>
-                    <!-- generierter Text -->
-                </Field>
+      <Select
+        id={`datenerfassung_zusatzprodukt_norton_tarif_${Nr}`}
+        label={`Norton Vertrag ${Nr}`}
+        name={`datenerfassung_zusatzprodukt_norton_tarif_${Nr}`}
+        call="fillSMS(); fillZusammenfassungTarif1bis6();"
+        options={[
+          ["KV", "Norton nicht angesprochen"],
+          ["EP", "Norton gewuenscht"],
+          ["EN", "Norton nicht gewuenscht"],
+        ]}
+      />
+    </Field>
 
-                <Field title='Weitere Verträge' id={`produkt_anzahl_tarif_${Nr}`} klasse="d-none"> 
-                    <Select 
-                        id={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
-                        label='Weiterer Vertrag gewünscht?' 
-                        name={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
-                        call={`showVertraege($('datenerfassung_produkt_anzahl_tarif_${Nr}').value)`}
-                        options={[
-                            ["ja", "Ja"],
-                            ["nein", "Nein"]
-                        ]}
-                    />  
-                </Field>
-            </div>
-        </div>   
+    <Field
+      title={`SMS-Link Vertrag ${Nr}`}
+      id={`smslink_tarif_${Nr}`}
+      klasse="v-grid-col_1"
+    >
+      <Select
+        id={`datenerfassung_tarif_${Nr}_sms`}
+        label="SMS-Link"
+        name={`datenerfassung_tarif_${Nr}_sms`}
+        call="fillSMS(); fillZusammenfassungTarif1bis6()"
+        options={[
+          ["ja", "Ja"],
+          ["nein", "Nein"],
+        ]}
+      />
+    </Field>
 
-        <div id={`tab_next_zusammenfassung_${Nr}`} class="left_right d-none">
-            <button onclick="switchTab('tab_zusammenfassung');return false;">
-                <strong class="glyph"></strong>
-                &nbsp;Verabschiedung
-            </button>
-        </div>
+    <Field
+      title={`SMS Vertrag ${Nr}`}
+      id={`sms_${Nr}`}
+      klasse="helper_bp-35 v-grid-col_1"
+    >
+      <div id={`sms_vertrag_${Nr}`}></div>
+      <!-- generiertes Select -->
+    </Field>
 
-        <div id={`tab_next_tarif_${Nr}`} class="left_right d-none">
-            <button onclick={plusNrCall} >
-                <strong class="glyph"></strong>
-                &nbsp;Zu Vertrag {plusNr}
-            </button>
-        </div>
-            
-    <!-- </form> -->
+    <Field
+      title={`Zusammenfassung Vertrag ${Nr}`}
+      id={`zusammenfassung_${Nr}`}
+      klasse="helper_bp-35 v-grid-col_1"
+    >
+      <div id={`zusammenfassung_vertrag_${Nr}`}></div>
+      <!-- generierter Text -->
+    </Field>
+
+    <Field
+      title="Weitere Verträge"
+      id={`produkt_anzahl_tarif_${Nr}`}
+      klasse="v-grid-col_1"
+    >
+      <Select
+        id={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
+        label="Weiterer Vertrag gewünscht?"
+        name={`datenerfassung_produkt_anzahl_tarif_${Nr}`}
+        call={`showVertraege('datenerfassung_produkt_anzahl_tarif_${Nr}')`}
+        options={[
+          ["ja", "Ja"],
+          ["nein", "Nein"],
+        ]}
+      />
+    </Field>
+  </div>
+</div>
+
+<div id={`tab_next_zusammenfassung_${Nr}`} class="left_right d-none">
+  <button onclick="switchTab('tab_zusammenfassung');return false;">
+    <strong class="glyph"></strong>
+    &nbsp;Verabschiedung
+  </button>
+</div>
+
+<div id={`tab_next_tarif_${Nr}`} class="left_right d-none">
+  <button onclick={plusNrCall}>
+    <strong class="glyph"></strong>
+    &nbsp;Zu Vertrag {plusNr}
+  </button>
+</div>
+
+<!-- </form> -->
 <!-- </section>  -->

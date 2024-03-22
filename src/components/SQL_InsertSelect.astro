@@ -1,18 +1,18 @@
 ---
 interface Props {
-    id: string;
-    label: string;
-    name: string;
-    required?: boolean;
-    call?: string;
-  }
-  
-  const { id, label, name, required, call} = Astro.props;
-  let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+  id: string;
+  label: string;
+  name: string;
+  required?: boolean;
+  call?: string;
+}
+
+const { id, label, name, required, call } = Astro.props;
+let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
 ---
 
-  <label for={id}>{label}</label>
-  <span class="errormessage" id={errorname}></span>
-  <select class="dropdown h-drop" id={id} name={name} {required} onchange={call}>
-    <option disabled value="" selected>[Bitte Auswählen]</option>
-  </select>
+<label for={id}>{label}</label>
+<span class="errormessage" id={errorname}></span>
+<select class="dropdown h-drop" id={id} name={name} {required} onchange={call}>
+  <option disabled value="" selected>[Bitte Auswählen]</option>
+</select>

@@ -1,11 +1,11 @@
 ---
 interface Props {
-	id: string;
-	name: string;
-	type: string;
-    required?: boolean;
-    maxlength?: string;
-	pattern?: string;
+  id: string;
+  name: string;
+  type: string;
+  required?: boolean;
+  maxlength?: string;
+  pattern?: string;
 }
 
 const { id, name, type, required, maxlength, pattern } = Astro.props;
@@ -14,7 +14,14 @@ let errorname = id.replace("_", "_error_");
 ---
 
 <div>
-	<label for={id}>{name}</label>
-	<span class="errormessage" id={errorname}></span>
+  <label for={id}>{name}</label>
+  <span class="errormessage" id={errorname}></span>
 </div>
-<input id={id} type={type as 'text'} class="input-text" {required} maxlength={maxlength} pattern={pattern}>
+<input
+  id={id}
+  type={type as "text"}
+  class="input-text"
+  {required}
+  maxlength={maxlength}
+  pattern={pattern}
+/>

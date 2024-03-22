@@ -1,0 +1,215 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Input from "@components/SimpleInput.astro";
+import Campaign from "@components/CampaignSelect.astro";
+import Field from "@components/SimpleFieldset.astro";
+import Select from "@components/SimpleSelect.astro";
+import SQL_Select from "@components/SQL_InsertSelect.astro";
+import BasicCampaign from "@components/BasicCampaign.astro";
+import Textfield from "@components/SimpleTextfield.astro";
+import NavTabs from "@components/NavTabs.astro";
+import FootButtons from "@components/FootButtons.astro";
+import Bild from "@components/Bild.astro";
+import CampaignSelect from "@components/CampaignSelect.astro";
+import FinishBtn from "@components/FinishButton.astro";
+import PopupRotz from "@components/PopupRotz.astro";
+---
+
+<Layout
+  title="STE_WEL"
+  campaignNr="000003"
+  jsFiles={["outbound.js", "outbound_logic.js"]}
+>
+  <div class="black_overlay" id="lightbox"></div>
+
+  <header>
+    <Bild dateiname="skon.png" />
+    <Bild dateiname="stadtenergie.svg" />
+    <h1>Stadtenergie Welcome Call</h1>
+  </header>
+
+  <main>
+    <!-- Kundeninformationen links -->
+    <aside class="left_block">
+      <div id="customer_info"></div>
+      <div id="nav_buttons"></div>
+    </aside>
+
+    <div class="middle_block">
+      <NavTabs
+        tabs={[
+          ["tab2", "tab_produkt", "Produkt"],
+          ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
+        ]}
+      />
+
+      <!-- Anfang <form> -->
+      <form
+        class="datenerf-bg"
+        action="#"
+        name="formular"
+        method="POST"
+        id="datenerfassung_form"
+      >
+        <!-- Anfang tab_start -->
+        <div
+          id="tab_start"
+          class="tab_content activeTab"
+          style="display: block;"
+        >
+          <div id="kundenhistorie" class="history">
+            <Field legend="Kundenhistorie" />
+          </div>
+        </div>
+        <!--  Ende tab_start -->
+
+        <!-- Anfang tab_produkt -->
+        <div id="tab_produkt" class="tab_content" style="display: none;">
+          <span id="datenerfassung_error_produkt" class="errormessage"></span>
+          <div id="produkt" class="input_form grid">
+            <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
+              <Select
+                id="datenerfassung_produkt"
+                label="Kunde erreicht?"
+                options={[
+                  ["ja", "Ja"],
+                  ["nein", "Nein"],
+                ]}
+                call="showprodukt($('datenerfassung_produkt').value)"
+              />
+            </Field>
+          </div>
+
+          <div
+            id="datenerfassung_product"
+            class="input_form"
+            style="display: none;"
+          >
+            <div class="grid">
+              <Field legend="Datenerfassung" klasse="grid-col_1">
+                <Input
+                  id="datenerfassung_email"
+                  label="E-Mail-Adresse"
+                  type="email"
+                />
+                <Input
+                  id="datenerfassung_telefon"
+                  label="Abweichende Telefonnummer?"
+                  type="text"
+                />
+                <Select
+                  id="datenerfassung_lead"
+                  label="Lead"
+                  firstOption={["Kein Lead", "Kein Lead"]}
+                  options={[
+                    ["Strom", "Strom"],
+                    ["Gas", "Gas"],
+                  ]}
+                  call="showVertragsende($('datenerfassung_lead').value)"
+                />
+                <div
+                  id="datenerfassung_vertragsende_div"
+                  class="input_form oneColumn"
+                  style="display: none;"
+                >
+                  <Input
+                    id="datenerfassung_vertragsende"
+                    label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                    type="text"
+                  />
+                </div>
+              </Field>
+              <Field legend="Optin"
+              klasse="grid-col_1">
+                <Select
+                  id="datenerfassung_optin_detail"
+                  label="Optin?"
+                  firstOption={["keine", "Keine Änderung der Werbeerlaubnis"]}
+                  options={[
+                    ["voll", "Volle Werbeerlaubnis"],
+                    ["schrift", "Nur schriftlich (Mail/Brief)"],
+                    ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
+                  ]}
+                />
+              </Field>
+            </div>
+
+            <!-- Quell-Datei index.html der STE_WEL hat an dieser Stelle <div> mit Email-Abgleich und Freitext. Wird nie benutzt? -->
+          </div>
+
+          <div
+            id="datenerfassung_ablehnung"
+            class="input_form oneColumn"
+            style="display: none"
+          >
+          <fieldset>
+            <legend>Negativgrund</legend>
+            
+            <!-- TODO: Change this select to SqlSelect  -->
+              <label for="datenerfassung_ablehnungsgrund">Negativgrund:</label>
+              <span
+                class="errormessage"
+                id="datenerfassung_error_ablehnungsgrund"></span>
+              <select
+                name="datenerfassung_ablehnungsgrund"
+                id="datenerfassung_ablehnungsgrund"
+                class="dropdown h-drop"
+                style="width: 500px"
+              >
+              </select>
+            </fieldset>
+          </div>
+        </div>
+        <!-- Ende tab_produkt -->
+
+        <!-- Anfang tab_zusammenfassung -->
+        <div class="tab_content" id="tab_zusammenfassung" style="display: none">
+          <div id="zusammenfassung_errors"></div>
+
+          <div
+            id="zusammenfassung"
+            class="input_form oneColumn"
+            style="display: block"
+          >
+            <fieldset>
+              <legend>Zusammenfassung</legend>
+
+              <div id="zusammenfassung_text" style="display: block"></div>
+            </fieldset>
+          </div>
+
+          <div
+            id="recording"
+            class="input_form oneColumn"
+            style="display: none"
+          >
+            <fieldset>
+              <legend>Aufnahme</legend>
+              <br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;
+              <button onclick="recordSummary('record_div');return false;">
+                <img src="../include_skon_v2/images/media-record.png" />
+              </button>
+
+              <span id="record_div" style="float:left;">
+                &nbsp;Bitte die Aufnahme starten
+              </span>
+
+              <div
+                id="abschliessen"
+                class="input_form oneColumn"
+                style="display: none"
+              >
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <!-- Ende tab_zusammenfassung -->
+
+        <FinishBtn />
+      </form>
+
+      <FootButtons />
+    </div>
+  </main>
+  <PopupRotz />
+</Layout>
