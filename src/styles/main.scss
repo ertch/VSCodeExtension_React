@@ -36,7 +36,7 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 100;
+    // z-index: 100;
 }
 
 body {
@@ -81,12 +81,6 @@ main {
     padding: 65px 1em 1em 0;
     
 }
-
-select {
-    margin-right: 3em;
-    
-}
-
 
 table {
     border: 1px solid #bbb;

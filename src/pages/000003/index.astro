@@ -82,57 +82,57 @@ import PopupRotz from "@components/PopupRotz.astro";
 
           <div
             id="datenerfassung_product"
-            class="input_form grid"
+            class="input_form"
             style="display: none;"
           >
-            <Field legend="Datenerfassung" klasse="grid-col_1">
-              <Input
-                id="datenerfassung_email"
-                label="E-Mail-Adresse"
-                type="email"
-              />
-              <Input
-                id="datenerfassung_telefon"
-                label="Abweichende Telefonnummer?"
-                type="text"
-              />
-
-              <Select
-                id="datenerfassung_lead"
-                label="Lead"
-                firstOption={["Kein Lead", "Kein Lead"]}
-                options={[
-                  ["Strom", "Strom"],
-                  ["Gas", "Gas"],
-                ]}
-                call="showVertragsende($('datenerfassung_lead').value)"
-              />
-
-              <div
-                id="datenerfassung_vertragsende_div"
-                class="input_form oneColumn"
-                style="display: none;"
-              >
+            <div class="grid">
+              <Field legend="Datenerfassung" klasse="grid-col_1">
                 <Input
-                  id="datenerfassung_vertragsende"
-                  label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                  id="datenerfassung_email"
+                  label="E-Mail-Adresse"
+                  type="email"
+                />
+                <Input
+                  id="datenerfassung_telefon"
+                  label="Abweichende Telefonnummer?"
                   type="text"
                 />
-              </div>
-            </Field>
-
-            <Field legend="Optin">
-              <Select
-                id="datenerfassung_optin_detail"
-                label="Optin?"
-                firstOption={["keine", "Keine Änderung der Werbeerlaubnis"]}
-                options={[
-                  ["voll", "Volle Werbeerlaubnis"],
-                  ["schrift", "Nur schriftlich (Mail/Brief)"],
-                  ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
-                ]}
-              />
-            </Field>
+                <Select
+                  id="datenerfassung_lead"
+                  label="Lead"
+                  firstOption={["Kein Lead", "Kein Lead"]}
+                  options={[
+                    ["Strom", "Strom"],
+                    ["Gas", "Gas"],
+                  ]}
+                  call="showVertragsende($('datenerfassung_lead').value)"
+                />
+                <div
+                  id="datenerfassung_vertragsende_div"
+                  class="input_form oneColumn"
+                  style="display: none;"
+                >
+                  <Input
+                    id="datenerfassung_vertragsende"
+                    label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                    type="text"
+                  />
+                </div>
+              </Field>
+              <Field legend="Optin"
+              klasse="grid-col_1">
+                <Select
+                  id="datenerfassung_optin_detail"
+                  label="Optin?"
+                  firstOption={["keine", "Keine Änderung der Werbeerlaubnis"]}
+                  options={[
+                    ["voll", "Volle Werbeerlaubnis"],
+                    ["schrift", "Nur schriftlich (Mail/Brief)"],
+                    ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
+                  ]}
+                />
+              </Field>
+            </div>
 
             <!-- Quell-Datei index.html der STE_WEL hat an dieser Stelle <div> mit Email-Abgleich und Freitext. Wird nie benutzt? -->
           </div>
@@ -149,14 +149,14 @@ import PopupRotz from "@components/PopupRotz.astro";
               <label for="datenerfassung_ablehnungsgrund">Negativgrund:</label>
               <span
                 class="errormessage"
-                id="datenerfassung_error_ablehnungsgrund"></span><br />
+                id="datenerfassung_error_ablehnungsgrund"></span>
               <select
                 name="datenerfassung_ablehnungsgrund"
                 id="datenerfassung_ablehnungsgrund"
                 class="dropdown h-drop"
                 style="width: 500px"
               >
-              </select><br />
+              </select>
             </fieldset>
           </div>
         </div>
