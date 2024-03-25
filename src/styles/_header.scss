@@ -1,12 +1,14 @@
-* {
-    box-sizing: border-box;
-}
-
 header {
+    align-items: center;
+    background-color: $backgroundgray;
     display: flex;
+    height: 70px;
     justify-content: space-between;
     padding: 0.5em 1em;
-    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 5;
 }
 
 header img {

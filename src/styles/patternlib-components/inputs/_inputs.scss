@@ -18,11 +18,6 @@ input:hover {
   box-shadow: 0 0 0 1px $lightgrey;
 }
 
-/* Thanks Safari ... Asshole */
-input[type="search"] {
-  appearance: textfield;
-}
-
 input[disabled] {
   background-color: $lightgrey;
   color: $darkgrey;
@@ -40,15 +35,20 @@ textarea {
 /* Just inputs */
 .input-text,
 .input-textarea {
-  display: flex;
-  width: 100%;
-  height: 40px;
-  min-width: 148px;
-  flex-wrap: 2 1;
-  padding: $baseunit * 0.25 $baseunit * 1 $baseunit * 0.125 $baseunit * 0.5;
   border: 1px solid $lightgrey;
   border-radius: 2px;
+  display: flex;
+  flex-wrap: 2 1;
   font-size: inherit;
+  height: 40px;
+  width: 100%;
+  
+  min-width: 148px;
+  
+  padding: $baseunit * 0.25 $baseunit * 1 $baseunit * 0.125 $baseunit * 0.5;
+  
+  
+  
   margin-bottom: 1.3em;
 
   &:focus {
