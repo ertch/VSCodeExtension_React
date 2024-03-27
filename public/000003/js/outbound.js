@@ -35,6 +35,7 @@ function recordSummary(divId) {
     document.getElementById(divId).innerHTML='<br>&nbsp;Achtung: Aufnahme l&auml;uft ...';
     document.getElementById('recording').style.display='none';
     document.getElementById('abschliessen').style.display='block';
+    document.getElementById('rec-warn').className='record_indicator';
     blnFinishPositive=true;
     blnRecord=true;
     startVoiceRecording();
@@ -210,21 +211,30 @@ function switchTab($newTabName) {
         $newTab.style.display = 'block';
     }
 
-    if ($newTabName != "tab_start")
+    if ($newTabName != "tab_start"){
         myStyle = "none";
-    else
-        myStyle = "block";
-
+    }else{
+        if (validateDatenerfassung()) myStyle = "block";
+    }
 
     $('div_go_ane').style.display = myStyle;
     $('div_go_abfax').style.display = myStyle;
     $('div_go_positiv').style.display = myStyle;
 
-    if($newTabName=='tab_zusammenfassung') showzusammenfassung();
-    if (blnFinishPositive)
-        document.getElementById('abschliessen').style.display = 'block';
-
-    showzusammenfassung();
+    if($newTabName=='tab_zusammenfassung'){
+        document.getElementById('tab_next_zusammenfassung_1').className = "left_right go d-none";
+        showzusammenfassung();
+    } else {
+        if ($newTabName != "tab_start"){
+            showVerabschiedungBtn();
+        }
+    }
+    if (blnFinishPositive) document.getElementById('abschliessen').style.display = 'block';
+    if ($('datenerfassung_produkt').value == "" ) {
+        document.getElementById('abschliessen').style.display = 'none'
+    };
+    
+    // showzusammenfassung();
 }
 
 

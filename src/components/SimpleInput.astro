@@ -9,9 +9,10 @@ interface Props {
   maxlength?: string;
   pattern?: string;
   disabled?: boolean;
+  blur?: string;
 }
 
-const { id, label, type, required, maxlength, pattern, call, value, disabled } =
+const { id, label, type, required, maxlength, pattern, call, value, disabled, blur } =
   Astro.props;
 // TODO: ACHTUNG! Funktioniert nicht im Tab "Zusammenfassung", da das Errordiv "zusammenfassung_errors" heißt
 let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
@@ -33,4 +34,5 @@ let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
   maxlength={maxlength}
   pattern={pattern}
   onchange={call}
+  onblur={blur}
 />

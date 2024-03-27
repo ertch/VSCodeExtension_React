@@ -38,7 +38,6 @@ function recordSummary(divId) {
     blnFinishPositive=true;
     blnRecord=true;
     startVoiceRecording();
-
 }
 
 function getNavigationDiv(label,id,value) {
@@ -207,7 +206,7 @@ function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
                 }
             });
     }
-}
+}ö
 
 function ajaxGetBankname(blz,$bank) {
 

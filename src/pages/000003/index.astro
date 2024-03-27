@@ -51,6 +51,7 @@ import PopupRotz from "@components/PopupRotz.astro";
         method="POST"
         id="datenerfassung_form"
       >
+      <div id="rec-warn" class="record_indicator d-none" >   Aufnahme läuft...</div>
         <!-- Anfang tab_start -->
         <div
           id="tab_start"
@@ -96,6 +97,7 @@ import PopupRotz from "@components/PopupRotz.astro";
                   id="datenerfassung_telefon"
                   label="Abweichende Telefonnummer?"
                   type="text"
+                  blur="showVerabschiedungBtn()"
                 />
                 <Select
                   id="datenerfassung_lead"
@@ -105,7 +107,7 @@ import PopupRotz from "@components/PopupRotz.astro";
                     ["Strom", "Strom"],
                     ["Gas", "Gas"],
                   ]}
-                  call="showVertragsende($('datenerfassung_lead').value)"
+                  call="showVertragsende()"
                 />
                 <div
                   id="datenerfassung_vertragsende_div"
@@ -124,6 +126,7 @@ import PopupRotz from "@components/PopupRotz.astro";
                 <Select
                   id="datenerfassung_optin_detail"
                   label="Optin?"
+                  call="showzusammenfassung()"
                   firstOption={["keine", "Keine Änderung der Werbeerlaubnis"]}
                   options={[
                     ["voll", "Volle Werbeerlaubnis"],
@@ -135,33 +138,29 @@ import PopupRotz from "@components/PopupRotz.astro";
             </div>
 
             <!-- Quell-Datei index.html der STE_WEL hat an dieser Stelle <div> mit Email-Abgleich und Freitext. Wird nie benutzt? -->
-          </div>
+        </div>
 
-          <div
-            id="datenerfassung_ablehnung"
-            class="input_form oneColumn"
-            style="display: none"
-          >
-          <fieldset>
-            <legend>Negativgrund</legend>
-            
-            <!-- TODO: Change this select to SqlSelect  -->
-              <label for="datenerfassung_ablehnungsgrund">Negativgrund:</label>
-              <span
-                class="errormessage"
-                id="datenerfassung_error_ablehnungsgrund"></span>
-              <select
-                name="datenerfassung_ablehnungsgrund"
+          <div class="grid">
+            <div
+              id="datenerfassung_ablehnung"
+              style="display: none"
+            >
+            <Field legend="Kein Vertragsabschluss" klasse="grid-col_1">
+              <SQL_Select
                 id="datenerfassung_ablehnungsgrund"
-                class="dropdown h-drop"
-                style="width: 500px"
-              >
-              </select>
-            </fieldset>
+                label="Ablehnungsgrund:"
+                name="datenerfassung_ablehnungsgrund"
+                call="showVerabschiedungBtn()"
+              />
+            </Field>
+            </div>
           </div>
         </div>
+    
+      
+        
         <!-- Ende tab_produkt -->
-
+        
         <!-- Anfang tab_zusammenfassung -->
         <div class="tab_content" id="tab_zusammenfassung" style="display: none">
           <div id="zusammenfassung_errors"></div>
@@ -171,11 +170,11 @@ import PopupRotz from "@components/PopupRotz.astro";
             class="input_form oneColumn"
             style="display: block"
           >
-            <fieldset>
-              <legend>Zusammenfassung</legend>
-
-              <div id="zusammenfassung_text" style="display: block"></div>
-            </fieldset>
+            <div class="grid">
+              <Field legend="Zusammenfassung" klasse="grid-col_1">
+                <div id="zusammenfassung_text" style="display: block"></div>
+              </Field>
+            </div>
           </div>
 
           <div
@@ -183,26 +182,42 @@ import PopupRotz from "@components/PopupRotz.astro";
             class="input_form oneColumn"
             style="display: none"
           >
-            <fieldset>
-              <legend>Aufnahme</legend>
-              <br />&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;
-              <button onclick="recordSummary('record_div');return false;">
-                <img src="../include_skon_v2/images/media-record.png" />
-              </button>
-
-              <span id="record_div" style="float:left;">
-                &nbsp;Bitte die Aufnahme starten
-              </span>
-
-              <div
-                id="abschliessen"
-                class="input_form oneColumn"
-                style="display: none"
-              >
-              </div>
-            </fieldset>
+            <div class="grid">
+              <Field legend="Aufnahme" klasse="grid-col_1">
+              
+                <span id="record_div">
+                    &nbsp;Bitte die Aufnahme starten
+                </span>
+              
+                <div class="go--left">
+                  <button class="gray_btn" onclick="recordSummary('record_div');return false;">
+                    <strong class="glyph"></strong>
+                    &nbsp;Aufnahme
+                  </button>
+                </div>
+              </Field>
+            </div>
           </div>
+
+          <div
+            id="abschliessen"
+            class="input_form oneColumn"
+            style="display: none"
+          >
+              <div class="grid">
+                <Field legend="Abschluss" klasse="grid-col_1">
+                  <div class="go--left">
+                    <button onclick="" class="gray_btn">
+                      <strong class="glyph"></strong>
+                      &nbsp;Auftrag abschließen
+                    </button>
+                  </div>
+                </Field>
+              </div>
+          </div>
+            
         </div>
+        
         <!-- Ende tab_zusammenfassung -->
 
         <FinishBtn />

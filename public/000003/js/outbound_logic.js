@@ -410,11 +410,11 @@ function showprodukt() {
 
 
 function showzusammenfassung() {
-
+    console.log("tiggered " + validateDatenerfassung());
     if (validateDatenerfassung()) {
         if ($('datenerfassung_optin_detail').value != "keine" && $('datenerfassung_optin_detail').value != "out" ) {
         	
-            document.getElementById('abschliessen').style.display = "none";
+            document.getElementById('abschliessen').style.display = "none";                    
             document.getElementById('recording').style.display = "block";
             
         } else {
@@ -440,6 +440,20 @@ function showVertragsende() {
     
 }
 
+function showVerabschiedungBtn() {
+
+    if(document.getElementById('datenerfassung_ablehnungsgrund').value != ""){
+        document.getElementById('tab_next_zusammenfassung_1').className = "left_right go";
+    }else{
+        var blnSuccess = true;
+        blnSuccess &= (document.querySelector('#datenerfassung_email').value !== "");
+        blnSuccess &= (document.querySelector('#datenerfassung_telefon').value !== "");
+
+        if (blnSuccess == true) {
+            document.getElementById('tab_next_zusammenfassung_1').className = "left_right go";
+        }
+    }
+}
 
 /* Schlie?t einen Datensatz positiv ab */
 function finishPositive() {

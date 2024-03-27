@@ -94,13 +94,8 @@ function filterSqlResultForProduct(s, blnWithEuro) {
  * und die globalen Variablen setzt
  */
 function gf_initialize() {
-
-
-
     // ziel = "select tagesziel from livestat_settings where campaign_id = '" + campaignId + "'";
     // dailyToGo = executeSql(ziel);
-
-
     // document.execCommand("BackgroundImageCache",false,true);
 
     blnFinishPositive = false;
@@ -381,7 +376,7 @@ function validateDatenerfassung() {
         blnSuccess &= validateSelect($('opt_telefon').value, 'Opt-In Telefon',$('datenerfassung_error_opt_telefon'));	
     }
     */
-
+    console.log(blnSuccess + "test");
     return blnSuccess;
 }
 
@@ -414,14 +409,17 @@ function showzusammenfassung() {
         	
             document.getElementById('abschliessen').style.display = "none";
             document.getElementById('recording').style.display = "block";
+            document.getElementById('tab_next_zusammenfassung_1').className = "left_right go";
+            console.log("test positive");
             
         } else {
         	
             document.getElementById('abschliessen').style.display = "block";
             document.getElementById('recording').style.display = "none";            
-
+            console.log("test negative");
         }
     }
+    console.log("test out");
 }
 
 function showVertragsende() {
