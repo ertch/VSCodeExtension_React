@@ -1,0 +1,13 @@
+// No chi-chi, but pure native checkboxes. Eat thias, Design.
+// <input name="something" class="native-check" type="checkbox" id="whatever">
+
+.native-check {
+  border: 1px solid $green;
+  border-radius: 2px;
+  height: 20px;
+  width: 20px;
+
+  &:checked {
+    accent-color: $green;
+  }
+}
