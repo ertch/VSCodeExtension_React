@@ -206,7 +206,7 @@ function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
                 }
             });
     }
-}ö
+}
 
 function ajaxGetBankname(blz,$bank) {
 

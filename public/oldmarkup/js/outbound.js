@@ -178,10 +178,8 @@ function switchTab($newTabName) {
     if (blnFinishPositive)
         document.getElementById('abschliessen').style.display = 'block';
 
-    'showzusammenfassung();'
+//    showzusammenfassung();
 }
-
-
 
 
 function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {

@@ -4,7 +4,6 @@ var blnRecord=false;
 var blnFinishPositive=false;
 var currentTabName="tab_start";
 
-
 /*function recordSummary() {
 
   blnRecord=!blnRecord;
@@ -110,7 +109,6 @@ function getNavigationDivGreen(label, id, value) {
     return s;
 }
 
-
 function getSimpleNavigationDiv(value) {
 
     var s = '<div class="bg-gray">';
@@ -128,7 +126,6 @@ function getNavigationSeparator() {
     return s;
 }
 
-
 function startVoiceRecording() {
 
     insertIntoLog("info","Voicerecording wurde angeschaltet.","");
@@ -141,9 +138,6 @@ function startVoiceRecording() {
     }
 }
 
-
-
-
 function getClientWidth() {
     return document.compatMode=='CSS1Compat' && !window.opera?document.documentElement.clientWidth:document.body.clientWidth;
 }
@@ -151,7 +145,6 @@ function getClientWidth() {
 function getClientHeight() {
     return document.compatMode=='CSS1Compat' && !window.opera?document.documentElement.clientHeight:document.body.clientHeight;
 }
-
 
 function windowXSize () {
     if (window.innerWidth) {
@@ -173,13 +166,9 @@ function windowYSize () {
     }
 }
 
-
-
 function centerDiv(divId,xSize) {
     document.getElementById(divId).style.left=((windowXSize()-xSize)/2)+'px';
 }
-
-
 
 function switchTab($newTabName) {
     /*if ($newTabName == "tab_mofu")	{
@@ -189,7 +178,7 @@ function switchTab($newTabName) {
     if (validateTab(currentTabName)) {
 
         currentTabName = $newTabName;
-        console.log(currentTabName)
+        // console.log(currentTabName)
         /* wenn der neue Tab bereits sichtbar ist, nix machen */
         if ($($newTabName).style.display == 'block') {
             return;
@@ -237,9 +226,6 @@ function switchTab($newTabName) {
     // showzusammenfassung();
 }
 
-
-
-
 function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
 
     if(validateInteger(plz,'Plz',errorId,true,1000,99999)) {
@@ -267,19 +253,16 @@ function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
 function ajaxGetBankname(blz,$bank) {
 
     new Ajax.Request('http://admin.skon.local/klicktel/index.php?blz='+blz,
-        {
-            method:'get',
-            onSuccess: function(transport){
-                $bank.value=transport.responseText;
-            },
-            onFailure: function(){
-                insertIntoLog("fatal","Klicktel-Proxy ist unter " + url +" nicht erreichbar.","");
-                alert("Klicktel-Proxy ist nicht erreichbar. Bitte asap an IT wenden");
-            }
-        });
-
-
-
+    {
+        method:'get',
+        onSuccess: function(transport){
+            $bank.value=transport.responseText;
+        },
+        onFailure: function(){
+            insertIntoLog("fatal","Klicktel-Proxy ist unter " + url +" nicht erreichbar.","");
+            alert("Klicktel-Proxy ist nicht erreichbar. Bitte asap an IT wenden");
+        }
+    });
 }
 
 /* Holt Negativgr�nde und Wiedervorlagen f�r Agent aus der DB */
@@ -296,8 +279,6 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
     document.getElementById('kampagnenname').innerHTML = "Unitymedia Upsell<br> ";
 */
 
-
-
     // Negativgr�nde herausbekommen
     result=executeSql("SELECT id,label FROM cancellation_reasons WHERE campaign_id="+campaignId+" and active=1 ORDER BY label DESC");
 
@@ -307,7 +288,6 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
     }
 
     selectboxSetOptions(document.getElementById('datenerfassung_ablehnungsgrund'),negativgruende,"",true,result[0].rows.length);
-
 
 
     // Kommende Wiedervorlagen anzeigen
@@ -338,8 +318,6 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
 
     anzahl=executeSql("SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id="+calldatatableId);
 
-
-
     if(anzahl[0].rows[0].fields.anzahl>0) {
 
         result=executeSql("SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message FROM contact_history WHERE calldatatable_id="+calldatatableId+" ORDER BY called_at DESC");
@@ -361,7 +339,6 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
         }
         $('stats_text').innerHTML='[<span style="color: green">'+result[0].rows[0].fields.POSITIV+'</span>&nbsp;/&nbsp;'+nettos+'&nbsp;,&nbsp;Wandlungsquote: '+quote+'%]';
     }
-
 }
 
 
@@ -369,7 +346,6 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
 
 
 function finishCallback() {
-
 
         insertIntoLog("info", "Versuch eine Wiedervorlage zu legen.", "");
 
@@ -447,8 +423,6 @@ function finishCallback() {
         } else {
             alert('Es duerfen keine Wiedervorlagen ueber das Monatsende gelegt werden!');
         }
-
-
 }
 
 
@@ -495,8 +469,6 @@ function finishAbFax() {
     }
 }
 
-
-
 /* Setzt Call auf APNE */
 function finishApne() {
 
@@ -519,7 +491,6 @@ function finishApne() {
 
     newDate= new Date();
     newDate.setHours(newDate.getHours() + parseInt($('apne_delay') .value) );
-
 
     var query="INSERT INTO contact_history (\
 				calldatatable_id, \

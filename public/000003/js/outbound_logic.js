@@ -170,7 +170,6 @@ function gf_initialize() {
 
     console.log("under Draggable")
 
-
     query = "SELECT "
         + addressdatatable
         + ".id as addressdataid, \
@@ -215,14 +214,11 @@ join calldatatable on calldatatable.addressdata_id=" + addressdatatable
 where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     addressdata = executeSql(query);
-    console.log("addressdata:" + addressdata)
+    // console.log("addressdata:" + addressdata)
     insertIntoLog("debug", "Adressdaten wurden geladen.", "");
-
-
 
     addressdatatableId = addressdata[0].rows[0].columns[0];
 // Alle "globalen" kampagnenabh?ngigen Daten setzen
-
 
     var kunden_nr = filterSqlResult(addressdata[0].rows[0].columns[1]);
     var vorname = filterSqlResult(addressdata[0].rows[0].columns[2]);
@@ -323,10 +319,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     //recordingName = kunden_nr + "_[#date]";
     recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
-    
-
 }
-
 
 
 /*
@@ -349,8 +342,6 @@ function validateTab(name) {
 
     return false;
 }
-
-
 
 /* Validator f?r die Datenerfassung (Seite1) */
 function validateDatenerfassung() {
@@ -391,53 +382,36 @@ function validateDatenerfassung() {
 
 function showprodukt() {
 
-    if ($('datenerfassung_produkt').value == "nein") {
-    	
+    if ($('datenerfassung_produkt').value == "nein") {	
     	document.getElementById('datenerfassung_product').style.display = "none";
-        document.getElementById('datenerfassung_ablehnung').style.display = "block";   	
- 
-    	
-    } else {
-    	
+        document.getElementById('datenerfassung_ablehnung').style.display = "block";   		
+    } else {	
         document.getElementById('datenerfassung_product').style.display = "block";
         document.getElementById('datenerfassung_ablehnung').style.display = "none";
-
-
     }
-    
     return true;
 }
 
 
 function showzusammenfassung() {
-    console.log("tiggered " + validateDatenerfassung());
     if (validateDatenerfassung()) {
         if ($('datenerfassung_optin_detail').value != "keine" && $('datenerfassung_optin_detail').value != "out" ) {
-        	
             document.getElementById('abschliessen').style.display = "none";                    
-            document.getElementById('recording').style.display = "block";
-            
+            document.getElementById('recording').style.display = "block";  
         } else {
-        	
             document.getElementById('abschliessen').style.display = "block";
             document.getElementById('recording').style.display = "none";            
-
         }
     }
 }
 
 function showVertragsende() {
     
-        if ($('datenerfassung_lead').value != "Kein Lead") {
-        	
-            document.getElementById('datenerfassung_vertragsende_div').style.display = "block";            
-            
-        } else {
-        	
-        	document.getElementById('datenerfassung_vertragsende_div').style.display = "none";            
-
-        }
-    
+    if ($('datenerfassung_lead').value != "Kein Lead") {
+        document.getElementById('datenerfassung_vertragsende_div').style.display = "block";            
+    } else {
+        document.getElementById('datenerfassung_vertragsende_div').style.display = "none";           
+    }
 }
 
 function showVerabschiedungBtn() {
@@ -527,13 +501,6 @@ function finishPositive() {
     }
 
 }
-
-
-
-
-
-
-
 
 function recording_complete_start() {
     insertIntoLog("info", "Vollstaendiges Voicerecording wurde angeschaltet.", "");
