@@ -38,7 +38,6 @@ function recordSummary(divId) {
     blnFinishPositive=true;
     blnRecord=true;
     startVoiceRecording();
-
 }
 
 function getNavigationDiv(label,id,value) {

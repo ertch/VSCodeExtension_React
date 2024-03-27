@@ -164,12 +164,25 @@ textarea:focus{
 	min-height: 50px;
 }
 
+.go--left {
+	margin: 10px 5px 20px 5px;
+	min-height: 50px;
+}
+
 .go button {
 	border: 1px solid #333;
 	border-radius: 5px;
 	height: 46px;
 	margin-top: 10px;
 	width: 185px;
+}
+
+.go--left button {
+	border: 1px solid #333;
+	border-radius: 5px;
+	height: 46px;
+	margin-top: 10px;
+	width: 195px;
 }
 
 .go button:hover {
@@ -220,6 +233,15 @@ textarea:focus{
 	height: 45px;
 }
 
+.gray_btn {
+	border-color: rgb(197, 169, 169);
+	background-image: linear-gradient(to right top, #ece4e4, #e0dadf, #e0e0e0, #e2dae1, #ebe4e9, #e6d9e3, #ebdfe8, #e9dae6, #e7e0e6, #e6dde4, #f0e0ed, #e9dddd);
+	margin: 5px 5px 5px 5px;
+	font-size: 17px;
+	height: 45px;
+	align-self: flex-start;
+}
+
 #summary {
 	border: dashed 1px #bbb;
 }
@@ -227,6 +249,14 @@ textarea:focus{
 .summary_block {
 	margin: 10px 30px 10px 30px;
 	padding: 5px;
+}
+
+.record_indicator {
+	color: rgb(199, 7, 7);
+	font-family: salesfontor;
+	font-size: 1.2em;
+	text-align: end;
+	padding: .4em;
 }
 
 #wiedervorlage_Date{
