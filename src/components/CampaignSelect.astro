@@ -19,8 +19,7 @@ const { options = [] } = Astro.props as Props;
 // export interface Props {
 //   options: Array<string>;
 // }
-
-let errorname = id.replace("_produkt_", "_error_produkt_");
+let errorname = id.replace(/^([^_]*)_/, "$1_error_");
 ---
 
 <div id={name} class="input_form oneColumn"></div>

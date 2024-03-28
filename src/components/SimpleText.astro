@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { id, name, required, rows } = Astro.props;
-let errorname = id.replace("_", "_error_");
+let errorname = id.replace(/^([^_]*)_/, "$1_error_");
 ---
 
 <div>
