@@ -7,7 +7,6 @@
     position: fixed;
 }
 
-
 .data {
     border-bottom: 1px solid $darkgrey;
     padding: 5px;
@@ -64,6 +63,6 @@
 }
 
 .separator {
-    grid-row: span 2;
+    grid-column: span 2;
     margin-bottom: 15px;
 }
