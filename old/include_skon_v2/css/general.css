@@ -199,22 +199,10 @@ fieldset legend {
 	width: 100%;
 }
 
-
-.separator{
-	    margin-bottom: 15px;
-}
-
 .line {
 	min-height: 30px;
 	width: 100%;
 }
-
-
-label {
-	font-weight: bold;
-	margin: 0px 5px;
-}
-
 
 .data_label {
 	float: left;

@@ -41,19 +41,13 @@ textarea {
   flex-wrap: 2 1;
   font-size: inherit;
   height: 40px;
+  margin-bottom: 1.3em;
+  min-width: 148px;
+  padding: $baseunit * 0.25 $baseunit * 1 $baseunit * 0.125 $baseunit * 0.5;
   width: 100%;
   
-  min-width: 148px;
-  
-  padding: $baseunit * 0.25 $baseunit * 1 $baseunit * 0.125 $baseunit * 0.5;
-  
-  
-  
-  margin-bottom: 1.3em;
-
   &:focus {
     border-color: $blue;
-    //outline: 1px solid transparent;
   }
 }
 
@@ -67,7 +61,13 @@ input[type="number"] {
   flex-wrap: unset;
 }
 
-// Fieldsets and its children. You love to love them.
+label {
+  display: block;
+  font-weight: bold;
+  margin: 0px 5px;
+}
+
+// Fieldsets and its child. You love to love them.
 fieldset {
   background-color: $softwhite;
   border: 1px solid $darkgrey;
@@ -82,9 +82,4 @@ legend {
   padding: 5px 10px;
   position: relative;
   top: -15px;
-}
-
-label {
-  display: block;
-  font-weight: bold;
 }

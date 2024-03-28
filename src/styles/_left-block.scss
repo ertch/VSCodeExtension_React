@@ -39,3 +39,31 @@
 // .data label {
 //     margin-left: 0;
 // }
+
+.bg-gray {
+    background-color: $bg_customer_blue;
+    min-height: 40px;
+    border: 1px solid $lightanthracite;
+}
+
+.bg-white {
+    background-color: $bg_customer_lightblue;
+}
+
+.data-kunde-m {
+    font-size: .85em;
+    margin: 0 0 4px;
+    overflow-wrap: break-word;
+    padding: 2px 5px;
+    width: 13.5em;
+}
+
+.data-label-m {
+    font-size: .9em;
+    margin-top: 2px;
+}
+
+.separator {
+    grid-row: span 2;
+    margin-bottom: 15px;
+}

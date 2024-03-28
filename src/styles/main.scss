@@ -9,10 +9,6 @@
 @import 'patternlib-components/messages/_livenotifications';
 @import 'patternlib-components/messages/_modal';
 @import 'patternlib-components/messages/_systemmessages';
-<<<<<<< Updated upstream
-=======
-@import 'patternlib-components/tooltips/_tooltips';
->>>>>>> Stashed changes
 @import 'patternlib-components/tabs/_tabs';
 @import 'header';
 @import 'left-block';
@@ -35,30 +31,9 @@ body {
     padding: 0;
 }
 
-<<<<<<< Updated upstream
-fieldset {
-    background-color: #f1f1f1;
-    position: relative;
-    margin-top: 10px;
-    border: 0;
-	padding: 15px 5px 5px 15px;
-    margin: 15px 5px;
-}
-
-legend {
-    position: relative;
-    top: -8px;
-    left: -15px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-=======
 h1 {
     display: block;
     text-align: center;
->>>>>>> Stashed changes
 }
 
 main {
@@ -129,19 +104,19 @@ td {
 
 .datenerf-bg {
     background-color: $bg_graysuit;  
-    border-top: 1px solid #b8b8b8;
+    border-top: 1px solid $darkgrey;
     margin-top: -15px;
     padding: 0 1em 0.1em 1em;
 }
 
 .datenerf-block-border2 {
-    background-color:#c9c9c9;
+    background-color: $lightgrey;
 }
 
 .daten-kunde {
-    background-color: #c7cccf;
+    background-color: $lightgrey;
 	position: fixed;
-	border: 1px solid #b8b8b8;
+	border: 1px solid $darkgrey;
 	margin-top: 2.2em;
 }
 
@@ -153,45 +128,10 @@ td {
     text-align: center;
 }
 
-.bg-gray {
-    background-color: $bg_customer_blue;
-    min-height: 40px;
-    border: 1px solid #555454;
-}
-
-.bg-white {
-    background-color: $bg_customer_lightblue;
-}
-
-
-.data-kunde-m {
-    font-size: .85em;
-    margin: 0 0 4px;
-    overflow-wrap: break-word;
-    padding: 2px 5px;
-    width: 13.5em;
-
-    &--seperator {
-        background-color: $backgroundgray;
-        height: 21px;
-        margin: 0 -1px;
-    }
-}
-
-.data-label-m {
-    font-size: .9em;
-    margin-top: 2px;
-}
-
 .hsp_div {
     padding-bottom: 2em;
 }
 
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
 .d-none {
     display: none;
 }
