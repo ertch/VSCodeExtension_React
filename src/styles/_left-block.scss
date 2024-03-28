@@ -1,65 +1,28 @@
 #customer_info {
-    border: 1px solid $darkgrey;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
 	margin-top: -.9em;
     max-width: 23.5em;
     position: fixed;
 }
 
-.data {
-    border-bottom: 1px solid $darkgrey;
-    padding: 5px;
-
-    &:nth-child(odd) {
-        border-right: 1px solid $darkgrey;
-    }
-    
-    &:last-child {
-        border-bottom: none;
-    }
-
-    &_label label {
-        padding-left: 5px;
-    }
+.cell {
+    background-color: #e5f3ff;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 0px 1px;
 }
 
-// Zur Veranschaulichung:
-// Untenstehende Regeln entsprechen den obenstehenden
-
-// .data:nth-child(odd) {
-//     border-right: 1px solid black;
-// }
-
-// .data:last-child {
-//     border-bottom: none;
-// }
-
-// .data label {
-//     margin-left: 0;
-// }
-
-.bg-gray {
-    background-color: $bg_customer_blue;
-    min-height: 40px;
-    border: 1px solid $lightanthracite;
+.cell__head,
+.cell__data {
+    padding: 3px;
 }
 
-.bg-white {
-    background-color: $bg_customer_lightblue;
+.cell__head {
+    background-color: #95ffff;
+    font-weight: bold;
 }
 
-.data-kunde-m {
-    font-size: .85em;
-    margin: 0 0 4px;
-    overflow-wrap: break-word;
-    padding: 2px 5px;
-    width: 13.5em;
-}
-
-.data-label-m {
-    font-size: .9em;
-    margin-top: 2px;
+.cell__data {
+    background-color: #e5f3ff;
 }
 
 .separator {

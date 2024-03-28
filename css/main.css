@@ -875,10 +875,6 @@ a:hover {
   margin-top: 4em;
 }
 
-.bg-gray {
-  background-color: #f3f4f4;
-}
-
 .sr-only {
   position: absolute;
   overflow: hidden;

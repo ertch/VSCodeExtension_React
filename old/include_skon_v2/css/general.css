@@ -1,17 +1,3 @@
-* {margin: 0;}
-
-body {
-	background-color: #F4F5F5;
-	font-family: sans-serif;
-}
-
-body, input, select, textarea {
-	font-family: sans-serif;
-	padding: 0px;
-	margin: 0px;
-	font-size: 11px;
-}
-
 h3 {
 	font-family: sans-serif;
 	font-size: 16px;
@@ -22,54 +8,11 @@ p {
    margin-left: 5px;
 }
 
-fieldset {
-	border: solid 1px #bbb;
-	padding: 5px;
-}
-
-fieldset legend {
-	font-family: sans-serif;
-	font-weight: bold;
-	font-size:17px;
-}
-
 #page {
 	background-color: #F4F5F5;
 	width: 100%;
     height: 100%;
     margin: 0px;
-}
-
-#header {
-	background-color: #F4F5F5;
-	width: 100%;
-	margin: 0px;
-	height: 10%;
-	padding: 0px;
-	background-repeat: no-repeat;
-	background-position: top right;
-	background-position: 10px 10px;
-	text-align: center;
-	vertical-align: top;
-}
-
-#header_logo {
-	padding: 10px;
-	float: left;
-}
-
-#logo_campaign {
-	padding-top: 5px;
-	padding-right: 10px;
-	padding-top: 10px;
-	float: right;
-	width: 150px;
-}
-
-#header h1 {
-	font-family: sans-serif;
-	padding-top: 5px;
-	padding-left: 150px;
 }
 
 #content {
@@ -86,13 +29,11 @@ fieldset legend {
 	text-align: center;
 }
 
-
 #footer_button{
     height: 60px;
     width: 900px;
     margin: 0 auto;
 }
-
 
 #navigation {
 	font-family: sans-serif;
@@ -119,6 +60,7 @@ fieldset legend {
 	text-align: center; 
 	width: 155px;
 }
+
 .customer_info{
 	margin-top: 15px;
 	margin-left: 20px;
@@ -139,7 +81,6 @@ fieldset legend {
 	 width: 100%;
 	 height:100%;
 }
-
 
 #right_block {
 	font-family: sans-serif;
@@ -197,7 +138,6 @@ fieldset legend {
 
 .data_value {
 	font-size: 16px;
-	float: left;
 }
 
 .data_value_red {
