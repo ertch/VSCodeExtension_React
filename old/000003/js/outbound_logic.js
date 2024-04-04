@@ -51,6 +51,7 @@ var ttWeb = new Object();
 
 
 function gf_javaf_initialize(){
+    console.log("gf_javaf_initialize") // JS analyse
 	if (!debug)	{	
 	
 	this.parent.contentInterface.initialize(window,
@@ -73,12 +74,14 @@ function gf_javaf_initialize(){
 
 
 function filterSqlResult(s) {
+    console.log("filterSqlResult") // JS analyse
     if (s == '-')
         s = '';
     return s;
 }
 
 function filterSqlResultForProduct(s, blnWithEuro) {
+    console.log("filterSqlResultForProduct") // JS analyse
     if (s == '-')
         s = 'kostenlos';
     else {
@@ -94,6 +97,7 @@ function filterSqlResultForProduct(s, blnWithEuro) {
  * und die globalen Variablen setzt
  */
 function gf_initialize() {
+    console.log("gf_initialize") // JS analyse
     // ziel = "select tagesziel from livestat_settings where campaign_id = '" + campaignId + "'";
     // dailyToGo = executeSql(ziel);
     // document.execCommand("BackgroundImageCache",false,true);
@@ -329,7 +333,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
  * verlassen werden
  */
 function validateTab(name) {
-
+    console.log("validateTab") // JS analyse
     switch (name) {
 
         case "tab_start":
@@ -347,7 +351,7 @@ function validateTab(name) {
 
 /* Validator f?r die Datenerfassung (Seite1) */
 function validateDatenerfassung() {
-
+    console.log("validateDatenerfassung") // JS analyse
     var blnSuccess = true;
     if ($('datenerfassung_produkt').value == "nein" ) {
         blnSuccess &= validateSelect($('datenerfassung_ablehnungsgrund').value, 'Ablehnungsgrund',$('datenerfassung_error_ablehnungsgrund'));
@@ -383,7 +387,7 @@ function validateDatenerfassung() {
 
 
 function showprodukt() {
-
+    console.log("showprodukt") // JS analyse
     if ($('datenerfassung_produkt').value == "nein") {
     	
     	document.getElementById('datenerfassung_product').style.display = "none";
@@ -403,7 +407,7 @@ function showprodukt() {
 
 
 function showzusammenfassung() {
-
+    console.log("showzusammenfassung") // JS analyse
     if (validateDatenerfassung()) {
         if ($('datenerfassung_optin_detail').value != "keine" && $('datenerfassung_optin_detail').value != "out" ) {
         	
@@ -418,7 +422,7 @@ function showzusammenfassung() {
 }
 
 function showVertragsende() {
-    
+    console.log("showVertragsende") // JS analyse
         if ($('datenerfassung_lead').value != "Kein Lead") {
         	
             document.getElementById('datenerfassung_vertragsende_div').style.display = "block";            
@@ -434,7 +438,7 @@ function showVertragsende() {
 
 /* Schlie?t einen Datensatz positiv ab */
 function finishPositive() {
-
+    console.log("finishPositive") // JS analyse
     // Logik ob Produkt gekauft wird
     if ($('datenerfassung_produkt').value != "nein") {
     	
@@ -513,6 +517,7 @@ function finishPositive() {
 
 
 function recording_complete_start() {
+    console.log("recording_complete_start") // JS analyse
     insertIntoLog("info", "Vollstaendiges Voicerecording wurde angeschaltet.", "");
     recordingComplete = 1;
 
@@ -546,7 +551,7 @@ function makeRecall() {
 */
 
 function makeRecall(){
-
+    console.log("makeRecall") // JS analyse
 	  blnSuccess=true;
 	  blnSuccess&=validateRufnummer(document.getElementById('recall_number').value,errMsg);
 		if(blnSuccess == true){

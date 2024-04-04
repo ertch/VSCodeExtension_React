@@ -31,7 +31,7 @@ var currentTabName="tab_start";
 }*/
 
 function recordSummary(divId) {
-
+    console.log("recordSummary") // JS analyse
     document.getElementById(divId).innerHTML='<br>&nbsp;Achtung: Aufnahme l&auml;uft ...';
     document.getElementById('recording').style.display='none';
     document.getElementById('abschliessen').style.display='block';
@@ -41,7 +41,7 @@ function recordSummary(divId) {
 }
 
 function getNavigationDiv(label,id,value) {
-
+     // JS analyse
     // var s='<div class="data">';
     var s = '<div class="bg-gray">'
     s=s+'<div class="data_label"><label>'+label+':</label></div>';
@@ -53,7 +53,7 @@ function getNavigationDiv(label,id,value) {
 
 
 function getSimpleNavigationDiv(value) {
-
+     // JS analyse
     var s='<div class="data">';
     s=s+'&nbsp;'+value+'</div>';
 
@@ -83,7 +83,7 @@ function getNavigationSeparator() {
 
 
 function startVoiceRecording() {
-
+    console.log("startVoiceRecording") // JS analyse
     insertIntoLog("info","Voicerecording wurde angeschaltet.","");
     debug_vf = 3;
     if(!debug) {
@@ -98,15 +98,18 @@ function startVoiceRecording() {
 
 
 function getClientWidth() {
+    console.log("getClientWidth") // JS analyse
     return document.compatMode=='CSS1Compat' && !window.opera?document.documentElement.clientWidth:document.body.clientWidth;
 }
 
 function getClientHeight() {
+    console.log("getClientHeight") // JS analyse
     return document.compatMode=='CSS1Compat' && !window.opera?document.documentElement.clientHeight:document.body.clientHeight;
 }
 
 
 function windowXSize () {
+    console.log("windowXSize") // JS analyse
     if (window.innerWidth) {
         return window.innerWidth;
     } else if (document.body && document.body.offsetWidth) {
@@ -117,6 +120,7 @@ function windowXSize () {
 }
 
 function windowYSize () {
+    console.log("windowYSize") // JS analyse
     if (window.innerHeight) {
         return window.innerHeight;
     } else if (document.body && document.body.offsetHeight) {
@@ -129,12 +133,14 @@ function windowYSize () {
 
 
 function centerDiv(divId,xSize) {
+    console.log("centerDiv") // JS analyse
     document.getElementById(divId).style.left=((windowXSize()-xSize)/2)+'px';
 }
 
 
 
 function switchTab($newTabName) {
+    console.log("switchTab") // JS analyse
     /*if ($newTabName == "tab_mofu")	{
             showMofu();
     }
@@ -185,7 +191,7 @@ function switchTab($newTabName) {
 
 
 function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
-
+    console.log("ajaxGetCityAndStreets") // JS analyse
     if(validateInteger(plz,'Plz',errorId,true,1000,99999)) {
 
         url='http://admin.skon.local/klicktel';
@@ -209,7 +215,7 @@ function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
 }
 
 function ajaxGetBankname(blz,$bank) {
-
+    console.log("ajaxGetBankname") // JS analyse
     new Ajax.Request('http://admin.skon.local/klicktel/index.php?blz='+blz,
         {
             method:'get',
@@ -228,6 +234,7 @@ function ajaxGetBankname(blz,$bank) {
 
 /* Holt Negativgr�nde und Wiedervorlagen f�r Agent aus der DB */
 function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampCode) {
+    console.log("getCampaignData") // JS analyse
     /*
     var kquery= "select name from umg_nkg_kampagnen , umg_ups_addressdata where umg_nkg_kampagnen.kampcode_kurz = umg_ups_addressdata.kampcode_kurz and umg_ups_addressdata.id = " + addressdataId;
     var kresult = executeSql(kquery);
@@ -313,7 +320,7 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
 
 
 function finishCallback() {
-
+    console.log("finishCallback") // JS analyse
 
         insertIntoLog("info", "Versuch eine Wiedervorlage zu legen.", "");
 
@@ -397,7 +404,7 @@ function finishCallback() {
 
 
 function finishAbFax() {
-
+    console.log("finishAbFax") // JS analyse
     insertIntoLog("info","Versuch den Datensatz als AB/Fax zu deklarieren.","");
 
     query="UPDATE calldatatable SET result_id = '"+resultIdAbfax+"', calldate = now(), agent_id = '" + agentId + "' where id = '" + calldatatableId + "' and campaign_id = '"+campaignId+"' limit 1;";
@@ -443,7 +450,7 @@ function finishAbFax() {
 
 /* Setzt Call auf APNE */
 function finishApne() {
-
+    console.log("finishApne") // JS analyse
     insertIntoLog("info","Versuch den Datensatz als APNE " + $('apne_delay') .value + "zu setzen.","");
 
     var resultId=0;
@@ -494,6 +501,7 @@ function finishApne() {
 }
 
 function saveVoiceRecordingName(voicefileName) {
+    console.log("saveVoiceRecordingName") // JS analyse
     //if((!debug)) {
         isRecorded = true;
         teile = voicefileName.split("\\");
@@ -508,6 +516,7 @@ function saveVoiceRecordingName(voicefileName) {
 
 
 function generateVoicefilename(prefix,template,suffix,recordingComp, terminate) {
+    console.log("generateVoicefilename") // JS analyse
     insertIntoLog("debug","Versuche Voicefilename aus " +
         prefix + " " + template + " mit Suffix "+suffix+ " zusammenzubauen","");
 
