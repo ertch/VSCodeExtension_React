@@ -235,77 +235,87 @@ if (!debug) {
 
 
 // ############################################################################################## GATEKEEPER #############################################################################################
-//
-//  Eine der wichtigsten Logiken ist das Öffnen und Schließen von Modalen oder Elementen.
-//  Hier soll der Gatekeeper Abhilfe schaffen. Das Array enthält alle Values und die Anweisung 
-//  für den Fall, dass diese ausgewählt werden. Alle Elemente die der Gatekeeper erkennen soll
-//  wenn sie über "all" angesprochen werden müssen das Attribut data-grp="" besitzen.
+//  Kurze Beschreibung:
+//  Eine der wichtigsten Logiken ist das Öffnen und Schließen von Modalen oder Elementen. Hier soll der Gatekeeper Abhilfe schaffen. 
+//  An die Funktion wird entweder ein Array (Aufbau siehe Beispiel) oder die ID des aufrufenden Gatekeeper-Selects übergeben. (siehe Components / Gatekeeper-Select)    
+//  Die Funktion liest aus dem Array, welche Aktionen bei welchem Select.value ausgeführt werden sollen. Die verfügbaren Aktionen sind: close, open & openOnly.
+//  "open" und "close" toggeln d-none in der Classlist des targets. "openOnly" schließt erst alle Mitglieder der switchGrp (data-grp = "gruppenName") und öffnet dann.
+//  Wenn target = "all" genutzt wird, wird ebendfalls an allen Gruppenmitgliedern, die gewählte Aktion ausgeführt.
+//  Der Bool für alwaysClose nacht open = openOnly [die Option ist obsolet und wird in Phase 3 ausgetauscht / Platzhalter]
 //
 //  Beispiel:
 //
-//  gatekeeper([[thisSelect, dataGrp, alwaysClose],            <<       string, string, boolean         [HEADER]    = Select = null --> Alle Elemente = d-none | data-grp | onChange Alles = d-none)
+//  gatekeeper([[thisSelect, switchGrp, alwaysClose],            <<       string, string, boolean         [HEADER]    = Select = null --> Alle Elemente = d-none | data-grp | onChange Alles = d-none)
 //      
 //      [value1, close, targetId1],                            <<       string, string, string          [OPERATION] = Element mit targetId = d-none
 //      [value1, open, [targetId1, targetId2, targetId3]],     <<       string, string, Array[string]   [OPERATION] = Alle Element aus Array = display
-//      [value2, onlyOpen, targetId3],                         <<       string, string, string          [OPERATION] = Alle Elemente außer targetId = d-none
+//      [value2, openOnly, targetId3],                         <<       string, string, string          [OPERATION] = Alle Elemente außer targetId = d-none
 //      [value3, close, all]                                   <<       string, string, string          [OPERATION] = Alle Elemente = d-none
 //  ])    
 
 
-    function gatekeeper(gateArr) {
+function gatekeeper(actionArr) {
+    let gateArr;
+    let select;
+    let switchGrp; 
+    let awCl; // alwaysClose bool
+    
+    if (Array.isArray(actionArr)) { //<<<>>> wenn actionArr = Array[]
+        [select, switchGrp, awCl] = [
+            document.getElementById(actionArr[0][0]),
+            document.querySelectorAll(`[data-grp=${actionArr[0][1]}]`),
+            actionArr[0][2]
+        ];
+    }else {                         //<<<>>> wenn actionArr = Select.id
+        gateArr = JSON.parse(actionArr.getAttribute("data-array").replace(/&quot;/g, `"`));
+        gateArr.forEach(entry => {  // säubere String für .parse und baue Array
+            if (entry.length > 3) { // wenn [inner[]] > 3, packe Alles ab [n][2] in neues Array auf [n][3]
+                entry[2] = [entry.slice(3)];
+                entry.length = 3;
+            }                       //  --- Erklärung :
+        });                         //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
+        [select, switchGrp, awCl] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
+            actionArr,
+            document.querySelectorAll(`[data-grp=${actionArr.getAttribute("data-trigger")}]`),
+            actionArr.getAttribute("data-awCl") === "true"
+        ];
+    }   
 
-        let select = document.getElementById(gateArr[0][0]);
-        let selectedValue = select.value;
-        let dataGrp = gateArr[0][1]; // muss vorhanden sein
-
-        gateArr.forEach(operation => {
-            let [value, action, target] = operation; 
-
-            if (value === selectedValue) { // Alle Operationen die dem Wert des Select entsprechen ausführen
-                try {
-                    if (target === 'all' || action === 'onlyOpen' || gateArr[0][2] ) {    // Alle Elemente in data-grp auf d-none setzten
-                        let grp = document.querySelectorAll(`[data-grp="${dataGrp}"]`);
-                        grp.forEach(element => {
-                            if (action === 'open') {
-                                element.classList.remove('d-none');
-                            }else {
-                                element.classList.add('d-none');
-                            }
-                        });
-                    }
-
-                    switch (action) { // toggle d-none je nach action
-                        
-                        case 'close':   // schließen bzw. verstecken der Elemente
-                            if (Array.isArray(target)) {
-                                target.forEach(id => { 
-                                    document.getElementById(id).classList.add('d-none'); 
-                                });
-                            }else {
-                                document.getElementById(target).classList.add('d-none');
-                            }
-                            break;
-                        
-                        case 'open':    // öffnen bzw. anzeigen der Elemente
-                        case 'onlyOpen':
-                            if (Array.isArray(target)) {
-                                target.forEach(id => {
-                                    document.getElementById(id).classList.remove('d-none');
-                                });
-                            }else {
-                                document.getElementById(target).classList.remove('d-none');
-                            }
-                            break;
-                        
-                        default:
-                            debug && console.log(`Error: gatekeeper von "${select.id}" \nhat fehlerhafte action: "${action}" \n${gateArr}`);
-                    }   //  Error Nachrichten
-                }catch (error) {
-                    debug && console.log(`Error: gatekeeper von "${select.id}" wurde nicht ausgeführt! \n${gateArr}`);
+    gateArr.forEach(operation => {  // <<<>>> Aufträge durchsuchen
+        let [value, action, target] = operation; 
+        if (value === select.value) { 
+            try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
+                if (action === 'openOnly' || awCl) {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
+                    switchGrp.forEach(element => element.classList.add('d-none'));
+                } else if (target === 'all') {        // wenn all --> target = Gruppe
+                    switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
                 };
+                
+                switch (action) {   // <<<>>> action ausführen
+                    case 'close':
+                        (Array.isArray(target) ? target : [target]).forEach(id => { // prüfe ob (Target)Array
+                            document.getElementById(id).classList.add('d-none');
+                        });
+                        break;
+                
+                    case 'open':
+                    case 'openOnly':
+                        (Array.isArray(target) ? target : [target]).forEach(id => { // prüfe ob (Target)Array
+                            document.getElementById(id).classList.remove('d-none');
+                        });
+                        break;
+                
+                    default:
+                        debug && console.log(`Error: gatekeeper von "${select.id}" hat fehlerhafte action: "${action}" ${gateArr}`);
+                } 
+
+            }catch (error) { //  Error Nachrichten
+                debug && console.log(`>>Fehler<< gatekeeper von "${select.id}" wurde fehlerhaft ausgeführt! \n Error: ${error.message}`);
             };
-        });
-    }
+        };
+    });
+}
+
     
 
     // ########################################################################### VALIDATORS ############################################################################################################

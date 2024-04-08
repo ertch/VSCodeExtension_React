@@ -4,6 +4,7 @@ import Input from "@components/SimpleInput.astro";
 import Campaign from "@components/CampaignSelect.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
+import Gatekeeper from "@components/Gatekeeper-Select.astro";
 import SQL_Select from "@components/SQL_InsertSelect.astro";
 import BasicCampaign from "@components/BasicCampaign.astro";
 import Textfield from "@components/SimpleTextfield.astro";
@@ -69,22 +70,27 @@ import PopupRotz from "@components/PopupRotz.astro";
           <span id="datenerfassung_error_produkt" class="errormessage"></span>
           <div id="produkt" class="input_form grid">
             <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
-              <Select
+              <Gatekeeper
                 id="datenerfassung_produkt"
                 label="Kunde erreicht?"
                 options={[
                   ["ja", "Ja"],
                   ["nein", "Nein"],
                 ]}
-                call="showprodukt($('datenerfassung_produkt').value)"
-              />
+                actions={[
+                  [`ja`, 'open', "datenerfassung_product"],
+                  ["nein", "open", "datenerfassung_ablehnung"],
+                ]}
+                gruppe="grp1"
+                alwaysClose
+                />
             </Field>
           </div>
 
           <div
             id="datenerfassung_product"
-            class="input_form"
-            style="display: none;"
+            class="input_form d-none"
+            data-grp="grp1"
           >
             <div class="grid">
               <Field legend="Datenerfassung" klasse="grid-col_1">
@@ -143,7 +149,8 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div class="grid">
             <div
               id="datenerfassung_ablehnung"
-              style="display: none"
+              class="d-none"
+              data-grp="grp1"
             >
             <Field legend="Kein Vertragsabschluss" klasse="grid-col_1">
               <SQL_Select
