@@ -350,21 +350,21 @@ function validateDatenerfassung() {
     console.log("validateDatenerfassung") // JS analyse
     var blnSuccess = true;
     if ($('datenerfassung_produkt').value == "nein" ) {
-        blnSuccess &= validateSelect($('datenerfassung_ablehnungsgrund').value, 'Ablehnungsgrund',$('datenerfassung_error_ablehnungsgrund'));
+        blnSuccess &= validateSelect($('datenerfassung_ablehnungsgrund').value, 'Ablehnungsgrund',$('datenerfassung_ablehnungsgrund_errorMsg'));
         //blnSuccess &= validateSelect($('datenerfassung_optin_detail').value, 'Optin trotz negativ?',$('datenerfassung_error_optin_detail'));
         
     }
     
     if ($('datenerfassung_produkt').value == "ja" ) {
-    	blnSuccess &= validateEmail($('datenerfassung_email').value, 'E-Mail', $('datenerfassung_error_email'), true);
-        blnSuccess &= validateMSISDN($('datenerfassung_telefon').value, 'Telefonnummer' , $('datenerfassung_error_telefon'), true);
-        blnSuccess &= validateSelect($('datenerfassung_lead').value, 'Lead',$('datenerfassung_error_lead'));
+    	blnSuccess &= validateEmail($('datenerfassung_email').value, 'E-Mail', $('datenerfassung_email_errorMsg'), true);
+        blnSuccess &= validateMSISDN($('datenerfassung_telefon').value, 'Telefonnummer' , $('datenerfassung_telefon_errorMsg'), true);
+        blnSuccess &= validateSelect($('datenerfassung_lead').value, 'Lead',$('datenerfassung_lead_errorMsg'));
         
         if ($('datenerfassung_lead').value == "Strom" || $('datenerfassung_lead').value == "Gas"){
-        	blnSuccess &= validateDate($('datenerfassung_vertragsende').value,'Vertragsende',$('datenerfassung_error_vertragsende'),true,2023,2026);
+        	blnSuccess &= validateDate($('datenerfassung_vertragsende').value,'Vertragsende',$('datenerfassung_vertragsende_errorMsg'),true,2023,2026);
         }
         
-        blnSuccess &= validateSelect($('datenerfassung_optin_detail').value, 'Optin',$('datenerfassung_error_optin_detail'));
+        blnSuccess &= validateSelect($('datenerfassung_optin_detail').value, 'Optin',$('datenerfassung_optin_detail_errorMsg'));
     }
     
     /*
@@ -380,8 +380,6 @@ function validateDatenerfassung() {
     return blnSuccess;
 }
 
-
-
 function showprodukt() {
     console.log("showprodukt") // JS analyse
     if ($('datenerfassung_produkt').value == "nein") {	
@@ -393,7 +391,6 @@ function showprodukt() {
     }
     return true;
 }
-
 
 function showzusammenfassung() {
     console.log("showzusammenfassung") // JS analyse
@@ -423,6 +420,7 @@ function showVerabschiedungBtn() {
         document.getElementById('tab_next_zusammenfassung_1').className = "left_right go";
     }else{
         var blnSuccess = true;
+
         blnSuccess &= (document.querySelector('#datenerfassung_email').value !== "");
         blnSuccess &= (document.querySelector('#datenerfassung_telefon').value !== "");
 
@@ -553,9 +551,17 @@ function makeRecall() {
 		
 // }
 
+function executeFunctionFromString(funcString) {
+    let funcName = funcString.match(/^(\w+)\(/)?.[1];
+    let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];
+    let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : [];
 
-
-
+    if (funcName && typeof window[funcName] === 'function') {
+        window[funcName](...args);
+    } else {
+        console.log(`Funktion '${funcName}' existiert nicht.`);
+    }
+}
 
 // ############################################################################################## GATEKEEPER #############################################################################################
 //  Kurze Beschreibung:
@@ -564,12 +570,10 @@ function makeRecall() {
 //  Die Funktion liest aus dem Array, welche Aktionen bei welchem Select.value ausgeführt werden sollen. Die verfügbaren Aktionen sind: close, open & openOnly.
 //  "open" und "close" toggeln d-none in der Classlist des targets. "openOnly" schließt erst alle Mitglieder der switchGrp (data-grp = "gruppenName") und öffnet dann.
 //  Wenn target = "all" genutzt wird, wird ebendfalls an allen Gruppenmitgliedern, die gewählte Aktion ausgeführt.
-//  Der Bool für alwaysClose nacht open = openOnly [die Option ist obsolet und wird in Phase 3 ausgetauscht / Platzhalter]
 //
 //  Beispiel:
-//
 //  gatekeeper([
-//      [thisSelect, switchGrp, alwaysClose],                  <<       string, string, boolean         [HEADER]    = Select = null --> Alle Elemente = d-none | data-grp | onChange Alles = d-none)
+//      [thisSelect, switchGrp, alwaysClose],                  <<       string, string, string        [HEADER]    = Select = null --> Alle Elemente = d-none | data-grp | FolgeFunktion )
 //      
 //      [value1, close, targetId1],                            <<       string, string, string          [OPERATION] = Element mit targetId = d-none
 //      [value1, open, [targetId1, targetId2, targetId3]],     <<       string, string, Array[string]   [OPERATION] = Alle Element aus Array = display
@@ -581,10 +585,10 @@ function gatekeeper(actionArr) {
     let gateArr;
     let select;
     let switchGrp; 
-    let awCl; // alwaysClose bool
+    let nextFunc; // alwaysClose bool
     
     if (Array.isArray(actionArr)) { //<<<>>> wenn actionArr = Array[]
-        [select, switchGrp, awCl] = [
+        [select, switchGrp, nextFunc] = [
             document.getElementById(actionArr[0][0]),
             document.querySelectorAll(`[data-grp=${actionArr[0][1]}]`),
             actionArr[0][2]
@@ -597,18 +601,17 @@ function gatekeeper(actionArr) {
                 entry.length = 3;
             }                       //  --- Erklärung :
         });                         //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
-        [select, switchGrp, awCl] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
+        [select, switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
             actionArr,
             document.querySelectorAll(`[data-grp=${actionArr.getAttribute("data-trigger")}]`),
-            actionArr.getAttribute("data-awCl") === "true"
+            actionArr.getAttribute("data-call")
         ];
     }   
-
     gateArr.forEach(operation => {  // <<<>>> Aufträge durchsuchen
         let [value, action, target] = operation; 
         if (value === select.value) { 
             try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
-                if (action === 'openOnly' || awCl) {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
+                if (action === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
                     switchGrp.forEach(element => element.classList.add('d-none'));
                 } else if (target === 'all') {        // wenn all --> target = Gruppe
                     switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
@@ -631,10 +634,18 @@ function gatekeeper(actionArr) {
                     default:
                         debug && console.log(`Error: gatekeeper von "${select.id}" hat fehlerhafte action: "${action}" ${gateArr}`);
                 } 
+                // Folgefunktion aufrufen, wenn actions abgeschlossen
+                executeFunctionFromString(nextFunc);
 
             }catch (error) { //  Error Nachrichten
-                debug && console.log(`>>Fehler<< gatekeeper von "${select.id}" wurde fehlerhaft ausgeführt! \n Error: ${error.message}`);
+                debug && console.log(`>>Fehler<< gatekeeper von "${select.id}" wurde fehlerhaft ausgeführt! \n Error: ${error.stack}`);
             };
         };
     });
-}
+};
+
+function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewünschten wert hat
+    let select = document.getElementById(optionId);
+    debug && console.log(select.value);
+    return select.value === optionValue ? true : false;
+ }

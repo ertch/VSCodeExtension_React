@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { id, label, name, required, call } = Astro.props;
-let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+let errorname = `${id}_errorMsg`;
 ---
 
 <label for={id}>{label}</label>

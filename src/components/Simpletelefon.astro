@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { id, name, type, required, maxlength, pattern } = Astro.props;
-let errorname = id.replace("_", "_error_");
+let errorname = `${id}_errorMsg`;
 // type={type as 'text'} statt type={type}, da das Attribute 'type' nicht alle strings zulässt, sondern nur eine Auswahl wie text, password, email, number, date, etc.
 ---
 

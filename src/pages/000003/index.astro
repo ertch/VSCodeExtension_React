@@ -67,7 +67,7 @@ import PopupRotz from "@components/PopupRotz.astro";
 
         <!-- Anfang tab_produkt -->
         <div id="tab_produkt" class="tab_content" style="display: none;">
-          <span id="datenerfassung_error_produkt" class="errormessage"></span>
+          <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
           <div id="produkt" class="input_form grid">
             <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
               <Gatekeeper
@@ -78,11 +78,11 @@ import PopupRotz from "@components/PopupRotz.astro";
                   ["nein", "Nein"],
                 ]}
                 actions={[
-                  [`ja`, 'open', "datenerfassung_product"],
-                  ["nein", "open", "datenerfassung_ablehnung"],
+                  [`ja`, 'openOnly', "datenerfassung_product"],
+                  ["nein", "openOnly", "datenerfassung_ablehnung"],
                 ]}
                 gruppe="grp1"
-                alwaysClose
+                call="validateSelectNew(datenerfassung_produkt, ja)"
                 />
             </Field>
           </div>
@@ -98,12 +98,14 @@ import PopupRotz from "@components/PopupRotz.astro";
                   id="datenerfassung_email"
                   label="E-Mail-Adresse"
                   type="email"
+                  pattern="^[^\s.@][^\s@]*@[^\s@]+\.[^\s@]+$"
+                  validate="email"
                 />
                 <Input
                   id="datenerfassung_telefon"
                   label="Abweichende Telefonnummer?"
                   type="text"
-                  blur="showVerabschiedungBtn()"
+                  blur="showVerabschiedungBtn()"                  
                 />
                 <Select
                   id="datenerfassung_lead"
