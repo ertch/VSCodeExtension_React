@@ -120,18 +120,51 @@ td {
 	margin-top: 2.2em;
 }
 
-.glyph {
-    font-family: "salesfontor";
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 100;
-    text-align: center;
-}
-
 .hsp_div {
     padding-bottom: 2em;
 }
 
 .d-none {
     display: none;
+}
+
+/* all declarations regarding the glyphs */
+
+.glyph {
+    &::before {
+        content: "";
+        display: inline-block;
+        font-family: "salesfontor";
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 100;
+        height: 18px;
+        margin-right: .2em;
+        text-align: center;
+        width: 18px;
+    }
+
+    &-abfax::before {
+        content: "\F122"; // Zwei Pfeile nach links zeigend
+    }
+
+    &-abschluss::before {
+        content: "\E804"; // Quadrat mit Pfeil nach rechts
+    }
+
+    &-apne::before {
+        content: "\F235"; // Person mit x
+    }
+
+    &-calendar::before {
+        content: "\F4C5"; // Kalender
+    }
+
+    &-outro::before {
+        content: "\E820"; // Kreis mit Pfeil nach rechts
+    }
+
+    &-telephone::before {
+        content: "\E807"; // Telefonhörer nach rechts offen
+    }
 }
