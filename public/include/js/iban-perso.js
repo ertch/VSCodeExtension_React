@@ -24,7 +24,6 @@ function validateIBAN(iban,description,errorId,blnRequired) {
 	return !blnError;
 }
 
-
 function isAlphaNumeric(str) {
   var code, i, len;
 
@@ -38,7 +37,6 @@ function isAlphaNumeric(str) {
   }
   return true;
 }
-
 
 /*
  * Returns 1 if the IBAN is valid 
@@ -96,7 +94,5 @@ function validateIdData(idNumber, idType) {
     if (idNumber.length == 11){
         idNumberNew = idNumber.substr(0,-1);
     }
-
-
 
 }

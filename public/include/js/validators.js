@@ -347,7 +347,7 @@ function validateEmailUnity(s,description, errorId,blnRequired) {
 }
 
 
-function validateEmail(s,description, errorId,blnRequired) {
+function validateEmail(s,description, errorId,blnRequired) {// NB
 
 	var blnError=false;
 	errorId.innerHTML="";
@@ -384,7 +384,7 @@ function validateEmail(s,description, errorId,blnRequired) {
 
 
 
- function validateBankdata(ktonr,blz,errorId) {
+ function validateBankdata(ktonr,blz,errorId) { // NB
 	 
 	 var blnError = new Boolean(false);
 	 blnError=true;
@@ -457,7 +457,7 @@ function validateBankdataImei(iban,bic,errorId) {
  }
 
 
- function validateTime(mytime,description,errorId,blnRequired) {
+ function validateTime(mytime,description,errorId,blnRequired) {// NB
 
  	blnError=false;
  	errorId.innerHTML='';
@@ -494,7 +494,7 @@ function validateBankdataImei(iban,bic,errorId) {
  }
 
 
-  function validateProductionTime(mytime,description,errorId,blnRequired) {
+  function validateProductionTime(mytime,description,errorId,blnRequired) {// NB
 
   	blnError=false;
   	errorId.innerHTML='';
@@ -528,7 +528,7 @@ function validateBankdataImei(iban,bic,errorId) {
 
   }
 
-  function validateGlueckszahlen(zahlen,description,errorId) {
+  function validateGlueckszahlen(zahlen,description,errorId) { // NB
 
   	blnError=false;
 

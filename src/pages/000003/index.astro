@@ -98,8 +98,8 @@ import PopupRotz from "@components/PopupRotz.astro";
                   id="datenerfassung_email"
                   label="E-Mail-Adresse"
                   type="email"
-                  pattern="^[^\s.@][^\s@]*@[^\s@]+\.[^\s@]+$"
-                  validate="email"
+                  validate="call"
+                  call="valiFreenet(.)"
                 />
                 <Input
                   id="datenerfassung_telefon"
