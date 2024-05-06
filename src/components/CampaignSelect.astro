@@ -27,7 +27,7 @@ let errorname = id.replace("_produkt_", "_error_produkt_");
 <Fieldset legend={legend}>
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
-<select class="dropdown h-drop" id={id} name={id} {required} onchange={call}>
+<select class="dropdown h-drop" id={id} name={id} {required} onchange={call} data-required = 'false';>
   <option value="" selected="selected">[Bitte auswählen]</option>
   {options.map((option, index) => <option value={index}>{option}</option>)}
 </select>

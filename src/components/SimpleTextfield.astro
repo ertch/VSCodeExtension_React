@@ -11,7 +11,7 @@ interface Props {
 }
 
 const { id, label, row, col, required, maxlength, call, value } = Astro.props;
-let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+let errorname = `${id}_errorMsg`;
 ---
 
 <div>
@@ -27,5 +27,6 @@ let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
   {required}
   maxlength={maxlength}
   onchange={call}
+  data-required = 'false';
 >
 </textarea>

@@ -3,12 +3,13 @@ interface Props {
 	legend: string;
     id?: string;
     klasse?: string;
+    gruppe?: string;
 }
 
-const {legend, klasse, id} = Astro.props;
+const {legend, klasse, id, gruppe} = Astro.props;
 ---
 
-<fieldset id={id} class={klasse as 'text'}>
+<fieldset id={id} class={klasse as 'text'} data-grp={gruppe}>
     <legend>{legend}</legend>
     <slot />
 </fieldset>

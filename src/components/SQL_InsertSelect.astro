@@ -8,11 +8,11 @@ interface Props {
 }
 
 const { id, label, name, required, call } = Astro.props;
-let errorname = id.replace("datenerfassung_", "datenerfassung_error_");
+let errorname = `${id}_errorMsg`;
 ---
 
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
-<select class="dropdown h-drop" id={id} name={name} {required} onchange={call}>
+<select class="dropdown h-drop" id={id} name={name} {required} onchange={call} data-required = 'false';>
   <option disabled value="" selected>[Bitte Auswählen]</option>
 </select>

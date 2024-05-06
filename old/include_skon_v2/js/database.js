@@ -6,7 +6,7 @@ function executeSql(sql) {
 		try {
 			sqlReturnArray = ttWeb.execDatabase(sql) ;
 		} catch (ex) {
-		
+					
 			insertSql=buildLogInsert('error',sql,ex.Message);
 			try {
 				ttWeb.execDatabase(insertSql);
@@ -158,4 +158,8 @@ function buildLogInsert(loglevel,logmessage,logexception) {
 	return sql;
 
 }
+
+
+
+
 

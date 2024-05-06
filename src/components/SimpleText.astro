@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { id, name, required, rows } = Astro.props;
-let errorname = id.replace("_", "_error_");
+let errorname = `${id}_errorMsg`;
 ---
 
 <div>
@@ -16,4 +16,4 @@ let errorname = id.replace("_", "_error_");
     Pflichtfeld: Neutrales Produkt oder Tarif
   </span>
 </div>
-<textarea id={id} class="input-textarea" {required} rows={rows}></textarea>
+<textarea id={id} class="input-textarea" {required} rows={rows} data-required = 'false';></textarea>

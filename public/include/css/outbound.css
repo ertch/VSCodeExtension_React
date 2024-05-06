@@ -93,6 +93,57 @@
 	min-height: 50px;
 }
 
+.go--left {
+	margin: 10px 5px 20px 5px;
+	min-height: 50px;
+}
+
+.go button {
+	border: 1px solid #333;
+	border-radius: 5px;
+	height: 46px;
+	margin-top: 10px;
+	width: 185px;
+}
+
+.go--left button {
+	border: 1px solid #333;
+	border-radius: 5px;
+	height: 46px;
+	margin-top: 10px;
+	width: 195px;
+}
+
+.go button:hover {
+	background-blend-mode: darken;
+	cursor: pointer;
+}
+
+#go_negativ {
+	border-color: rgb(110, 10, 10);
+	background-image: linear-gradient(to right top, #de3232, #e54341, #ec5250, #f2605e, #f76e6d, #f66d6c, #f66c6a, #f56b69, #ee5b57, #e64945, #dd3632, #d41f1f);
+}
+
+#go_positiv {
+	border-color: rgb(13, 141, 13);
+	background-image: linear-gradient(to right top, #32de41, #4ee44d, #64ea59, #76ef64, #87f570, #86f46e, #85f46d, #84f36b, #71eb5b, #5de449, #44dc36, #1fd41f);
+}
+
+#go_wiedervorlage {
+	border-color: rgb(45, 149, 174);
+	background-image: linear-gradient(to right top, #3fb4ff, #18c1ff, #00ceff, #00daff, #00e5ff, #00e4ff, #00e4ff, #00e3ff, #00d6ff, #00c8ff, #00b9ff, #21a9ff);
+}
+
+#go_ane {
+	border-color: rgb(187, 187, 35);
+	background-image: linear-gradient(to right top, #ffe53f, #ffe738, #ffea30, #ffec27, #ffef1c, #fff117, #fff412, #fff60b, #fff812, #fffb18, #fffd1d, #ffff21);
+}
+
+#go_abfax {
+	border-color: rgb(181, 110, 110);
+	background-image: linear-gradient(to right top, #dcc7d8, #dfc8db, #e2cadd, #e5cbe0, #e8cce3, #e8cce3, #e7cce2, #e7cce2, #e3cadf, #dfc8dc, #dcc6d8, #d8c4d5);
+}
+
 .left_right {
 	clear: both;
 	text-align: center;
@@ -111,6 +162,15 @@
 	height: 45px;
 }
 
+.gray_btn {
+	border-color: rgb(197, 169, 169);
+	background-image: linear-gradient(to right top, #ece4e4, #e0dadf, #e0e0e0, #e2dae1, #ebe4e9, #e6d9e3, #ebdfe8, #e9dae6, #e7e0e6, #e6dde4, #f0e0ed, #e9dddd);
+	margin: 5px 5px 5px 5px;
+	font-size: 17px;
+	height: 45px;
+	align-self: flex-start;
+}
+
 #summary {
 	border: dashed 1px #bbb;
 }
@@ -118,6 +178,14 @@
 .summary_block {
 	margin: 10px 30px 10px 30px;
 	padding: 5px;
+}
+
+.record_indicator {
+	color: rgb(199, 7, 7);
+	font-family: salesfontor;
+	font-size: 1.2em;
+	text-align: end;
+	padding: .4em;
 }
 
 #wiedervorlage_Date{

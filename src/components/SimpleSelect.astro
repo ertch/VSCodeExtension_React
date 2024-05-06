@@ -13,7 +13,7 @@ interface Props {
 const { id, label, firstOption, required, disabled, call, klasse } = Astro.props;
 const { options } = Astro.props as Props;
 // TODO: in anderen Komponenten errorname glattziehen
-let errorname = id.replace(/^([^_]*)_/, "$1_error_");
+let errorname = `${id}_errorMsg`;
 ---
 
 <label for={id}>{label}</label>
@@ -25,6 +25,7 @@ let errorname = id.replace(/^([^_]*)_/, "$1_error_");
   {required}
   {disabled}
   onchange={call}
+  data-required = 'false'; 
 >
   {
     firstOption ? (

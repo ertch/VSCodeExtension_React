@@ -645,7 +645,6 @@ function validateMSISDN(valueString, description, errorId, blnRequired) {
 				blnError=true;
 				errorId.innerHTML='Rufnummer zu kurz.';
 			}
-		
 		}
 	}
 

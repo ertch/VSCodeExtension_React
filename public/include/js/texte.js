@@ -156,7 +156,6 @@ function fillZusammenfassungTarif1bis6(){
 			kategorie = "Z_VVL_ohne_Tarifwechsel";
 		}
 		
-		// console.log("here i am " +  $('datenerfassung_gutschrift_tarif_'+i+'').value );
 		if($('datenerfassung_gutschrift_tarif_'+i+'').value > "0"){
 				
 				if($('datenerfassung_zusatzprodukt_hsp_tarif_'+i+'').value == "EP"){

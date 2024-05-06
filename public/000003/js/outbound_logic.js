@@ -5,7 +5,7 @@ var calldatatableId;
 var addressdatatableId;
 var agentId;
 
-// Diese Variablen m?ssen abh?ngig von der Kampagne ge?ndert werden
+// Diese Variablen müssen abhängig von der Kampagne geändert werden
 var campaignId = 679;
 var addressdatatable = 'ste_wel_addressdata';
 var salesdatatable = 'ste_wel_addressdata';
@@ -51,6 +51,7 @@ var ttWeb = new Object();
 
 
 function gf_javaf_initialize(){
+    console.log("gf_javaf_initialize") // JS analyse
 	if (!debug)	{	
 	
 	this.parent.contentInterface.initialize(window,
@@ -94,6 +95,7 @@ function filterSqlResultForProduct(s, blnWithEuro) {
  * und die globalen Variablen setzt
  */
 function gf_initialize() {
+    console.log("gf_initialize") // JS analyse
     console.log("gf_init was executed")
 
 
@@ -170,7 +172,6 @@ function gf_initialize() {
 
     console.log("under Draggable")
 
-
     query = "SELECT "
         + addressdatatable
         + ".id as addressdataid, \
@@ -215,14 +216,11 @@ join calldatatable on calldatatable.addressdata_id=" + addressdatatable
 where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     addressdata = executeSql(query);
-    console.log("addressdata:" + addressdata)
+    // console.log("addressdata:" + addressdata)
     insertIntoLog("debug", "Adressdaten wurden geladen.", "");
-
-
 
     addressdatatableId = addressdata[0].rows[0].columns[0];
 // Alle "globalen" kampagnenabh?ngigen Daten setzen
-
 
     var kunden_nr = filterSqlResult(addressdata[0].rows[0].columns[1]);
     var vorname = filterSqlResult(addressdata[0].rows[0].columns[2]);
@@ -323,10 +321,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
 
     //recordingName = kunden_nr + "_[#date]";
     recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
-    
-
 }
-
 
 
 /*
@@ -336,7 +331,7 @@ where calldatatable.id=" + calldatatableId + " LIMIT 1";
  * verlassen werden
  */
 function validateTab(name) {
-
+    console.log("validateTab") // JS analyse
     switch (name) {
 
         case "tab_start":
@@ -350,28 +345,26 @@ function validateTab(name) {
     return false;
 }
 
-
-
 /* Validator f?r die Datenerfassung (Seite1) */
 function validateDatenerfassung() {
-
+    console.log("validateDatenerfassung") // JS analyse
     var blnSuccess = true;
     if ($('datenerfassung_produkt').value == "nein" ) {
-        blnSuccess &= validateSelect($('datenerfassung_ablehnungsgrund').value, 'Ablehnungsgrund',$('datenerfassung_error_ablehnungsgrund'));
+        blnSuccess &= validateSelect($('datenerfassung_ablehnungsgrund').value, 'Ablehnungsgrund',$('datenerfassung_ablehnungsgrund_errorMsg'));
         //blnSuccess &= validateSelect($('datenerfassung_optin_detail').value, 'Optin trotz negativ?',$('datenerfassung_error_optin_detail'));
         
     }
     
     if ($('datenerfassung_produkt').value == "ja" ) {
-    	blnSuccess &= validateEmail($('datenerfassung_email').value, 'E-Mail', $('datenerfassung_error_email'), true);
-        blnSuccess &= validateMSISDN($('datenerfassung_telefon').value, 'Telefonnummer' , $('datenerfassung_error_telefon'), true);
-        blnSuccess &= validateSelect($('datenerfassung_lead').value, 'Lead',$('datenerfassung_error_lead'));
+    	blnSuccess &= validateEmail($('datenerfassung_email').value, 'E-Mail', $('datenerfassung_email_errorMsg'), true);
+        blnSuccess &= validateMSISDN($('datenerfassung_telefon').value, 'Telefonnummer' , $('datenerfassung_telefon_errorMsg'), true);
+        blnSuccess &= validateSelect($('datenerfassung_lead').value, 'Lead',$('datenerfassung_lead_errorMsg'));
         
         if ($('datenerfassung_lead').value == "Strom" || $('datenerfassung_lead').value == "Gas"){
-        	blnSuccess &= validateDate($('datenerfassung_vertragsende').value,'Vertragsende',$('datenerfassung_error_vertragsende'),true,2023,2026);
+        	blnSuccess &= validateDate($('datenerfassung_vertragsende').value,'Vertragsende',$('datenerfassung_vertragsende_errorMsg'),true,2023,2026);
         }
         
-        blnSuccess &= validateSelect($('datenerfassung_optin_detail').value, 'Optin',$('datenerfassung_error_optin_detail'));
+        blnSuccess &= validateSelect($('datenerfassung_optin_detail').value, 'Optin',$('datenerfassung_optin_detail_errorMsg'));
     }
     
     /*
@@ -387,63 +380,59 @@ function validateDatenerfassung() {
     return blnSuccess;
 }
 
-
-
 function showprodukt() {
-
-    if ($('datenerfassung_produkt').value == "nein") {
-    	
+    console.log("showprodukt") // JS analyse
+    if ($('datenerfassung_produkt').value == "nein") {	
     	document.getElementById('datenerfassung_product').style.display = "none";
-        document.getElementById('datenerfassung_ablehnung').style.display = "block";   	
- 
-    	
-    } else {
-    	
+        document.getElementById('datenerfassung_ablehnung').style.display = "block";   		
+    } else {	
         document.getElementById('datenerfassung_product').style.display = "block";
         document.getElementById('datenerfassung_ablehnung').style.display = "none";
-
-
     }
-    
     return true;
 }
 
-
 function showzusammenfassung() {
-
+    console.log("showzusammenfassung") // JS analyse
     if (validateDatenerfassung()) {
         if ($('datenerfassung_optin_detail').value != "keine" && $('datenerfassung_optin_detail').value != "out" ) {
-        	
-            document.getElementById('abschliessen').style.display = "none";
-            document.getElementById('recording').style.display = "block";
-            
+            document.getElementById('abschliessen').style.display = "none";                    
+            document.getElementById('recording').style.display = "block";  
         } else {
-        	
             document.getElementById('abschliessen').style.display = "block";
             document.getElementById('recording').style.display = "none";            
-
         }
     }
 }
 
 function showVertragsende() {
-    
-        if ($('datenerfassung_lead').value != "Kein Lead") {
-        	
-            document.getElementById('datenerfassung_vertragsende_div').style.display = "block";            
-            
-        } else {
-        	
-        	document.getElementById('datenerfassung_vertragsende_div').style.display = "none";            
-
-        }
-    
+    console.log("showVertragsende") // JS analyse
+    if ($('datenerfassung_lead').value != "Kein Lead") {
+        document.getElementById('datenerfassung_vertragsende_div').style.display = "block";            
+    } else {
+        document.getElementById('datenerfassung_vertragsende_div').style.display = "none";           
+    }
 }
 
+function showVerabschiedungBtn() {
+    console.log("showVerabschiedungBtn") // JS analyse
+    if(document.getElementById('datenerfassung_ablehnungsgrund').value != ""){
+        document.getElementById('tab_next_zusammenfassung_1').className = "left_right go";
+    }else{
+        var blnSuccess = true;
+
+        blnSuccess &= (document.querySelector('#datenerfassung_email').value !== "");
+        blnSuccess &= (document.querySelector('#datenerfassung_telefon').value !== "");
+
+        if (blnSuccess == true) {
+            document.getElementById('tab_next_zusammenfassung_1').className = "left_right go";
+        }
+    }
+}
 
 /* Schlie?t einen Datensatz positiv ab */
 function finishPositive() {
-
+    console.log("finishPositive") // JS analyse
     // Logik ob Produkt gekauft wird
     if ($('datenerfassung_produkt').value != "nein") {
     	
@@ -514,22 +503,16 @@ function finishPositive() {
 
 }
 
-
-
-
-
-
-
-
 function recording_complete_start() {
+    console.log("recording_complete_start") // JS analyse
     insertIntoLog("info", "Vollstaendiges Voicerecording wurde angeschaltet.", "");
     recordingComplete = 1;
 
     if (!debug){
 
         if (ttWeb.getRecordingState() != 3) {
-            OWvoicefileName = generateVoicefilenameOneWay(recordingPrefix, recordingName, recordingNameSuffix, recordingComplete);
-            if (!debug) ttWeb.saveRecording(OWvoicefileName);
+            OWvoicefileName = generateVoicefilenameOneWay(recordingPrefix, recordingName, recordingNameSuffix, recordingComplete); //fehlende function
+            if (!debug) ttWeb.saveRecording(OWvoicefileName); //saveRecord in ttFrame 4 fordert als String in der Methode den SpeicherPfad und nicht den Namen der Datei.
         }
 
     }
@@ -554,16 +537,115 @@ function makeRecall() {
 }
 */
 
-function makeRecall(){
-
-	  blnSuccess=true;
-	  blnSuccess&=validateRufnummer(document.getElementById('recall_number').value,errMsg);
-		if(blnSuccess == true){
-			//ttWeb.setCalltableField('OTHER', $('recall_number').value);
-			//ttWeb.setIndicator(3)
-			ttWeb.clearRecording();
-			ttWeb.makeCustomerCall($('recall_number').value);
-			//ttWeb.terminateCall('RR', null, null, 1);	
-		}
+// function makeRecall(){
+//     console.log("makeRecall") // JS analyse
+// 	  blnSuccess=true;
+// 	  blnSuccess&=validateRufnummer(document.getElementById('recall_number').value,errMsg);
+// 		if(blnSuccess == true){
+// 			//ttWeb.setCalltableField('OTHER', $('recall_number').value);
+// 			//ttWeb.setIndicator(3)
+// 			ttWeb.clearRecording();
+// 			ttWeb.makeCustomerCall($('recall_number').value);
+// 			//ttWeb.terminateCall('RR', null, null, 1);	
+// 		}
 		
+// }
+
+function executeFunctionFromString(funcString) {
+    let funcName = funcString.match(/^(\w+)\(/)?.[1];
+    let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];
+    let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : [];
+
+    if (funcName && typeof window[funcName] === 'function') {
+        window[funcName](...args);
+    } else {
+        console.log(`Funktion '${funcName}' existiert nicht.`);
+    }
 }
+
+// ############################################################################################## GATEKEEPER #############################################################################################
+//  Kurze Beschreibung:
+//  Eine der wichtigsten Logiken ist das Öffnen und Schließen von Modalen oder Elementen. Hier soll der Gatekeeper Abhilfe schaffen. 
+//  An die Funktion wird entweder ein Array (Aufbau siehe Beispiel) oder die ID des aufrufenden Gatekeeper-Selects übergeben. (siehe Components / Gatekeeper-Select)    
+//  Die Funktion liest aus dem Array, welche Aktionen bei welchem Select.value ausgeführt werden sollen. Die verfügbaren Aktionen sind: close, open & openOnly.
+//  "open" und "close" toggeln d-none in der Classlist des targets. "openOnly" schließt erst alle Mitglieder der switchGrp (data-grp = "gruppenName") und öffnet dann.
+//  Wenn target = "all" genutzt wird, wird ebendfalls an allen Gruppenmitgliedern, die gewählte Aktion ausgeführt.
+//
+//  Beispiel:
+//  gatekeeper([
+//      [thisSelect, switchGrp, alwaysClose],                  <<       string, string, string        [HEADER]    = Select = null --> Alle Elemente = d-none | data-grp | FolgeFunktion )
+//      
+//      [value1, close, targetId1],                            <<       string, string, string          [OPERATION] = Element mit targetId = d-none
+//      [value1, open, [targetId1, targetId2, targetId3]],     <<       string, string, Array[string]   [OPERATION] = Alle Element aus Array = display
+//      [value2, openOnly, targetId3],                         <<       string, string, string          [OPERATION] = Alle Elemente außer targetId = d-none
+//      [value3, close, all]                                   <<       string, string, string          [OPERATION] = Alle Elemente = d-none
+//  ])    
+
+function gatekeeper(actionArr) {
+    let gateArr;
+    let select;
+    let switchGrp; 
+    let nextFunc; // alwaysClose bool
+    
+    if (Array.isArray(actionArr)) { //<<<>>> wenn actionArr = Array[]
+        [select, switchGrp, nextFunc] = [
+            document.getElementById(actionArr[0][0]),
+            document.querySelectorAll(`[data-grp=${actionArr[0][1]}]`),
+            actionArr[0][2]
+        ];
+    }else {                         //<<<>>> wenn actionArr = Select.id
+        gateArr = JSON.parse(actionArr.getAttribute("data-array").replace(/&quot;/g, `"`));
+        gateArr.forEach(entry => {  // säubere String für .parse und baue Array
+            if (entry.length > 3) { // wenn [inner[]] > 3, packe Alles ab [n][2] in neues Array auf [n][3]
+                entry[2] = [entry.slice(3)];
+                entry.length = 3;
+            }                       //  --- Erklärung :
+        });                         //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
+        [select, switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
+            actionArr,
+            document.querySelectorAll(`[data-grp=${actionArr.getAttribute("data-trigger")}]`),
+            actionArr.getAttribute("data-call")
+        ];
+    }   
+    gateArr.forEach(operation => {  // <<<>>> Aufträge durchsuchen
+        let [value, action, target] = operation; 
+        if (value === select.value) { 
+            try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
+                if (action === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
+                    switchGrp.forEach(element => element.classList.add('d-none'));
+                } else if (target === 'all') {        // wenn all --> target = Gruppe
+                    switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
+                };
+                
+                switch (action) {   // <<<>>> action ausführen
+                    case 'close':
+                        (Array.isArray(target) ? target : [target]).forEach(id => { // prüfe ob (Target)Array
+                            document.getElementById(id).classList.add('d-none');
+                        });
+                        break;
+                
+                    case 'open':
+                    case 'openOnly':
+                        (Array.isArray(target) ? target : [target]).forEach(id => { // prüfe ob (Target)Array
+                            document.getElementById(id).classList.remove('d-none');
+                        });
+                        break;
+                
+                    default:
+                        debug && console.log(`Error: gatekeeper von "${select.id}" hat fehlerhafte action: "${action}" ${gateArr}`);
+                } 
+                // Folgefunktion aufrufen, wenn actions abgeschlossen
+                executeFunctionFromString(nextFunc);
+
+            }catch (error) { //  Error Nachrichten
+                debug && console.log(`>>Fehler<< gatekeeper von "${select.id}" wurde fehlerhaft ausgeführt! \n Error: ${error.stack}`);
+            };
+        };
+    });
+};
+
+function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewünschten wert hat
+    let select = document.getElementById(optionId);
+    debug && console.log(select.value);
+    return select.value === optionValue ? true : false;
+ }

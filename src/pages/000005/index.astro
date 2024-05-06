@@ -4,7 +4,6 @@ import Input from "@components/SimpleInput.astro";
 import Campaign from "@components/CampaignSelect.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
-import Gatekeeper from "@components/Gatekeeper-Select.astro";
 import SQL_Select from "@components/SQL_InsertSelect.astro";
 import BasicCampaign from "@components/BasicCampaign.astro";
 import Textfield from "@components/SimpleTextfield.astro";
@@ -18,15 +17,15 @@ import PopupRotz from "@components/PopupRotz.astro";
 
 <Layout
   title="STE_WEL"
-  campaignNr="000003"
+  campaignNr="000005"
   jsFiles={["outbound.js", "outbound_logic.js"]}
 >
   <div class="black_overlay" id="lightbox"></div>
 
   <header>
     <Bild dateiname="skon.png" />
-    <Bild dateiname="stadtenergie.svg" />
-    <h1>Stadtenergie Welcome Call</h1>
+    <Bild dateiname="dew21-logo.png" />
+    <h1>DEW21 Welcome Call</h1>
   </header>
 
   <main>
@@ -52,7 +51,7 @@ import PopupRotz from "@components/PopupRotz.astro";
         method="POST"
         id="datenerfassung_form"
       >
-      <div id="rec-warn" class="record_indicator d-none" >   Aufnahme läuft...</div>
+      <div id="rec-warn" class="record_indicator d-none" >   <span>Aufnahme läuft...</span></div>
         <!-- Anfang tab_start -->
         <div
           id="tab_start"
@@ -67,30 +66,25 @@ import PopupRotz from "@components/PopupRotz.astro";
 
         <!-- Anfang tab_produkt -->
         <div id="tab_produkt" class="tab_content" style="display: none;">
-          <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
+          <span id="datenerfassung_error_produkt" class="errormessage"></span>
           <div id="produkt" class="input_form grid">
             <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
-              <Gatekeeper
+              <Select
                 id="datenerfassung_produkt"
                 label="Kunde erreicht?"
                 options={[
                   ["ja", "Ja"],
                   ["nein", "Nein"],
                 ]}
-                actions={[
-                  [`ja`, 'openOnly', "datenerfassung_product"],
-                  ["nein", "openOnly", "datenerfassung_ablehnung"],
-                ]}
-                gruppe="grp1"
-                call="validateSelectNew(datenerfassung_produkt, ja)"
-                />
+                call="showprodukt($('datenerfassung_produkt').value)"
+              />
             </Field>
           </div>
 
           <div
             id="datenerfassung_product"
-            class="input_form d-none"
-            data-grp="grp1"
+            class="input_form"
+            style="display: none;"
           >
             <div class="grid">
               <Field legend="Datenerfassung" klasse="grid-col_1">
@@ -98,14 +92,12 @@ import PopupRotz from "@components/PopupRotz.astro";
                   id="datenerfassung_email"
                   label="E-Mail-Adresse"
                   type="email"
-                  pattern="^[^\s.@][^\s@]*@[^\s@]+\.[^\s@]+$"
-                  validate="email"
                 />
                 <Input
                   id="datenerfassung_telefon"
                   label="Abweichende Telefonnummer?"
                   type="text"
-                  blur="showVerabschiedungBtn()"                  
+                  blur="showVerabschiedungBtn()"
                 />
                 <Select
                   id="datenerfassung_lead"
@@ -151,8 +143,7 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div class="grid">
             <div
               id="datenerfassung_ablehnung"
-              class="d-none"
-              data-grp="grp1"
+              style="display: none"
             >
             <Field legend="Kein Vertragsabschluss" klasse="grid-col_1">
               <SQL_Select

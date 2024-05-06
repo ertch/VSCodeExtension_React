@@ -178,10 +178,8 @@ function switchTab($newTabName) {
     if (blnFinishPositive)
         document.getElementById('abschliessen').style.display = 'block';
 
-    showzusammenfassung();
+//    showzusammenfassung();
 }
-
-
 
 
 function ajaxGetCityAndStreets(plz,$city,$streets,errorId,ort,street) {
@@ -550,3 +548,64 @@ function generateVoicefilename(prefix,template,suffix,recordingComp, terminate) 
     return dummy;
 }
 
+function gatekeeper(actionArr) {
+    let gateArr
+    console.log("gatekeeper in action");
+    if (Array.isArray(actionArr)) {
+        gateArr = actionArr
+    }else {
+        let getGate = document.getElementById(actionArr).getAttribute('data-array');
+        gateArr = getGate.split(',').map(JSON.parse);
+    };    
+    let select = document.getElementById(gateArr[0][0]);
+    let selectedValue = select.value;
+    let dataGrp = gateArr[0][1]; // muss vorhanden sein
+    console.log(`gatekeeper von ${select}`)
+    gateArr.forEach(operation => {
+        let [value, action, target] = operation; 
+
+        if (value === selectedValue) { // Alle Operationen die dem Wert des Select entsprechen ausführen
+            try {
+                if (target === 'all' || action === 'onlyOpen' || gateArr[0][2] ) {    // Alle Elemente in data-grp auf d-none setzten
+                    let grp = document.querySelectorAll(`[data-grp="${dataGrp}"]`);
+                    grp.forEach(element => {
+                        if (action === 'open') {
+                            element.classList.remove('d-none');
+                        }else {
+                            element.classList.add('d-none');
+                        }
+                    });
+                }
+
+                switch (action) { // toggle d-none je nach action
+                    
+                    case 'close':   // schließen bzw. verstecken der Elemente
+                        if (Array.isArray(target)) {
+                            target.forEach(id => { 
+                                document.getElementById(id).classList.add('d-none'); 
+                            });
+                        }else {
+                            document.getElementById(target).classList.add('d-none');
+                        }
+                        break;
+                    
+                    case 'open':    // öffnen bzw. anzeigen der Elemente
+                    case 'onlyOpen':
+                        if (Array.isArray(target)) {
+                            target.forEach(id => {
+                                document.getElementById(id).classList.remove('d-none');
+                            });
+                        }else {
+                            document.getElementById(target).classList.remove('d-none');
+                        }
+                        break;
+                    
+                    default:
+                        debug && console.log(`Error: gatekeeper von "${select.id}" \nhat fehlerhafte action: "${action}" \n${gateArr}`);
+                }   //  Error Nachrichten
+            }catch (error) {
+                debug && console.log(`Error: gatekeeper von "${select.id}" wurde nicht ausgeführt! \n${gateArr}`);
+            };
+        };
+    });
+}
