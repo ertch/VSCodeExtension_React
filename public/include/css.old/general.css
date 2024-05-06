@@ -190,12 +190,6 @@ fieldset legend {
 	width: 100%;
 }
 
-
-.separator{
-		grid-column: span 2;
-	    margin-bottom: 15px;
-}
-
 .line {
 	min-height: 30px;
 	width: 100%;

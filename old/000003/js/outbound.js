@@ -43,9 +43,14 @@ function recordSummary(divId) {
 function getNavigationDiv(label,id,value) {
      // JS analyse
     // var s='<div class="data">';
-    var s = '<div class="bg-gray">'
-    s=s+'<div class="data_label"><label>'+label+':</label></div>';
-    s=s+'<div class="data_value" id="addr'+camelize(id)+'">'+value+'</div>';
+    //var s = '<div class="bg-gray">'
+    //s=s+'<div class="data_label"><label>'+label+':</label></div>';
+    //s=s+'<div class="data_value" id="addr'+camelize(id)+'">'+value+'</div>';
+    //s=s+'</div>';
+
+    var s = '<div class="cell">'
+    s=s+'<div class="cell__head">'+label+'</div>';
+    s=s+'<div class="data_value cell__data" id="addr'+camelize(id)+'">'+value+'</div>';
     s=s+'</div>';
 
     return s;

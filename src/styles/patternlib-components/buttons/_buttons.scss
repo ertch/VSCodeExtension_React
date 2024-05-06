@@ -44,76 +44,40 @@ button,
 
 /* btn styling */
 
-.btn {
-  padding: $baseunit * 0.5 $baseunit * 1.25;
-  border: transparent 1px solid;
-  margin: $baseunit 0;
-  background-color: $green;
-  border-radius: 2px;
-  color: $white;
-  cursor: pointer;
-  font-family: 'Hind', sans-serif;
-  font-size: $baseunit;
-
-  &[disabled],
-  &.disabled {
-    cursor: default;
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  &:hover {
-    background-color: $hovergreen;
-  }
-
-  &[disabled]:hover,
-  &.disabled:hover {
-    background-color: $magenta;
-  }
-
-  &--secondary {
-    background-color: $darkgrey;
-
-    &:hover {
-      background-color: $hovergrey;
-    }
-
-    &[disabled]:hover,
-    &.disabled:hover {
-      background-color: $darkgrey;
-    }
-  }
-
-  &--alternative {
-    background-color: $anthracite;
-
-    &:hover {
-      background-color: $hoveranthracite;
-    }
-
-    &[disabled]:hover,
-    &.disabled:hover {
-      background-color: $anthracite;
-    }
-  }
-
-  &__icon {
-    &--left svg {
-      margin-right: $baseunit * 0.938;
-    }
-
-    &--right svg {
-      margin-left: $baseunit * 0.938;
-    }
-  }
+.go button {
+	border: 1px solid #333;
+	border-radius: 5px;
+	height: 46px;
+	margin-top: 10px;
+	width: 185px;
 }
 
-a.btn {
-  display: inline-block;
-  padding: 0.67em 1.25em;
-  text-decoration: none;
+.go button:hover {
+	background-blend-mode: darken;
+	cursor: pointer;
+}
 
-  &:hover {
-    color: $white;
-  }
+#go_negativ {
+	border-color: #6e0a0a;
+	background-image: $button-red;
+}
+
+#go_positiv {
+	border-color: #0d8d0d;
+	background-image: $button-green;
+}
+
+#go_wiedervorlage {
+	border-color: #2d95ae;
+	background-image: $button-blue;
+}
+
+#go_ane {
+	border-color: #bbbb23;
+	background-image: $button-yellow;
+}
+
+#go_abfax {
+	border-color: #b56e6e;
+	background-image: $button-gray;
 }

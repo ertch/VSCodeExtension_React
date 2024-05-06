@@ -29,15 +29,10 @@
   white-space: nowrap;
 }
 
-@media only screen and (min-width: $page-width-md) {
-  .wrapper {
-    padding: 0 3em;
-  }
+.placeholder {
+  height: 10px;
 }
 
-@media only screen and (min-width: $page-width-lg) {
-  .wrapper {
-    padding: 0 2em;
-    max-width: 75em;
-  }
+.helper_bp-35 {
+  padding-bottom: 35px;
 }

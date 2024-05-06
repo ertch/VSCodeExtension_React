@@ -83,12 +83,21 @@ function getNavigationSeparator() {
 
 function getNavigationDiv(label, id, value) {
 
-    var s = '<div class="bg-gray">';
+    // var s = '<div class="bg-gray">';
+    // if (value != "") {
+    //    s = s + '<div class="data_label data-label-m"><label>' + label + ':</label></div>';
+    //    s = s + '<div class="data_value data-kunde-m bg-white" id="addr' + camelize(id) + '">' + value + '</div>';
+    //}else{
+    //    s = s + '<div class="data_label--gray data-label-m"><label>' + label + ':</label></div>';
+    //};
+    // s = s + '</div>';
+
+    var s = '<div class="cell">';
     if (value != "") {
-        s = s + '<div class="data_label data-label-m"><label>' + label + ':</label></div>';
-        s = s + '<div class="data_value data-kunde-m bg-white" id="addr' + camelize(id) + '">' + value + '</div>';
+        s = s + '<div class="cell__head">' + label + '</div>';
+        s = s + '<div class="data_value cell__data" id="addr' + camelize(id) + '">' + value + '</div>';
     }else{
-        s = s + '<div class="data_label--gray data-label-m"><label>' + label + ':</label></div>';
+        s = s + '<div class="cell__head">' + label + '</div>';
     };
     s = s + '</div>';
 
@@ -97,12 +106,21 @@ function getNavigationDiv(label, id, value) {
 
 function getNavigationDivGreen(label, id, value) {
 
-    var s = '<div class="bg-gray">';
+    // var s = '<div class="bg-gray">';
+    // if (value != "") {
+    //    s = s + '<div class="data_label data-label-m"><label>' + label + ':</label></div>';
+    //    s = s + '<div class="data_value data-kunde-m bg-white" id="addr' + camelize(id) + '"><span style="background-color: #e4e3e3;"><b>' + value + '</b></div>';
+    //}else{
+    //    s = s + '<div class="data_label--gray data-label-m"><label>' + label + ':</label></div>';
+    //};
+    //s = s + '</div>';
+
+    var s = '<div class="cell">';
     if (value != "") {
-        s = s + '<div class="data_label data-label-m"><label>' + label + ':</label></div>';
-        s = s + '<div class="data_value data-kunde-m bg-white" id="addr' + camelize(id) + '"><span style="background-color: #e4e3e3;"><b>' + value + '</b></div>';
+        s = s + '<div class="cell__head">' + label + '</div>';
+        s = s + '<div class="data_value cell__data" id="addr' + camelize(id) + '"><span style="background-color: #e4e3e3;"><b>' + value + '</b></div>';
     }else{
-        s = s + '<div class="data_label--gray data-label-m"><label>' + label + ':</label></div>';
+        s = s + '<div class="cell__head">' + label + '</div>';
     };
     s = s + '</div>';
 
