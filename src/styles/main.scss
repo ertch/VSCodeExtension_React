@@ -167,4 +167,8 @@ td {
     &-telephone::before {
         content: "\E807"; // Telefonhörer nach rechts offen
     }
+
+    &-publish::before {
+        content: "\E81B"; // Bildschirm mit Pfeil nach oben
+    }
 }

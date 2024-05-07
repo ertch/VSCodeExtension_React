@@ -527,6 +527,7 @@ function recording_complete_start() {
 }
 
 
+
 /*
 function makeRecall() {
 
@@ -587,16 +588,19 @@ function gatekeeper(actionArr) {
     let switchGrp; 
     let nextFunc; // alwaysClose bool
     
-    if (Array.isArray(actionArr)) { //<<<>>> wenn actionArr = Array[]
+    // Prüfen, ob actionArr ein Array oder eine String-Id ist
+    if (Array.isArray(actionArr)) {
+        // Wenn actionArr ein Array ist, die relevanten Werte zuweisen
         [select, switchGrp, nextFunc] = [
             document.getElementById(actionArr[0][0]),
             document.querySelectorAll(`[data-grp=${actionArr[0][1]}]`),
             actionArr[0][2]
         ];
-    }else {                         //<<<>>> wenn actionArr = Select.id
+    } else {
+        // Wenn actionArr eine String-Id ist, die Anweisungen aus dem Datenattribut des Selects parsen und zuweisen
         gateArr = JSON.parse(actionArr.getAttribute("data-array").replace(/&quot;/g, `"`));
-        gateArr.forEach(entry => {  // säubere String für .parse und baue Array
-            if (entry.length > 3) { // wenn [inner[]] > 3, packe Alles ab [n][2] in neues Array auf [n][3]
+        gateArr.forEach(entry => {
+            if (entry.length > 3) {
                 entry[2] = [entry.slice(3)];
                 entry.length = 3;
             }                       //  --- Erklärung :
@@ -607,9 +611,12 @@ function gatekeeper(actionArr) {
             actionArr.getAttribute("data-call")
         ];
     }   
-    gateArr.forEach(operation => {  // <<<>>> Aufträge durchsuchen
+
+    // Durchlaufen der Anweisungen im gateArr
+    gateArr.forEach(operation => {
         let [value, action, target] = operation; 
-        if (value === select.value) { 
+        // Überprüfen, ob die aktuelle Select-Option mit dem Wert übereinstimmt
+        if (value === select.value) {
             try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
                 if (action === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
                     switchGrp.forEach(element => element.classList.add('d-none'));
@@ -617,27 +624,30 @@ function gatekeeper(actionArr) {
                     switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
                 };
                 
-                switch (action) {   // <<<>>> action ausführen
+                // Ausführen der entsprechenden Aktion (öffnen oder schließen) für jedes Ziel
+                switch (action) {
                     case 'close':
-                        (Array.isArray(target) ? target : [target]).forEach(id => { // prüfe ob (Target)Array
+                        (Array.isArray(target) ? target : [target]).forEach(id => {
                             document.getElementById(id).classList.add('d-none');
                         });
                         break;
                 
                     case 'open':
                     case 'openOnly':
-                        (Array.isArray(target) ? target : [target]).forEach(id => { // prüfe ob (Target)Array
+                        (Array.isArray(target) ? target : [target]).forEach(id => {
                             document.getElementById(id).classList.remove('d-none');
                         });
                         break;
                 
                     default:
+                        // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
                         debug && console.log(`Error: gatekeeper von "${select.id}" hat fehlerhafte action: "${action}" ${gateArr}`);
                 } 
-                // Folgefunktion aufrufen, wenn actions abgeschlossen
+                // Ausführen der Folgefunktion, falls vorhanden
                 executeFunctionFromString(nextFunc);
 
-            }catch (error) { //  Error Nachrichten
+            } catch (error) {
+                // Fehlermeldung ausgeben
                 debug && console.log(`>>Fehler<< gatekeeper von "${select.id}" wurde fehlerhaft ausgeführt! \n Error: ${error.stack}`);
             };
         };

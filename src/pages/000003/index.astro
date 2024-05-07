@@ -215,10 +215,13 @@ import PopupRotz from "@components/PopupRotz.astro";
           >
               <div class="grid">
                 <Field legend="Abschluss" klasse="grid-col_1">
-                  <div class="go--left">
-                    <button onclick="" class="gray_btn">
-                      <strong class="glyph"></strong>
-                      &nbsp;Auftrag abschließen
+                  <div class="go" id="div_publish">
+                    <button
+                      type="button"
+                      id="go_publish"
+                      onclick="finish()"
+                      ><i class="glyph glyph-publish"></i>
+                      Auftrag abschließen
                     </button>
                   </div>
                 </Field>

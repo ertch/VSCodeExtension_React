@@ -192,6 +192,10 @@ function centerDiv(divId,xSize) {
     document.getElementById(divId).style.left=((windowXSize()-xSize)/2)+'px';
 }
 
+function finish() {
+    console.log("Klick mich du sau");
+}
+
 function switchTab($newTabName) {
     console.log("switchTab") // JS analyse
     /*if ($newTabName == "tab_mofu")	{
