@@ -172,53 +172,82 @@ function gf_initialize() {
 
     console.log("under Draggable")
 
-    query = "SELECT "
-        + addressdatatable
-        + ".id as addressdataid, \
-      trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))), \
-trim(if(isnull(firstname),'-',if(firstname = '','',firstname))), \
-trim(if(isnull(surname),'-',if(surname = '','',surname))), \
-trim(if(isnull(dateofbirth),'-',if(dateofbirth = '','',dateofbirth))), \
-trim(if(isnull(emailprivate),'-',if(emailprivate = '','',emailprivate))), \
-trim(if(isnull(phonemobileareacode),'-',if(phonemobileareacode = '','',phonemobileareacode))), \
-trim(if(isnull(phonemobile),'-',if(phonemobile = '','',phonemobile))), \
-trim(if(isnull(phonehomeareacode),'-',if(phonehomeareacode = '','',phonehomeareacode))), \
-trim(if(isnull(phonehome),'-',if(phonehome = '','',phonehome))), \
-trim(if(isnull(street),'-',if(street = '','',street))), \
-trim(if(isnull(housenumber),'-',if(housenumber = '','',housenumber))), \
-trim(if(isnull(zip),'-',if(zip = '','',zip))), \
-trim(if(isnull(city),'-',if(city = '','',city))), \
-trim(if(isnull(energy),'-',if(energy = '','',energy))), \
-trim(if(isnull(createdat),'-',if(createdat = '','',createdat))), \
-trim(if(isnull(marketlocation),'-',if(marketlocation = '','-',marketlocation))), \
-trim(if(isnull(product),'-',if(product = '','-',product))), \
-trim(if(isnull(id_nr),'-',if(id_nr = '','-',id_nr))), \
-trim(if(isnull(startdate),'-',if(startdate = '','-',startdate))), \
-trim(if(isnull(baseprice),'-',if(baseprice = '','-',baseprice))), \
-trim(if(isnull(workingprice),'-',if(workingprice = '','-',workingprice))), \
-trim(if(isnull(productbonus),'-',if(productbonus = '','-',productbonus))), \
-trim(if(isnull(productinstantbonus),'-',if(productinstantbonus = '','-',productinstantbonus))), \
-trim(if(isnull(adsmail),'-',if(adsmail = '','-',adsmail))), \
-trim(if(isnull(adsphone),'-',if(adsphone = '','',adsphone))), \
-trim(if(isnull(adspost),'-',if(adspost = '','',adspost))), \
-trim(if(isnull('usage'),'-',if('usage' = '','','usage'))), \
-trim(if(isnull(enddate),'-',if(enddate = '','',enddate))), \
-trim(if(isnull(iban),'-',if(iban = '','',iban))), \
-trim(if(isnull(bic),'-',if(bic = '','',bic))), \
-trim(if(isnull(bank),'-',if(bank = '','',bank))), \
-trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))), \
-trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))), \
-trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) \
-    FROM "
-        + addressdatatable + " \
-join calldatatable on calldatatable.addressdata_id=" + addressdatatable
-        + ".id \
-where calldatatable.id=" + calldatatableId + " LIMIT 1";
+    query = `
+        select 
+            ${addressdatatable}.id as addressdataid, \
+            trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))) as customerid, \
+            trim(if(isnull(firstname),'-',if(firstname = '','',firstname))) as firstname, \
+            trim(if(isnull(surname),'-',if(surname = '','',surname))) as surname, \
+            trim(if(isnull(dateofbirth),'-',if(dateofbirth = '','',dateofbirth))) as dateofbirth, \
+            trim(if(isnull(emailprivate),'-',if(emailprivate = '','',emailprivate))) as emailprivate, \
+            trim(if(isnull(phonemobileareacode),'-',if(phonemobileareacode = '','',phonemobileareacode))) as phonemobileareacode, \
+            trim(if(isnull(phonemobile),'-',if(phonemobile = '','',phonemobile))) as phonemobile, \
+            trim(if(isnull(phonehomeareacode),'-',if(phonehomeareacode = '','',phonehomeareacode))) as phonehomeareacode, \
+            trim(if(isnull(phonehome),'-',if(phonehome = '','',phonehome))) as phonehome, \
+            trim(if(isnull(street),'-',if(street = '','',street))) as street, \
+            trim(if(isnull(housenumber),'-',if(housenumber = '','',housenumber))) as housenumber, \
+            trim(if(isnull(zip),'-',if(zip = '','',zip))) as zip, \
+            trim(if(isnull(city),'-',if(city = '','',city))) as city, \
+            trim(if(isnull(energy),'-',if(energy = '','',energy))) as energy, \
+            trim(if(isnull(createdat),'-',if(createdat = '','',createdat))) as cratedate, \
+            trim(if(isnull(marketlocation),'-',if(marketlocation = '','-',marketlocation))) as marketlocation, \
+            trim(if(isnull(product),'-',if(product = '','-',product))) as product, \
+            trim(if(isnull(id_nr),'-',if(id_nr = '','-',id_nr))) as id_nr, \
+            trim(if(isnull(startdate),'-',if(startdate = '','-',startdate))) as startdate, \
+            trim(if(isnull(baseprice),'-',if(baseprice = '','-',baseprice))) as baseprice, \
+            trim(if(isnull(workingprice),'-',if(workingprice = '','-',workingprice))) as workingplace, \
+            trim(if(isnull(productbonus),'-',if(productbonus = '','-',productbonus))) as productbonus, \
+            trim(if(isnull(productinstantbonus),'-',if(productinstantbonus = '','-',productinstantbonus))) as productinstantbonus, \
+            trim(if(isnull(adsmail),'-',if(adsmail = '','-',adsmail))) as adsmail, \
+            trim(if(isnull(adsphone),'-',if(adsphone = '','',adsphone))) as adsphone, \
+            trim(if(isnull(adspost),'-',if(adspost = '','',adspost))) as adspost, \
+            trim(if(isnull('usage'),'-',if('usage' = '','','usage'))) as adsage, \
+            trim(if(isnull(enddate),'-',if(enddate = '','',enddate))) as enddate, \
+            trim(if(isnull(iban),'-',if(iban = '','',iban))) as iban, \
+            trim(if(isnull(bic),'-',if(bic = '','',bic))) as bic, \
+            trim(if(isnull(bank),'-',if(bank = '','',bank))) as bank, \
+            trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))) as counternumber, \
+            trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))) as vertrag, \
+            trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) as grossamount \
+        from ${addressdatatable} \
+        join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
+        where calldatatable.id = ${calldatatableId} limit 1
+    `;
+
 
     addressdata = executeSql(query);
     // console.log("addressdata:" + addressdata)
     insertIntoLog("debug", "Adressdaten wurden geladen.", "");
 
+    const filterArr = ["bank"]
+
+    console.log(addressdata[0].rows[0].fields.bank);
+    function createAddressDataArray(queryResult) {
+        try {
+            const addressDataArray = queryResult[0].rows[1].map(entry => {
+                const rowData = {};
+                let i = 0;
+                entry.forEach(() => {
+                    filterArr.forEach(filter => {
+                        if (entry.fields.filter === filter) {
+                            rowData[keys] = value.trim() ?? '-';
+                            return rowData;
+                        }
+
+                    });
+                    
+                });
+            });
+            return addressDataArray;
+        } catch (error) {
+            console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Array geladen werden");
+            console.log(error);
+            return []; 
+        }
+    }
+    
+    const formattedAddressData = createAddressDataArray(executeSql(query));
+    console.log(formattedAddressData);
     addressdatatableId = addressdata[0].rows[0].columns[0];
 // Alle "globalen" kampagnenabh?ngigen Daten setzen
 

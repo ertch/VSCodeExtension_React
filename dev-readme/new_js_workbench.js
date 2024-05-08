@@ -157,48 +157,13 @@ function gf_javaf_initialize() {
         debug && console.log("under Draggable");
 
         // SQL-Abfrage für die Adressdaten des Datensatzes
-        const query = `
-        SELECT
-            ${addressdatatable}.id as addressdataid,
-            trim(if(isnull(customerid), '-', if(customerid = '', '-', customerid))) as customerid,
-            trim(if(isnull(firstname), '-', if(firstname = '', '-', firstname))) as firstname,
-            trim(if(isnull(surname), '-', if(surname = '', '-', surname))) as surname,
-            trim(if(isnull(dateofbirth), '-', if(dateofbirth = '', '-', dateofbirth))) as dateofbirth,
-            trim(if(isnull(emailprivate), '-', if(emailprivate = '', '-', emailprivate))) as emailprivate,
-            trim(if(isnull(phonemobileareacode), '-', if(phonemobileareacode = '', '-', phonemobileareacode))) as phonemobileareacode,
-            trim(if(isnull(phonemobile), '-', if(phonemobile = '', '-', phonemobile))) as phonemobile,
-            trim(if(isnull(phonehomeareacode), '-', if(phonehomeareacode = '', '-', phonehomeareacode))) as phonehomeareacode,
-            trim(if(isnull(phonehome), '-', if(phonehome = '', '-', phonehome))) as phonehome,
-            trim(if(isnull(street), '-', if(street = '', '-', street))) as street,
-            trim(if(isnull(housenumber), '-', if(housenumber = '', '-', housenumber))) as housenumber,
-            trim(if(isnull(zip), '-', if(zip = '', '-', zip))) as zip,
-            trim(if(isnull(city), '-', if(city = '', '-', city))) as city,
-            trim(if(isnull(energy), '-', if(energy = '', '-', energy))) as energy,
-            trim(if(isnull(createdat), '-', if(createdat = '', '-', createdat))) as createdat,
-            trim(if(isnull(marketlocation), '-', if(marketlocation = '', '-', marketlocation))) as marketlocation,
-            trim(if(isnull(product), '-', if(product = '', '-', product))) as product,
-            trim(if(isnull(id_nr), '-', if(id_nr = '', '-', id_nr))) as id_nr,
-            trim(if(isnull(startdate), '-', if(startdate = '', '-', startdate))) as startdate,
-            trim(if(isnull(baseprice), '-', if(baseprice = '', '-', baseprice))) as baseprice,
-            trim(if(isnull(workingprice), '-', if(workingprice = '', '-', workingprice))) as workingprice,
-            trim(if(isnull(productbonus), '-', if(productbonus = '', '-', productbonus))) as productbonus,
-            trim(if(isnull(productinstantbonus), '-', if(productinstantbonus = '', '-', productinstantbonus))) as productinstantbonus,
-            trim(if(isnull(adsmail), '-', if(adsmail = '', '-', adsmail))) as adsmail,
-            trim(if(isnull(adsphone), '-', if(adsphone = '', '-', adsphone))) as adsphone,
-            trim(if(isnull(adspost), '-', if(adspost = '', '-', adspost))) as adspost,
-            trim(if(isnull(usage), '-', if(usage = '', '-', usage))) as usage,
-            trim(if(isnull(enddate), '-', if(enddate = '', '-', enddate))) as enddate,
-            trim(if(isnull(iban), '-', if(iban = '', '-', iban))) as iban,
-            trim(if(isnull(bic), '-', if(bic = '', '-', bic))) as bic,
-            trim(if(isnull(bank), '-', if(bank = '', '-', bank))) as bank,
-            trim(if(isnull(counternumber), '-', if(counternumber = '', '-', counternumber))) as counternumber,
-            trim(if(isnull(vertrag), '-', if(vertrag = '', '-', vertrag))) as vertrag,
-            trim(if(isnull(grossamount), '-', if(grossamount = '', '-', grossamount))) as grossamount
-        FROM ${addressdatatable}
-        JOIN calldatatable ON calldatatable.addressdata_id = ${addressdatatable}.id
-        WHERE calldatatable.id = ${calldatatableId}
-        LIMIT 1
-    `;
+
+       
+
+       
+        
+        addressdata = executeSql(query); // SQL-Abfrage von oben: DB => addressData
+        addressdatatableId =  addressdata[0].rows[0].columns[0]; 
         insertIntoLog("debug", "Adressdaten wurden geladen.", "");
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -240,8 +205,6 @@ function gf_javaf_initialize() {
         *       vertragsnr:         filterSqlResult(addressdata[0].rows[0].columns[33]),
         *       abschlag:           filterSqlResult(addressdata[0].rows[0].columns[34])
         */
-        addressdata = executeSql(query); // SQL-Abfrage von oben: DB => addressData
-        addressdatatableId =  addressdata[0].rows[0].columns[0]; 
 
         /**     Hier wird bestimmt welche Info Cards generiert werden. Sie werden von oben nach unten in Zweierreihen
          *      entsprechend der Liste und den Schlägwörtern aufgegliedert.  
@@ -271,6 +234,12 @@ function gf_javaf_initialize() {
             { label: 'Datensatz',       id: 'Dataset',          value: `${calldatatableId}:${addressdatatableId}` },
             { label: 'Gewählte Nr.',    id: 'PhoneNumber',      value: filterSqlResult(addressdata[0].rows[0].columns[25]) }
         ];
+
+        let customerCells = document.getElementById("custumerCells");
+        let cellArr = JSON.parse(customerCells.getAttribute("data-array").replace(/&quot;/g, `"`));
+        cellArr.forEach(entry => {
+            
+        });             
 
         let CustomerInfoCards = ""; //Erstellen der einzelnen Kunden-InfoCards
         CustomerData.forEach(({ label, id, value }) => {
@@ -1165,3 +1134,14 @@ function gf_javaf_initialize() {
         form.submit();
     }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-005 
+ * 
+ *      Ein Standart Validator, der cen Value des aufrufenden Elements gegen den übergebenen Wert prüft.
+*/
+    function checkCallerValue(overriddenValue) {
+        let resultBool = false;
+        if (this === overriddenValue) {
+            resultBool = true;
+        } 
+        return resultBool;
+    }
