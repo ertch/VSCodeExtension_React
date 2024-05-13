@@ -3,7 +3,7 @@
 * Die query-lib sellt die verschiedenen querys für die Kampagnen zur Verfügung. Diese werden mit der "Costumer-cells"-Component ausgewählt
 * und über das JS in die CustomerInfo geladen. Hierbei ist es wichtig immer die gleichen Bezeichner zu nutzen, damit die Funktion greift.
 * 
-*  Liste der bekannten Einträge + Position 
+*  Liste der zugewiesenen Information + Position 
 *    
 *       customerid:             [1]
 *       vorname:                [2]
@@ -41,64 +41,50 @@
 *       abschlag:               [34]
 * 
 */
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function STE_OUT_1() {
+    let query = `
+        select 
+            ${addressdatatable}.id as addressdataid, \
+            trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))) as customerid, \
+            trim(if(isnull(firstname),'-',if(firstname = '','',firstname))) as firstname, \
+            trim(if(isnull(surname),'-',if(surname = '','',surname))) as surname, \
+            trim(if(isnull(dateofbirth),'-',if(dateofbirth = '','',dateofbirth))) as dateofbirth, \
+            trim(if(isnull(emailprivate),'-',if(emailprivate = '','',emailprivate))) as emailprivate, \
+            trim(if(isnull(phonemobileareacode),'-',if(phonemobileareacode = '','',phonemobileareacode))) as phonemobileareacode, \
+            trim(if(isnull(phonemobile),'-',if(phonemobile = '','',phonemobile))) as phonemobile, \
+            trim(if(isnull(phonehomeareacode),'-',if(phonehomeareacode = '','',phonehomeareacode))) as phonehomeareacode, \
+            trim(if(isnull(phonehome),'-',if(phonehome = '','',phonehome))) as phonehome, \
+            trim(if(isnull(street),'-',if(street = '','',street))) as street, \
+            trim(if(isnull(housenumber),'-',if(housenumber = '','',housenumber))) as housenumber, \
+            trim(if(isnull(zip),'-',if(zip = '','',zip))) as zip, \
+            trim(if(isnull(city),'-',if(city = '','',city))) as city, \
+            trim(if(isnull(energy),'-',if(energy = '','',energy))) as energy, \
+            trim(if(isnull(createdat),'-',if(createdat = '','',createdat))) as cratedate, \
+            trim(if(isnull(marketlocation),'-',if(marketlocation = '','-',marketlocation))) as marketlocation, \
+            trim(if(isnull(product),'-',if(product = '','-',product))) as product, \
+            trim(if(isnull(id_nr),'-',if(id_nr = '','-',id_nr))) as id_nr, \
+            trim(if(isnull(startdate),'-',if(startdate = '','-',startdate))) as startdate, \
+            trim(if(isnull(baseprice),'-',if(baseprice = '','-',baseprice))) as baseprice, \
+            trim(if(isnull(workingprice),'-',if(workingprice = '','-',workingprice))) as workingplace, \
+            trim(if(isnull(productbonus),'-',if(productbonus = '','-',productbonus))) as productbonus, \
+            trim(if(isnull(productinstantbonus),'-',if(productinstantbonus = '','-',productinstantbonus))) as productinstantbonus, \
+            trim(if(isnull(adsmail),'-',if(adsmail = '','-',adsmail))) as adsmail, \
+            trim(if(isnull(adsphone),'-',if(adsphone = '','',adsphone))) as adsphone, \
+            trim(if(isnull(adspost),'-',if(adspost = '','',adspost))) as adspost, \
+            trim(if(isnull('usage'),'-',if('usage' = '','','usage'))) as adsage, \
+            trim(if(isnull(enddate),'-',if(enddate = '','',enddate))) as enddate, \
+            trim(if(isnull(iban),'-',if(iban = '','',iban))) as iban, \
+            trim(if(isnull(bic),'-',if(bic = '','',bic))) as bic, \
+            trim(if(isnull(bank),'-',if(bank = '','',bank))) as bank, \
+            trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))) as counternumber, \
+            trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))) as vertrag, \
+            trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) as grossamount \
+        from ${addressdatatable} \
+        join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
+        where calldatatable.id = ${calldatatableId} limit 1
+    `;
 
-const STE_OUT = `
-    SELECT
-        ${addressdatatable}.id AS addressdataid,
-        TRIM(COALESCE(customerid, '-')) AS customerid,
-        TRIM(COALESCE(firstname, '-')) AS firstname,
-        TRIM(COALESCE(surname, '-')) AS surname,
-        TRIM(COALESCE(dateofbirth, '-')) AS dateofbirth,
-        TRIM(COALESCE(emailprivate, '-')) AS emailprivate,
-        TRIM(COALESCE(phonemobileareacode, '-')) AS phonemobileareacode,
-        TRIM(COALESCE(phonemobile, '-')) AS phonemobile,
-        TRIM(COALESCE(phonehomeareacode, '-')) AS phonehomeareacode,
-        TRIM(COALESCE(phonehome, '-')) AS phonehome,
-        TRIM(COALESCE(street, '-')) AS street,
-        TRIM(COALESCE(housenumber, '-')) AS housenumber,
-        TRIM(COALESCE(zip, '-')) AS zip,
-        TRIM(COALESCE(city, '-')) AS city,
-        TRIM(COALESCE(energy, '-')) AS energy,
-        TRIM(COALESCE(createdat, '-')) AS createdat,
-        TRIM(COALESCE(marketlocation, '-')) AS marketlocation,
-        TRIM(COALESCE(product, '-')) AS product,
-        TRIM(COALESCE(id_nr, '-')) AS id_nr,
-        TRIM(COALESCE(startdate, '-')) AS startdate,
-        TRIM(COALESCE(baseprice, '-')) AS baseprice,
-        TRIM(COALESCE(workingprice, '-')) AS workingprice,
-        TRIM(COALESCE(productbonus, '-')) AS productbonus,
-        TRIM(COALESCE(productinstantbonus, '-')) AS productinstantbonus,
-        TRIM(COALESCE(adsmail, '-')) AS adsmail,
-        TRIM(COALESCE(adsphone, '-')) AS adsphone,
-        TRIM(COALESCE(adspost, '-')) AS adspost,
-        TRIM(COALESCE(usage, '-')) AS usage,
-        TRIM(COALESCE(enddate, '-')) AS enddate,
-        TRIM(COALESCE(iban, '-')) AS iban,
-        TRIM(COALESCE(bic, '-')) AS bic,
-        TRIM(COALESCE(bank, '-')) AS bank,
-        TRIM(COALESCE(counternumber, '-')) AS counternumber,
-        TRIM(COALESCE(vertrag, '-')) AS vertrag,
-        TRIM(COALESCE(grossamount, '-')) AS grossamount
-    FROM ${addressdatatable}
-    JOIN calldatatable ON calldatatable.addressdata_id = ${addressdatatable}.id
-    WHERE calldatatable.id = ${calldatatableId}
-    LIMIT 1`;
-
-const formattedAddressData = createAddressDataArray(executeSql(query));
-
-function createAddressDataArray(queryResult) {
-    try {
-        const addressDataArray = queryResult[0].rows.map(row => {
-            const rowData = {};
-            row.columns.forEach((value, index ) => {
-                rowData[index] = value.trim() ?? '-';
-            });
-            return rowData;
-        });
-        return addressDataArray;
-    } catch (error) {
-        console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Array geladen werden");
-        console.log(error);
-        return []; 
-    }
-}
+    const formattedAddressData = createAddressDataArray(executeSql(query));
+    return formattedAddressData
+};

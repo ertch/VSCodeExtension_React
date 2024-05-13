@@ -6,7 +6,7 @@ import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
 import Gatekeeper from "@components/Gatekeeper-Select.astro";
 import SQL_Select from "@components/SQL_InsertSelect.astro";
-import BasicCampaign from "@components/BasicCampaign.astro";
+import CustomerCells from "@components/Customer-cells.astro";
 import Textfield from "@components/SimpleTextfield.astro";
 import NavTabs from "@components/NavTabs.astro";
 import FootButtons from "@components/FootButtons.astro";
@@ -32,7 +32,10 @@ import PopupRotz from "@components/PopupRotz.astro";
   <main>
     <!-- Kundeninformationen links -->
     <aside class="left_block">
-      <div id="customer_info"></div>
+      <CustomerCells
+        provider="providerDefault()"
+        queryId="ste_out_1()" 
+      ></div>
       <div id="nav_buttons"></div>
     </aside>
 

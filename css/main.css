@@ -2414,7 +2414,7 @@ header img {
   max-height: 100%;
 }
 
-#customer_info {
+#customerCells {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   position: fixed;

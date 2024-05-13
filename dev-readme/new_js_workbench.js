@@ -164,90 +164,69 @@ function gf_javaf_initialize() {
         
         addressdata = executeSql(query); // SQL-Abfrage von oben: DB => addressData
         addressdatatableId =  addressdata[0].rows[0].columns[0]; 
-        insertIntoLog("debug", "Adressdaten wurden geladen.", "");
+       
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ERSTELLUNG DER INFO CARDS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        // Liste aller bekannten Einträge      
-        /**     customerid:         filterSqlResult(addressdata[0].rows[0].columns[1]),
-        *       vorname:            filterSqlResult(addressdata[0].rows[0].columns[2]),
-        *       nachname:           filterSqlResult(addressdata[0].rows[0].columns[3]),
-        *       geb_datum:          filterSqlResult(addressdata[0].rows[0].columns[4]),
-        *       email:              filterSqlResult(addressdata[0].rows[0].columns[5]),
-        *       tel_mobile_vorwahl: filterSqlResult(addressdata[0].rows[0].columns[6]),
-        *       tel_mobile:         filterSqlResult(addressdata[0].rows[0].columns[7]),
-        *       tel_home_vorwahl:   filterSqlResult(addressdata[0].rows[0].columns[8]),
-        *       tel_home:           filterSqlResult(addressdata[0].rows[0].columns[9]),
-        *       strasse:            filterSqlResult(addressdata[0].rows[0].columns[10]),
-        *       haus_nr:            filterSqlResult(addressdata[0].rows[0].columns[11]),
-        *       plz:                filterSqlResult(addressdata[0].rows[0].columns[12]),
-        *       ort:                filterSqlResult(addressdata[0].rows[0].columns[13]),
-        *       energie:            filterSqlResult(addressdata[0].rows[0].columns[14]),
-        *       erstell_dat:        filterSqlResult(addressdata[0].rows[0].columns[15]),
-        *       marktgebiet:        filterSqlResult(addressdata[0].rows[0].columns[16]),
-        *       produkt:            filterSqlResult(addressdata[0].rows[0].columns[17]),
-        *       id_nr:              filterSqlResult(addressdata[0].rows[0].columns[18]),
-        *       startdatum:         filterSqlResult(addressdata[0].rows[0].columns[19]),
-        *       grundpreis:         filterSqlResult(addressdata[0].rows[0].columns[20]),
-        *       arbeitspreis:       filterSqlResult(addressdata[0].rows[0].columns[21]),
-        *       produkt_bonus:      filterSqlResult(addressdata[0].rows[0].columns[22]),
-        *       produkt_sofortbonus: filterSqlResult(addressdata[0].rows[0].columns[23]),
-        *       ads_mail:           filterSqlResult(addressdata[0].rows[0].columns[24]),
-        *       ads_phone:          filterSqlResult(addressdata[0].rows[0].columns[25]),
-        *       ads_post:           filterSqlResult(addressdata[0].rows[0].columns[26]),
-        *       usage:              filterSqlResult(addressdata[0].rows[0].columns[27]),
-        *       end_dat:            filterSqlResult(addressdata[0].rows[0].columns[28]),
-        *       iban:               filterSqlResult(addressdata[0].rows[0].columns[29]),
-        *       bic:                filterSqlResult(addressdata[0].rows[0].columns[30]),
-        *       bank:               filterSqlResult(addressdata[0].rows[0].columns[31]),
-        *       zaehler_nr:         filterSqlResult(addressdata[0].rows[0].columns[32]),
-        *       vertragsnr:         filterSqlResult(addressdata[0].rows[0].columns[33]),
-        *       abschlag:           filterSqlResult(addressdata[0].rows[0].columns[34])
+        // createCustomerCards  
+        /**     
+    
         */
 
-        /**     Hier wird bestimmt welche Info Cards generiert werden. Sie werden von oben nach unten in Zweierreihen
-         *      entsprechend der Liste und den Schlägwörtern aufgegliedert.  
-         *      Der Aufbau des HTML ist wie folgt:
-         *              <div>    
-         *                  <div> 'label' </div>      
-         *                  <div id = 'id'> 'value' </div>   
-         *              </div>
-         */
-        const CustomerData = [
-            { label: 'Vorname',         id: 'Vorname',          value: filterSqlResult(addressdata[0].rows[0].columns[2]) },
-            { label: 'Nachname',        id: 'Nachname',         value: filterSqlResult(addressdata[0].rows[0].columns[3]) },
-            { label: 'Geb.-Datum',      id: 'Geb.-Datum',       value: filterSqlResult(addressdata[0].rows[0].columns[4]) },
-            { label: 'E-Mail',          id: 'E-Mail',           value: filterSqlResult(addressdata[0].rows[0].columns[5]) },
-            { label: 'Kundennummer',    id: 'Kundennummer',     value: filterSqlResult(addressdata[0].rows[0].columns[1]) },
-            { label: 'Vertragsnummer',  id: 'Vertragsnummer',   value: filterSqlResult(addressdata[0].rows[0].columns[33]) },
-            { label: 'Zählernummer',    id: 'Zählernummer',     value: filterSqlResult(addressdata[0].rows[0].columns[32]) },
-            { label: 'Festnetz',        id: 'Festnetz',         value: `${filterSqlResult(addressdata[0].rows[0].columns[8])}-${filterSqlResult(addressdata[0].rows[0].columns[9])}` },
-            { label: 'Mobil',           id: 'Mobil',            value: `${filterSqlResult(addressdata[0].rows[0].columns[6])}-${filterSqlResult(addressdata[0].rows[0].columns[7])}` },
-            { label: 'Strasse',         id: 'Strasse',          value: filterSqlResult(addressdata[0].rows[0].columns[10]) },
-            { label: 'Hausnummer',      id: 'Hausnummer',       value: filterSqlResult(addressdata[0].rows[0].columns[11]) },
-            { label: 'PLZ',             id: 'PLZ',              value: filterSqlResult(addressdata[0].rows[0].columns[12]) },
-            { label: 'Ort',             id: 'Ort',              value: filterSqlResult(addressdata[0].rows[0].columns[13]) },
-            { label: 'Produkt',         id: 'Produkt',          value: filterSqlResult(addressdata[0].rows[0].columns[17]) },
-            { label: 'Startdatum',      id: 'Startdatum',       value: filterSqlResult(addressdata[0].rows[0].columns[15]) },
-            { label: 'Lieferbeginn',    id: 'Lieferbeginn',     value: filterSqlResult(addressdata[0].rows[0].columns[19]) },
-            { label: 'Datensatz',       id: 'Dataset',          value: `${calldatatableId}:${addressdatatableId}` },
-            { label: 'Gewählte Nr.',    id: 'PhoneNumber',      value: filterSqlResult(addressdata[0].rows[0].columns[25]) }
-        ];
+
+        function createCustomerCards() {
+            try {
+                // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
+                let cardHolder = document.getElementById("customerCards");
+                let CustomerData;
+                let SqlField; 
+                
+                if (cardHolder.getAttribute("data-provider") != null){
+                    CustomerData = executeFunctionFromString(cardHolder.getAttribute("data-provider") + "()");
+                } else {
+                    CustomerData = providerDefault()
+                };
+
+                if (cardHolder.getAttribute("data-query") != null){
+                    SqlField = executeFunctionFromString(cardHolder.getAttribute("data-query") + "()");
+                } else {
+                    SqlField = queryDefault()
+                };
+    
+                // Itteriere durch die Schlagwörter CustomerData.match
+                for (const [index] of Object.entries(CustomerData)) {
+                    // Speichere den Index aus sqlField, der mit match(Schlagwort) zusammen passt. [ -1 = nicht gefunden ]
+                    matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match)
+                    
+                    //Prüfe ob Index > -1 und schreibe den Value des des Keys zudem der Index gehört, oder "-" wenn index = -1  
+                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] ? Object.keys(SqlField).indexOf(CustomerData[index].match) > -1 : "-";
+                }
+
+                console.log(CustomerData.length)
+
+                insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
+            } catch (error) {
+                console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Cards geladen werden");
+                console.log(error);
+                return []; 
+            }  
+        }
 
         let customerCells = document.getElementById("custumerCells");
-        let cellArr = JSON.parse(customerCells.getAttribute("data-array").replace(/&quot;/g, `"`));
+        // generiere spezifisches Array (provider_lib), wenn nicht vorhanden nimm default-schema  
+        let cellArr = executeFunctionFromString(customerCells.getAttribute("data-provider") + "()");
         cellArr.forEach(entry => {
             
         });             
 
-        let CustomerInfoCards = ""; //Erstellen der einzelnen Kunden-InfoCards
-        CustomerData.forEach(({ label, id, value }) => {
-            CustomerInfoCards += getNavigationDiv(label, id, value);
-            if (['E-Mail', 'Zählernummer', 'Hausnummer', 'Ort'].includes(label)) {
-                CustomerInfoCards += "<div class='separator'></div>"; // Ab jedem label das den Schlagwörtern gleicht wird 1/3 Zeihle frei gelassen
-            }
-        });
+        // let CustomerInfoCards = ""; //Erstellen der einzelnen Kunden-InfoCards
+        // CustomerData.forEach(({ label, id, value }) => {
+        //     CustomerInfoCards += getNavigationDiv(label, id, value);
+        //     if (['E-Mail', 'Zählernummer', 'Hausnummer', 'Ort'].includes(label)) {
+        //         CustomerInfoCards += "<div class='separator'></div>"; // Ab jedem label das den Schlagwörtern gleicht wird 1/3 Zeihle frei gelassen
+        //     }
+        // });
 
         document.getElementById('customer_info').innerHTML = CoustumerInfoCards;
 
@@ -1066,6 +1045,7 @@ function gf_javaf_initialize() {
 *       - H-002     Select / ausgewählte Option prüfen
 *       - H-003     SQL-Schlagwortfilter
 *       - H-004     Submit ein Form
+*       - H-005     Mapping eines Arrays aus SQL-Results
 /*
 
 
@@ -1144,4 +1124,31 @@ function gf_javaf_initialize() {
             resultBool = true;
         } 
         return resultBool;
+    }
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-006
+ * 
+ */
+    function createAddressDataArray(queryResult) {
+        try {
+            // Das Ergebnis wird angenommen und in ein Array von Adressdaten umgewandelt
+            const addressDataArray = queryResult[0].rows.map(row => {
+                // Jede Zeile des Ergebnisses wird durchlaufen, um die Daten zu extrahieren
+                const rowData = {};
+                row.columns.forEach((value, index ) => {
+                    // Die Werte werden bearbeitet und in das Objekt rowData eingefügt
+                    // Eventuelle Leerraumzeichen werden entfernt, falls vorhanden, sonst wird '-' verwendet
+                    rowData[index] = value.trim() ?? '-';
+                });
+                // Die bearbeitete Zeile wird zurückgegeben und zum Array hinzugefügt
+                return rowData;
+            });
+            // Das fertige Array mit Adressdaten wird zurückgegeben
+            return addressDataArray;
+        } catch (error) {
+            // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
+            console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Array geladen werden");
+            console.log(error);
+            return []; 
+        }
     }

@@ -50,307 +50,283 @@ var logLevel = "debug"; // kann debug, info, warning, error, fatal sein
 var ttWeb = new Object();
 
 
-function gf_javaf_initialize(){
-    console.log("gf_javaf_initialize") // JS analyse
-	if (!debug)	{	
-	
-	this.parent.contentInterface.initialize(window,
-
-		function onInitialized(contentInterface) {
-			//window.contentInterface= contentInterface;
-			ttWeb = contentInterface;
-			gf_initialize();
-			},
-		//Error
-		function onInitializeError(e) {
-			alert('Initialize contentInterface failed: '+e.message)
-			}
-		);
-
-	} else gf_initialize();
-	
-
-	}
-
-
-function filterSqlResult(s) {
-    if (s == '-')
-        s = '';
-    return s;
-}
-
-function filterSqlResultForProduct(s, blnWithEuro) {
-    if (s == '-')
-        s = 'kostenlos';
-    else {
-        s1 = s.replace(/\./g, ",");
-
-        s = s1 + "&nbsp;&euro;";
-    }
-    return s;
-}
-
-/*
- * Initfunktion, die bei Aufruf der Maske alle n?tigen Daten aus der DB zieht
- * und die globalen Variablen setzt
- */
-function gf_initialize() {
-    console.log("gf_initialize") // JS analyse
-    console.log("gf_init was executed")
-
-
-    ziel = "select tagesziel from livestat_settings where campaign_id = '" + campaignId + "'";
-    dailyToGo = executeSql(ziel);
-
-
-    // document.execCommand("BackgroundImageCache",false,true);
-
-    blnFinishPositive = false;
-
-    if (!debug) {
-        //direction = ttWeb.getCallDirection();
-        calldatatableId = ttWeb.getCalltableField('ID');
-        msisdn = ttWeb.getCalltableField('HOME');
-        indicator = ttWeb.getIndicator();
-        if (indicator == 1) {
-            telKontakt = ttWeb.getCalltableField('HOME');
-        } else if (indicator == 2) {
-            telKontakt = ttWeb.getCalltableField('BUSINESS');
-        } else
-            telKontakt = ttWeb.getCalltableField('OTHER');
-        festnetz = ttWeb.getCalltableField('BUSINESS');
-        agentId = ttWeb.getUser().Login;
-
-    } else {
-
-        calldatatableId = 79880808;
-        msisdn = "01768655885";
-        telKontakt = "0190123123";
-        agentId = "2008";
-    }
-
-    insertIntoLog("info", "Datensatz wurde Tel. " + telKontakt + " angerufen (Msisdn: " + msisdn + ")", "");
-    console.log("insertIntoLog was executed")
-
-
-    callResultId = 0;
-    var query = "SELECT result_id FROM calldatatable where id=" + calldatatableId + " LIMIT 1";
-    resultat = executeSql(query);
-
-    if (!debug && resultat[0].rows.length > 0)
-        callResultId = resultat[0].rows[0].fields.result_id;
-
-
-    if (!debug && resultat[0].rows.length > 0)
-        callResultId = resultat[0].rows[0].fields.result_id;
-
-    if (!debug) {
-        if ((callResultId == resultIdPositiv)) {
-            insertIntoLog(
-                "fatal",
-                "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch von der Maske termininiert.",
-                "");
-            ttWeb.clearRecording();
-            alert("Kunde wurde schon positiv abgeschlossen!\n Achtung!\n Bei OK-Klicken wird aufgelegt!!");
-            ttWeb.terminateCall('100');
-        }
-        if ((callResultId == resultIdNegativ)) {
-            insertIntoLog(
-                "fatal",
-                "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch von der Maske termininiert.",
-                "");
-            ttWeb.clearRecording();
-            alert("Kunde wurde schon negativ abgeschlossen!\n Achtung!\n Bei OK-Klicken wird aufgelegt!!");
-            ttWeb.terminateCall('200');
-        }
-    }
-
-    // Aufgrund des Flackerns wurde das Draggen der Popupdivs erstmal disabled:
-    // new Draggable($('negativ'), {});
-    // new Draggable($('wiedervorlage'), {});
-    // new Draggable($('apne'), {});
-
-    console.log("under Draggable")
-
-    query = `
-        select 
-            ${addressdatatable}.id as addressdataid, \
-            trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))) as customerid, \
-            trim(if(isnull(firstname),'-',if(firstname = '','',firstname))) as firstname, \
-            trim(if(isnull(surname),'-',if(surname = '','',surname))) as surname, \
-            trim(if(isnull(dateofbirth),'-',if(dateofbirth = '','',dateofbirth))) as dateofbirth, \
-            trim(if(isnull(emailprivate),'-',if(emailprivate = '','',emailprivate))) as emailprivate, \
-            trim(if(isnull(phonemobileareacode),'-',if(phonemobileareacode = '','',phonemobileareacode))) as phonemobileareacode, \
-            trim(if(isnull(phonemobile),'-',if(phonemobile = '','',phonemobile))) as phonemobile, \
-            trim(if(isnull(phonehomeareacode),'-',if(phonehomeareacode = '','',phonehomeareacode))) as phonehomeareacode, \
-            trim(if(isnull(phonehome),'-',if(phonehome = '','',phonehome))) as phonehome, \
-            trim(if(isnull(street),'-',if(street = '','',street))) as street, \
-            trim(if(isnull(housenumber),'-',if(housenumber = '','',housenumber))) as housenumber, \
-            trim(if(isnull(zip),'-',if(zip = '','',zip))) as zip, \
-            trim(if(isnull(city),'-',if(city = '','',city))) as city, \
-            trim(if(isnull(energy),'-',if(energy = '','',energy))) as energy, \
-            trim(if(isnull(createdat),'-',if(createdat = '','',createdat))) as cratedate, \
-            trim(if(isnull(marketlocation),'-',if(marketlocation = '','-',marketlocation))) as marketlocation, \
-            trim(if(isnull(product),'-',if(product = '','-',product))) as product, \
-            trim(if(isnull(id_nr),'-',if(id_nr = '','-',id_nr))) as id_nr, \
-            trim(if(isnull(startdate),'-',if(startdate = '','-',startdate))) as startdate, \
-            trim(if(isnull(baseprice),'-',if(baseprice = '','-',baseprice))) as baseprice, \
-            trim(if(isnull(workingprice),'-',if(workingprice = '','-',workingprice))) as workingplace, \
-            trim(if(isnull(productbonus),'-',if(productbonus = '','-',productbonus))) as productbonus, \
-            trim(if(isnull(productinstantbonus),'-',if(productinstantbonus = '','-',productinstantbonus))) as productinstantbonus, \
-            trim(if(isnull(adsmail),'-',if(adsmail = '','-',adsmail))) as adsmail, \
-            trim(if(isnull(adsphone),'-',if(adsphone = '','',adsphone))) as adsphone, \
-            trim(if(isnull(adspost),'-',if(adspost = '','',adspost))) as adspost, \
-            trim(if(isnull('usage'),'-',if('usage' = '','','usage'))) as adsage, \
-            trim(if(isnull(enddate),'-',if(enddate = '','',enddate))) as enddate, \
-            trim(if(isnull(iban),'-',if(iban = '','',iban))) as iban, \
-            trim(if(isnull(bic),'-',if(bic = '','',bic))) as bic, \
-            trim(if(isnull(bank),'-',if(bank = '','',bank))) as bank, \
-            trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))) as counternumber, \
-            trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))) as vertrag, \
-            trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) as grossamount \
-        from ${addressdatatable} \
-        join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
-        where calldatatable.id = ${calldatatableId} limit 1
-    `;
-
-
-    addressdata = executeSql(query);
-    // console.log("addressdata:" + addressdata)
-    insertIntoLog("debug", "Adressdaten wurden geladen.", "");
-
-    const filterArr = ["bank"]
-
-    console.log(addressdata[0].rows[0].fields.bank);
-    function createAddressDataArray(queryResult) {
-        try {
-            const addressDataArray = queryResult[0].rows[1].map(entry => {
-                const rowData = {};
-                let i = 0;
-                entry.forEach(() => {
-                    filterArr.forEach(filter => {
-                        if (entry.fields.filter === filter) {
-                            rowData[keys] = value.trim() ?? '-';
-                            return rowData;
-                        }
-
-                    });
-                    
-                });
-            });
-            return addressDataArray;
-        } catch (error) {
-            console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Array geladen werden");
-            console.log(error);
-            return []; 
-        }
-    }
-    
-    const formattedAddressData = createAddressDataArray(executeSql(query));
-    console.log(formattedAddressData);
-    addressdatatableId = addressdata[0].rows[0].columns[0];
-// Alle "globalen" kampagnenabh?ngigen Daten setzen
-
-    var kunden_nr = filterSqlResult(addressdata[0].rows[0].columns[1]);
-    var vorname = filterSqlResult(addressdata[0].rows[0].columns[2]);
-    var nachname = filterSqlResult(addressdata[0].rows[0].columns[3]);
-    var geb_datum = filterSqlResult(addressdata[0].rows[0].columns[4]);
-    var email = filterSqlResult(addressdata[0].rows[0].columns[5]);
-    var tel_mobile_vorwahl = filterSqlResult(addressdata[0].rows[0].columns[6]);
-    var tel_mobile = filterSqlResult(addressdata[0].rows[0].columns[7]);
-    var tel_home_vorwahl = filterSqlResult(addressdata[0].rows[0].columns[8]);
-    var tel_home = filterSqlResult(addressdata[0].rows[0].columns[9]);
-    var strasse = filterSqlResult(addressdata[0].rows[0].columns[10]);
-    var haus_nr = filterSqlResult(addressdata[0].rows[0].columns[11]);
-    var plz = filterSqlResult(addressdata[0].rows[0].columns[12]);
-    var ort = filterSqlResult(addressdata[0].rows[0].columns[13]);
-    var energie = filterSqlResult(addressdata[0].rows[0].columns[14]);
-    var erstell_dat = filterSqlResult(addressdata[0].rows[0].columns[15]);
-    var marktgebiet = filterSqlResult(addressdata[0].rows[0].columns[16]);
-    var produkt = filterSqlResult(addressdata[0].rows[0].columns[17]);
-    var id_nr = filterSqlResult(addressdata[0].rows[0].columns[18]);
-    var startdatum = filterSqlResult(addressdata[0].rows[0].columns[19]);
-    var grundpreis = filterSqlResult(addressdata[0].rows[0].columns[20]);
-    var arbeitspreis = filterSqlResult(addressdata[0].rows[0].columns[21]);
-    var produkt_bonus = filterSqlResult(addressdata[0].rows[0].columns[22]);
-    var produkt_sofortbonus = filterSqlResult(addressdata[0].rows[0].columns[23]);
-    var ads_mail = filterSqlResult(addressdata[0].rows[0].columns[24]);
-    var ads_phone = filterSqlResult(addressdata[0].rows[0].columns[25]);
-    var ads_post = filterSqlResult(addressdata[0].rows[0].columns[26]);
-    var usage = filterSqlResult(addressdata[0].rows[0].columns[27]);
-    var end_dat = filterSqlResult(addressdata[0].rows[0].columns[28]);
-    var iban = filterSqlResult(addressdata[0].rows[0].columns[29]);
-    var bic = filterSqlResult(addressdata[0].rows[0].columns[30]);
-    var bank = filterSqlResult(addressdata[0].rows[0].columns[31]);
-    var zaehler_nr = filterSqlResult(addressdata[0].rows[0].columns[32]);
-    var vertragsnr = filterSqlResult(addressdata[0].rows[0].columns[33]);
-    var abschlag = filterSqlResult(addressdata[0].rows[0].columns[34]);
-
-    getCampaignData(campaignId, agentId, addressdatatableId, addressdatatable);
-    
-    /* Neu ab hier */
-    let ns = "";
-
-    ns = ns + getNavigationDiv('Vorname', 'Vorname', vorname);
-    ns = ns + getNavigationDiv('Nachname', 'Nachname', nachname);    
-    ns = ns + getNavigationDiv('Geb.-Datum', 'Geb.-Datum', geb_datum);
-    ns = ns + getNavigationDiv('E-Mail', 'E-Mail', email);
-
-    ns = ns + "<div class='separator'></div>"; // Als Trenner zwischen Gruppen zu nutzen
-
-    ns = ns + getNavigationDiv('Kundennummer', 'Kundennummer', kunden_nr);
-    ns = ns + getNavigationDiv('Vertragsnummer', 'Vertragsnummer', vertragsnr);
-    ns = ns + getNavigationDiv('Zählernummer', 'Zählernummer', zaehler_nr);
-
-    ns = ns + "<div class='separator'></div>"; // Als Trenner zwischen Gruppen zu nutzen
-
-    //ns = ns + getNavigationDiv('Anrede', 'Anrede', anrede);
-    //ns = ns + getNavigationDiv('Titel', 'Titel', titel);
-    //ns = ns + getNavigationDiv('Optin Telefon', 'Optin Telefon', ads_phone);
-    //ns = ns + getNavigationDiv('Optin E-Mail', 'Optin E-Mail', ads_mail); 
-    //ns = ns + getNavigationDiv('Optin Post', 'Optin Post', ads_post);
+    function gf_javaf_initialize(){
+        console.log("gf_javaf_initialize") // JS analyse
+        if (!debug)	{	
         
-    ns = ns + getNavigationDiv('Festnetz', 'Festnetz', tel_home_vorwahl + "-" + tel_home);
-    ns = ns + getNavigationDiv('Mobil', 'Mobil', tel_mobile_vorwahl + "-" + tel_mobile);
+            this.parent.contentInterface.initialize(window,
 
-    ns = ns + getNavigationDiv('Strasse', 'Strasse', strasse);
-    ns = ns + getNavigationDiv('Hausnummer', 'Hausnummer', haus_nr);
+                function onInitialized(contentInterface) {
+                    //window.contentInterface= contentInterface;
+                    ttWeb = contentInterface;
+                    gf_initialize();
+                    },
+                //Error
+                function onInitializeError(e) {
+                    alert('Initialize contentInterface failed: '+e.message)
+                    }
+            );
 
-    ns = ns + getNavigationDiv('PLZ', 'PLZ', plz);
-    ns = ns + getNavigationDiv('Ort', 'Ort', ort);      
+        } else {
+            gf_initialize();
+        };
+    };
 
-    //ns = ns + getNavigationDiv('Z�hler-Nr..', 'Z�hler-Nr.', zaehler_nr);
-    ns = ns + getNavigationDiv('Produkt', 'Produkt', produkt);
-    //ns = ns + getNavigationDiv('Energie', 'Energie', energie);
-    
-    ns = ns + getNavigationDiv('Startdatum', 'Startdatum', erstell_dat);
-    ns = ns + getNavigationDiv('Lieferbeginn', 'Lieferbeginn', startdatum);
-    
+
+    function filterSqlResult(s) {
+        if (s == '-')
+            s = '';
+        return s;
+    }
+
+    function filterSqlResultForProduct(s, blnWithEuro) {
+        if (s == '-')
+            s = 'kostenlos';
+        else {
+            s1 = s.replace(/\./g, ",");
+
+            s = s1 + "&nbsp;&euro;";
+        }
+        return s;
+    }
+
     /*
-    ns = ns + getNavigationDiv('Ende', 'Ende', end_dat);
-    
-    ns = ns + getNavigationDiv('Verbrauch', 'Verbrauch', usage);
-    ns = ns + getNavigationDiv('Arbeitspreis', 'Arbeitspreis', arbeitspreis);
-    ns = ns + getNavigationDiv('Grundpreis', 'Grundpreis', grundpreis);
-    
-    
-    ns = ns + getNavigationDiv('Bonus', 'Bonus', produkt_bonus);
-    ns = ns + getNavigationDiv('Sofortbonus', 'Sofortbonus', produkt_sofortbonus); 
-    
-    ns = ns + getNavigationDiv('Abschlag', 'Abschlag', abschlag);
-	*/
-    ns = ns + getNavigationDiv('Datensatz', 'Dataset', calldatatableId + ":" + addressdatatableId);
-    ns = ns + getNavigationDiv('Gewählte Nr.', 'PhoneNumber', telKontakt);
-    
-    document.getElementById('customer_info').innerHTML = ns; // Daten müssen in das DIV #customer_info geschrieben werden
+    * Initfunktion, die bei Aufruf der Maske alle n?tigen Daten aus der DB zieht
+    * und die globalen Variablen setzt
+    */
+    function gf_initialize() {
+        console.log("gf_initialize") // JS analyse
+        console.log("gf_init was executed")
 
-   $('datenerfassung_email').value = email;
-   $('datenerfassung_telefon').value = msisdn;
-    
 
-    //recordingName = kunden_nr + "_[#date]";
-    recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
-}
+        ziel = "select tagesziel from livestat_settings where campaign_id = '" + campaignId + "'";
+        dailyToGo = executeSql(ziel);
+
+
+        // document.execCommand("BackgroundImageCache",false,true);
+
+        blnFinishPositive = false;
+
+        if (!debug) {
+            //direction = ttWeb.getCallDirection();
+            calldatatableId = ttWeb.getCalltableField('ID');
+            msisdn = ttWeb.getCalltableField('HOME');
+            indicator = ttWeb.getIndicator();
+            if (indicator == 1) {
+                telKontakt = ttWeb.getCalltableField('HOME');
+            } else if (indicator == 2) {
+                telKontakt = ttWeb.getCalltableField('BUSINESS');
+            } else
+                telKontakt = ttWeb.getCalltableField('OTHER');
+            festnetz = ttWeb.getCalltableField('BUSINESS');
+            agentId = ttWeb.getUser().Login;
+
+        } else {
+
+            calldatatableId = 79880808;
+            msisdn = "01768655885";
+            telKontakt = "0190123123";
+            agentId = "2008";
+        }
+
+        insertIntoLog("info", "Datensatz wurde Tel. " + telKontakt + " angerufen (Msisdn: " + msisdn + ")", "");
+        console.log("insertIntoLog was executed")
+
+
+        callResultId = 0;
+        var query = "SELECT result_id FROM calldatatable where id=" + calldatatableId + " LIMIT 1";
+        resultat = executeSql(query);
+
+        if (!debug && resultat[0].rows.length > 0){
+            callResultId = resultat[0].rows[0].fields.result_id;
+        }
+
+        if (!debug && resultat[0].rows.length > 0){
+            callResultId = resultat[0].rows[0].fields.result_id;
+        }
+
+        if (!debug) {
+            if ((callResultId == resultIdPositiv)) {
+                insertIntoLog(
+                    "fatal",
+                    "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch von der Maske termininiert.",
+                    "");
+                ttWeb.clearRecording();
+                alert("Kunde wurde schon positiv abgeschlossen!\n Achtung!\n Bei OK-Klicken wird aufgelegt!!");
+                ttWeb.terminateCall('100');
+            }
+            if ((callResultId == resultIdNegativ)) {
+                insertIntoLog(
+                    "fatal",
+                    "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch von der Maske termininiert.",
+                    "");
+                ttWeb.clearRecording();
+                alert("Kunde wurde schon negativ abgeschlossen!\n Achtung!\n Bei OK-Klicken wird aufgelegt!!");
+                ttWeb.terminateCall('200');
+            }
+        }
+
+        // Aufgrund des Flackerns wurde das Draggen der Popupdivs erstmal disabled:
+        // new Draggable($('negativ'), {});
+        // new Draggable($('wiedervorlage'), {});
+        // new Draggable($('apne'), {});
+
+        console.log("under Draggable")
+
+        function createCustomerCells() {
+            try {
+                // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
+                let cardHolder = document.getElementById("customerCells");
+                let CustomerData = providerDefault();
+                let SqlField = ste_out_1();
+            
+                
+                // if (cardHolder.getAttribute("data-provider") != null){
+                //     let execute = toString(cardHolder.getAttribute("data-provider"));
+                //     console.log("use " + execute)
+                //     executeFunctionFromString(execute);
+                // } else {
+                //     CustomerData = providerDefault();
+                // };
+
+                // if (cardHolder.getAttribute("data-query") != null){
+                //     let execute = cardHolder.getAttribute("data-query");
+                //     console.log("use " + execute)
+                //     SqlField = executeFunctionFromString(execute.toString());
+                // } else {
+                //     SqlField = queryDefault();
+                // };
+                // console.log(cardHolder.getAttribute("data-provider"))
+                // console.log ("zeich mir: " + CustomerData );
+
+
+                // Itteriere durch die Schlagwörter CustomerData.match
+                for (const [index] of Object.entries(CustomerData)) {
+                    // Speichere den Index aus sqlField, der mit match(Schlagwort) zusammen passt. [ -1 = nicht gefunden ]
+                    matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
+                    console.log(SqlField[Object.keys(SqlField)[matchingKey]]);
+                    
+                    //Prüfe ob Index > -1 und schreibe den Value des des Keys zudem der Index gehört, oder "-" wenn index = -1  
+                    if(  Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
+                        CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
+                     } else {  
+                        CustomerData[index].value = "-";
+                     };
+                };
+                console.log(SqlField);
+                console.log(CustomerData);
+                console.log(CustomerData.length);
+
+                let chache = "";
+                
+                for ( let i = 0; i < CustomerData.length; i++) {
+                    let label = CustomerData[i].label; 
+                    let id = CustomerData[i].match;
+                    let value = CustomerData[i].value;
+                    let standAlone = CustomerData[i].standAlone;
+
+                    standAlone ? undefined : chache = value;
+                    if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
+
+                    if (standAlone) {
+                        if (id != "seperator") { 
+                            cardHolder.innerHTML = ` 
+                                ${cardHolder.innerHTML}  
+                                <div class="cell">
+                                    <div class="cell__head">${label}</div>
+                                    <div class="data_value cell__data" id=${id}>${value}</div>
+                                </div>
+                            `;
+                        } else {
+                            console.log("seperartor i= " + i + " / id = " + id)
+                            cardHolder.innerHTML = ` 
+                                ${cardHolder.innerHTML}
+                                <div class='separator'></div>
+                            `;
+                        }
+                    };
+                };
+            
+
+                insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
+            } catch (error) {
+                console.log("Error: => SQL-Ergebnisse konnten nicht in Cards geladen werden");
+                console.log(error);
+                return []; 
+            }  
+        };
+        createCustomerCells();
+    };
+    
+    function providerDefault() {
+        let CustomerData = [
+            {label: 'Vorname',          match: 'firstname',             value: "",   standAlone: true   },
+            {label: 'Nachname',         match: 'surname',               value: "",   standAlone: true   },
+            {label: 'Geb.-Datum',       match: 'dateofbirth',           value: "",   standAlone: true   },
+            {label: 'E-Mail',           match: 'emailprivate',          value: "",   standAlone: true   },
+            {label: '',                 match: 'seperator',             value: "",   standAlone: true   },
+            {label: 'Kundennummer',     match: 'customerid',            value: "",   standAlone: true   },
+            {label: 'Vertragsnummer',   match: 'vertrag',               value: "",   standAlone: true   },
+            {label: 'Vorwahl',          match: 'phonehomeareacode',     value: "",   standAlone: false  },
+            {label: 'Festnetz',         match: 'phonehome',             value: "",   standAlone: true   },
+            {label: 'Mobilvorwahl',     match: 'phonemobileareacode',   value: "",   standAlone: false  },
+            {label: 'Mobil',            match: 'phonemobile',           value: "",   standAlone: true   },
+            {label: '',                 match: 'seperator',             value: "",   standAlone: true   },
+            {label: 'Strasse',          match: 'street',                value: "",   standAlone: true   },
+            {label: 'Hausnummer',       match: 'housenumber',           value: "",   standAlone: true   },
+            {label: 'PLZ',              match: 'zip',                   value: "",   standAlone: true   },
+            {label: 'Ort',              match: 'city',                  value: "",   standAlone: true   }, 
+        ];
+        return CustomerData
+    };
+   
+    function ste_out_1() {
+        let query = `
+            select 
+                ${addressdatatable}.id as addressdataid, \
+                trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))) as customerid, \
+                trim(if(isnull(firstname),'-',if(firstname = '','',firstname))) as firstname, \
+                trim(if(isnull(surname),'-',if(surname = '','',surname))) as surname, \
+                trim(if(isnull(dateofbirth),'-',if(dateofbirth = '','',dateofbirth))) as dateofbirth, \
+                trim(if(isnull(emailprivate),'-',if(emailprivate = '','',emailprivate))) as emailprivate, \
+                trim(if(isnull(phonemobileareacode),'-',if(phonemobileareacode = '','',phonemobileareacode))) as phonemobileareacode, \
+                trim(if(isnull(phonemobile),'-',if(phonemobile = '','',phonemobile))) as phonemobile, \
+                trim(if(isnull(phonehomeareacode),'-',if(phonehomeareacode = '','',phonehomeareacode))) as phonehomeareacode, \
+                trim(if(isnull(phonehome),'-',if(phonehome = '','',phonehome))) as phonehome, \
+                trim(if(isnull(street),'-',if(street = '','',street))) as street, \
+                trim(if(isnull(housenumber),'-',if(housenumber = '','',housenumber))) as housenumber, \
+                trim(if(isnull(zip),'-',if(zip = '','',zip))) as zip, \
+                trim(if(isnull(city),'-',if(city = '','',city))) as city, \
+                trim(if(isnull(energy),'-',if(energy = '','',energy))) as energy, \
+                trim(if(isnull(createdat),'-',if(createdat = '','',createdat))) as cratedate, \
+                trim(if(isnull(marketlocation),'-',if(marketlocation = '','-',marketlocation))) as marketlocation, \
+                trim(if(isnull(product),'-',if(product = '','-',product))) as product, \
+                trim(if(isnull(id_nr),'-',if(id_nr = '','-',id_nr))) as id_nr, \
+                trim(if(isnull(startdate),'-',if(startdate = '','-',startdate))) as startdate, \
+                trim(if(isnull(baseprice),'-',if(baseprice = '','-',baseprice))) as baseprice, \
+                trim(if(isnull(workingprice),'-',if(workingprice = '','-',workingprice))) as workingplace, \
+                trim(if(isnull(productbonus),'-',if(productbonus = '','-',productbonus))) as productbonus, \
+                trim(if(isnull(productinstantbonus),'-',if(productinstantbonus = '','-',productinstantbonus))) as productinstantbonus, \
+                trim(if(isnull(adsmail),'-',if(adsmail = '','-',adsmail))) as adsmail, \
+                trim(if(isnull(adsphone),'-',if(adsphone = '','',adsphone))) as adsphone, \
+                trim(if(isnull(adspost),'-',if(adspost = '','',adspost))) as adspost, \
+                trim(if(isnull('usage'),'-',if('usage' = '','','usage'))) as adsage, \
+                trim(if(isnull(enddate),'-',if(enddate = '','',enddate))) as enddate, \
+                trim(if(isnull(iban),'-',if(iban = '','',iban))) as iban, \
+                trim(if(isnull(bic),'-',if(bic = '','',bic))) as bic, \
+                trim(if(isnull(bank),'-',if(bank = '','',bank))) as bank, \
+                trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))) as counternumber, \
+                trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))) as vertrag, \
+                trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) as grossamount \
+            from ${addressdatatable} \
+            join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
+            where calldatatable.id = ${calldatatableId} limit 1
+        `;
+        let ergebniss = executeSql(query);
+        ergebniss = ergebniss[0].rows[0].fields;
+        return ergebniss;
+    }
+    
 
 
 /*
@@ -588,6 +564,7 @@ function executeFunctionFromString(funcString) {
 
     if (funcName && typeof window[funcName] === 'function') {
         window[funcName](...args);
+        console.log(window[funcName](...args) + " ausgeführt");
     } else {
         console.log(`Funktion '${funcName}' existiert nicht.`);
     }

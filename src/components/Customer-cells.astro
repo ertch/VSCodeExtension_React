@@ -2,65 +2,29 @@
 import { callGetStaticPaths } from 'node_modules/astro/dist/core/render/route-cache';
 
 interface Props {
-  id: string;
-  label: string;
-  options?: Array<Array<any>>;
-  firstOption?: Array<any>;
-  klasse?: string;
-  required?: boolean;
-  disabled?: boolean;
-  actions?: Array<Array<any>>;
-  gruppe: String;
-  call?: String;
+  provider: string;
+  queryId: String;
 }
 
-// Das Gatekeeper-Select fragt neben den Optionen-Array auch ein Aktionen-Array ab.
-// Dort wird festgehalten, welche Elemente angezeigt werden oder verschwnden solen, sobald ein bestimmter Wert ausgewählt wurde.
-// die Syntax für das Aktionen-Array ist [[Wert, Aktion, Ziel],...]. Das Ziel kann eine einzelne ID, ein Array aus IDs oder "all" sein.
-// mit "all" werden alle Mitglieder der Gruppe (Elemente mit data-grp = "gruppenName") einbezogen.
-// Die verfügbaren Aktionen sind: close, open & openOnly. "open" und "close" toggeln d-none in der Classlist des target.
-// "openOnly" schließt erst alle Mitglieder der Gruppe und öffnet dann die angegebenen IDs.
-// Werden bei call Funktionen übergeben, brauchen die Parameter dieser keine extra Anführungszeichen, aber können aussließlich nur Strings sein.
-//
-// actions:[
-//        [value1, close, targetId1],                        
-//        [value1, open, [targetId1, targetId2, targetId3]]
-// ]; 
+/**   Zur Erzeugung der CustomerCells / -cards muss festgelegt werden, welche und in welcher Reihenfolge diese generiert werden sollen.
+ *    Hierfür wirde ein Array erzeugt, in dem die Namen in der gewünschten Reihenfolge eingtragen werden.
+ * 
+ *    Die verfügbaren Cards sind:
+ *    customerid, vorname, nachname, geb_datum, email, tel_mobile_vorwahl, tel_mobile, tel_home_vorwahl, tel_home, strasse, haus_nr,
+ *    plz, ort, energie, erstell_dat, marktgebiet, produkt, id_nr, startdatum, grundpreis, arbeitspreis, produkt_bonus, produkt_sofortbonus
+ *    ads_mail, ads_phone, ads_post, usage, end_dat, iban, bic, bank, zaehler_nr, vertragsnr, abschlag
+ *
+ *      
+ * 
+ */
 
+const { queryId, provider } = Astro.props;
 
-
-const { id, label, firstOption, required, disabled, actions, klasse, gruppe, call } = Astro.props;
-const { options } = Astro.props as Props;
-
-let errorname = `${id}_errorMsg`;
-let gateArr = JSON.stringify(actions);
-let gate = `gatekeeper(${id})`
+let errorname = `customerCells_errorMsg`;
 ---
 
-<label for={id}>{label}</label>
-<span class="errormessage" id={errorname}></span>
-<select
-  class=`dropdown h-drop ${klasse}`
-  id={id}
-  name={id}
-  {required}
-  {disabled}
-  data-array={gateArr}
-  data-trigger = {gruppe}
-  data-call={call} 
-  onchange={gate}
->
-  {
-    firstOption ? (
-      <option value={firstOption[0]} selected>
-        {firstOption[1]}
-      </option>
-    ) : (
-      <option disabled value="" selected>
-        [Bitte auswählen]
-      </option>
-    )
-  }
-
-  {options.map((item) => <option value={item[0]}>{item[1]}</option>)}
-</select>
+<div id="customerCells" 
+    data-provider={provider} 
+    data-query={queryId}>
+  <span class="errormessage d-none" id={errorname}></span>
+</div>
