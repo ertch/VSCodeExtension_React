@@ -15,6 +15,8 @@
 *       Helper              [ Extra Functions ]
 */
 
+const { renderUniqueStylesheet } = require("astro/runtime/server/index.js");
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 let blnRecord=false;            // 
@@ -236,6 +238,85 @@ function gf_javaf_initialize() {
         // Name für die Aufzeichnung festlegen
         recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
     }
+
+    function createCustomerCells() {
+        try {
+            // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
+            let cardHolder = document.getElementById("customerCells");
+            let CustomerData = providerDefault();
+            let SqlField = ste_out_1();
+        
+            
+            // if (cardHolder.getAttribute("data-provider") != null){
+            //     let execute = toString(cardHolder.getAttribute("data-provider"));
+            //     console.log("use " + execute)
+            //     executeFunctionFromString(execute);
+            // } else {
+            //     CustomerData = providerDefault();
+            // };
+
+            // if (cardHolder.getAttribute("data-query") != null){
+            //     let execute = cardHolder.getAttribute("data-query");
+            //     console.log("use " + execute)
+            //     SqlField = executeFunctionFromString(execute.toString());
+            // } else {
+            //     SqlField = queryDefault();
+            // };
+            // console.log(cardHolder.getAttribute("data-provider"))
+            // console.log ("zeich mir: " + CustomerData );
+
+
+            // Itteriere durch die Schlagwörter CustomerData.match
+            for (const [index] of Object.entries(CustomerData)) {
+                // Speichere den Index aus sqlField, der mit match(Schlagwort) zusammen passt. [ -1 = nicht gefunden ]
+                matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
+                console.log(SqlField[Object.keys(SqlField)[matchingKey]]);
+                
+                //Prüfe ob Index > -1 und schreibe den Value des des Keys zudem der Index gehört, oder "-" wenn index = -1  
+                if(  Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
+                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
+                 } else {  
+                    CustomerData[index].value = "-";
+                 };
+            };
+            
+            let chache = "";
+            
+            for ( let i = 0; i < CustomerData.length; i++) {
+                let label = CustomerData[i].label; 
+                let id = CustomerData[i].match;
+                let value = CustomerData[i].value;
+                let standAlone = CustomerData[i].standAlone;
+
+                standAlone ? undefined : chache = value;
+                if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
+
+                if (standAlone) {
+                    if (id != "seperator") { 
+                        cardHolder.innerHTML = ` 
+                            ${cardHolder.innerHTML}  
+                            <div class="cell">
+                                <div class="cell__head">${label}</div>
+                                <div class="data_value cell__data" id=${id}>${value}</div>
+                            </div>
+                        `;
+                    } else {
+                        console.log("seperartor i= " + i + " / id = " + id)
+                        cardHolder.innerHTML = ` 
+                            ${cardHolder.innerHTML}
+                            <div class='separator'></div>
+                        `;
+                    }
+                };
+            };
+        
+            insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
+        } catch (error) {
+            console.log("Error: => SQL-Ergebnisse konnten nicht in Cards geladen werden");
+            console.log(error);
+            return []; 
+        }  
+    };
 
  //--------------------------------------------------------------------------------------- Calls ------------------------------------------------------------------------
 
@@ -1059,13 +1140,15 @@ function gf_javaf_initialize() {
         let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
         let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
         let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array
+        let giveBack;
 
         // Prüft, ob die extrahierte Funktion existiert und eine Funktion ist
         if (funcName && typeof window[funcName] === 'function') {
-            window[funcName](...args); // Aufruf
+           giveBack = window[funcName](...args); // Aufruf
         } else {
-            console.log(`Funktion '${funcName}' existiert nicht.`); //Error_msg
+            debug && console.log(`Funktion '${funcName}' existiert nicht.`); //Error_msg
         }
+        return giveBack;
     }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-002

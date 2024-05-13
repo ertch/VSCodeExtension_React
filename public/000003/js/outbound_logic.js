@@ -177,28 +177,22 @@ var ttWeb = new Object();
             try {
                 // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
                 let cardHolder = document.getElementById("customerCells");
-                let CustomerData = providerDefault();
-                let SqlField = ste_out_1();
+                let CustomerData ;
+                let SqlField ;
             
-                
-                // if (cardHolder.getAttribute("data-provider") != null){
-                //     let execute = toString(cardHolder.getAttribute("data-provider"));
-                //     console.log("use " + execute)
-                //     executeFunctionFromString(execute);
-                // } else {
-                //     CustomerData = providerDefault();
-                // };
+                if (cardHolder.getAttribute("data-provider") != null){
+                    let execute = cardHolder.getAttribute("data-provider");
+                    CustomerData = executeFunctionFromString(execute);
+                } else {
+                    CustomerData = providerDefault();
+                };
 
-                // if (cardHolder.getAttribute("data-query") != null){
-                //     let execute = cardHolder.getAttribute("data-query");
-                //     console.log("use " + execute)
-                //     SqlField = executeFunctionFromString(execute.toString());
-                // } else {
-                //     SqlField = queryDefault();
-                // };
-                // console.log(cardHolder.getAttribute("data-provider"))
-                // console.log ("zeich mir: " + CustomerData );
-
+                if (cardHolder.getAttribute("data-query") != null){
+                    let execute = cardHolder.getAttribute("data-query");
+                    SqlField = executeFunctionFromString(execute.toString());
+                } else {
+                    SqlField = queryDefault();
+                };
 
                 // Itteriere durch die Schlagwörter CustomerData.match
                 for (const [index] of Object.entries(CustomerData)) {
@@ -246,12 +240,14 @@ var ttWeb = new Object();
                         }
                     };
                 };
+
+                recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
             
 
                 insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
             } catch (error) {
-                console.log("Error: => SQL-Ergebnisse konnten nicht in Cards geladen werden");
-                console.log(error);
+                debug && console.log("Error: => SQL-Ergebnisse konnten nicht in Cells geladen werden");
+                debug && console.log(error);
                 return []; 
             }  
         };
@@ -558,16 +554,19 @@ function makeRecall() {
 // }
 
 function executeFunctionFromString(funcString) {
-    let funcName = funcString.match(/^(\w+)\(/)?.[1];
-    let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];
-    let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : [];
+        
+    let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
+    let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
+    let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array
+    let giveBack;
 
+    // Prüft, ob die extrahierte Funktion existiert und eine Funktion ist
     if (funcName && typeof window[funcName] === 'function') {
-        window[funcName](...args);
-        console.log(window[funcName](...args) + " ausgeführt");
+       giveBack = window[funcName](...args); // Aufruf
     } else {
-        console.log(`Funktion '${funcName}' existiert nicht.`);
+        debug && console.log(`Funktion '${funcName}' existiert nicht.`); //Error_msg
     }
+    return giveBack;
 }
 
 // ############################################################################################## GATEKEEPER #############################################################################################
