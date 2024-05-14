@@ -137,6 +137,8 @@ var ttWeb = new Object();
         var query = "SELECT result_id FROM calldatatable where id=" + calldatatableId + " LIMIT 1";
         resultat = executeSql(query);
 
+        console.log(resultat);
+
         if (!debug && resultat[0].rows.length > 0){
             callResultId = resultat[0].rows[0].fields.result_id;
         }
@@ -173,56 +175,71 @@ var ttWeb = new Object();
 
         console.log("under Draggable")
 
-        function createCustomerCells() {
-            try {
-                // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
-                let cardHolder = document.getElementById("customerCells");
-                let CustomerData ;
-                let SqlField ;
-            
-                if (cardHolder.getAttribute("data-provider") != null){
-                    let execute = cardHolder.getAttribute("data-provider");
-                    CustomerData = executeFunctionFromString(execute);
-                } else {
-                    CustomerData = providerDefault();
-                };
+    /**createCusomerCells
+     * 
+     * Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
+     * Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
+     * 
+     */
+    function createCustomerCells() {
+        try {
+            // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
+            let cardHolder = document.getElementById("customerCells");
+            let error_msg = document.getElementById("customerCells_errorMsg")
+            let CustomerData ;
+            let SqlField ;
 
-                if (cardHolder.getAttribute("data-query") != null){
-                    let execute = cardHolder.getAttribute("data-query");
-                    SqlField = executeFunctionFromString(execute.toString());
-                } else {
-                    SqlField = queryDefault();
-                };
+            // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
+            if (cardHolder.getAttribute("data-provider") != null){
+                let execute = cardHolder.getAttribute("data-provider");
+                CustomerData = executeFunctionFromString(execute);
+            } else {
+                CustomerData = providerDefault();
+            };
 
-                // Itteriere durch die Schlagwörter CustomerData.match
+            // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
+            if (cardHolder.getAttribute("data-query") != null){
+                let execute = cardHolder.getAttribute("data-query");
+                SqlField = executeFunctionFromString(execute.toString());
+            } else {
+                SqlField = queryDefault();
+            };
+
+            // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
+            if (typeof SqlField.keys === 'function' && SqlField.keys("standAlone")) { 
+                error_msg.innerHTML =  "Datensatz fehlerhaft";
+                error_msg.className = "errormessage--db_error";
+
+            } else {
+                error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
+                // Durchlaufe jedes Element in CustomerData
                 for (const [index] of Object.entries(CustomerData)) {
-                    // Speichere den Index aus sqlField, der mit match(Schlagwort) zusammen passt. [ -1 = nicht gefunden ]
+                    // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerData übereinstimmt
                     matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
-                    console.log(SqlField[Object.keys(SqlField)[matchingKey]]);
-                    
-                    //Prüfe ob Index > -1 und schreibe den Value des des Keys zudem der Index gehört, oder "-" wenn index = -1  
-                    if(  Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
+                                    
+                    // Prüfe ob Index von Customerdata in SqlField vorhanden und > -1 ist.
+                    // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerData 
+                    if (Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
                         CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
-                     } else {  
+                    } else {  
                         CustomerData[index].value = "-";
-                     };
+                    };
                 };
-                console.log(SqlField);
-                console.log(CustomerData);
-                console.log(CustomerData.length);
-
-                let chache = "";
-                
-                for ( let i = 0; i < CustomerData.length; i++) {
+            
+                // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerData-Werten
+                let chache = ""; // Zwischenspeicher für zu übertragende Werte
+                for (let i = 0; i < CustomerData.length; i++) {
                     let label = CustomerData[i].label; 
                     let id = CustomerData[i].match;
                     let value = CustomerData[i].value;
                     let standAlone = CustomerData[i].standAlone;
 
+                    // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
                     standAlone ? undefined : chache = value;
+                    // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
                     if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
 
-                    if (standAlone) {
+                    if (standAlone) { // Füge die Cell oder Separator in das HTML ein wenn standAlone true
                         if (id != "seperator") { 
                             cardHolder.innerHTML = ` 
                                 ${cardHolder.innerHTML}  
@@ -240,19 +257,22 @@ var ttWeb = new Object();
                         }
                     };
                 };
+            };
 
-                recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
-            
+            //WIP
+            // recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
+            getCampaignData(campaignId, agentId, addressdatatableId, addressdatatable);
 
-                insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
-            } catch (error) {
-                debug && console.log("Error: => SQL-Ergebnisse konnten nicht in Cells geladen werden");
-                debug && console.log(error);
-                return []; 
-            }  
-        };
-        createCustomerCells();
+            // Logs 
+            insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
+        } catch (error) {
+            debug && console.log("Error: => SQL-Ergebnisse konnten nicht in Cells geladen werden");
+            debug && console.log(error);
+        }  
     };
+    createCustomerCells();
+    getCampaignData(campaignId,agentId,"",addressdatatable,"");
+};
     
     function providerDefault() {
         let CustomerData = [
@@ -318,9 +338,12 @@ var ttWeb = new Object();
             join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
             where calldatatable.id = ${calldatatableId} limit 1
         `;
-        let ergebniss = executeSql(query);
-        ergebniss = ergebniss[0].rows[0].fields;
-        return ergebniss;
+        
+        let SQLdataset = executeSql(query);
+        console.log(SQLdataset);
+        addressdatatableId = SQLdataset[0].rows[0].columns[0];
+        SqlField = SQLdataset[0].rows[0].fields;
+        return SqlField;
     }
     
 
@@ -664,3 +687,46 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
     debug && console.log(select.value);
     return select.value === optionValue ? true : false;
  }
+
+
+ //############################################################################## PopupRotz #########################################################################
+
+    function freedial() {
+        var blnSuccess = true;
+        var errMsg = '';
+
+        if (document.getElementById('recall_number').value === '') {
+        blnSuccess = false;
+        errMsg = 'Bitte Rufnummer eingeben!';
+        }
+
+        if (blnSuccess) {
+        document.getElementById('lightbox').style.display = 'none';
+        document.getElementById('negativ').style.display = 'none';
+        makeRecall();
+        } else {
+        alert(errMsg);
+        }
+        return false;
+    }
+
+     document.addEventListener("DOMContentLoaded", function() {
+        const dialogList    = document.getElementsByTagName("dialog");
+        const showButtonList = document.getElementsByClassName("calldialog");
+        const closeButtonList = document.getElementsByClassName("closedialog");
+    
+        // "Show the dialog" button opens the dialog modal
+        for(let x = 0; x < showButtonList.length; x++) {
+            showButtonList[x].addEventListener("click", () => {
+                console.log("click on " + showButtonList[x].id);
+                dialogList[x].showModal();
+            });
+        }
+    
+        // "Close" button closes the dialog
+        for(let x = 0; x < closeButtonList.length; x++) {
+            closeButtonList[x].addEventListener("click", () => {
+                dialogList[x].close();
+            });
+        }
+    });

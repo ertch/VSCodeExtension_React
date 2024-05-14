@@ -24,7 +24,7 @@ let blnFinishPositive=false;    // Bool, ob der Vorgang positiv abgespeichert we
 let currentTabName="tab_start"; // Set tab_start als Starttab
 
 let calldatatableId;            // ID des Kampagnien-CallTable
-let addressdatatableId;         // ID des Kampagnien-AdressTable
+let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
 
 let ttWeb = new Object();       // Objekt für ttFrame-API
@@ -156,142 +156,69 @@ function gf_javaf_initialize() {
                 ttWeb.terminateCall('200');
             }
         }
+
         debug && console.log("under Draggable");
-
-        // SQL-Abfrage für die Adressdaten des Datensatzes
-
-       
-
-       
         
-        addressdata = executeSql(query); // SQL-Abfrage von oben: DB => addressData
-        addressdatatableId =  addressdata[0].rows[0].columns[0]; 
-       
-
+        createCustomerCells();
+    }
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ERSTELLUNG DER INFO CARDS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        // createCustomerCards  
-        /**     
-    
-        */
-
-
-        function createCustomerCards() {
-            try {
-                // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
-                let cardHolder = document.getElementById("customerCards");
-                let CustomerData;
-                let SqlField; 
-                
-                if (cardHolder.getAttribute("data-provider") != null){
-                    CustomerData = executeFunctionFromString(cardHolder.getAttribute("data-provider") + "()");
-                } else {
-                    CustomerData = providerDefault()
-                };
-
-                if (cardHolder.getAttribute("data-query") != null){
-                    SqlField = executeFunctionFromString(cardHolder.getAttribute("data-query") + "()");
-                } else {
-                    SqlField = queryDefault()
-                };
-    
-                // Itteriere durch die Schlagwörter CustomerData.match
-                for (const [index] of Object.entries(CustomerData)) {
-                    // Speichere den Index aus sqlField, der mit match(Schlagwort) zusammen passt. [ -1 = nicht gefunden ]
-                    matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match)
-                    
-                    //Prüfe ob Index > -1 und schreibe den Value des des Keys zudem der Index gehört, oder "-" wenn index = -1  
-                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] ? Object.keys(SqlField).indexOf(CustomerData[index].match) > -1 : "-";
-                }
-
-                console.log(CustomerData.length)
-
-                insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
-            } catch (error) {
-                console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Cards geladen werden");
-                console.log(error);
-                return []; 
-            }  
-        }
-
-        let customerCells = document.getElementById("custumerCells");
-        // generiere spezifisches Array (provider_lib), wenn nicht vorhanden nimm default-schema  
-        let cellArr = executeFunctionFromString(customerCells.getAttribute("data-provider") + "()");
-        cellArr.forEach(entry => {
-            
-        });             
-
-        // let CustomerInfoCards = ""; //Erstellen der einzelnen Kunden-InfoCards
-        // CustomerData.forEach(({ label, id, value }) => {
-        //     CustomerInfoCards += getNavigationDiv(label, id, value);
-        //     if (['E-Mail', 'Zählernummer', 'Hausnummer', 'Ort'].includes(label)) {
-        //         CustomerInfoCards += "<div class='separator'></div>"; // Ab jedem label das den Schlagwörtern gleicht wird 1/3 Zeihle frei gelassen
-        //     }
-        // });
-
-        document.getElementById('customer_info').innerHTML = CoustumerInfoCards;
-
-        $('datenerfassung_email').value = customerData[3].value;
-        $('datenerfassung_telefon').value = msisdn;
-
-        // Name für die Aufzeichnung festlegen
-        recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
-    }
-
+ /**createCusomerCells
+ * 
+ * Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
+ * Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
+ * 
+ */
     function createCustomerCells() {
         try {
-            // hole dir die zu verwendenen Listennahmen aus Element "CustomerCards"
+            // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
             let cardHolder = document.getElementById("customerCells");
-            let CustomerData = providerDefault();
-            let SqlField = ste_out_1();
-        
-            
-            // if (cardHolder.getAttribute("data-provider") != null){
-            //     let execute = toString(cardHolder.getAttribute("data-provider"));
-            //     console.log("use " + execute)
-            //     executeFunctionFromString(execute);
-            // } else {
-            //     CustomerData = providerDefault();
-            // };
+            let SqlField;
 
-            // if (cardHolder.getAttribute("data-query") != null){
-            //     let execute = cardHolder.getAttribute("data-query");
-            //     console.log("use " + execute)
-            //     SqlField = executeFunctionFromString(execute.toString());
-            // } else {
-            //     SqlField = queryDefault();
-            // };
-            // console.log(cardHolder.getAttribute("data-provider"))
-            // console.log ("zeich mir: " + CustomerData );
-
-
-            // Itteriere durch die Schlagwörter CustomerData.match
-            for (const [index] of Object.entries(CustomerData)) {
-                // Speichere den Index aus sqlField, der mit match(Schlagwort) zusammen passt. [ -1 = nicht gefunden ]
-                matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
-                console.log(SqlField[Object.keys(SqlField)[matchingKey]]);
-                
-                //Prüfe ob Index > -1 und schreibe den Value des des Keys zudem der Index gehört, oder "-" wenn index = -1  
-                if(  Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
-                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
-                 } else {  
-                    CustomerData[index].value = "-";
-                 };
+            // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
+            if (cardHolder.getAttribute("data-provider") != null){
+                let execute = cardHolder.getAttribute("data-provider");
+                CustomerData = executeFunctionFromString(execute);
+            } else {
+                CustomerData = providerDefault();
             };
-            
-            let chache = "";
-            
-            for ( let i = 0; i < CustomerData.length; i++) {
+
+            // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
+            if (cardHolder.getAttribute("data-query") != null){
+                let execute = cardHolder.getAttribute("data-query");
+                SqlField = executeFunctionFromString(execute.toString());
+            } else {
+                SqlField = queryDefault();
+            };
+
+            // Durchlaufe jedes Element in CustomerData
+            for (const [index] of Object.entries(CustomerData)) {
+                // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerData übereinstimmt
+                matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
+                                
+                // Prüfe ob Index von Customerdata in SqlField vorhanden und > -1 ist.
+                // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerData 
+                if (Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
+                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
+                } else {  
+                    CustomerData[index].value = "-";
+                };
+            };
+            // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerData-Werten
+            let chache = ""; // Zwischenspeicher für zu übertragende Werte
+            for (let i = 0; i < CustomerData.length; i++) {
                 let label = CustomerData[i].label; 
                 let id = CustomerData[i].match;
                 let value = CustomerData[i].value;
                 let standAlone = CustomerData[i].standAlone;
 
+                // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
                 standAlone ? undefined : chache = value;
+                // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
                 if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
 
-                if (standAlone) {
+                if (standAlone) { // Füge die Cell oder Separator in das HTML ein wenn standAlone true
                     if (id != "seperator") { 
                         cardHolder.innerHTML = ` 
                             ${cardHolder.innerHTML}  
@@ -309,14 +236,19 @@ function gf_javaf_initialize() {
                     }
                 };
             };
-        
+
+            preFillEntrys(); 
+
+            //WIP
+            recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
+
+            // Logs 
             insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
         } catch (error) {
-            console.log("Error: => SQL-Ergebnisse konnten nicht in Cards geladen werden");
-            console.log(error);
-            return []; 
+            debug && console.log("Error: => SQL-Ergebnisse konnten nicht in Cells geladen werden");
+            debug && console.log(error);
         }  
-    };
+    }; 
 
  //--------------------------------------------------------------------------------------- Calls ------------------------------------------------------------------------
 
@@ -429,35 +361,6 @@ function gf_javaf_initialize() {
         }   
     }
     
-//################################################################################ ttFrame LOGs #############################################################################################
-
-    function buildLogInsert(loglevel,logmessage,logexception) {
-        
-        loglevel=trim(loglevel).toLowerCase();
-
-       // "Loglevel" validieren (unbekannt => fatal)
-       loglevel = ['debug', 'info', 'warning', 'error'].includes(loglevel) ? loglevel : 'fatal';
-        
-        if(!debug) { // IP-Adresse einfügen
-            ip = ttWeb.getClientIP();
-        }else{
-            ip = "127.0.0.1";
-        };
-        
-        // Erstellen des SQL-INSERTS mit den zu übergebenden Daten
-        var sql = `INSERT INTO skon_log.ttweb (calldatatable_id, campaign_id, agent_id, log_level, log_message, log_exception, client_ip) 
-            VALUES (
-                ${calldatatableId}, 
-                ${campaignId}, 
-                ${agentId}, 
-                ${loglevel}, 
-                ${removeSlashes(logmessage)}, 
-                ${logexception}, 
-                ${ip}
-            )`; // ist removeSlashes notwendig?
-
-        return sql;
-    }
     
 // ############################################################################### ttFrame SQL #############################################################################################    
 /**     Inhaltsverzeichnis
@@ -469,11 +372,11 @@ function gf_javaf_initialize() {
  * 
  * @param {*} campaignId            Fest zugeordent in Campaign Var
  * @param {*} agentId               Global Var ( <= call_initialize )
- * @param {*} addressdataId         
+ *        
  * @param {*} addressdatatable 
- * @param {*} kampCode 
+ * 
  */
-    function getCampaignData(campaignId, agentId, addressdataId, addressdatatable, kampCode) {
+    function getCampaignData(campaignId, agentId, addressdatatable) {
         console.log("getCampaignData") // Konsolenausgabe zur Analyse des Skriptverlaufs
 
         // Negativgründe abrufen
@@ -536,6 +439,59 @@ function gf_javaf_initialize() {
             $('stats_text').innerHTML = '[<span style="color: green">' + result[0].rows[0].fields.POSITIV + '</span>&nbsp;/&nbsp;' + nettos + '&nbsp;,&nbsp;Wandlungsquote: ' + quote + '%]';
         }
     }
+
+/**#########################################################################################################################################################################
+ * 
+ * 
+ * 
+ */
+function loadData() {
+    
+    let query = `
+    SELECT 
+        (SELECT id, label FROM cancellation_reasons WHERE campaign_id=<campaignId> AND active=1 ORDER BY label DESC) AS cancellation_reasons,
+        (SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN <addressdatatable> ON <addressdatatable>.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=<campaignId> AND contact_history.agent_id='<agentId>' AND is_wv=1 AND wv_date>NOW()) AS wiedervorlagen_count,
+        (SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ',"<fieldname_firstname>",' ',"<fieldname_lastname>",' : ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN <addressdatatable> ON <addressdatatable>.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=<campaignId> AND contact_history.agent_id='<agentId>' AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5) AS wiedervorlagen,
+        (SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id=<calldatatableId>) AS kundenhistorie_count,
+        (SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message FROM contact_history WHERE calldatatable_id=<calldatatableId> ORDER BY called_at DESC) AS kundenhistorie,
+        (SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=<campaignId> LIMIT 1) AS statistikdaten
+    `;
+
+        // Zuweisungen basierend auf Daten aus der Datenbank
+        // 1. Negativgründe aus der Datenbank zu einem Objekt zuweisen
+        let negativgruende = {};
+        for (var i = 0; i < result[0].rows.length; i++) {
+            negativgruende[result[0].rows[i].fields.id] = result[0].rows[i].fields.label;
+        }
+
+        // 2. Optionen für eine Auswahlliste setzen
+        selectboxSetOptions(document.getElementById('datenerfassung_ablehnungsgrund'), negativgruende, "", true, result[0].rows.length);
+
+        // 3. Wiedervorlagendatum und -zeit sowie Textfelder auf Standardwerte setzen
+        var currDate = new Date();
+        document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
+        document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
+        document.getElementById('wiedervorlage_Text').value = "";
+        document.getElementById('apne_delay').value = "";
+        document.getElementById('apne_notiz').value = "";
+
+        // 4. Kundenhistorie anzeigen
+        var kundenhistorie = "<fieldset><legend>Kundenhistorie</legend>";
+        for (var i = 0; i < result[0].rows.length; i++) {
+            kundenhistorie += '<div>' + result[0].rows[i].fields.message + '</div>';
+        }
+        kundenhistorie += "</fieldset>";
+        document.getElementById('kundenhistorie').innerHTML = kundenhistorie;
+
+        // 5. Statistikdaten für die Kampagne zuweisen
+        var quote = result[0].rows[0].fields.UMWANDLUNGSQUOTE;
+        var nettos = result[0].rows[0].fields.NETTOKONTAKTE;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
     function executeSql(sql) {
 

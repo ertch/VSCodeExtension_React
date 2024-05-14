@@ -239,6 +239,19 @@ function ajaxGetBankname(blz,$bank) {
 
 /* Holt Negativgr�nde und Wiedervorlagen f�r Agent aus der DB */
 function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampCode) {
+
+
+    let query = `
+    SELECT 
+        (SELECT id, label FROM cancellation_reasons WHERE campaign_id=<campaignId> AND active=1 ORDER BY label DESC) AS cancellation_reasons,
+        (SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN <addressdatatable> ON <addressdatatable>.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=<campaignId> AND contact_history.agent_id='<agentId>' AND is_wv=1 AND wv_date>NOW()) AS wiedervorlagen_count,
+        (SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ',"<fieldname_firstname>",' ',"<fieldname_lastname>",' : ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN <addressdatatable> ON <addressdatatable>.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=<campaignId> AND contact_history.agent_id='<agentId>' AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5) AS wiedervorlagen,
+        (SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id=<calldatatableId>) AS kundenhistorie_count,
+        (SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message FROM contact_history WHERE calldatatable_id=<calldatatableId> ORDER BY called_at DESC) AS kundenhistorie,
+        (SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=<campaignId> LIMIT 1) AS statistikdaten
+    `;
+    console.log(query);
+    console.log(executeSql(query) + "<=");
     console.log("getCampaignData") // JS analyse
     /*
     var kquery= "select name from umg_nkg_kampagnen , umg_ups_addressdata where umg_nkg_kampagnen.kampcode_kurz = umg_ups_addressdata.kampcode_kurz and umg_ups_addressdata.id = " + addressdataId;

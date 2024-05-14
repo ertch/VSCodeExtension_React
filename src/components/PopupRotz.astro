@@ -1,3 +1,56 @@
+---
+import Input from "@components/SimpleInput.astro";
+---
+
+<dialog id="freedial">
+  <div class="dialog--header">
+      <span>Freedial</span>
+      <button type="button" class="closedialog" data-id="freedial"><i class="glyph glyph-close"> </i> </button>
+  </div>
+  <div>
+      <h3>Bitte Rufnummer eingeben:</h3>
+      <form action="#" method="POST" id="finish_negativ">
+        <Input 
+            type="tel"
+            id="recall_number"
+            label="Rufnummer:"
+            validate="tel"
+        >
+        <button
+            id="recall_call"
+            type="submit"
+            onclick="freedial()"  
+            ><i class="glyph glyph-telephone"></i>
+            Anrufen
+        </button>
+      
+      </form>
+    </div>
+    
+  </div>
+</dialog>
+
+<dialog id="recall">
+  <header>
+      <span>Wiedervorlage</span>
+      <button type="button" class="closedialog" data-id="recall">Schließen</button>
+  </header>
+  <main>
+      <p>Content von <strong>Wiedervorlage</strong> hier rein</p>
+  </main>
+</dialog>
+
+<dialog id="apne">
+  <header>
+      <span>APNE</span>
+      <button type="button" class="closedialog" data-id="apne">Schließen</button>
+  </header>
+  <main>
+      <p>Content von <strong>APNE</strong> hier rein</p>
+  </main>
+</dialog>
+
+
 <div class="popup-container">
     <div id="negativ" class="popupdiv">
       <div class="header">

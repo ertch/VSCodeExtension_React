@@ -171,4 +171,39 @@ td {
     &-publish::before {
         content: "\E81B"; // Bildschirm mit Pfeil nach oben
     }
+
+    &-close::before {
+        content: "\E808"; // X zum schließen
+        width: 12px;
+    }
+}
+
+dialog {
+    border: 2px solid #000;
+    margin: auto;
+    padding: 0;
+}
+::backdrop {
+    background-color: rgba(0,0,0,.5);
+}
+
+.dialog--header {
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1em;
+    padding: 3px;
+
+    & span {
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+}
+
+.closedialog {
+    background-color: #fd3d3d;
+    padding: .5em;
+    padding: 4px 0.5em;
+    width: 32px;
 }

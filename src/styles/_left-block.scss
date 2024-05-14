@@ -1,7 +1,8 @@
 #customerCells {
     display: grid;
+    gap: .22em;
     grid-template-columns: 1fr 1fr;
-	margin-top: -.9em;
+	margin-top: 2.3em;
     max-width: 23.5em;
     position: fixed;
 }
@@ -13,7 +14,7 @@
 
 .cell__head,
 .cell__data {
-    padding: 3px;
+    padding: 5px 3px;
 }
 
 .cell__head {

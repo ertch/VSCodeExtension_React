@@ -24,6 +24,16 @@
 	text-shadow: 1px 1px rgba(0, 0, 0, 0.445);
 }
 
+.errormessage--db_error {
+	font-family: sans-serif;
+	font-size: 24px;
+	font-weight: bold;
+	color: #ff0000;
+	text-shadow: 1px 1px rgba(0, 0, 0, 0.445);
+	width: 180%;
+	text-align: center;
+}
+
 .twoColumns label {
 	font-size: 11px;
 	font-weight: normal;
