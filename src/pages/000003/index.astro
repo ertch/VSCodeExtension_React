@@ -1,7 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Input from "@components/SimpleInput.astro";
-import Campaign from "@components/CampaignSelect.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
 import Gatekeeper from "@components/Gatekeeper-Select.astro";
@@ -241,4 +240,8 @@ import PopupRotz from "@components/PopupRotz.astro";
     </div>
   </main>
   <PopupRotz />
+  <div id="debugLog" class="debug-window d-none">
+    <button type="button" onclick="debugWindowClear()">clear</button>
+  </div>
+   
 </Layout>

@@ -67,6 +67,39 @@ import "../styles/main.scss";
 	<body class="">
 		<slot />
 		<!-- ! Statt onload="" auf dem <body> hier am Ende der Seite geladen -->
-		<script>document.addEventListener('DOMContentLoaded', gf_javaf_initialize())</script>
+		<script>
+			document.addEventListener('DOMContentLoaded', gf_javaf_initialize());
+			let keyCode1Pressed = false;
+			let keyCode2Pressed = false;
+			let keyCode3Pressed = false;
+			document.onkeyup = function(event) {
+				event = event || window.event;
+				if (event.keyCode === 220) { 
+					keyCode1Pressed = false;
+				} else if (event.keyCode === 17) { 
+					keyCode2Pressed = false;
+				} else if (event.keyCode === 67) { 
+					keyCode3Pressed = false;
+				}
+			};
+			document.onkeydown = function(event) {
+				event = event || window.event;
+				if (event.keyCode === 220) { 
+					keyCode1Pressed = true;
+				} else if (event.keyCode === 17) { 
+					keyCode2Pressed = true;
+				}  else if (event.keyCode === 67) { 
+					keyCode3Pressed = true;
+				}
+
+				if (keyCode1Pressed && keyCode2Pressed) {
+					document.getElementById("debugLog").classList.toggle("d-none");
+					console.log("Debuglog geöffnet!");
+				}
+				if (keyCode2Pressed && keyCode3Pressed) {
+					document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+				}
+			};
+		</script>
 	</body>
 </html>

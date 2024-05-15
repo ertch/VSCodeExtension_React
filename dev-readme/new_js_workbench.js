@@ -793,17 +793,21 @@ function loadData() {
     function bundleInputs(tab_content) {
 
         let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
-            txt: [],            // txt , handy , email , tel , plz , call und empty sind die einzigen zugelassenen Typen für 
+            txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
             handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
             email: [],          // Input. Inputs die kein [required] Attribut besitzten, werden von der Validierug ausgeschlossen.
             tel: [],            // Selects werden nur darauf geprüft, ob sie > null sind. Soll ein Select darauf geprüft werden, ob
             plz: [],            // eine bestimmte Option ausgewählt wurde; benötigt das Select data-call = "validateSelect(option.value)".    
             call: [],
             empty: [],
+            date: [],
+            time: [],
+            dateandtime: [],
             default: []
         };
         // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
         let allInputs = tab_content.querySelectorAll(':scope > fieldset:not(.d-none) input');
+        if(allInputs ===)
         allInputs.forEach(input => {
             let valiTyp = input.dataset.vali || 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
 
@@ -861,9 +865,24 @@ function loadData() {
                 errTxt = "Ungültige Telefonnummer!";
                 break;
         
-            case 'plz':
+            case 'plz':     // xxxxx nur Zahlen
                 regX = /^[0-9]{5}$/;
                 errTxt = "Ungültige Postleitzahl!";
+                break;
+
+            case 'time':    // hh:mm & hh:mm:ss
+                regX = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])(:([0-5][0-9]))?$/;
+                errTxt = "Ungültige Datumsformat!";
+                break;
+
+            case 'date':    // TT.MM.JJJJ
+                regX = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$/;
+                errTxt = "Ungültige Datumsformat!";
+                break;
+
+            case 'dateandtime': // TT.MM.JJJJ hh:mm:ss (müssen duech Leerzeichen getrennt sein)
+                regX = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}\s(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])(:([0-5][0-9]))?$/;
+                errTxt = "Ungültige Zeitformat!"; 
                 break;
         
             case 'call': // Input-spezifische Validation wird aufgerufen
@@ -1167,6 +1186,8 @@ function loadData() {
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-006
  * 
+ *          createAddressDataArray
+ *      Array aus Dataobjekt erzeugen
  */
     function createAddressDataArray(queryResult) {
         try {
@@ -1191,3 +1212,54 @@ function loadData() {
             return []; 
         }
     }
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-007
+ * 
+ *          logIntoDebug
+ */
+
+    function logIntoDebugWindow(caller, msg) {
+        if (showDebug) {
+            let window = document.getElementById("debugLog");
+            let log = window.innerHTML
+            log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + msg;
+            window.innerHTML = log;
+        } 
+    }
+    function debugWindowClear() {
+        document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;;
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-008
+ * 
+ *          PopUp & Debug - Loader 
+ */
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const dialogList    = document.getElementsByTagName("dialog");
+        const showButtonList = document.getElementsByClassName("calldialog");
+        const closeButtonList = document.getElementsByClassName("closedialog");
+        const hotKeys = (e) => {
+            let windowEvent = window.Event ? Event : e;
+
+            if(windowEvent.keyCode === 113 && windowEvent.ctrlKey && showDebug){
+                document.getElementById("debugLog").classList.toggle("d-none");
+            }
+        }
+        // "Show the dialog" button opens the dialog modal
+        for(let x = 0; x < showButtonList.length; x++) {
+            showButtonList[x].addEventListener("click", () => {
+                console.log("click on " + showButtonList[x].id);
+                dialogList[x].showModal();
+            });
+        }
+    
+        // "Close" button closes the dialog
+        for(let x = 0; x < closeButtonList.length; x++) {
+            closeButtonList[x].addEventListener("click", () => {
+                dialogList[x].close();
+            });
+        }
+    });

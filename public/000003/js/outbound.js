@@ -320,8 +320,8 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
 
     // Kommende Wiedervorlagen anzeigen
 
-    document.getElementById('div_sqldebug').innerHTML="SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ',"+fieldname_firstname+",' ',"+fieldname_lastname+",': ',message) AS CHAR) FROM contact_history Join calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN "+addressdatatable+" on "+addressdatatable+".id=calldatatable.addressdata_id WHERE campaign_id="+campaignId+" AND agent_id="+agentId+" AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5";
-
+    logIntoDebug("getCampaignData: 'anzahl' =", "SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ',"+fieldname_firstname+",' ',"+fieldname_lastname+",': ',message) AS CHAR) FROM contact_history Join calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN "+addressdatatable+" on "+addressdatatable+".id=calldatatable.addressdata_id WHERE campaign_id="+campaignId+" AND agent_id="+agentId+" AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5");
+   
     anzahl=executeSql("SELECT count(*) as anzahl FROM contact_history Join calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN "+addressdatatable+" on "+addressdatatable+".id=calldatatable.addressdata_id WHERE contact_history.campaign_id="+campaignId+" AND contact_history.agent_id='"+agentId+"' AND is_wv=1 AND wv_date>NOW()");
 
     if(anzahl[0].rows[0].fields.anzahl>0) {
@@ -333,13 +333,13 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
 
     // Wiedervorlageform auf "default" zur�cksetzten
 
-    var currDate = new Date();
-    document.getElementById('wiedervorlage_Date').value=currDate.getDate()+"."+(currDate.getMonth()+1)+"."+currDate.getFullYear();
-    document.getElementById('wiedervorlage_Time').value=(currDate.getHours()+1)+":00";
-    document.getElementById('wiedervorlage_Text').value="";
+    // var currDate = new Date();
+    // document.getElementById('wiedervorlage_Date').value=currDate.getDate()+"."+(currDate.getMonth()+1)+"."+currDate.getFullYear();
+    // document.getElementById('wiedervorlage_Time').value=(currDate.getHours()+1)+":00";
+    // document.getElementById('wiedervorlage_Text').value="";
 
-    document.getElementById('apne_delay').value="";
-    document.getElementById('apne_notiz').value="";
+    // document.getElementById('apne_delay').value="";
+    // document.getElementById('apne_notiz').value="";
 
 
     // Kundenhistorie laden

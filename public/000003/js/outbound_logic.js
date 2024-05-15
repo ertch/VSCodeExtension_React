@@ -48,7 +48,7 @@ var debug = true; // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genomm
 var logLevel = "debug"; // kann debug, info, warning, error, fatal sein
 
 var ttWeb = new Object();
-
+const showDebug = true;
 
     function gf_javaf_initialize(){
         console.log("gf_javaf_initialize") // JS analyse
@@ -691,7 +691,7 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
 
  //############################################################################## PopupRotz #########################################################################
 
-    function freedial() {
+    function freedialBtn() {
         var blnSuccess = true;
         var errMsg = '';
 
@@ -710,15 +710,42 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
         return false;
     }
 
-     document.addEventListener("DOMContentLoaded", function() {
+    function recallBtn() {
+        if((validateDate($('wiedervorlage_Date').value,'Datum',$('dummyText'),true,2008,2023)) && (validateProductionTime($('wiedervorlage_Time').value,'Zeit',$('dummyText'),true))) {
+            document.getElementById('lightbox').style.display='none';
+            document.getElementById('wiedervorlage').style.display='none';
+            finishCallback();
+            return false;
+        } else {
+            alert($('dummyText').innerHTML);
+            return false;
+        }
+    }
+
+    function apneBtn() {
+        if(document.getElementById('apne_delay').value!='') {
+            document.getElementById('lightbox').style.display='none';
+            document.getElementById('apne').style.display='none';
+            finishApne();
+            // TODO: Warum return false?
+            return false;
+          }
+          else  {
+            alert('Bitte wählen Sie einen Zeitintervall!');
+            return false;
+          }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+
         const dialogList    = document.getElementsByTagName("dialog");
         const showButtonList = document.getElementsByClassName("calldialog");
         const closeButtonList = document.getElementsByClassName("closedialog");
-    
+        
         // "Show the dialog" button opens the dialog modal
         for(let x = 0; x < showButtonList.length; x++) {
             showButtonList[x].addEventListener("click", () => {
-                console.log("click on " + showButtonList[x].id);
+                logIntoDebug(showButtonList[x].id, `Dialog-Element ${dialogList[x].id} aufgerufen`);
                 dialogList[x].showModal();
             });
         }
@@ -726,7 +753,23 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
         // "Close" button closes the dialog
         for(let x = 0; x < closeButtonList.length; x++) {
             closeButtonList[x].addEventListener("click", () => {
+                logIntoDebug(closeButtonList[x].id, `Dialog-Element ${dialogList[x].id} geschlossen`);
                 dialogList[x].close();
             });
         }
     });
+
+    function logIntoDebug(caller, msg) {
+        if (showDebug) {
+            let window = document.getElementById("debugLog");
+            let log = window.innerHTML
+            log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + msg;
+            window.innerHTML = log;
+        } 
+    }
+
+    function debugWindowClear() {
+        document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+    }
+
+    
