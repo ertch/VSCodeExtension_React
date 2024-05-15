@@ -24,6 +24,8 @@
 
 .cell__data {
     background-color: #e5f3ff;
+    overflow-wrap: break-word;
+    word-break: break-all;
 }
 
 .separator {

@@ -32,6 +32,9 @@ var fieldname_firstname = "firstname";
 var fieldname_lastname = "surname";
 var blnPersonalAppointment = 1;
 
+let keyCode1Pressed = false; // Status der ersten Taste (Zirkumflex)
+let keyCode2Pressed = false; // Status der zweiten Taste (Strg)
+let keyCode3Pressed = false; // Status der dritten Taste (C)
 
 var debug_vf = 0;
 
@@ -770,6 +773,48 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
 
     function debugWindowClear() {
         document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+    }
+
+    function keyUp (keyCode) {
+        // Wenn die Taste [Zirkumflex] losgelassen wird
+        if (keyCode === 220) { 
+            keyCode1Pressed = false; // Setze den Status der ersten Taste auf false
+        } 
+        // Wenn die Taste [Strg] losgelassen wird
+        else if (keyCode === 17) { 
+            keyCode2Pressed = false; // Setze den Status der zweiten Taste auf false
+        } 
+        // Wenn die Taste [C] losgelassen wird
+        else if (keyCode === 67) { 
+            keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
+        }
+    }
+
+    function keyDown (keyCode) {
+       // Wenn die Taste [Zirkumflex] gedrückt wird
+        if (keyCode === 220) { 
+            keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
+        } 
+        // Wenn die Taste [Strg] gedrückt wird
+        else if (keyCode === 17) { 
+            keyCode2Pressed = true; // Setze den Status der zweiten Taste auf true
+        }  
+        // Wenn die Taste [C] gedrückt wird
+        else if (keyCode === 67) { 
+            keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
+        }
+
+        // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
+        if (keyCode1Pressed && keyCode2Pressed) {
+            // Ändere die Sichtbarkeit des Debug-Logs
+            document.getElementById("debugLog").classList.toggle("d-none");
+            console.log("Debuglog geöffnet!");
+        }
+        // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
+        if (keyCode2Pressed && keyCode3Pressed) {
+            // Setze den Inhalt des Debug-Logs zurück
+            document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+        } 
     }
 
     

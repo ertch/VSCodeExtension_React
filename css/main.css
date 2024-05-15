@@ -2307,7 +2307,7 @@ a:hover {
 .tab {
   width: fit-content;
   min-width: 110px;
-  height: 35px;
+  height: 36px;
   border: 1px solid #c2c2c2;
   background-color: #b5b9c4;
   font-size: 0.9em;
@@ -2389,9 +2389,9 @@ a:hover {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   color: #21333a;
-  height: 50px;
+  height: 45px;
   font-weight: bold;
-  top: -15.6px;
+  top: -11px;
   position: relative;
 }
 
@@ -2435,7 +2435,7 @@ header img {
 
 @font-face {
   font-family: "salesfontor";
-  src: url("include/fonts/salesfontor.woff2") format("woff2");
+  src: url("../include/fonts/salesfontor.woff2") format("woff2");
 }
 * {
   box-sizing: border-box;
@@ -2551,11 +2551,15 @@ td {
   color: #777575;
 }
 
+.history {
+  margin-top: 25px;
+}
+
 .datenerf-bg {
   background-color: #d4d5de;
   border-top: 1px solid #b8b8b8;
-  margin-top: -15px;
-  padding: 0 1em 0.1em 1em;
+  margin-top: -11px;
+  padding: 1em 0 0.1em 1em;
 }
 
 .datenerf-block-border2 {
@@ -2577,6 +2581,10 @@ td {
   font-style: normal;
 }
 
+.tab_content {
+ margin-top: 1em;
+}
+
 .bg-gray {
   background-color: rgba(120, 190, 255, 0.5019607843);
   min-height: 40px;
@@ -2585,24 +2593,6 @@ td {
 
 .bg-white {
   background-color: #e5f3ff;
-}
-
-.data-kunde-m {
-  font-size: 0.85em;
-  padding: 2px 5px;
-  margin: 0 0 4px 0;
-  width: 13.5em;
-  overflow-wrap: break-word;
-}
-.data-kunde-m--seperator {
-  background-color: #f3f4f4;
-  height: 21px;
-  margin: 0 -1px;
-}
-
-.data-label-m {
-  margin-top: 2px;
-  font-size: 0.9em;
 }
 
 .placeholder {

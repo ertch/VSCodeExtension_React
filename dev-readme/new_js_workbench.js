@@ -42,6 +42,10 @@ let debug_vf = 0;
 var debug = true;               // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
 var logLevel = "debug";         // kann debug, info, warning, error, fatal sein
 
+let keyCode1Pressed = false;    // Status des ersten Hotkey (Zirkumflex)
+let keyCode2Pressed = false;    // Status des zweiten Hotkey (Strg)
+let keyCode3Pressed = false;    // Status des dritten Hotkey (C)
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 let campaignId = 679;
@@ -1218,7 +1222,7 @@ function loadData() {
  *          logIntoDebug
  */
 
-    function logIntoDebugWindow(caller, msg) {
+    function logIntoDebug(caller, msg) {
         if (showDebug) {
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
@@ -1227,9 +1231,8 @@ function loadData() {
         } 
     }
     function debugWindowClear() {
-        document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;;
+        document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
     }
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-008
  * 
@@ -1241,13 +1244,7 @@ function loadData() {
         const dialogList    = document.getElementsByTagName("dialog");
         const showButtonList = document.getElementsByClassName("calldialog");
         const closeButtonList = document.getElementsByClassName("closedialog");
-        const hotKeys = (e) => {
-            let windowEvent = window.Event ? Event : e;
-
-            if(windowEvent.keyCode === 113 && windowEvent.ctrlKey && showDebug){
-                document.getElementById("debugLog").classList.toggle("d-none");
-            }
-        }
+        
         // "Show the dialog" button opens the dialog modal
         for(let x = 0; x < showButtonList.length; x++) {
             showButtonList[x].addEventListener("click", () => {
@@ -1263,3 +1260,50 @@ function loadData() {
             });
         }
     });
+
+       //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-009
+ * 
+ *          HotKeys 
+ */
+    function keyUp (event) {
+        // Wenn die Taste [Zirkumflex] losgelassen wird
+        if (event.keyCode === 220) { 
+            keyCode1Pressed = false; // Setze den Status der ersten Taste auf false
+        } 
+        // Wenn die Taste [Strg] losgelassen wird
+        else if (event.keyCode === 17) { 
+            keyCode2Pressed = false; // Setze den Status der zweiten Taste auf false
+        } 
+        // Wenn die Taste [C] losgelassen wird
+        else if (event.keyCode === 67) { 
+            keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
+        }
+    }
+
+    function keyDown (event) {
+       // Wenn die Taste [Zirkumflex] gedrückt wird
+        if (event.keyCode === 220) { 
+            keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
+        } 
+        // Wenn die Taste [Strg] gedrückt wird
+        else if (event.keyCode === 17) { 
+            keyCode2Pressed = true; // Setze den Status der zweiten Taste auf true
+        }  
+        // Wenn die Taste [C] gedrückt wird
+        else if (event.keyCode === 67) { 
+            keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
+        }
+
+        // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
+        if (keyCode1Pressed && keyCode2Pressed) {
+            // Ändere die Sichtbarkeit des Debug-Logs
+            document.getElementById("debugLog").classList.toggle("d-none");
+            console.log("Debuglog geöffnet!");
+        }
+        // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
+        if (keyCode2Pressed && keyCode3Pressed) {
+            // Setze den Inhalt des Debug-Logs zurück
+            document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+        } 
+    }

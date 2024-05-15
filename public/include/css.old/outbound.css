@@ -82,7 +82,6 @@ textarea:focus{
 .data_value {
 	font-size: 16px;
 	width: 100%;
-    overflow-wrap: break-word;
 }
 
 .data hr {
