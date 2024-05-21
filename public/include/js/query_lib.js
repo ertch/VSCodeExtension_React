@@ -50,10 +50,51 @@ function ste_out_1() { // Der Name der gewünschten Funktion wird im CustumerCel
         join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
         where calldatatable.id = ${calldatatableId} LIMIT 1
     `;
-    
     let SQLdataset = executeSql(query);
-    debug && console.log(query);
+    
+    // Hier ID aus DataObjekt zuweisen
     addressdatatableId = SQLdataset[0].rows[0].columns[0];
+
+    // Hier dataField aus DataObjekt zuweisen
     SqlField = SQLdataset[0].rows[0].fields;
+
+    logIntoDebug(`SQL ${addressdatatableId}`,query, false);
     return SqlField;                           
 };
+
+//-------------------------------------------------------------------- Pull from DB -----------------------------------------------------------------------------
+/** pullSQL
+ *
+ *      Sammelfunktion aller SQL-Promts für das ziehen von Daten aus der DB.  
+ *  
+ *      @param {String} promtName 
+ *      @returns DataObject
+ */
+function pullSQL (promtName) {
+
+    return executeSql(query)
+}
+
+// ------------------------------------------------------------------ Push into DB -------------------------------------------------------------------------------
+function pushSQL (promtName) {
+    voicefileName = setRecordName();
+    teile = voicefileName.split("\\");
+
+    switch(promtName){
+
+        case "update_rec_note": // Speichere Verweis für aktuellen VoiceFiles in der DB (addressdatatable) ab.
+            query =    `UPDATE ${addressdatatable} set voice_id = '${teile[teile.length - 1]}' WHERE id = '${addressdatatableId}' LIMIT 1`;
+            break;
+        
+        case "save_rec_path": // Speichere den Pfad des aktuellen VoiceFiles in der DB (calldatatable) ab.
+            query =    `insert into voicefiles (calldatatable_id, campaign_id , voicefile, calldate, location) 
+                        values ('
+                            ${calldatatableId},    
+                            ${campaignId},
+                            ${teile[teile.length - 3]} / ${teile[teile.length - 2]} / ${teile[teile.length - 1]},
+                            now(),
+                            ${removeSlashes(recordingPrefix)}
+                        ');`;
+            break;
+    }
+}

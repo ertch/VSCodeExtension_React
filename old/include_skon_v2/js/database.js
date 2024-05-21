@@ -77,7 +77,6 @@ function updateSql(sql) {
 	return null;
 }
 
-
 function insertIntoLog(log_level,logmessage,logexception) {
 	
 	log_level=trim(log_level).toLowerCase();
@@ -94,7 +93,6 @@ function insertIntoLog(log_level,logmessage,logexception) {
 	
 	}
 }
-
 
 function getLoglevelPrio(log_level) {
 	
@@ -120,43 +118,33 @@ function escapeString(s) {
 	return s;
 }
 
-function filterSqlResult(s) {
-	if(s=='-') s='';
-	return s;
-}
-
 function removeSlashes(s){
 	s=s.replace(/\\/g,"/");
 	return s;
 }
 
-function buildLogInsert(loglevel,logmessage,logexception) {
+function buildLogInsert(logmessage) {
 
-	loglevel=trim(loglevel).toLowerCase();
-	blnValidLoglevel=false;
+	ip = debug ? "127.0.0.1" : ttWeb.getClientIP();
 	
-	if(loglevel=='debug') blnValidLoglevel=true;
-	if(loglevel=='info') blnValidLoglevel=true;
-	if(loglevel=='warning') blnValidLoglevel=true;
-	if(loglevel=='error') blnValidLoglevel=true;
-	if(loglevel=='fatal') blnValidLoglevel=true;
-	if(!blnValidLoglevel) loglevel="fatal";
-
-	ip = "127.0.0.1";
-	if(!debug) ip = ttWeb.getClientIP();
-
-	var sql="INSERT into skon_log.ttweb (calldatatable_id,campaign_id,agent_id,log_level,log_message,log_exception,client_ip) values (";
-	
-	sql += calldatatableId +",";
-	sql += campaignId +",";
-	sql += agentId +",";
-	sql += "'" + escapeString(loglevel) + "',";
-	sql += "'" + removeSlashes(escapeString(logmessage)) + "',";
-	sql += "'" + escapeString(logexception) + "',";
-	sql += "'" + escapeString(ip) + "')";
-	
+	const sql = `
+		INSERT INTO skon_log.ttweb (
+			calldatatable_id,
+			campaign_id,
+			agent_id,
+			log_level,
+			log_message,
+			client_ip
+		) VALUES (
+			${calldatatableId},
+			${campaignId},
+			${agentId},
+			'error',
+			'${escapeString(removeSlashes(logmessage))}',
+			'-',
+			'${escapeString(ip)}'
+		)`;
 	return sql;
-
 }
 
 

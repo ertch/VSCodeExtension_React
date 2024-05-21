@@ -77,9 +77,19 @@ fieldset {
 }
 
 legend {
-  border-bottom: 1px solid $darkgrey;
   margin-top: 10px;
-  padding: 5px 10px;
+  padding: 5px 50px 5px 0;
   position: relative;
+  left: -15px;
   top: -15px;
+
+    &::before {
+      display: block;
+      content: "";
+      background-color:#a9a7aa;
+      height: 1px;
+      width: 150%;
+      position: absolute;
+      bottom: -.5px;
+    }
 }

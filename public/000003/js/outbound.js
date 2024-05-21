@@ -245,9 +245,14 @@ function switchTab($newTabName) {
             showVerabschiedungBtn();
         }
     }
-    if (blnFinishPositive) document.getElementById('abschliessen').style.display = 'block';
+    if (blnFinishPositive) {
+        document.getElementById('abschliessen').style.display = 'block';
+        document.getElementById('recording').style.display = 'block';
+        }
+        
     if ($('datenerfassung_produkt').value == "" ) {
         document.getElementById('abschliessen').style.display = 'none'
+        document.getElementById('recording').style.display = 'none'
     };
     
     // showzusammenfassung();
@@ -425,10 +430,10 @@ function finishCallback() {
 				'" + year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":00' \
 				);";
 
-            updateSql(query);
+            executeSql(query);
 
             query = "UPDATE calldatatable set result_id=" + resultIdWv + ", calldate = now(), agent_id = '" + agentId + "' WHERE id=" + calldatatableId + " LIMIT 1";
-            updateSql(query);
+            executeSql(query);
 
 /*
             var direction = 2;
@@ -440,11 +445,11 @@ function finishCallback() {
             var query = "UPDATE " + addressdatatable + " set  \
 	    direction = '" + direction + "' \
 			WHERE id=" + addressdatatableId + " LIMIT 1;";
-            updateSql(query);
+            executeSql(query);
 */
 
             if (!debug) {
-               // updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdWv + "','" + agentId + "')");
+               // executeSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdWv + "','" + agentId + "')");
                 ttWeb.clearRecording();
                 ttWeb.setIndicator(ttWeb.getIndicator());
                 ttWeb.terminateCall("300", zielDatum, blnPersonalAppointment, 0);
@@ -461,7 +466,7 @@ function finishAbFax() {
     insertIntoLog("info","Versuch den Datensatz als AB/Fax zu deklarieren.","");
 
     query="UPDATE calldatatable SET result_id = '"+resultIdAbfax+"', calldate = now(), agent_id = '" + agentId + "' where id = '" + calldatatableId + "' and campaign_id = '"+campaignId+"' limit 1;";
-    updateSql(query);
+    executeSql(query);
 	var q = "INSERT INTO contact_history (\
 						calldatatable_id, \
 						campaign_id, \
@@ -482,7 +487,7 @@ function finishAbFax() {
 						NULL \
 						);";
 
-    updateSql(q);
+    executeSql(q);
 
     if(!debug) {
        try{
@@ -493,7 +498,7 @@ function finishAbFax() {
             insertIntoLog("error","Fehler beim AB Fax hochzaehlen ","")
         }
 
-       // updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdAbfax + "','" + agentId + "')");
+       // executeSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultIdAbfax + "','" + agentId + "')");
         ttWeb.clearRecording();
         ttWeb.terminateCall('400') ;
     }
@@ -539,12 +544,12 @@ function finishApne() {
 				NOW(), \
 				0);";
 
-    updateSql(query);
+    executeSql(query);
 
-    updateSql("UPDATE calldatatable SET result_id = '"+resultId+"', calldate = now(), agent_id = '" + agentId + "' where id = '" + calldatatableId + "' and campaign_id = '"+campaignId+"' limit 1;");
+    executeSql("UPDATE calldatatable SET result_id = '"+resultId+"', calldate = now(), agent_id = '" + agentId + "' where id = '" + calldatatableId + "' and campaign_id = '"+campaignId+"' limit 1;");
 
     if(!debug) {
-      //  updateSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultId + "','" + agentId + "')");
+      //  executeSql("insert into calldatatable_callid (calldatatable_id, call_id, result_id, agent_id) values('" + calldatatableId + "','" + ttWeb.getCallID() + "','" + resultId + "','" + agentId + "')");
         ttWeb.clearRecording();
         ttWeb.terminateCall(terminateId,newDate,0,0);
     }

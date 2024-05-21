@@ -818,7 +818,7 @@ function saveData() {
 			+ $('datenerfassung_hsp_iban_1').value + "','"
 			+ $('datenerfassung_hsp_bic_1').value + "'"
 			+ ")";
-		updateSql(insert);
+		executeSql(insert);
 
 
 		insert2 = "replace into "
@@ -829,7 +829,7 @@ function saveData() {
 			+ $('datenerfassung_gutschrift_tarif_' + i + '').value + "','"
 			+ i + "'"
 			+ ")";
-		updateSql(insert2);
+		executeSql(insert2);
 
 
 	}
@@ -847,7 +847,7 @@ function saveRabatt() {
 		+ agentId + "','"
 		+ $('Rabatt').value + "'"
 		+ ")";
-	updateSql(insert);
+	executeSql(insert);
 
 }
 
@@ -861,7 +861,7 @@ function saveNegOptin() {
 			+ " values ('" + addressdatatableId + "','" + calldatatableId + "','"
 			+ $('datenerfassung_optin').value + "'"
 			+ ")";
-		updateSql(insert);
+		executeSql(insert);
 	}
 }
 
@@ -905,7 +905,7 @@ function finishPositive() {
 			stopVoiceRecording(voicefileName);
 		}
 
-		updateSql("UPDATE calldatatable SET result_id = '" + resultIdPositiv + "', calldate = now(), agent_id = '"
+		executeSql("UPDATE calldatatable SET result_id = '" + resultIdPositiv + "', calldate = now(), agent_id = '"
 			+ agentId + "' WHERE id = '" + calldatatableId + "' and campaign_id = '" + campaignId + "' LIMIT 1;");
 
 
@@ -926,10 +926,10 @@ function finishPositive() {
 		var query = "update " + addressdatatable + " set " +
 			"cancellation_reason_id = '" + escapeString($('datenerfassung_ablehnungsgrund').value) + "' where id = " + addressdatatableId;
 
-		updateSql(query);
+		executeSql(query);
 
 
-		updateSql("UPDATE calldatatable SET result_id = '" + resultIdNegativ + "', calldate = now(), agent_id = '"
+		executeSql("UPDATE calldatatable SET result_id = '" + resultIdNegativ + "', calldate = now(), agent_id = '"
 			+ agentId + "' where id = '" + calldatatableId + "' and campaign_id = '" + campaignId + "' limit 1;");
 
 		terminate = 200;
@@ -1710,7 +1710,7 @@ function writeOldResult() {
 
 		var query = "update " + addressdatatable + " set " + "result_id_old = '" + resultIdWv + "' where id = " + addressdatatableId;
 
-		updateSql(query);
+		executeSql(query);
 	}
 
 

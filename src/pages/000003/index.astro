@@ -190,20 +190,24 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div
             id="recording"
             class="input_form oneColumn"
-            style="display: none"
           >
             <div class="grid">
-              <Field legend="Aufnahme" klasse="grid-col_1">
+              <Field legend="Aufnahme" klasse="grid-col_1 field__bg">
               
-                <span id="record_div">
-                    &nbsp;Bitte die Aufnahme starten
-                </span>
-              
-                <div class="go--left">
-                  <button class="gray_btn" onclick="recordSummary('record_div');return false;">
-                    <strong class="glyph"></strong>
-                    &nbsp;Aufnahme
-                  </button>
+                <div  id="recorddisplay" class="recordDisplay">
+ 
+                  <div class="recordDisplay__info"><i class="glyph glyph-record"></i> Aufnahme läuft nur für Sie</div>
+                
+                  <div class="go recordDisplay__Btn" id="recordDisplay_Btn">
+                    <button
+                      id="go_record"
+                      type="button"
+                      data-id="freedial" 
+                      class="calldialog"
+                      ><i class="glyph glyph-add"></i>
+                      Kunden aufnehmen
+                    </button>
+                  </div>
                 </div>
               </Field>
             </div>
@@ -212,21 +216,22 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div
             id="abschliessen"
             class="input_form oneColumn"
-            style="display: none"
           >
-              <div class="grid">
-                <Field legend="Abschluss" klasse="grid-col_1">
-                  <div class="go" id="div_publish">
-                    <button
-                      type="button"
-                      id="go_publish"
-                      onclick="finish()"
-                      ><i class="glyph glyph-publish"></i>
-                      Auftrag abschließen
-                    </button>
-                  </div>
+              <div class="grid abschlussfeld">
+                <Field legend="Abschluss" klasse="grid-col_1 field__bg">
+                 
                 </Field>
               </div>
+              <div class="absenden" id="div_publish">
+                <button
+                class="absenden__Btn"
+                  type="button"
+                  id="go_publish"
+                  onclick="finish()"
+                  ><i class="glyph glyph-publish"></i>
+                  Auftrag abschließen
+                </button>
+            </div>
           </div>
             
         </div>
@@ -242,6 +247,7 @@ import PopupRotz from "@components/PopupRotz.astro";
   <PopupRotz />
   <div id="debugLog" class="debug-window d-none">
     <button type="button" onclick="debugWindowClear()">clear</button>
+
   </div>
    
 </Layout>

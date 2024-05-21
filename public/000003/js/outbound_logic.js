@@ -474,10 +474,10 @@ function finishPositive() {
             + " optin_neu = '" + escapeString($('datenerfassung_optin_detail').value) + "'"
             + " where id = " + addressdatatableId ;          
             
-            updateSql(update);
+            executeSql(update);
         
 
-        updateSql("UPDATE calldatatable SET result_id = '" + resultIdPositiv + "', calldate = now(), agent_id = '"
+        executeSql("UPDATE calldatatable SET result_id = '" + resultIdPositiv + "', calldate = now(), agent_id = '"
             + agentId + "' WHERE id = '" + calldatatableId + "' and campaign_id = '" + campaignId + "' LIMIT 1;");
         
         
@@ -502,9 +502,9 @@ function finishPositive() {
     	
         var query = "update " + addressdatatable + " set " +
             "cancellation_reason_id = '" + escapeString($('datenerfassung_ablehnungsgrund').value) + "' where id = " + addressdatatableId ;
-        updateSql(query);
+        executeSql(query);
 
-        updateSql("UPDATE calldatatable SET result_id = '" + resultIdNegativ + "', calldate = now(), agent_id = '"
+        executeSql("UPDATE calldatatable SET result_id = '" + resultIdNegativ + "', calldate = now(), agent_id = '"
             + agentId + "' where id = '" + calldatatableId + "' and campaign_id = '" + campaignId + "' limit 1;");
         
         
@@ -748,7 +748,7 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
         // "Show the dialog" button opens the dialog modal
         for(let x = 0; x < showButtonList.length; x++) {
             showButtonList[x].addEventListener("click", () => {
-                logIntoDebug(showButtonList[x].id, `Dialog-Element ${dialogList[x].id} aufgerufen`);
+                logIntoDebug(showButtonList[x].id, `Dialog-Element ${dialogList[x].id} aufgerufen`, false);
                 dialogList[x].showModal();
             });
         }
@@ -756,7 +756,7 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
         // "Close" button closes the dialog
         for(let x = 0; x < closeButtonList.length; x++) {
             closeButtonList[x].addEventListener("click", () => {
-                logIntoDebug(closeButtonList[x].id, `Dialog-Element ${dialogList[x].id} geschlossen`);
+                logIntoDebug(closeButtonList[x].id, `Dialog-Element ${dialogList[x].id} geschlossen`, false);
                 dialogList[x].close();
             });
         }

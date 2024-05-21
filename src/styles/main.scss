@@ -174,7 +174,18 @@ td {
 
     &-save::before {
         content: "\E805"; // Pfeil nach unten der auf Festplatte zeigt
+    }
 
+    &-record::before {
+        content: "\F130"; // Mikrofonsymbol
+    }
+
+    &-mute::before {
+        content: "\F131"; // durchgestrichenes Mikrofonsymbol
+    }
+
+    &-add::before {
+        content: "\E81F"; // Pluszeichen in einem Kreis
     }
 
     &-close::before {
@@ -207,7 +218,7 @@ dialog {
 }
 
 .closedialog {
-    background-color: #fd3d3d;
+    background-color: #b62727;
     padding: .5em;
     padding: 4px 0.5em;
     width: 32px;
@@ -224,3 +235,52 @@ dialog {
     position: absolute;
     width: 99.7vw;
 }
+
+.recordDisplay{
+    display: flex;
+    justify-content: start;
+    padding: 0 3em;
+    width: fit-content;
+    height: fit-content;
+
+        &__info {
+            display: flex;
+            padding: 2em 2em 2em 0;
+            color: #fd3d3d;
+            text-shadow: 0 .5px 1.5px black;
+        }
+
+        &__Btn {
+            padding-left: 1.6em;
+        }
+}
+
+.field__bg {
+    background-color: #e5e5e7;
+    padding: 0 0 1em 1em;
+}
+
+.absenden {
+    
+    width: 100%;
+    margin: 25px 0 20px 0;
+	text-align: center;
+	min-height: 50px;
+
+    &__Btn {
+        border-radius: 5px;
+        border: 1px solid black;
+        box-shadow: 0 1px 4px rgb(92, 90, 90);
+        background-color: rgb(102, 238, 102);
+        background-image: linear-gradient(to top, #32de41, #4ee44d, #64ea59, #76ef64, #87f570, #86f46e, #85f46d, #84f36b, #71eb5b, #5de449, #44dc36, #1fd41f);
+        height: 50px;
+        width: 200px;
+    }
+}
+
+.abschlussfeld {
+    display: block;
+    width: 65%;
+}
+
+

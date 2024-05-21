@@ -32,9 +32,10 @@ interface Props {
 const { id, label, firstOption, required, disabled, actions, klasse, gruppe, call } = Astro.props;
 const { options } = Astro.props as Props;
 
+let gate = `gatekeeper(${id})`
 let errorname = `${id}_errorMsg`;
 let gateArr = JSON.stringify(actions);
-let gate = `gatekeeper(${id})`
+   
 ---
 
 <label for={id}>{label}</label>

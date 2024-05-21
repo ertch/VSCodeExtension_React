@@ -30,21 +30,9 @@ let agentId;                    // ID des Agenten
 let ttWeb = new Object();       // Objekt für ttFrame-API
 let recordingName;              // Name des Recordings
 
-let recordingNameSuffix = "";   
-let fieldname_firstname = "firstname";
-let fieldname_lastname = "surname";
-
-let blnPersonalAppointment = 1;
-let direction = 2;
-let recordingComplete = 0;
-
-let debug_vf = 0;
-var debug = true;               // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
-var logLevel = "debug";         // kann debug, info, warning, error, fatal sein
-
 let keyCode1Pressed = false;    // Status des ersten Hotkey (Zirkumflex)
 let keyCode2Pressed = false;    // Status des zweiten Hotkey (Strg)
-let keyCode3Pressed = false;    // Status des dritten Hotkey (C)
+let keyCode3Pressed = false;    // Status des dritten  (C)
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -203,7 +191,7 @@ function gf_javaf_initialize() {
                                 
                 // Prüfe ob Index von Customerdata in SqlField vorhanden und > -1 ist.
                 // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerData 
-                if (Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
+                if (matchingKey > -1) {
                     CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
                 } else {  
                     CustomerData[index].value = "-";
@@ -256,8 +244,10 @@ function gf_javaf_initialize() {
 
  //--------------------------------------------------------------------------------------- Calls ------------------------------------------------------------------------
 
- /** call_initialize - Alle notwenigen Daten zurücksetzten für einen neuen Anruf
- */
+ /** call_initialize 
+  *     
+  *      Alle notwenigen Daten zurücksetzten für einen neuen Anruf
+  */
     function call_initialize() {
             
         ttWeb.setRecordingState(0);                 // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
@@ -302,7 +292,10 @@ function gf_javaf_initialize() {
 
 //-------------------------------------------------------------------------- Recording ----------------------------------------------------------------------------------- 
     // Der State bestimmt die ausgeführte Aktion: start, stop, save, clear (& terminate ?)
-
+/**
+ * 
+ * @param {*} divId 
+ */
     function recordSummary(divId) {
         console.log("recordSummary") // JS analyse
         document.getElementById(divId).innerHTML='<br>&nbsp;Achtung: Aufnahme l&auml;uft ...';
@@ -315,8 +308,7 @@ function gf_javaf_initialize() {
     }
 
     function startVoiceRecording() {
-        console.log("startVoiceRecording") // JS analyse
-        insertIntoLog("info","Voicerecording wurde angeschaltet.","");
+        insertIntoLog("info","Voicerecording wurde angeschaltet.", false);
         debug_vf = 3;
         if(!debug) {
             //if (ttWeb.getCallState() == 0) insertIntoLog("error","Voicerecording ohne Call von Agent " + ttWeb.getUser().Login +
@@ -328,19 +320,20 @@ function gf_javaf_initialize() {
 
     function record(state, voicefileName) {
         switch (state) {
-             // Wenn der Zustand 'start' ist, wird die Aufnahme gestartet 
+             // Wenn der Zustand 'start' ist, wird die Aufnahme (agent & customer) gestartet 
             case 'start':
-                debug && console.log("record: started");
                 ttWeb.setRecordingState(3);
+                logIntoDebug( "record(start)","recording was started with state: 3",false);
                 break;
 
             // Wenn der Zustand 'stop' ist, wird die Aufnahme gestoppt und die Sprachaufzeichnung wird ggf. gespeichert 
             case 'stop':
-                debug && console.log("record: stopped");
+                
                 if (voicefileName) {
                     stopVoiceRecording(voicefileName);
+                    logIntoDebug("record(stop)","recording was stopped", false);
                 } else {
-                    debug && console.log("Error: record'stop' - Kein voicefileName für record:stop angegeben.");
+                    logIntoDebug("record(stop)","Error: Kein voicefileName angegeben.",true);
                 }
                 break;
 
@@ -350,18 +343,18 @@ function gf_javaf_initialize() {
                 if (voicefileName) {
                     ttWeb.saveRecording(voicefileName);
                 } else {
-                    debug && console.log("Kein voicefileName für record:save angegeben.");
+                    logIntoDebug("record(save)","Error: Kein voicefileName angegeben.",true);
                 }
                 break;
 
             // Wenn der Zustand 'clear' ist, wird die Aufnahme gelöscht.
             case 'clear':
-                debug && console.log("record: cleared");
+                logIntoDebug("record(clear)", "record successfully cleared", false);
                 ttWeb.clearRecording();
                 break;
 
             default: //Error_msg
-                debug && console.log("record: invalider state => ", state);
+                logIntoDebug(`record(${state}), Error: invalider state`, true);
         }   
     }
     
@@ -388,7 +381,7 @@ function gf_javaf_initialize() {
 
         // Negativgründe in ein Objekt einfügen
         negativgruende = new Object();
-        for (var i = 0; i < result[0].rows.length; i++) {
+        for (let i = 0; i < result[0].rows.length; i++) {
             negativgruende[result[0].rows[i].fields.id] = result[0].rows[i].fields.label;
         }
 
@@ -404,13 +397,13 @@ function gf_javaf_initialize() {
         // Wenn Wiedervorlagen vorhanden sind, zeige sie an
         if (anzahl[0].rows[0].fields.anzahl > 0) {
             result = executeSql("SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> '," + fieldname_firstname + ",' '," + fieldname_lastname + ",' : ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN " + addressdatatable + " ON " + addressdatatable + ".id=calldatatable.addressdata_id WHERE contact_history.campaign_id=" + campaignId + " AND contact_history.agent_id='" + agentId + "' AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5");
-            var wvtext = 'Kommende Wiedervorlagen<br />f&uuml;r <b>Agent ' + agentId + '</b>:<br /><br />';
-            for (var i = 0; i < result[0].rows.length; i++) wvtext = wvtext + '<div class="data" style="height: auto;">' + result[0].rows[i].fields.message + '</div>';
+            let wvtext = 'Kommende Wiedervorlagen<br />f&uuml;r <b>Agent ' + agentId + '</b>:<br /><br />';
+            for (let i = 0; i < result[0].rows.length; i++) wvtext = wvtext + '<div class="data" style="height: auto;">' + result[0].rows[i].fields.message + '</div>';
             document.getElementById('right_block').innerHTML = wvtext;
         }
 
         // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-        var currDate = new Date();
+        let currDate = new Date();
         document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
         document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
         document.getElementById('wiedervorlage_Text').value = "";
@@ -424,7 +417,7 @@ function gf_javaf_initialize() {
 
             result = executeSql("SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message FROM contact_history WHERE calldatatable_id=" + calldatatableId + " ORDER BY called_at DESC");
 
-            var kundenhistorie = "<fieldset><legend>Kundenhistorie</legend>";
+            let kundenhistorie = "<fieldset><legend>Kundenhistorie</legend>";
             for (var i = 0; i < result[0].rows.length; i++) kundenhistorie = kundenhistorie + '<div>' + result[0].rows[i].fields.message + '</div>';
             kundenhistorie = kundenhistorie + "</fieldset>";
 
@@ -494,7 +487,14 @@ function loadData() {
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+/** executeSql() - Verbindung zu BD
+ * 
+ *      Schmeisst den SQL-Befehl der übergeben wird gegen die ttFrame DB oder gegen einen Debug-Server,
+ *      abhängig davon, ob in der tteditor-config.js degbug = true / false.      
+ * 
+ *      @param   {String} SQL-Befehl 
+ *      @returns [String] oder null
+ */
 
 
     function executeSql(sql) {
@@ -505,12 +505,11 @@ function loadData() {
             }catch (ex) {
 
                 // Error protokollieren
-                logSqlError(sql, ex.Message);
+                logIntoDebug("executeSql(): Fehlerhaftere Abfrage",sql, false);
                 return null;
             }
         }else {
-            // Debug: Mit dem SQL-Connector kommunizieren   |   encodeURIComponent = URL-sezifisch Sonderzeichen ersetzten ( " " -> %20 , etc. )
-            try {
+            try { // Debug: Dem Debug-SQL-Connector kontaktieren  
                 var result = null;
                 new Ajax.Request('http://admin/outbound.dbconnector/index.php?sql=' + encodeURIComponent(sql), {
                     method: 'get',
@@ -519,80 +518,27 @@ function loadData() {
                         result = transport.responseText.evalJSON();
                     },
                     onFailure: function() {
-                        console.error('Fehler: Kann mich nicht mit dem Debug-SQL-Connector verbinden');
+                        logIntoDebug("executeSql():",'Error: Keine Verbindung zum Debug-SQL-Connector.', false);
                     }
                 });
-
                 return result;
 
             }catch (ex) {
-                console.error('Fehler beim Ausführen des Debug-SQL-Befehls: ' + ex.Message);
+                logIntoDebug("executeSql():",'Error: Fehlerhafter Debug-SQL-Befehl: ' + ex.Message, false);
                 return null;
             }
         }
     }
 
-    function insertIntoLog(log_level,logmessage,logexception) {
-	
-        log_level=trim(log_level).toLowerCase();
-        
-        if(getLoglevelPrio(log_level) >= getLoglevelPrio(logLevel)) {
-    
-            insertSql=buildLogInsert(log_level,logmessage,logexception);
-            try {
-                if(!debug) ttWeb.execDatabase(insertSql);
-            }
-            catch(ex) {
-                //alert("Kann Logdatensatz nicht persistieren: " + ex.Message + insertSql);
-            }
-        }
-    }
-    
+   
     // Protokollieren von SQL-Fehlern (ausgelagerte Funktion)
     function logSqlError(sql, errorMessage) {
         var insertSql = buildLogInsert('error', sql, errorMessage);
         try {
             ttWeb.execDatabase(insertSql);
         }catch (ex) {
-            console.error('Fehler beim Protokollieren des SQL-Fehlers: ' + ex.Message);
+            logIntoDebug('Fehler beim Protokollieren des SQL-Fehlers: ' + ex.Message, false);
         }
-    }
-
-    function updateSql(sql) {
-
-        sqlReturnArray="";
-        
-        if(!debug) {
-            try {
-                ttWeb.execDatabase(sql) ;
-            } catch (ex) {
-    
-                insertSql=buildLogInsert('error',sql,ex.Message);
-                try {
-                    ttWeb.execDatabase(insertSql);
-                }
-                catch(ex1) {
-                    //alert("Kann Sql-Fehler nicht loggen: " + ex1.Message);
-                }
-            }
-        }
-        else {
-    
-        var result = null;
-    
-            new Ajax.Request('http://admin/outbound.dbconnector/index.php?sql='+sql,
-              {
-                method:'get',
-                asynchronous: false,
-                onSuccess: function(transport){
-                    result=transport.responseText.evalJSON();
-    
-                },
-                onFailure: function(){ alert('Kann mich nicht mit dem Debug-SQL-Connector verbinden') }
-              });
-        
-            } 
-        return null;
     }
 
 // ########################################################################################## Navigations #############################################################################################
@@ -642,6 +588,7 @@ function loadData() {
 
         if (blnFinishPositive) {
             document.getElementById('abschliessen').style.display = 'block';
+            document.getElementById('recording').style.display = 'block';
         }
     }
 
@@ -731,14 +678,14 @@ function loadData() {
                     
                         default:
                             // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
-                            debug && console.log(`Error: gatekeeper von "${select.id}" hat fehlerhafte action: "${action}" ${gateArr}`);
+                            logIntoDebug(select.id ,`Error: gatekeeper hat fehlerhafte action: ${action} in ${gateArr}`, false);
                     } 
                     // Ausführen der Folgefunktion, falls vorhanden
                     executeFunctionFromString(nextFunc);
 
                 } catch (error) {
                     // Fehlermeldung ausgeben
-                    debug && console.log(`>>Fehler<< gatekeeper von "${select.id}" wurde fehlerhaft ausgeführt! \n Error: ${error.stack}`);
+                   logIntoDebug(select.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!`, false);
                 };
             };
         });
@@ -765,6 +712,9 @@ function loadData() {
 
             // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
             let requiredInputs = tab_content.querySelectorAll(':scope > fieldset:not(.d-none) input[required]');
+            if(requiredInputs === 0){ // wenn kein Fieldset vorhanden, prüfe nur auf inputs
+                requiredInputs = tab_content.querySelectorAll(':scope > input[required]') 
+            }
                     
             requiredInputs.forEach(input => {
                 // Überprüfen, ob das Feld ausgefüllt ist (Wert > "")
@@ -795,38 +745,44 @@ function loadData() {
  *      @param {HTMLElement} tab_content - Registerkarte, dessen Eingabefelder validiert werden sollen.
  */
     function bundleInputs(tab_content) {
-
-        let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
-            txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
-            handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
-            email: [],          // Input. Inputs die kein [required] Attribut besitzten, werden von der Validierug ausgeschlossen.
-            tel: [],            // Selects werden nur darauf geprüft, ob sie > null sind. Soll ein Select darauf geprüft werden, ob
-            plz: [],            // eine bestimmte Option ausgewählt wurde; benötigt das Select data-call = "validateSelect(option.value)".    
-            call: [],
-            empty: [],
-            date: [],
-            time: [],
-            dateandtime: [],
-            default: []
-        };
-        // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
-        let allInputs = tab_content.querySelectorAll(':scope > fieldset:not(.d-none) input');
-        if(allInputs ===)
-        allInputs.forEach(input => {
-            let valiTyp = input.dataset.vali || 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
-
-            if (valiTyp in inputsTypeArr) {
-                // valiTyp entspricht einem Namen in inputsTypeArr, füge es dem entsprechenden Array hinzu
-                inputsTypeArr[valiTyp].push(input.id);
-            } else {
-                // füge das Input in das Array "default" ein (Auffangbecken)
-                inputsTypeArr.default.push(input.id);
+        try {
+            let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
+                txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
+                handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
+                email: [],          // Input. Inputs die kein [required] Attribut besitzten, werden von der Validierug ausgeschlossen.
+                tel: [],            // Selects werden nur darauf geprüft, ob sie > null sind. Soll ein Select darauf geprüft werden, ob
+                plz: [],            // eine bestimmte Option ausgewählt wurde; benötigt das Select data-call = "validateSelect(option.value)".    
+                call: [],
+                empty: [],
+                date: [],
+                time: [],
+                dateandtime: [],
+                default: []
+            };
+            // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
+            let allInputs = tab_content.querySelectorAll(':scope > fieldset:not(.d-none) input');
+            if(allInputs === 0){ // wenn kein Fieldset vorhanden, prüfe nur auf inputs
+                allInputs = tab_content.querySelectorAll(':scope > input:not(.d-none)') 
             }
-        });
+            allInputs.forEach(input => {
+                let valiTyp = input.dataset.vali || 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
 
-        for (let valiTyp in inputsTypeArr) {   // Übergabe an die Validierung
-            let idArr = inputsTypeArr[valiTyp];
-            validateInput(valiTyp, idArr, true);
+                if (valiTyp in inputsTypeArr) {
+                    // valiTyp entspricht einem Namen in inputsTypeArr, füge es dem entsprechenden Array hinzu
+                    inputsTypeArr[valiTyp].push(input.id);
+                } else {
+                    // füge das Input in das Array "default" ein (Auffangbecken)
+                    inputsTypeArr.default.push(input.id);
+                }
+            });
+
+            for (let valiTyp in inputsTypeArr) {   // Übergabe an die Validierung
+                let idArr = inputsTypeArr[valiTyp];
+                validateInput(valiTyp, idArr, true);
+            }
+        } catch (error) {
+            logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
+            return [];
         }
     };
 
@@ -922,11 +878,11 @@ function loadData() {
                 }
                 
             });
-            debug && console.log(`validateInput: Ergebniss = ${boolErr} \n${idArr}`);
+            debug && console.log(`validateInput: Ergebniss = ${boolErr} \n${idArr}`, false);
             return giveAnswer ? boolErr : undefined;
             
         }catch (error) { //  Error Nachrichten und return
-            debug && console.log(`Error: validateInput mit Array: \n${idArr} \n Eintrag: ${id}`);
+            logIntoDebug( "validateInput:" ,`Error at array: ${idArr} with ${id}`, false);
             return giveAnswer ? false : undefined;
         }
     }
@@ -1066,7 +1022,6 @@ function loadData() {
 /** validateTime - Validierung für Zeitangaben.
  * 
  *      @param {string} mytime - Die zu validierende Zeitangabe.
- *      @param {string} description - Eine Beschreibung für eine Fehlermeldung (nicht verwendet).
  *      @param {HTMLElement} errorId - Das HTML-Element, in dem Fehlermeldungen angezeigt werden sollen.
  *      @param {boolean} blnRequired - Ein boolischer Wert, der angibt, ob die Zeitangabe erforderlich ist.
  */
@@ -1083,7 +1038,6 @@ function loadData() {
             errorId.innerHTML = 'Zeit falsch';
             return false;
         }
-
         // Zeitteile in Zahlen konvertieren
         const [hours, minutes] = chunks.map(Number);
         
@@ -1093,13 +1047,12 @@ function loadData() {
             errorId.innerHTML = 'üngültige Zeitangabe';
             return false;
         }
-
         // Fehlermeldung leeren und `true` zurückgeben, falls die Zeitangabe gültig ist
         errorId.innerHTML = '';
         return true;
     }
-
-// ######################################################################################### HELPER VALIDATOR ##############################################################################################
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ######################################################################################### HELPER ##############################################################################################
 /**  Inhaltsliste:
 *       - H-001     executeFunctionFromString
 *       - H-002     Select / ausgewählte Option prüfen
@@ -1125,7 +1078,7 @@ function loadData() {
         if (funcName && typeof window[funcName] === 'function') {
            giveBack = window[funcName](...args); // Aufruf
         } else {
-            debug && console.log(`Funktion '${funcName}' existiert nicht.`); //Error_msg
+            logIntoDebug( "executeFunctionFromString:",`Aufgerufene Funktion ${funcName} existiert nicht.`, false); //Error_msg
         }
         return giveBack;
     }
@@ -1136,8 +1089,8 @@ function loadData() {
  *      @param {*} optionId 
  *      @param {*} optionValue 
  */
-    function validateSelect(optionId, optionValue){ 
-        return document.getElementById(optionId).value === optionValue ? true : false;
+    function validateSelect(selectId, optionValue){ 
+        return document.getElementById(selectIdId).value === optionValue ? true : false;
     }
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 /** Helper H-003
@@ -1167,25 +1120,19 @@ function loadData() {
 /** Helper H-004
  * 
  *      Submit Form
- *      @param {string} form_id 
+ *      @param {string} form_id absenden
  */
     function submitForm(form_id) {
-        // Formular-Element auswählen
-        var form = document.getElementById(form_id);
-        // Formular absenden
-        form.submit();
+        document.getElementById(form_id).submit();
     }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-005 
  * 
- *      Ein Standart Validator, der cen Value des aufrufenden Elements gegen den übergebenen Wert prüft.
+ *      Ein Standart Validator, der den Value des aufrufenden Elements gegen den übergebenen Wert prüft.
 */
     function checkCallerValue(overriddenValue) {
-        let resultBool = false;
-        if (this === overriddenValue) {
-            resultBool = true;
-        } 
-        return resultBool;
+        let result = (this === overriddenValue) ? true : false;
+        return result;
     }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-006
@@ -1211,8 +1158,7 @@ function loadData() {
             return addressDataArray;
         } catch (error) {
             // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
-            console.log("Error: createAddressDataArray => SQL-Ergebnisse konnten nicht in Array geladen werden");
-            console.log(error);
+            logIntoDebug( "createAdressDataArray","Error: SQL-Ergebnisse konnten nicht in Array geladen werden", false);
             return []; 
         }
     }
@@ -1220,17 +1166,25 @@ function loadData() {
 /** Helper H-007
  * 
  *          logIntoDebug
+ *      Eintragen von Logs in das togglebare Logfenster für Livebetrieb
+ *      @param {string} caller - Name de Funktion die den Fehler wirft und evt. Kurzbeschreibung
+ *      @param {string} msg - Error beschreibung oder SQL-Prompt
+ *      @param {string} deExport - Bool: True = an ttWeb.DB weitergeben
  */
 
-    function logIntoDebug(caller, msg) {
-        if (showDebug) {
+    function logIntoDebug(caller, msg, dbExport) {
+        if (showDebug) { // showDebug => ttEditor-config.js
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + msg;
             window.innerHTML = log;
         } 
+        if (dbExport && LogIntottDB) { // LogIntottDB => ttEditor-config.js
+            // Erstelle und sende Log an Datenbank
+            ttErrorLog(caller, msg);
+        }
     }
-    function debugWindowClear() {
+    function debugWindowClear() { // Log löschen
         document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
     }
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1307,3 +1261,201 @@ function loadData() {
             document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
         } 
     }
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-010
+ * 
+ *          SQL String Manipulation
+ */
+
+function escapeString(s) {
+	try {   // Alle Vorkommen des Zeichens ' durch \\' zu ersetzen.
+        return s.replace(/'/g,"\\'");
+	} catch (ex){
+        logIntoDebug("SQL String Manipulation - recapeStrings:", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", false)
+	}
+}
+
+function removeSlashes(s){
+    try { //  Alle Vorkommen von Backslash durch das Slash ersetzen.
+        return s.replace(/\\/g,"/");
+    } catch (ex){
+        logIntoDebug("SQL String Manipulation - removeSlashes:", "Das Entfernen von Backshashes ist fehlgeschlagen", false)
+	}
+}
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-011
+ * 
+ *          lockTab() - disable alle Inputs auf einem Tab
+ * 
+ *          @param {string} ID des Tabs  
+ *          @param {bool} true = disable / false = enable
+ */
+    function lockTab(tab_id, bool) {
+        let allInputs = tab_id.querySelectorAll(':scope > input');
+        allInputs.forEach(input => {
+            input.disabled = bool ? true:false;
+        });
+    };
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-012
+ * 
+ *          noDoubles() - Püft ob doppelt der gleiche Wert eingegeben wurde
+ * 
+ *          @param {string} ID des Inputs als Array         
+ */
+    function noDoubles(idArr) {
+        let valueArr = [];
+        let cache = new Set();
+        let duplicates = new Set();
+
+        idArr.forEach(id => { 
+            let element = document.getElementById(id);
+            if (element) {
+                valueArr.push(element.value);
+            }
+        });
+
+        for (let value of valueArr) {
+            if (cache.has(value)) {
+                duplicates.add(value);
+            } else {
+                cache.add(value);
+            }
+        }
+        return Array.from(duplicates);
+    }
+
+  //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-013
+ * 
+ *          randomString - Erstelle Billo-hash für Arme
+ * 
+ *          @param {int} Länge des ausgegebenen Strings       
+ */  
+    function randomString(length) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < length) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+        }
+        return result;
+    }
+
+
+
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //#######################################################     WERKBANK    ############################################################################################################
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /** 
+     * 
+     * 
+     * 
+     */
+
+            function finishPositive() {
+                console.log("finishPositive"); // JS analyse
+            
+                const produktValue = $('datenerfassung_produkt').value;
+                const emailValue = escapeString($('datenerfassung_email').value);
+                const telefonValue = escapeString($('datenerfassung_telefon').value);
+                const leadValue = escapeString($('datenerfassung_lead').value);
+                const vertragsendeValue = escapeString($('datenerfassung_vertragsende').value);
+                const optinDetailValue = escapeString($('datenerfassung_optin_detail').value);
+                const ablehnungsgrundValue = escapeString($('datenerfassung_ablehnungsgrund').value);
+            
+                if (produktValue !== "nein") {
+                    handlePositiveCase(emailValue, telefonValue, leadValue, vertragsendeValue, optinDetailValue);
+                } else {
+                    handleNegativeCase(ablehnungsgrundValue);
+                }
+            }
+            
+            function handlePositiveCase(email, telefon, lead, vertragsende, optinDetail) {
+                terminate = "100";
+            
+                const updateQuery = `
+                    UPDATE ${addressdatatable}
+                    SET
+                        emailprivate_neu = '${email}',
+                        telefon_neu = '${telefon}',
+                        lead = '${lead}',
+                        lead_vertragsende = '${vertragsende}',
+                        optin_neu = '${optinDetail}'
+                    WHERE id = ${addressdatatableId}
+                `;
+                updateSql(updateQuery);
+            
+                const callDataQuery = `
+                    UPDATE calldatatable
+                    SET
+                        result_id = '${resultIdPositiv}',
+                        calldate = now(),
+                        agent_id = '${agentId}'
+                    WHERE id = '${calldatatableId}'
+                    AND campaign_id = '${campaignId}'
+                    LIMIT 1
+                `;
+                updateSql(callDataQuery);
+            
+                if (optinDetail === "voll" || optinDetail === "schrift") {
+                    const voicefileName = generateVoicefilename(recordingPrefix, recordingName, recordingNameSuffix, recordingComplete, terminate);
+                    saveVoiceRecording(voicefileName);
+                }
+            }
+            
+            function handleNegativeCase(ablehnungsgrund) {
+                terminate = "200";
+            
+                const updateQuery = `
+                    UPDATE ${addressdatatable}
+                    SET cancellation_reason_id = '${ablehnungsgrund}'
+                    WHERE id = ${addressdatatableId}
+                `;
+                updateSql(updateQuery);
+            
+                const callDataQuery = `
+                    UPDATE calldatatable
+                    SET
+                        result_id = '${resultIdNegativ}',
+                        calldate = now(),
+                        agent_id = '${agentId}'
+                    WHERE id = '${calldatatableId}'
+                    AND campaign_id = '${campaignId}'
+                    LIMIT 1
+                `;
+                updateSql(callDataQuery);
+            
+                if (!debug) {
+                    ttWeb.clearRecording();
+                } else {
+                    alert("Eventuelle Aufzeichnung verworfen");
+                }
+            }
+            
+            function saveVoiceRecording(voicefileName) {
+                saveVoiceRecordingName(voicefileName);
+            
+                if (!debug) {
+                    ttWeb.saveRecording(voicefileName);
+                } else {
+                    alert(voicefileName);
+                }
+            }
+            
+            
+            function recordOn() {
+
+                if (debugvoicerecording != "3") {
+            
+                    if ($('datenerfassung_produkt_1').value != "0") {
+                        document.getElementById('abschliessen').style.display = "none";
+                        document.getElementById('recording').style.display = "block";
+                    }
+            
+                }
+            
+            }
