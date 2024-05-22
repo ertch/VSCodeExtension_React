@@ -82,7 +82,7 @@ function pushSQL (promtName) {
 
     switch(promtName){
 
-        case "update_rec_note": // Speichere Verweis für aktuellen VoiceFiles in der DB (addressdatatable) ab.
+        case "update_rec_info": // Speichere Verweis für aktuellen VoiceFiles in der DB (addressdatatable) ab.
             query =    `UPDATE ${addressdatatable} set voice_id = '${teile[teile.length - 1]}' WHERE id = '${addressdatatableId}' LIMIT 1`;
             break;
         
@@ -96,5 +96,8 @@ function pushSQL (promtName) {
                             ${removeSlashes(recordingPrefix)}
                         ');`;
             break;
+        
+        default:
+            logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, false)
     }
 }

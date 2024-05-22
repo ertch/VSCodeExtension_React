@@ -239,6 +239,7 @@ function switchTab($newTabName) {
 
     if($newTabName=='tab_zusammenfassung'){
         document.getElementById('tab_next_zusammenfassung_1').className = "left_right go d-none";
+        readTrigger();
         showzusammenfassung();
     } else {
         if ($newTabName != "tab_start"){
@@ -325,7 +326,7 @@ function getCampaignData(campaignId,agentId,addressdataId,addressdatatable,kampC
 
     // Kommende Wiedervorlagen anzeigen
 
-    logIntoDebug("getCampaignData: 'anzahl' =", "SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ',"+fieldname_firstname+",' ',"+fieldname_lastname+",': ',message) AS CHAR) FROM contact_history Join calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN "+addressdatatable+" on "+addressdatatable+".id=calldatatable.addressdata_id WHERE campaign_id="+campaignId+" AND agent_id="+agentId+" AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5");
+    logIntoDebug("getCampaignData: 'anzahl' =", "SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ',"+fieldname_firstname+",' ',"+fieldname_lastname+",': ',message) AS CHAR) FROM contact_history Join calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN "+addressdatatable+" on "+addressdatatable+".id=calldatatable.addressdata_id WHERE campaign_id="+campaignId+" AND agent_id="+agentId+" AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5", false);
    
     anzahl=executeSql("SELECT count(*) as anzahl FROM contact_history Join calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN "+addressdatatable+" on "+addressdatatable+".id=calldatatable.addressdata_id WHERE contact_history.campaign_id="+campaignId+" AND contact_history.agent_id='"+agentId+"' AND is_wv=1 AND wv_date>NOW()");
 

@@ -25,9 +25,12 @@ let fieldname_lastname = "surname";
 let recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
 let FileNamePattern = ["date", "time", "agendID", "customerid", "" ]; // Zuweisung in setRecordName()
 let recordingNameSuffix = ""; //mit . 
+let recordFileName;
 
 let startCallwithState = 2;
 
+let triggerData = triggerPattern();
+let CostumerData = providerPattern();
 
 let blnPersonalAppointment = 1;
 let direction = 2;
@@ -38,61 +41,100 @@ let showDebug = true            // Wenn true, kann der Log auf der Seite eingebl
 var debug = true;               // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
 
 
+//------------------------------------------------------------------- Systemzeit --------------------------------------------------------------------------
+// Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.
 
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-function dataPattern() { // Der Name der gewünschten Funktion wird im CustumerCells HTML-Element unter provider ="" eingetragen.
-    let CustomerData = [
-        { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true   },
-        { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true   },
-        { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true   },
-        { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true   },
-        { label: '',                match: 'seperator',             value: "",   standAlone: true   },
-        { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true   },
-        { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true   },
-        { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true   },
-        { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false  },
-        { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true   },
-        { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false  },
-        { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true   },
-        { label: '',                match: 'seperator',             value: "",   standAlone: true   },
-        { label: 'Strasse',         match: 'street',                value: "",   standAlone: true   },
-        { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true   },
-        { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true   },
-        { label: 'Ort',             match: 'city',                  value: "",   standAlone: true   },
-        { label: 'Produkt',         match: 'product',               value: "",   standAlone: true   },
-        { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true   },
-        { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true   },
-        { label: 'Datensatz',       match: '',                      value: "",   standAlone: true   },
-    ];
-    return CustomerData
-};
-
-function setRecordName(style, useName) {
-    let recordName = "";
-    if(style === "pattern") {
-        FileNamePattern.forEach((getInfo, index) => {
-            try { // versuche die genannte Variable auszurufen 
-                recordName += eval(getInfo);
-            } catch (error) {
-                    //  Ist die Variable nicht zugewiesen, suche in CustomerData und 
-                    //  finde den passenden Index, der mit getInfo übereinstimmt.
-                    let matchingKey = Object.keys(CustomerData[index].match).indexOf(getInfo);
-                    // Wenn gefunden, schreibe in recordName
-                    if (matchingKey > -1) {
-                        recordName += `${CustomerData[matchingKey].value}`; 
-                    } ;       
-                }
-            if (index != FileNamePattern.length - 1) recordName += '_'; // Trenner einbauen
-        });
-        recordName += `${recordingNameSuffix}`;
-
-    } else if (style === "use"){ // nutze mitgegebenen Namen
-        recordName += `${useName}${recordingNameSuffix}`;
-
-    } else { // Generiere einen Namen [datum + hashwert] 
-        recordName = `${agentId}_${$crypto.randomUUID()}${recordingNameSuffix}`;
-    }
-    return recordName;      
+function getdate() { // Datum
+    let datum = new Date().toLocaleDateString('default',{ day: 'numeric' , month: 'short', year: 'numeric'});
+    datum = datum.replace(/\.+/g, '')
+                 .replace(/\s+/g, '');      // tt(monat)yyyy = "22Mai2024"
+    return datum;
 }
+
+function gettime() { // Uhrzeit
+    let time = new Date().toLocaleTimeString();
+    return `${time.replace(/\:+/g, '-')}uhr`; // hh-mm-ss
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/**     Diese Funktionen definieren die Kundeninformationen, die für die Generierung von CustomerCells verwendet werden sollen.
+ *      Wenn keine benutzerdefinierten Provider-Pattern und SQL-Abfragen angegeben sind, wird die providerDefault() verwendet.
+ *      Die generierten Zellen werden in Zweierreihen angeordnet und mit den entsprechenden Daten aus der Datenbank gefüllt.
+ *      Die "match"-Attribute müssen exakt mit den Bezeichnern in der Datenbank übereinstimmen, um die richtigen Daten zu erhalten.
+ *      Ein Tippfehler hier könnte zu Fehlern in den generierten Zellen führen.
+ *  
+ *      label:  Dieser Key beschreibt den, für den User im Cell_Head sichtbaren, String und wird für die Suche innerhalb der Daten nicht berücksichtigt.      
+ *              
+ *      match:  Der Wert des match-Keys ist sowohl Schlagwort für die Suche innerhalb der Daten, die von der DB kommen, als auch id der Cell-Value.
+ * 
+ *      value:  Hier werden die Daten aus der DB gespeichert und dann für den User im "Cell_Value" sichtbar.
+ * 
+ *      standAlone: Der standAlone-Key wird verwendet, um zu kennzeichnen, ob ein bestimmter Wert als eigene Cell angezeigt wird ist oder nicht. 
+ *                  Wenn standAlone auf true gesetzt ist, wird das entsprechende Element allein in einer Cell angezeigt. 
+ *                  Andernfalls wird es zusammen mit dem nächsten standAlone = true Element in dessen Cell geschieben.
+ *                  Es ist sozusagen ein Copy/Paste für die Werte. Aber Achtung: zwei standAlone hintereinadner überschreiben sich.
+ * 
+ *                  Der Aufbau eines HTML-Elements ist wie folgt:
+ *                      <div>           
+ *                          <div class="cell_head"> 'label' </div>      
+ *                          <div class="cell_value" id = 'match'> 'value' </div>   
+ *                      </div>
+ */
+    function providerPattern() { 
+        let CustomerData = [
+            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true   },
+            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true   },
+            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true   },
+            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true   },
+            { label: '',                match: 'seperator',             value: "",   standAlone: true   },
+            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true   },
+            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true   },
+            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true   },
+            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false  },
+            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true   },
+            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false  },
+            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true   },
+            { label: '',                match: 'seperator',             value: "",   standAlone: true   },
+            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true   },
+            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true   },
+            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true   },
+            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true   },
+            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true   },
+            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true   },
+            { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true   },
+            { label: 'Datensatz',       match: '',                      value: "",   standAlone: true   },
+        ];
+        return CustomerData
+    };
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ TriggerPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/**     Diese Funktion definiert die Texte die am Ende in eine Zusammenfassung einfließen sollen und/oder welche Optionen zur Verfügung stehen.
+*       Das triggerPattern wird direkt beim laden das JS als globale Variable deklariert.   
+*  
+*      id:          Dieser Key beschreibt den, ist den Wert der an die Funktion setTrigger() übergeben wird, um den Eintrag aktiv zu schalten.
+*                   Dies funktioniert sowohl über den Aufruf der Methode, als auch über ein Befehl 'trigger' im Gatekeeper-select.                   
+*              
+*      grp:         Alle IDs die die selbe Gruppe teilen, schließen sich gegenseitig davon aus zusammen angezeigt werden zu können. Ist ein Mitglied der grp 
+*                    aktiv, werden alle andere auf inaktiv geschaltet.
+* 
+*      target_id:   Das 'Ziel'-Element, in welches die value geschrieben wird (innerHTML).
+* 
+*      active:      Bool wird den Zustand. Ziel-Elemente dessen Eintrag inaktiv istm werden zurückgesetzt (bzw. geleert).  
+* 
+*      value:       String oder Variablenname, dessen Wert in das Ziel-Element geschrieben werden soll.
+*/
+
+    function triggerPattern() {
+        let triggerData = [
+            { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'NAtxt2',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+        ];
+        return triggerData;
+    }

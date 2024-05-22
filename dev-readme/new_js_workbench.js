@@ -156,7 +156,7 @@ function gf_javaf_initialize() {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ERSTELLUNG DER INFO CARDS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
- /**createCusomerCells
+ /**createCusomerCells                                                                                                          Funktion geprüft am: 22.05.24 von Erik
  * 
  * Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
  * Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
@@ -173,7 +173,7 @@ function gf_javaf_initialize() {
                 let execute = cardHolder.getAttribute("data-provider");
                 CustomerData = executeFunctionFromString(execute);
             } else {
-                CustomerData = providerDefault();
+                logIntoDebug("createCustomerCells", "ProviderPattern konnte nicht geladen werden.", false);
             };
 
             // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
@@ -181,7 +181,7 @@ function gf_javaf_initialize() {
                 let execute = cardHolder.getAttribute("data-query");
                 SqlField = executeFunctionFromString(execute.toString());
             } else {
-                SqlField = queryDefault();
+                logIntoDebug("createCustomerCells", "SQL-query konnte nicht geladen werden.", false);
             };
 
             // Durchlaufe jedes Element in CustomerData
@@ -232,13 +232,12 @@ function gf_javaf_initialize() {
             preFillEntrys(); 
 
             //WIP
-            recordingName = vertragsnr + "_" + msisdn + "_[#datetime]";
+            
 
             // Logs 
-            insertIntoLog("debug", "Adressdaten wurden geladen.", "");       
+            logIntoDebug("createCustomerCells", "Adressdaten erfolgreich in Cells geladen.", false);       
         } catch (error) {
-            debug && console.log("Error: => SQL-Ergebnisse konnten nicht in Cells geladen werden");
-            debug && console.log(error);
+            logIntoDebug("createCustomerCells","Error:SQL-Ergebnisse konnten nicht in Cells geladen werden", false);
         }  
     }; 
 
@@ -330,7 +329,7 @@ function gf_javaf_initialize() {
             case 'stop':
                 
                 if (voicefileName) {
-                    stopVoiceRecording(voicefileName);
+                    
                     logIntoDebug("record(stop)","recording was stopped", false);
                 } else {
                     logIntoDebug("record(stop)","Error: Kein voicefileName angegeben.",true);
@@ -356,6 +355,34 @@ function gf_javaf_initialize() {
             default: //Error_msg
                 logIntoDebug(`record(${state}), Error: invalider state`, true);
         }   
+    }
+
+    function setRecordName(style, useName) {
+        let recordName = "";
+        if(style === "pattern") {
+            FileNamePattern.forEach((getInfo, index) => {
+                try { // versuche die genannte Variable auszurufen 
+                    recordName += eval(getInfo);
+                } catch (error) {
+                        //  Ist die Variable nicht zugewiesen, suche in CustomerData und 
+                        //  finde den passenden Index, der mit getInfo übereinstimmt.
+                        let matchingKey = Object.keys(CustomerData[index].match).indexOf(getInfo);
+                        // Wenn gefunden, schreibe in recordName
+                        if (matchingKey > -1) {
+                            recordName += `${CustomerData[matchingKey].value}`; 
+                        } ;       
+                    }
+                if (index != FileNamePattern.length - 1) recordName += '_'; // Trenner einbauen
+            });
+            recordName += `${recordingNameSuffix}`;
+    
+        } else if (style === "use"){ // nutze mitgegebenen Namen
+            recordName += `${useName}${recordingNameSuffix}`;
+    
+        } else { // Generiere einen Namen [datum + hashwert] 
+            recordName = `${agentId}_${$crypto.randomUUID()}${recordingNameSuffix}`;
+        }
+        recordFileName = recordName;      
     }
     
     
@@ -487,7 +514,7 @@ function loadData() {
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** executeSql() - Verbindung zu BD
+/** executeSql() - Verbindung zu BD                                                                                           Funktion geprüft am: 22.05.24 von Erik
  * 
  *      Schmeisst den SQL-Befehl der übergeben wird gegen die ttFrame DB oder gegen einen Debug-Server,
  *      abhängig davon, ob in der tteditor-config.js degbug = true / false.      
@@ -543,7 +570,7 @@ function loadData() {
 
 // ########################################################################################## Navigations #############################################################################################
 
-/** switchTab - Umschalten der Navigations-Tabs und öffnen der Register     #>> Funktion gerüft am 07.05.24
+/** switchTab - Umschalten der Navigations-Tabs und öffnen der Register                                                         Funktion gerüft am 07.05.24 von Erik
  * 
  *      Bildet die Grundlegende Naviagtion zwischen den Reigstern. Diese wir sowohl über die Tab (Reiter) als auch über die 
  *      "Verabschiedungs"- und "Weiter"-Buttons aufgerufen. Mitgegeben wird die ID des Registers der audgerufen werden soll.  
@@ -583,6 +610,7 @@ function loadData() {
 
         // Zusätzliche Funktionen basierend auf dem Tab aufrufen
         if (newTabName === 'tab_zusammenfassung') {
+            readTrigger();
             showZusammenfassung();
         }
 
@@ -594,18 +622,19 @@ function loadData() {
 
 // ################################################################################### GATEKEEPER #############################################################################################
     
-/** Gatekeeper - Select options to action       #>> Funktion geprüft am 07.05.24
+/** Gatekeeper - Select options to action                                                                                      Funktion geprüft am: 22.05.24 von Erik
 *  
 *   Eine der wichtigsten Logiken ist das Öffnen und Schließen von Modalen oder Elementen. Hier soll der Gatekeeper Abhilfe schaffen. 
 *   An die Funktion wird entweder ein Array (Aufbau siehe Beispiel) oder die ID des aufrufenden Gatekeeper-Selects übergeben. (siehe Components / Gatekeeper-Select)    
 *   Die Funktion liest aus dem Array, welche Aktionen bei welchem Select.value ausgeführt werden sollen. Die verfügbaren Aktionen sind: close, open & openOnly.
 *   "open" und "close" toggeln d-none in der Classlist des targets. "openOnly" schließt erst alle Mitglieder der switchGrp (data-grp = "gruppenName") und öffnet dann. 
-*   Wenn target = "all" genutzt wird, wird ebendfalls an allen Gruppenmitgliedern, die gewählte Aktion ausgeführt.
+*   Wenn target = "all" genutzt wird, wird ebendfalls an allen Gruppenmitgliedern, die gewählte Aktion ausgeführt. Hinzu kommt der trigger-Befehl, welcher im 
+*   triggerPattern die genannte aktiv schaltet. So kann direkt am Selebt bestimmt werden, welcher Text in der Zusammenfassung erscheinen soll.  
 *   Also eine Funktion zur Steuerung von Modalen oder Elementen basierend auf den Werten ihres Select-Menüs.
 *   
 *   @param {Array|string} actionArr -   Ein Array mit Anweisungen zur Steuerung der Elemente oder die ID des auslösenden Gatekeeper-Selects.
 *                                       Im Array enthalten sind Anweisungen in folgendem Format: [selectId, switchGrpName, nextFunc].
-*                                       Die verfügbaren Aktionen sind: 'open', 'close' und 'openOnly'.
+*                                       Die verfügbaren Aktionen sind: 'open', 'close', 'openOnly' und 'trigger'.
 *
 *   Nutzt Helper H-001: "executeFunctionFromString"
 *
@@ -615,7 +644,10 @@ function loadData() {
 *      
 *       [value1, close, targetId1],                            << string, string, string          [OPERATION] = Element mit targetId = d-none
 *       [value1, open, [targetId1, targetId2, targetId3]],     << string, string, Array[string]   [OPERATION] = Alle Element aus Array = display
-*       [value2, openOnly, targetId3],                         << string, string, string          [OPERATION] = Alle Elemente außer targetId = d-noneZ* [value3, close, all]                                   <<       string, string, string          [OPERATION] = Alle Elemente = d-none
+*       [value2, openOnly, targetId3],                         << string, string, string          [OPERATION] = Alle Elemente außer targetId = d-noneZ                                                                                  
+*       [value3, close, all]                                   << string, string, string          [OPERATION] = Alle Elemente = d-none
+
+*       [value1, trigger, zmsF12]                              << string, string, string          [Operation] = Nutzte diesen Baustein(Variablenname) für Zusammenfassung. 
 *       ])    
 */
 
@@ -635,7 +667,15 @@ function loadData() {
             ];
         } else {
             // Wenn actionArr eine String-Id ist, die Anweisungen aus dem Datenattribut des Selects parsen und zuweisen
-            gateArr = JSON.parse(actionArr.getAttribute("data-array").replace(/&quot;/g, `"`));
+            gateArr = actionArr.getAttribute("data-array")
+                                            .replace(/oo/g, 'openOnly')
+                                            .replace(/\bo\b/g, 'open') 
+                                            .replace(/\bc\b/g, 'close') 
+                                            .replace(/\ba\b/g, 'all')   
+                                            .replace(/\bt\b/g, 'trigger')
+                                            .replace(/\s+/g, ',')
+                                            .replace(/([^,\[\]]+)/g, '"$1"'); 
+            gateArr = JSON.parse(gateArr);
             gateArr.forEach(entry => {
                 if (entry.length > 3) {
                     entry[2] = [entry.slice(3)];
@@ -675,6 +715,12 @@ function loadData() {
                                 document.getElementById(id).classList.remove('d-none');
                             });
                             break;
+                        
+                        case "trigger": // setzte Trigger für übergebene id auf true 
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                setTrigger(id);
+                            });
+                            break;
                     
                         default:
                             // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
@@ -689,6 +735,63 @@ function loadData() {
                 };
             };
         });
+    };
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
+ * 
+ *      setTrigger ist die Zusatzfunktion vom Gatekeeper-Select. Mit dem Befehl 'trigger' kann eine id auf active = true gesetzt werden.
+ *      Alle aktiv geschalteten IDs aus der triggerData werden mit der readTrigger-Funktion in ihr jeweiliges ziel geschrieben. 
+ * 
+ * @param {*} id - ID des zu schaltenden Eintrags
+ */
+    function setTrigger(id) {
+        // Setze mitgebene id in triggerData active = true
+        // Setzte alle id der selben Gruppe auf active = false
+        for (const trigger of triggerData) {
+            if (trigger.id === id) {
+                let killGrp = trigger.grp;
+                triggerData.forEach((grpMember) => {
+                    if (grpMember.grp === killGrp) {
+                        grpMember.active = false;
+                    }
+                });
+                trigger.active = true;
+                break;
+            }
+        }          
+    };
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** readTrigger                                                                                                             Funktion geprüft am: 22.05.24 von Erik
+ * 
+ *      Mit dem Aufruf von readTrigger werden alle bis dahin, in der triggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
+ *      Diese Funktion ist dafür vorgesehen die Zusammenfassung, in Bezug auf die ausgewählten Optionen zusammen zu stellen.
+ *      Es können auch Variablennamen genutzt werden, dessen Inhalt dann genutzt wird. 
+ */
+    function readTrigger() {
+        let insert;
+        let cache = new Set();
+        triggerData.forEach((list) => {
+                // durchlaufe triggerData 
+            if(list.active === true) {    
+                try { // Falls list.value eine Variable ist, nutzte deren Wert
+                        insert = eval(list.value);
+                } catch (error) {
+                        insert = list.value;
+                };
+                // cache prüft, ob das Element schon aufgerufen wurde und löscht den Inhalt einmalig falls nicht.
+                // wenn Element bekannt, dann füge neuen Text, zum Vorhandenen hinzu.
+                if (cache.has(list.target_id)) {
+                    document.getElementById(list.target_id).innerHTML += insert;
+                } else {
+                    cache.add(list.target_id);
+                    document.getElementById(list.target_id).innerHTML = insert;
+                }
+                // Alle ungenutzten Elemente zurücksetzten
+            } else if (cache.has(list.target_id)) {}else {
+                    document.getElementById(list.target_id).innerHTML = "";
+                    cache.add(list.target_id);
+            }   
+        })
     };
 
 // ######################################################################################### VALIDATORS #############################################################################################
@@ -1061,8 +1164,8 @@ function loadData() {
 *       - H-005     Mapping eines Arrays aus SQL-Results
 /*
 
-
-/** Helper H-001
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-001                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
  *      Führt eine Funktion aus, die als Zeichenkette übergeben wird.
  *      @param {string} funcString - Die Zeichenkette, die den Funktionsaufruf enthält.
@@ -1163,7 +1266,7 @@ function loadData() {
         }
     }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-007
+/** Helper H-007                                                                                                             Funktion geprüft am: 22.05.24 von Erik                                                                                                            
  * 
  *          logIntoDebug
  *      Eintragen von Logs in das togglebare Logfenster für Livebetrieb
@@ -1188,7 +1291,7 @@ function loadData() {
         document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
     }
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-008
+/** Helper H-008                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
  *          PopUp & Debug - Loader 
  */
@@ -1216,7 +1319,7 @@ function loadData() {
     });
 
        //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-009
+/** Helper H-009                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
  *          HotKeys 
  */
@@ -1279,7 +1382,7 @@ function removeSlashes(s){
     try { //  Alle Vorkommen von Backslash durch das Slash ersetzen.
         return s.replace(/\\/g,"/");
     } catch (ex){
-        logIntoDebug("SQL String Manipulation - removeSlashes:", "Das Entfernen von Backshashes ist fehlgeschlagen", false)
+        logIntoDebug("SQL String Manipulation - removeSlashes", "Das Entfernen von Backshashes ist fehlgeschlagen", false)
 	}
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1327,24 +1430,40 @@ function removeSlashes(s){
     }
 
   //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-013
+/* Helper H-013
  * 
- *          randomString - Erstelle Billo-hash für Arme
+ *          setRecordName - Erstelle den Namen für das Voicefile
  * 
- *          @param {int} Länge des ausgegebenen Strings       
- */  
-    function randomString(length) {
-        let result = '';
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const charactersLength = characters.length;
-        let counter = 0;
-        while (counter < length) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-            counter += 1;
+ *          @param {String} stlye = pattern,use oder any   
+ *          @param {String} useName = String für eigene Namesvergabe mittels style = use     
+ */
+    function setRecordName(style, useName) {
+        let recordName = "";
+        if(style === "pattern") {
+            FileNamePattern.forEach((getInfo, index) => {
+                try { // versuche die genannte Variable auszurufen 
+                    recordName += eval(getInfo);
+                } catch (error) {
+                        //  Ist die Variable nicht zugewiesen, suche in CustomerData und 
+                        //  finde den passenden Index, der mit getInfo übereinstimmt.
+                        let matchingKey = Object.keys(CustomerData[index].match).indexOf(getInfo);
+                        // Wenn gefunden, schreibe in recordName
+                        if (matchingKey > -1) {
+                            recordName += `${CustomerData[matchingKey].value}`; 
+                        } ;       
+                    }
+                if (index != FileNamePattern.length - 1) recordName += '_'; // Trenner einbauen
+            });
+            recordName += `${recordingNameSuffix}`;
+    
+        } else if (style === "use"){ // nutze mitgegebenen Namen
+            recordName += `${useName}${recordingNameSuffix}`;
+    
+        } else { // Generiere einen Namen [datum + hashwert] 
+            recordName = `${agentId}_${$crypto.randomUUID()}${recordingNameSuffix}`;
         }
-        return result;
+        return recordName;      
     }
-
 
 
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

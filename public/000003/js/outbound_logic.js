@@ -38,12 +38,13 @@ let keyCode3Pressed = false; // Status der dritten Taste (C)
 
 var debug_vf = 0;
 
+let CostumerData = providerPattern();
 // Tagesziel an Abschl?ssen
 var dailyToGo = 150;
 
-var recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
-var recordingName;
-var recordingNameSuffix = "";
+let recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
+let FileNamePattern = ["date", "time", "agendID", "customerid", "" ]; // Zuweisung in setRecordName()
+let recordingNameSuffix = ".ogg"; //mit . 
 var direction = 2;
 var recordingComplete = 0;
 
@@ -63,11 +64,11 @@ const showDebug = true;
                     //window.contentInterface= contentInterface;
                     ttWeb = contentInterface;
                     gf_initialize();
-                    },
+                },
                 //Error
                 function onInitializeError(e) {
                     alert('Initialize contentInterface failed: '+e.message)
-                    }
+                }
             );
 
         } else {
@@ -188,8 +189,7 @@ const showDebug = true;
         try {
             // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
             let cardHolder = document.getElementById("customerCells");
-            let error_msg = document.getElementById("customerCells_errorMsg")
-            let CustomerData ;
+            let error_msg = document.getElementById("customerCells_errorMsg");
             let SqlField ;
 
             // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
@@ -277,25 +277,30 @@ const showDebug = true;
     getCampaignData(campaignId,agentId,"",addressdatatable,"");
 };
     
-    function providerDefault() {
-        let CustomerData = [
-            {label: 'Vorname',          match: 'firstname',             value: "",   standAlone: true   },
-            {label: 'Nachname',         match: 'surname',               value: "",   standAlone: true   },
-            {label: 'Geb.-Datum',       match: 'dateofbirth',           value: "",   standAlone: true   },
-            {label: 'E-Mail',           match: 'emailprivate',          value: "",   standAlone: true   },
-            {label: '',                 match: 'seperator',             value: "",   standAlone: true   },
-            {label: 'Kundennummer',     match: 'customerid',            value: "",   standAlone: true   },
-            {label: 'Vertragsnummer',   match: 'vertrag',               value: "",   standAlone: true   },
-            {label: 'Vorwahl',          match: 'phonehomeareacode',     value: "",   standAlone: false  },
-            {label: 'Festnetz',         match: 'phonehome',             value: "",   standAlone: true   },
-            {label: 'Mobilvorwahl',     match: 'phonemobileareacode',   value: "",   standAlone: false  },
-            {label: 'Mobil',            match: 'phonemobile',           value: "",   standAlone: true   },
-            {label: '',                 match: 'seperator',             value: "",   standAlone: true   },
-            {label: 'Strasse',          match: 'street',                value: "",   standAlone: true   },
-            {label: 'Hausnummer',       match: 'housenumber',           value: "",   standAlone: true   },
-            {label: 'PLZ',              match: 'zip',                   value: "",   standAlone: true   },
-            {label: 'Ort',              match: 'city',                  value: "",   standAlone: true   }, 
-        ];
+    function providerPattern() {
+            let CustomerData = [
+                { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true   },
+                { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true   },
+                { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true   },
+                { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true   },
+                { label: '',                match: 'seperator',             value: "",   standAlone: true   },
+                { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true   },
+                { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true   },
+                { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true   },
+                { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false  },
+                { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true   },
+                { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false  },
+                { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true   },
+                { label: '',                match: 'seperator',             value: "",   standAlone: true   },
+                { label: 'Strasse',         match: 'street',                value: "",   standAlone: true   },
+                { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true   },
+                { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true   },
+                { label: 'Ort',             match: 'city',                  value: "",   standAlone: true   },
+                { label: 'Produkt',         match: 'product',               value: "",   standAlone: true   },
+                { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true   },
+                { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true   },
+                { label: 'Datensatz',       match: '',                      value: "",   standAlone: true   },
+            ];
         return CustomerData
     };
    
@@ -611,6 +616,7 @@ function executeFunctionFromString(funcString) {
 //      [value1, open, [targetId1, targetId2, targetId3]],     <<       string, string, Array[string]   [OPERATION] = Alle Element aus Array = display
 //      [value2, openOnly, targetId3],                         <<       string, string, string          [OPERATION] = Alle Elemente außer targetId = d-none
 //      [value3, close, all]                                   <<       string, string, string          [OPERATION] = Alle Elemente = d-none
+//
 //  ])    
 
 function gatekeeper(actionArr) {
@@ -629,7 +635,15 @@ function gatekeeper(actionArr) {
         ];
     } else {
         // Wenn actionArr eine String-Id ist, die Anweisungen aus dem Datenattribut des Selects parsen und zuweisen
-        gateArr = JSON.parse(actionArr.getAttribute("data-array").replace(/&quot;/g, `"`));
+        gateArr = actionArr.getAttribute("data-array") // Verkürzung des Strings rückgängig machen
+                            .replace(/oo/g, 'openOnly')
+                            .replace(/\bo\b/g, 'open') 
+                            .replace(/\bc\b/g, 'close') 
+                            .replace(/\ba\b/g, 'all')   
+                            .replace(/\bt\b/g, 'trigger')
+                            .replace(/\.+/g, ',')
+                            .replace(/([^,\[\]]+)/g, '"$1"'); 
+        gateArr = JSON.parse(gateArr); //Array wieder herstellen
         gateArr.forEach(entry => {
             if (entry.length > 3) {
                 entry[2] = [entry.slice(3)];
@@ -669,6 +683,12 @@ function gatekeeper(actionArr) {
                             document.getElementById(id).classList.remove('d-none');
                         });
                         break;
+                    
+                    case 'trigger': // setzte trigger für Element auf true
+                        (Array.isArray(target) ? target : [target]).forEach(id => {
+                            setTrigger(id);
+                        });
+                    break;
                 
                     default:
                         // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
@@ -818,3 +838,103 @@ function validateSelectNew(optionId, optionValue){ // Prüfe ob select den gewü
     }
 
     
+    let triggerData = triggerPattern();
+
+    function triggerPattern() {
+        let triggerData = [
+            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "Hallo, diese ist ein kleiner Test" },
+            { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "TextZuasemmenfassung2" },
+            { id: 'NAtxt2',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+        ];
+        return triggerData
+    }
+    
+    const TextZuasemmenfassung2 = "Ich bin auch ein Test";
+
+    function setTrigger(id) {
+        // Setze mitgebene id in triggerData active = true
+        // Setzte alle id der selben Gruppe auf active = false
+        for (const trigger of triggerData) {
+            if (trigger.id === id) {
+                let killGrp = trigger.grp;
+                triggerData.forEach((grpMember) => {
+                    if (grpMember.grp === killGrp) {
+                        grpMember.active = false;
+                    }
+                });
+                trigger.active = true;
+                break;
+            }
+        }          
+    };
+
+    function readTrigger() {
+        let insert;
+        let cache = new Set();
+        triggerData.forEach((list) => {
+           
+                if(list.active === true) {    
+                    try { // Wenn list.value eine variable ist, nutzte deren Wert
+                         insert = eval(list.value);
+                    } catch (error) {
+                         insert = list.value;
+                    };
+                    // cache prüft, ob das Element schon aufgerufen wurde und löscht den Inhalt einmalig falls nicht.
+                    // wenn Element bekannt, dann füge neuen Text, zum Vorhandenen hinzu.
+                    if (cache.has(list.target_id)) {
+                        document.getElementById(list.target_id).innerHTML += insert;
+                    } else {
+                        cache.add(list.target_id);
+                        document.getElementById(list.target_id).innerHTML = insert;
+                    }
+                    // Alle ungenutzten Elemente zurücksetzten
+                } else if (cache.has(list.target_id)) {}else {
+                        document.getElementById(list.target_id).innerHTML = "";
+                        cache.add(list.target_id);
+                }
+        
+    });}
+
+    let recordFileName;
+    function setRecordName(style, useName) {
+        let recordName = "";
+        let date = getdate();
+        let time = gettime();
+        if(style === "pattern") {
+            FileNamePattern.forEach((getInfo, index) => {
+                try { // versuche die genannte Variable auszurufen 
+                    recordName += eval(getInfo).toString();
+                } catch (error) {
+                    //  Ist die Variable nicht zugewiesen, suche in CustomerData und 
+                    //  finde den passenden Index, der mit getInfo übereinstimmt
+                    for (const entry of CostumerData) {
+                        if (entry.match === getInfo) {
+                            recordName += entry.value;
+                        }   
+                    }
+                }
+                if (index != FileNamePattern.length - 1) recordName += '_'; // Trenner einbauen
+            });
+            recordName += `${recordingNameSuffix}`;
+
+        } else if (style === "use"){ // nutze mitgegebenen Namen
+            recordName += `${useName}${recordingNameSuffix}`;
+
+        } else { // Generiere einen Namen [datum + hashwert] 
+            recordName = `${agentId}_${$crypto.randomUUID()}${recordingNameSuffix}`;
+        }
+        recordFileName = recordName;
+        logIntoDebug("setRecordingName", `RecordFileName = ${recordFileName}`, false);    
+    }
+
+    function getdate() {
+        let datum = new Date().toLocaleDateString('default',{ day: 'numeric' , month: 'short', year: 'numeric'});
+        datum = datum.replace(/\.+/g, '')
+                     .replace(/\s+/g, '');
+        return datum
+    }
+
+    function gettime() {
+        let time = new Date().toLocaleTimeString();
+        return `${time.replace(/\:+/g, '-')}uhr`;
+    }

@@ -35,7 +35,15 @@ const { options } = Astro.props as Props;
 let gate = `gatekeeper(${id})`
 let errorname = `${id}_errorMsg`;
 let gateArr = JSON.stringify(actions);
-   
+gateArr = gateArr
+            .replace(/openOnly/g, 'oo')
+            .replace(/open/g, 'o')
+            .replace(/close/g, 'c')
+            .replace(/all/g, 'a')
+            .replace(/trigger/g, 't')
+            .replace(/&quot;/g, '')
+            .replace(/"/g, '')
+            .replace(/,/g, '.');
 ---
 
 <label for={id}>{label}</label>
