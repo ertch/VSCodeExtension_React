@@ -1,8 +1,8 @@
-var blnRecord=false;
+// var blnRecord=false;
 
 // Boolean, der speichert, ob der Vorgang positiv abgespeichert werden kann
-var blnFinishPositive=false;
-var currentTabName="tab_start";
+// var blnFinishPositive=false;
+// var currentTabName="tab_start";
 
 /*function recordSummary() {
 

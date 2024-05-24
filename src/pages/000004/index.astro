@@ -4,7 +4,7 @@ import Input from "@components/SimpleInput.astro";
 import Campaign from "@components/CampaignSelect.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
-import SQL_Select from "@components/SQL_InsertSelect.astro";
+import SQL_Select from "@/components/SQLinjectionSelect.astro";
 import BasicCampaign from "@components/BasicCampaign.astro";
 import Textfield from "@components/SimpleTextfield.astro";
 import NavTabs from "@components/NavTabs.astro";
@@ -42,7 +42,7 @@ import FootButtons from "@components/FootButtons.astro";
       /> -->
 
       <section class="datenerf-bg">
-        <div class="tab_content activeTab" id="tab_start">
+        <div class="page_content activeTab" id="tab_start">
           <div id="tarifmatrix"></div>
           <div id="kundenhistorie" class="history">
             <fieldset><legend>Kundenhistorie</legend></fieldset>
@@ -69,7 +69,7 @@ import FootButtons from "@components/FootButtons.astro";
         </div>
         <!--  Ende div id="tab_start" -->
 
-        <section class="tab_content d-none" id="tab_vertrag_1">
+        <section class="page_content d-none" id="tab_vertrag_1">
           <!-- "Form aus Testzwecken deaktiviert" <form action="#" name="formular" method="POST" id="datenerfassung_form"> -->
 
           <span class="errormessage" id="datenerfassung_error_tarif_1"></span>
@@ -369,28 +369,28 @@ import FootButtons from "@components/FootButtons.astro";
           <!-- </form> -->
         </section>
 
-        <section class="tab_content d-none" id="tab_vertrag_2">
+        <section class="page_content d-none" id="tab_vertrag_2">
           <BasicCampaign Nr="2" />
         </section>
 
-        <section class="tab_content d-none" id="tab_vertrag_3">
+        <section class="page_content d-none" id="tab_vertrag_3">
           <BasicCampaign Nr="3" />
         </section>
 
-        <section class="tab_content d-none" id="tab_vertrag_4">
+        <section class="page_content d-none" id="tab_vertrag_4">
           <BasicCampaign Nr="4" />
         </section>
 
-        <section class="tab_content d-none" id="tab_vertrag_5">
+        <section class="page_content d-none" id="tab_vertrag_5">
           <BasicCampaign Nr="5" />
         </section>
 
-        <section class="tab_content d-none" id="tab_vertrag_6">
+        <section class="page_content d-none" id="tab_vertrag_6">
           <BasicCampaign Nr="6" />
         </section>
 
         <!-- Ende DIV-Vertrag 6 -->
-        <div class="tab_content d-none" id="tab_zusammenfassung">
+        <div class="page_content d-none" id="tab_zusammenfassung">
           <div id="zusammenfassung_errors"></div>
           <div id="optin" class="input_form oneColumn">
             <fieldset>

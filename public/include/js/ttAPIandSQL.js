@@ -1,4 +1,4 @@
-/** executeSQL
+/** executeSQL                                                                                                                 Funktion geprüft am: 22.05.24 von Erik
  * 
  *      Funktion zum senden eines gewünschten SQL-Promts an die API von internen ttFrame-Datenbank
  * 
@@ -13,7 +13,7 @@ function executeSql(sql) {
         }catch (ex) {
 
             // Error protokollieren
-            logIntoDebug("executeSql(): Fehlerhafter SQL-Befehl:",sql, false);
+            logIntoDebug("executeSql(): Fehlerhafter SQL-Befehl",sql, false);
             return null;
         };
     }else {
@@ -37,8 +37,6 @@ function executeSql(sql) {
         };
     };
 };
-
-
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** ttErrorLog  
@@ -83,13 +81,13 @@ function ttErrorLog(caller, msg) {
  *          Alle Vorkommen des Zeichens ' durch \\'  ersetzen.
  */
 
-function escapeString(s) {
-	try {   
-        return s.replace(/'/g,"\\'");
-	} catch (ex){
-        logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", false)
-	}
-}
+    function escapeString(s) {
+        try {   
+            return s.replace(/'/g,"\\'");
+        } catch (ex){
+            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", false)
+        }
+    };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-SQL-002
  * 
@@ -97,11 +95,54 @@ function escapeString(s) {
  *          Alle Vorkommen von Backslash durch Slash ersetzen.
  */
 
-function removeSlashes(s){
-    try { 
-        return s.replace(/\\/g,"/");
-    } catch (ex){
-        logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", false)
-	}
-}
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function removeSlashes(s){
+        try { 
+            return s.replace(/\\/g,"/");
+        } catch (ex){
+            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", false)
+        }
+    };
+
+
+
+
+    function autoInject_selects() {
+        let selelects = document.querySelectorAll('[data-injection]');
+        selelects.forEach((sel) => {
+            let injection = sel.getAttribute('data-injektion');
+            sqlInject_select(sel.id, 0, injection);
+        })
+    };
+
+    function sqlInject_select(target_id, selectValue, injection) {
+
+        let selectBox = document.getElementById(target_id);
+        let dataObj = pullSQL(injection);
+        let NewOptions = new Object();
+        for (let i = 0; i < dataObj[0].rows.length; i++) {
+            NewOptions[dataObj[0].rows[i].fields.id] = dataObj[0].rows[i].fields.label;
+        };
+        let arraySize = NewOptions.length;
+
+        if(selectBox != null) {
+        while(selectBox.hasChildNodes()) {
+            selectBox.removeChild(selectBox.lastChild);
+        }
+        }
+        if((arraySize > 0) || (arraySize == -1)) {
+        injectOpt=document.createElement('option');
+        injectOpt.text="[Bitte auswählen]";
+        injectOpt.value=0;
+        selectBox.appendChild(injectOpt);
+    
+        for(let [index, value] of NewOptions.entries) {
+            if(value.length > 0) {
+            injectOpt=document.createElement('option');
+            injectOpt.text= value;
+            injectOpt.value= index + 1;
+            selectBox.appendChild(injectOpt);
+            }
+        }
+        }
+        selectBox.value=selectValue;
+    };

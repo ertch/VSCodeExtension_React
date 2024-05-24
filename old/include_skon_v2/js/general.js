@@ -7,10 +7,13 @@ function selectboxDeleteChildren($selectBox) {
 }
 
 
-function selectboxSetOptions($selectBox,options,selectedValue,blnEmpty,arraySize) {
+function selectboxSetOptions(selectBox,options,selectedValue,blnEmpty,arraySize) {
 
-  selectboxDeleteChildren($selectBox);
-
+  if(selectBox != null) {
+    while($selectBox.hasChildNodes()) {
+      selectBox.removeChild($selectBox.lastChild);
+    }
+  }
   if((arraySize>0) || (arraySize==-1)) {
 
     for(var value in options) {
@@ -19,8 +22,6 @@ function selectboxSetOptions($selectBox,options,selectedValue,blnEmpty,arraySize
         newOpt=document.createElement('option');
         newOpt.text=options[value];
         newOpt.value=value;
-        if (navigator.appName == 'Microsoft Internet Explorer') $selectBox.add(newOpt,0);
-        else $selectBox.appendChild(newOpt);
       }
     }
   }

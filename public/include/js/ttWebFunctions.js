@@ -50,6 +50,7 @@
 //#############################################################################################################################################################################
 //---------------------------------------------------------------------------- Recordings -------------------------------------------------------------------------------------
 //#############################################################################################################################################################################
+
 /** record() - Sprachaufnahmesteuerung
  * 
  *      Sammelfunktion für alle recordings-states.
@@ -76,7 +77,7 @@
                     pushSQL(save_rec_path);
                     logIntoDebug("record(stop)","Aufnahme wurde gestoppt", false);
                 } else {
-                    logIntoDebug("record(stop)","Error: Kein voicefileName angegeben.",true);
+                    logIntoDebug("record(stop)","Error: Kein RecordFileName angegeben.",true);
                 }
                 break;
 
@@ -86,7 +87,7 @@
                 if (recordFileName != "") {
                     ttWeb.saveRecording(recordFileName);
                 } else {
-                    logIntoDebug("record(save)","Error: Kein voicefileName angegeben.",true);
+                    logIntoDebug("record(save)","Error: Kein RecordFileName angegeben.",true);
                 }
                 break;
 
@@ -101,7 +102,8 @@
         }   
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** setRecordName()
+
+/** setRecordName() - file name generator                                                                                      Funktion geprüft am: 23.05.24 von Erik
  * 
  *      Generiert einen Namen für die Aufnahme. Hierbei kann entweder das in der tteditor-config.js definierte pattern, ein mitgegebener Wert oder eine UUID
  *      für die Benennung genutzt werden. Was genutzt werden soll wird über 'style' angegeben. 
@@ -113,20 +115,28 @@
  * @param {*} style 
  * @param {*} useName 
  */
+
     function setRecordName(style, useName) {
         let recordName = "";
+        let date = getdate();
+        let time = gettime();
         if(style === "pattern") {
             FileNamePattern.forEach((getInfo, index) => {
-                try { // versuche die genannte Variable auszurufen 
-                    recordName += eval(getInfo);
-                } catch (error) {
-                    //  Ist die Variable nicht zugewiesen, suche in CustomerData und 
-                    //  finde den passenden Index, der mit getInfo übereinstimmt
-                    for (const entry of CostumerData) {
+                let matchfound = false;
+                try { // Suche in CustomerData 
+                    CustomerData.some((entry) => {
                         if (entry.match === getInfo) {
                             recordName += entry.value;
-                        }   
+                            console.log(CostumerData);
+                            matchfound = true;
+                        } 
+                    }); // wenn nicht gefunden, versuche Variable aufzurufen
+                    if (!matchfound) {
+                        recordName += eval(getInfo);
                     }
+                } catch (error) {
+                        // wenn gar nichts geht, nutzte String (von getInfo)
+                    recordName += getInfo.toString();
                 }
                 if (index != FileNamePattern.length - 1) recordName += '_'; // Trenner einbauen
             });
@@ -140,5 +150,13 @@
         }
         recordFileName = recordName;
         logIntoDebug("setRecordingName", `RecordFileName = ${recordFileName}`, false);    
-    }
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    };
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** Helper H-SQL-003
+ * 
+ *      Teilen des Pfades an den Backslashes
+ */
+    function splitRecName() {
+        let voicefileName = setRecordName();
+        return teile = voicefileName.split("\\");
+    };

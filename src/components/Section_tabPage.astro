@@ -1,0 +1,15 @@
+---
+interface Props {
+  id: string;
+  myTab: String;
+  isVisible?: boolean;
+}
+
+const { id, isVisible, myTab } = Astro.props;
+let visible = isVisible? "" : "d-none";
+---
+
+<section id={id} class=`page_content ${visible}` data-tab={myTab}>
+  <slot/>
+</section>
+

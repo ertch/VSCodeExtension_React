@@ -156,7 +156,7 @@ function gf_javaf_initialize() {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ERSTELLUNG DER INFO CARDS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
- /**createCusomerCells                                                                                                          Funktion geprüft am: 22.05.24 von Erik
+ /**createCusomerCells                                                                                                        Funktion geprüft am: 22.05.24 von Erik
  * 
  * Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
  * Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
@@ -296,7 +296,7 @@ function gf_javaf_initialize() {
  * @param {*} divId 
  */
     function recordSummary(divId) {
-        console.log("recordSummary") // JS analyse
+        
         document.getElementById(divId).innerHTML='<br>&nbsp;Achtung: Aufnahme l&auml;uft ...';
         document.getElementById('recording').style.display='none';
         document.getElementById('abschliessen').style.display='block';
@@ -403,21 +403,12 @@ function gf_javaf_initialize() {
     function getCampaignData(campaignId, agentId, addressdatatable) {
         console.log("getCampaignData") // Konsolenausgabe zur Analyse des Skriptverlaufs
 
-        // Negativgründe abrufen
-        result = executeSql("SELECT id, label FROM cancellation_reasons WHERE campaign_id=" + campaignId + " AND active=1 ORDER BY label DESC");
-
-        // Negativgründe in ein Objekt einfügen
-        negativgruende = new Object();
-        for (let i = 0; i < result[0].rows.length; i++) {
-            negativgruende[result[0].rows[i].fields.id] = result[0].rows[i].fields.label;
-        }
+        
 
         // Optionen für eine Auswahlliste setzen
         selectboxSetOptions(document.getElementById('datenerfassung_ablehnungsgrund'), negativgruende, "", true, result[0].rows.length);
 
-        // SQL-Abfrage für kommende Wiedervorlagen anzeigen
-        document.getElementById('div_sqldebug').innerHTML = "SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> '," + fieldname_firstname + ",' '," + fieldname_lastname + ",' : ',message) AS CHAR) FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN " + addressdatatable + " ON " + addressdatatable + ".id=calldatatable.addressdata_id WHERE campaign_id=" + campaignId + " AND agent_id=" + agentId + " AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5";
-
+        
         // Anzahl der kommenden Wiedervorlagen abrufen
         anzahl = executeSql("SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN " + addressdatatable + " ON " + addressdatatable + ".id=calldatatable.addressdata_id WHERE contact_history.campaign_id=" + campaignId + " AND contact_history.agent_id='" + agentId + "' AND is_wv=1 AND wv_date>NOW()");
 
@@ -591,7 +582,7 @@ function loadData() {
             }
 
             // Alle Tabs deaktivieren und den neuen Tab aktivieren
-            var tabs = $$('.tab_content');
+            var tabs = $$('.page_content');
             tabs.forEach(function(tab, index) {
                 tab.style.display = 'none';
                 $('tab' + (index + 1)).className = 'tab';
@@ -805,18 +796,18 @@ function loadData() {
  *      Es werden keine ErrorMsg ausgegeben, daher silent...
  *      Aufgabe ist herauszufinden ab wann der "Weiter"-Button eingeblendet werden soll.
  * 
- *      @param {HTMLElement} tab_content - Registerkarte, dessen Eingabefelder[requierd] validiert werden sollen.
+ *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder[requierd] validiert werden sollen.
  */
-    function checkInputs(tab_content) {
+    function checkInputs(page_content) {
         let filled = true;
         
         // Prüfen, ob das (Tab-content)Elternelement die Klasse "d-none" trägt
-        if (tab_content.classList.contains('d-none')) {
+        if (page_content.classList.contains('d-none')) {
 
             // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
-            let requiredInputs = tab_content.querySelectorAll(':scope > fieldset:not(.d-none) input[required]');
+            let requiredInputs = page_content.querySelectorAll(':scope > fieldset:not(.d-none) input[required]');
             if(requiredInputs === 0){ // wenn kein Fieldset vorhanden, prüfe nur auf inputs
-                requiredInputs = tab_content.querySelectorAll(':scope > input[required]') 
+                requiredInputs = page_content.querySelectorAll(':scope > input[required]') 
             }
                     
             requiredInputs.forEach(input => {
@@ -845,9 +836,9 @@ function loadData() {
  *      Hierfür sollen die zu prüfenden Inputs anhand ihrer IDs zusammengefasst werden.
  *      Das Bündeln der ID kann dann händisch oder via Funktion erledigt werden
  * 
- *      @param {HTMLElement} tab_content - Registerkarte, dessen Eingabefelder validiert werden sollen.
+ *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder validiert werden sollen.
  */
-    function bundleInputs(tab_content) {
+    function bundleInputs(page_content) {
         try {
             let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
                 txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
@@ -863,9 +854,9 @@ function loadData() {
                 default: []
             };
             // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
-            let allInputs = tab_content.querySelectorAll(':scope > fieldset:not(.d-none) input');
+            let allInputs = page_content.querySelectorAll(':scope > fieldset:not(.d-none) input');
             if(allInputs === 0){ // wenn kein Fieldset vorhanden, prüfe nur auf inputs
-                allInputs = tab_content.querySelectorAll(':scope > input:not(.d-none)') 
+                allInputs = page_content.querySelectorAll(':scope > input:not(.d-none)') 
             }
             allInputs.forEach(input => {
                 let valiTyp = input.dataset.vali || 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
@@ -1290,7 +1281,7 @@ function loadData() {
     function debugWindowClear() { // Log löschen
         document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
     }
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-008                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
  *          PopUp & Debug - Loader 
@@ -1318,7 +1309,7 @@ function loadData() {
         }
     });
 
-       //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-009                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
  *          HotKeys 
@@ -1556,14 +1547,13 @@ function removeSlashes(s){
             }
             
             function saveVoiceRecording(voicefileName) {
-                saveVoiceRecordingName(voicefileName);
-            
+                setRecordName("pattern");
                 if (!debug) {
                     ttWeb.saveRecording(voicefileName);
                 } else {
                     alert(voicefileName);
                 }
-            }
+            };
             
             
             function recordOn() {

@@ -6,15 +6,24 @@ interface Props {
   firstOption?: Array<any>;
   klasse?: string;
   required?: boolean;
+  requiredValue?: Array<any>;
   disabled?: boolean;
   call?: string;
 }
 
-const { id, label, firstOption, required, disabled, call, klasse } = Astro.props;
+const { id, label, firstOption, required, requiredValue, disabled, call, klasse } = Astro.props;
 const { options } = Astro.props as Props;
 // TODO: in anderen Komponenten errorname glattziehen
 let errorname = `${id}_errorMsg`;
+let valueArr;
+if (requiredValue != null) {
+valueArr = JSON.stringify(requiredValue);
+valueArr = valueArr.replace(/&quot;/g, '')
+                   .replace(/"/g, '')
+                   .replace(/,/g, '.');
+}
 ---
+
 
 <label for={id}>{label}</label>
 <span class="errormessage" id={errorname}></span>
@@ -25,7 +34,7 @@ let errorname = `${id}_errorMsg`;
   {required}
   {disabled}
   onchange={call}
-  data-required = 'false'; 
+  data-required = {valueArr}; 
 >
   {
     firstOption ? (

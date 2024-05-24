@@ -4,7 +4,7 @@ import Input from "@components/SimpleInput.astro";
 import Campaign from "@components/CampaignSelect.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
-import SQL_Select from "@components/SQL_InsertSelect.astro";
+import SQL_Select from "@/components/SQLinjectionSelect.astro";
 import BasicCampaign from "@components/BasicCampaign.astro";
 import Textfield from "@components/SimpleTextfield.astro";
 import NavTabs from "@components/NavTabs.astro";
@@ -56,7 +56,6 @@ import PopupRotz from "@components/PopupRotz.astro";
         <div
           id="tab_start"
           class="tab_content activeTab"
-          style="display: block;"
         >
           <div id="kundenhistorie" class="history">
             <Field legend="Kundenhistorie" />
@@ -65,7 +64,7 @@ import PopupRotz from "@components/PopupRotz.astro";
         <!--  Ende tab_start -->
 
         <!-- Anfang tab_produkt -->
-        <div id="tab_produkt" class="tab_content" style="display: none;">
+        <div id="tab_produkt" class="tab_content">
           <span id="datenerfassung_error_produkt" class="errormessage"></span>
           <div id="produkt" class="input_form grid">
             <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
@@ -84,7 +83,6 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div
             id="datenerfassung_product"
             class="input_form"
-            style="display: none;"
           >
             <div class="grid">
               <Field legend="Datenerfassung" klasse="grid-col_1">
@@ -97,7 +95,7 @@ import PopupRotz from "@components/PopupRotz.astro";
                   id="datenerfassung_telefon"
                   label="Abweichende Telefonnummer?"
                   type="text"
-                  blur="showVerabschiedungBtn()"
+                  blur="weiterBtn(tab_produkt)"
                 />
                 <Select
                   id="datenerfassung_lead"
@@ -112,7 +110,6 @@ import PopupRotz from "@components/PopupRotz.astro";
                 <div
                   id="datenerfassung_vertragsende_div"
                   class="input_form oneColumn"
-                  style="display: none;"
                 >
                   <Input
                     id="datenerfassung_vertragsende"
@@ -143,14 +140,13 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div class="grid">
             <div
               id="datenerfassung_ablehnung"
-              style="display: none"
             >
             <Field legend="Kein Vertragsabschluss" klasse="grid-col_1">
               <SQL_Select
                 id="datenerfassung_ablehnungsgrund"
                 label="Ablehnungsgrund:"
                 name="datenerfassung_ablehnungsgrund"
-                call="showVerabschiedungBtn()"
+                call="weiterBtn(tab_produkt)"
               />
             </Field>
             </div>
@@ -162,17 +158,16 @@ import PopupRotz from "@components/PopupRotz.astro";
         <!-- Ende tab_produkt -->
         
         <!-- Anfang tab_zusammenfassung -->
-        <div class="tab_content" id="tab_zusammenfassung" style="display: none">
+        <div class="page_content" id="tab_zusammenfassung">
           <div id="zusammenfassung_errors"></div>
 
           <div
             id="zusammenfassung"
             class="input_form oneColumn"
-            style="display: block"
           >
             <div class="grid">
               <Field legend="Zusammenfassung" klasse="grid-col_1">
-                <div id="zusammenfassung_text" style="display: block"></div>
+                <div id="zusammenfassung_text"></div>
               </Field>
             </div>
           </div>
@@ -180,7 +175,6 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div
             id="recording"
             class="input_form oneColumn"
-            style="display: none"
           >
             <div class="grid">
               <Field legend="Aufnahme" klasse="grid-col_1">
@@ -202,7 +196,6 @@ import PopupRotz from "@components/PopupRotz.astro";
           <div
             id="abschliessen"
             class="input_form oneColumn"
-            style="display: none"
           >
               <div class="grid">
                 <Field legend="Abschluss" klasse="grid-col_1">

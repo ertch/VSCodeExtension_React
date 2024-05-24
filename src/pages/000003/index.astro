@@ -4,13 +4,13 @@ import Input from "@components/SimpleInput.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
 import Gatekeeper from "@components/Gatekeeper-Select.astro";
-import SQL_Select from "@components/SQL_InsertSelect.astro";
+import SQL_Select from "@/components/SQLinjectionSelect.astro";
 import CustomerCells from "@components/Customer-cells.astro";
 import Textfield from "@components/SimpleTextfield.astro";
 import NavTabs from "@components/NavTabs.astro";
 import FootButtons from "@components/FootButtons.astro";
 import Bild from "@components/Bild.astro";
-import CampaignSelect from "@components/CampaignSelect.astro";
+import Page from "@components/Section_tabPage.astro";
 import FinishBtn from "@components/FinishButton.astro";
 import PopupRotz from "@components/PopupRotz.astro";
 ---
@@ -18,238 +18,290 @@ import PopupRotz from "@components/PopupRotz.astro";
 <Layout
   title="STE_WEL"
   campaignNr="000003"
-  jsFiles={["outbound.js", "outbound_logic.js"]}
+  jsFiles={["query_lib.js", "tteditor-config.js"]}
 >
-  <div class="black_overlay" id="lightbox"></div>
+    <div class="black_overlay" id="lightbox"></div>
 
-  <header>
-    <Bild dateiname="skon.png" />
-    <Bild dateiname="stadtenergie.svg" />
-    <h1>Stadtenergie Welcome Call</h1>
-  </header>
+    <header>
+        <Bild dateiname="skon.png" />
+        <Bild dateiname="stadtenergie.svg" />
+        <h1>Stadtenergie Welcome Call</h1>
+    </header>
 
-  <main>
-    <!-- Kundeninformationen links -->
-    <aside class="left_block">
-      <CustomerCells
-        provider="STE_WEL()"
-        queryId="ste_out_1()" 
-      ></div>
-    </aside>
-
-    <div class="middle_block">
-      <NavTabs
-        tabs={[
-          ["tab2", "tab_produkt", "Produkt"],
-          ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
-        ]}
-      />
-
-      <!-- Anfang <form> -->
-      <form
-        class="datenerf-bg"
-        action="#"
-        name="formular"
-        method="POST"
-        id="datenerfassung_form"
-      >
-      <div id="rec-warn" class="record_indicator d-none" >   Aufnahme läuft...</div>
-        <!-- Anfang tab_start -->
-        <div
-          id="tab_start"
-          class="tab_content activeTab"
-          style="display: block;"
-        >
-          <div id="kundenhistorie" class="history">
-            <Field legend="Kundenhistorie" />
-          </div>
-        </div>
-        <!--  Ende tab_start -->
-
-        <!-- Anfang tab_produkt -->
-        <div id="tab_produkt" class="tab_content" style="display: none;">
-          <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
-          <div id="produkt" class="input_form grid">
-            <Field klasse="grid-col_1" legend="Stadtenergie Welcome Call">
-              <Gatekeeper
-                id="datenerfassung_produkt"
-                label="Kunde erreicht?"
-                options={[
-                  ["ja", "Ja"],
-                  ["nein", "Nein"],
-                ]}
-                actions={[
-                  [`ja`, 'openOnly', "datenerfassung_product"],
-                  [`ja`, 'trigger', "PAtxt1"],
-                  ["nein", "openOnly", "datenerfassung_ablehnung"],
-                  ["nein", "trigger", "NAtxt1"],
-                ]}
-                gruppe="grp1"
-                call="validateSelectNew(datenerfassung_produkt, ja)"
-                />
-            </Field>
-          </div>
-
-          <div
-            id="datenerfassung_product"
-            class="input_form d-none"
-            data-grp="grp1"
-          >
-            <div class="grid">
-              <Field legend="Datenerfassung" klasse="grid-col_1">
-                <Input
-                  id="datenerfassung_email"
-                  label="E-Mail-Adresse"
-                  type="email"
-                  validate="call"
-                  call="valiFreenet(.)"
-                />
-                <Input
-                  id="datenerfassung_telefon"
-                  label="Abweichende Telefonnummer?"
-                  type="text"
-                  blur="showVerabschiedungBtn()"                  
-                />
-                <Select
-                  id="datenerfassung_lead"
-                  label="Lead"
-                  firstOption={["Kein Lead", "Kein Lead"]}
-                  options={[
-                    ["Strom", "Strom"],
-                    ["Gas", "Gas"],
-                  ]}
-                  call="showVertragsende()"
-                />
-                <div
-                  id="datenerfassung_vertragsende_div"
-                  class="input_form oneColumn"
-                  style="display: none;"
-                >
-                  <Input
-                    id="datenerfassung_vertragsende"
-                    label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
-                    type="text"
-                  />
-                </div>
-              </Field>
-              <Field legend="Optin"
-              klasse="grid-col_1">
-                <Select
-                  id="datenerfassung_optin_detail"
-                  label="Optin?"
-                  call="showzusammenfassung()"
-                  firstOption={["keine", "Keine Änderung der Werbeerlaubnis"]}
-                  options={[
-                    ["voll", "Volle Werbeerlaubnis"],
-                    ["schrift", "Nur schriftlich (Mail/Brief)"],
-                    ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
-                  ]}
-                />
-              </Field>
-            </div>
-
-            <!-- Quell-Datei index.html der STE_WEL hat an dieser Stelle <div> mit Email-Abgleich und Freitext. Wird nie benutzt? -->
-        </div>
-
-          <div class="grid">
-            <div
-              id="datenerfassung_ablehnung"
-              class="d-none"
-              data-grp="grp1"
+    <main>                     <!-- Kundeninformationen links -->
+        <aside class="left_block">
+            <CustomerCells
+                provider="providerPattern()"
+                queryId="ste_out_1()" 
             >
-            <Field legend="Kein Vertragsabschluss" klasse="grid-col_1">
-              <SQL_Select
-                id="datenerfassung_ablehnungsgrund"
-                label="Ablehnungsgrund:"
-                name="datenerfassung_ablehnungsgrund"
-                call="showVerabschiedungBtn()"
-              />
-            </Field>
-            </div>
-          </div>
-        </div>
-    
-      
-        
-        <!-- Ende tab_produkt -->
-        
-        <!-- Anfang tab_zusammenfassung -->
-        <div class="tab_content" id="tab_zusammenfassung" style="display: none">
-          <div id="zusammenfassung_errors"></div>
+            </CustomerCells>
+        </aside>
 
-          <div
-            id="zusammenfassung"
-            class="input_form oneColumn"
-            style="display: block"
-          >
-            <div class="grid">
-              <Field legend="Zusammenfassung" klasse="grid-col_1">
-                <div id="zusammenfassung_text" style="display: block"></div>
-              </Field>
-            </div>
-          </div>
+        <div class="middle_block">
+            <NavTabs
+                tabs={[
+                    ["tab2", "tab_produkt", "Produkt"],
+                    ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
+                ]}
+            >
+            </NavTabs>
 
-          <div
-            id="recording"
-            class="input_form oneColumn"
-          >
-            <div class="grid">
-              <Field legend="Aufnahme" klasse="grid-col_1 field__bg">
-              
-                <div  id="recorddisplay" class="recordDisplay">
- 
-                  <div class="recordDisplay__info"><i class="glyph glyph-record"></i> Aufnahme läuft nur für Sie</div>
+            <form
+                class="datenerf-bg"
+                action="#"
+                name="formular"
+                method="POST"
+                id="datenerfassung_form"
+            >                           <!-- Anfang <form> -->
+                <Page
+                    id="tab_start"
+                    myTab="tab_start"
+                    isVisible 
+                >                      <!-- Anfang tab_start -->
+                    <div class="history">
+                        <Field 
+                            id="kundenhistorie" 
+                            legend="Kundenhistorie" 
+                        >
+                            Keine Historie verfügbar
+                        </Field>
+                    </div>
+                </Page>                <!--  Ende tab_start -->
                 
-                  <div class="go recordDisplay__Btn" id="recordDisplay_Btn">
-                    <button
-                      id="go_record"
-                      type="button"
-                      data-id="freedial" 
-                      class="calldialog"
-                      ><i class="glyph glyph-add"></i>
-                      Kunden aufnehmen
-                    </button>
-                  </div>
-                </div>
-              </Field>
-            </div>
-          </div>
+                <Page 
+                    id="tab_produkt"
+                    myTab="tab2"
+                >                      <!-- Anfang tab_produkt -->
+                    <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
+                    <div 
+                        id="produkt" 
+                        class="input_form grid"
+                    >
+                        <Field 
+                            klasse="grid-col_1" 
+                            legend="Stadtenergie Welcome Call"
+                        >
+                            <Gatekeeper
+                                id="datenerfassung_produkt"
+                                label="Kunde erreicht?"
+                                options={[
+                                    ["ja", "Ja"],
+                                    ["nein", "Nein"],
+                                ]}
+                                actions={[
+                                    [`ja`, 'openOnly', "datenerfassung_product"],
+                                    [`ja`, 'trigger', "PAtxt1"],
+                                    ["nein", "openOnly", "datenerfassung_ablehnung"],
+                                    ["nein", "trigger", "NAtxt1"],
+                                ]}
+                                gruppe="grp1"
+                                call="validateSelectNew(datenerfassung_produkt, ja)"
+                                pageLock
+                            >
+                            </Gatekeeper>
+                        </Field>
+                    </div>
 
-          <div
-            id="abschliessen"
-            class="input_form oneColumn"
-          >
-              <div class="grid abschlussfeld">
-                <Field legend="Abschluss" klasse="grid-col_1 field__bg">
-                 
-                </Field>
-              </div>
-              <div class="absenden" id="div_publish">
-                <button
-                class="absenden__Btn"
-                  type="button"
-                  id="go_publish"
-                  onclick="finish()"
-                  ><i class="glyph glyph-publish"></i>
-                  Auftrag abschließen
-                </button>
-            </div>
-          </div>
+                    <div
+                        id="datenerfassung_product"
+                        class="input_form d-none"
+                        data-grp="grp1"
+                    >
+                        <div class="grid">
+                            <Field 
+                                legend="Datenerfassung" 
+                                klasse="grid-col_1"
+                            >
+                                <Input
+                                    id="datenerfassung_email"
+                                    label="E-Mail-Adresse"
+                                    type="email"
+                                    validate="email"
+                                    call=""
+                                >
+                                </Input>
+                                <Input
+                                    id="datenerfassung_telefon"
+                                    label="Abweichende Telefonnummer?"
+                                    type="text"
+                                    validate="tel"
+                                    blur="weiterBtn(tab_produkt)" 
+                                                    
+                                >
+                                </Input>
+                                <Select
+                                    id="datenerfassung_lead"
+                                    label="Lead"
+                                    firstOption={
+                                        ["Kein Lead", "Kein Lead"]
+                                    }
+                                    options={[
+                                        ["Strom", "Strom"],
+                                        ["Gas", "Gas"],
+                                    ]}
+                                    call="showVertragsende()"
+                                ></Select>
+                                <div
+                                    id="datenerfassung_vertragsende_div"
+                                    class="input_form oneColumn d-none"
+                                >
+                                    <Input
+                                        id="datenerfassung_vertragsende"
+                                        label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                                        type="text"
+                                        validate="date"
+                                    >
+                                    </Input>
+                                </div>
+                            </Field>
+
+                            <Field 
+                                legend="Optin"
+                                klasse="grid-col_1"
+                            >
+                                <Select
+                                    id="datenerfassung_optin_detail"
+                                    label="Optin?"
+                                    call="weiterBtn(tab_produkt)"
+                                    firstOption={
+                                        ["keine", "Keine Änderung der Werbeerlaubnis"]
+                                    }
+                                    options={[
+                                        ["voll", "Volle Werbeerlaubnis"],
+                                        ["schrift", "Nur schriftlich (Mail/Brief)"],
+                                        ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
+                                    ]}
+                                >
+                                </Select>
+                            </Field>
+                        </div>
+                    </div>
+
+                    <div class="grid">
+                        <div
+                            id="datenerfassung_ablehnung"
+                            class="d-none"
+                            data-grp="grp1"
+                        >
+                            <Field 
+                                legend="Kein Vertragsabschluss" 
+                                klasse="grid-col_1"
+                            >
+                                <SQL_Select
+                                    id="datenerfassung_ablehnungsgrund"
+                                    label="Ablehnungsgrund:"
+                                    name="datenerfassung_ablehnungsgrund"
+                                    call="weiterBtn('tab_produkt')"
+                                    load="cancellation_reasons"
+                                >
+                                </SQL_Select>
+                            </Field>
+                        </div>
+                    </div>
+                </Page>             <!-- Ende tab_produkt -->
+        
+            
+                <Page 
+                    id="tab_zusammenfassung"
+                    myTab="tab3"
+                >               <!-- Anfang tab_zusammenfassung -->
+                    <div id="zusammenfassung_errors"></div>
+
+                    <div
+                        id="zusammenfassung"
+                        class="input_form oneColumn"
+                    >
+                        <div class="grid">
+                            <Field legend="Zusammenfassung" klasse="grid-col_1">
+                                <div id="zusammenfassung_text"></div>
+                            </Field>
+                        </div>
+                    </div>
+
+                    <div
+                        id="recording"
+                        class="input_form oneColumn"
+                    >
+                        <div class="grid">
+                            <Field 
+                                legend="Aufnahme" 
+                                klasse="grid-col_1 field__bg"
+                            >
+                                <div  
+                                    id="recorddisplay" 
+                                    class="recordDisplay"
+                                >
+                                    <div class="recordDisplay__info">
+                                        <i class="glyph glyph-record"></i> 
+                                        Aufnahme läuft nur für Sie
+                                    </div>
+
+                                    <div 
+                                        class="go recordDisplay__Btn" 
+                                        id="recordDisplay_Btn"
+                                    >
+                                        <button
+                                            id="go_record"
+                                            type="button"
+                                            data-id="freedial" 
+                                            class="calldialog"
+                                        >
+                                            <i class="glyph glyph-add"></i>
+                                            Kunden aufnehmen
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </Field>
+                        </div>
+                        
+                    </div>
+
+                    <div
+                        id="abschliessen"
+                        class="input_form oneColumn"
+                    >
+                        <div class="grid abschlussfeld">
+                            <Field legend="Abschluss" klasse="grid-col_1 field__bg">
+                            </Field>
+                        </div>
+                        <div 
+                            class="absenden" 
+                            id="div_publish"
+                        >
+                            <button
+                                class="absenden__Btn"
+                                type="button"
+                                id="go_publish"
+                                onclick="finish()"
+                                >
+                                    <i class="glyph glyph-publish"></i>
+                                    Auftrag abschließen
+                            </button>
+                        </div>
+                    </div>
+                </Page>                 <!-- Ende tab_zusammenfassung -->
+            
+                <FinishBtn />
+
+            </form>
+
+            <FootButtons />
             
         </div>
-        
-        <!-- Ende tab_zusammenfassung -->
+    </main>
 
-        <FinishBtn />
-      </form>
+    <PopupRotz />
 
-      <FootButtons />
+    <div 
+        id="debugLog" 
+        class="debug-window d-none"
+    >
+        <button 
+            type="button" 
+            onclick="debugWindowClear()"
+        >
+            clear
+        </button>
     </div>
-  </main>
-  <PopupRotz />
-  <div id="debugLog" class="debug-window d-none">
-    <button type="button" onclick="debugWindowClear()">clear</button>
-
-  </div>
-   
 </Layout>

@@ -1,3 +1,27 @@
+// const { renderUniqueStylesheet } = require("astro/runtime/server/index.js");
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+let blnRecord=false;            // 
+let blnFinishPositive=false;    // Bool, ob der Vorgang positiv abgespeichert werden kann
+
+let calldatatableId;            // ID des Kampagnien-CallTable
+let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
+let agentId;                    // ID des Agenten
+
+let ttWeb = new Object();       // Objekt für ttFrame-API
+let recordingName;              // Name des Recordings
+
+let keyCode1Pressed = false;    // Status des ersten Hotkey (Zirkumflex)
+let keyCode2Pressed = false;    // Status des zweiten Hotkey (Strg)
+let keyCode3Pressed = false;    // Status des dritten  (C)
+let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
+
+let triggerData = triggerPattern();
+let CostumerData;
+let CurrCostumer = new Object();
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 let campaignId = 679;
 
@@ -27,22 +51,24 @@ let FileNamePattern = ["date", "time", "agendID", "customerid", "" ]; // Zuweisu
 let recordingNameSuffix = ""; //mit . 
 let recordFileName;
 
+let currentPageName="tab_start";        // Set tab_start als Starttab
 let startCallwithState = 2;
-
-let triggerData = triggerPattern();
-let CostumerData = providerPattern();
 
 let blnPersonalAppointment = 1;
 let direction = 2;
 let recordingComplete = 0;
 
-let LogIntottDB = false;        // Wenn true, werden Errormsg an die ttFrameDB geschickt
-let showDebug = true            // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Strg] + [°^])
-var debug = true;               // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
+let showStats = false;                  // wenn true, lade AbschlussStatistik
+let wiedervorlage = false;              // wenn true, lade WiedervorlageDaten 
+let wievorElement = "html-Element.id"   // Lade WiedervorlageDaten in dieses Element
+
+let LogIntottDB = false;                // Wenn true, werden Errormsg an die ttFrameDB geschickt
+let showDebug = true                    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Strg] + [°^])
+var debug = true;                       // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
 
 
-//------------------------------------------------------------------- Systemzeit --------------------------------------------------------------------------
-// Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.
+//------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------
+// Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.       Funktion geprüft am: 23.05.24 von Erik
 
 function getdate() { // Datum
     let datum = new Date().toLocaleDateString('default',{ day: 'numeric' , month: 'short', year: 'numeric'});
@@ -59,6 +85,7 @@ function gettime() { // Uhrzeit
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
+//                                                                                                                  Funktion geprüft am: 22.05.24 von Erik
 
 /**     Diese Funktionen definieren die Kundeninformationen, die für die Generierung von CustomerCells verwendet werden sollen.
  *      Wenn keine benutzerdefinierten Provider-Pattern und SQL-Abfragen angegeben sind, wird die providerDefault() verwendet.
@@ -113,6 +140,7 @@ function gettime() { // Uhrzeit
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ TriggerPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
+//                                                                                                                  Funktion geprüft am: 22.05.24 von Erik
 
 /**     Diese Funktion definiert die Texte die am Ende in eine Zusammenfassung einfließen sollen und/oder welche Optionen zur Verfügung stehen.
 *       Das triggerPattern wird direkt beim laden das JS als globale Variable deklariert.   

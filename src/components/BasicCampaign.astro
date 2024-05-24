@@ -3,7 +3,7 @@ import Campaign from "./CampaignSelect.astro";
 import Field from "./SimpleFieldset.astro";
 import Input from "./SimpleInput.astro";
 import Select from "./SimpleSelect.astro";
-import SQL_Select from "./SQL_InsertSelect.astro";
+import SQL_Select from "./SQLinjectionSelect.astro";
 
 interface Props {
   Nr?: string;
@@ -15,7 +15,7 @@ var plusNr = String(PageNr + 1);
 let plusNrCall = "switchTab('tab_vertrag_" + plusNr + "');return false;";
 ---
 
-<!-- <section class="tab_content d-none" id={`tab_vertrag_${Nr}`}></section> --><!-- "Form aus Testzwecken deaktiviert" <form action="#" name="formular" method="POST" id="datenerfassung_form"> -->
+<!-- <section class="page_content d-none" id={`tab_vertrag_${Nr}`}></section> --><!-- "Form aus Testzwecken deaktiviert" <form action="#" name="formular" method="POST" id="datenerfassung_form"> -->
 <span class="errormessage" id={`datenerfassung_error_tarif_${Nr}`}></span>
 <Campaign
   id={`datenerfassung_produkt_${Nr}`}
