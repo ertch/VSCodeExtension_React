@@ -11,6 +11,7 @@ interface Props {
   klasse?: string;
   label: string;
   options?: Array<Array<any>>;
+  page?: string;
   pageLock?: boolean;
   required?: boolean;
 }
@@ -30,7 +31,7 @@ interface Props {
 
 
 
-const { actions, call, disabled, firstOption, gruppe, id, klasse, label, pageLock, required } = Astro.props;
+const { actions, call, disabled, firstOption, gruppe, id, klasse, label, page, pageLock, required } = Astro.props;
 const { options } = Astro.props as Props;
 
 let lock = pageLock? "lock" : undefined;
@@ -57,7 +58,8 @@ gateArr = gateArr
   {required}
   {disabled}
   data-array={gateArr}
-  data-trigger = {gruppe}
+  data-group = {gruppe}
+  data-page = {page}
   data-call={call}
   data-lock={lock} 
   onchange={gate}

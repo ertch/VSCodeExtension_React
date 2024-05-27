@@ -35,10 +35,10 @@ import "../styles/main.scss";
 			<script type="text/javascript" 	  src="include/js/ttWebFunctions.js"></script>
 
 			<script type="text/javascript"    src="include/js/prototype/prototype.js"></script>
-			<script type="text/javascript"    src="include/js/prototype/scriptaculous.js"></script>
+			<!-- <script type="text/javascript"    src="include/js/prototype/scriptaculous.js"></script>
 			<script type="text/javascript"    src="include/js/prototype/builder.js"></script>
 			<script type="text/javascript"    src="include/js/prototype/effects.js"></script>
-			<script type="text/javascript"    src="include/js/prototype/dragdrop.js"></script>
+			<script type="text/javascript"    src="include/js/prototype/dragdrop.js"></script> -->
 			
 			<!-- <script type="text/javascript"    src="000003/js/outbound.js"></script> -->
 			<!-- <script type="text/javascript"    src="000003/js/outbound_logic.js"></script> -->
@@ -79,11 +79,15 @@ import "../styles/main.scss";
 			// HotKeys
 			document.onkeyup = function(event) {
 				event = event || window.event;
-				keyUp(event.keyCode)
+				if (showDebug) {
+					keyUp(event.keyCode);
+				}
 			};
 			document.onkeydown = function(event) {
 				event = event || window.event;
-				keyDown(event.keyCode);
+				if (showDebug) {
+					keyDown(event.keyCode);
+				}
 			};
 
 		</script>

@@ -77,7 +77,7 @@
                     pushSQL(save_rec_path);
                     logIntoDebug("record(stop)","Aufnahme wurde gestoppt", false);
                 } else {
-                    logIntoDebug("record(stop)","Error: Kein RecordFileName angegeben.",true);
+                    logIntoDebug("record(stop)","Error: Kein RecordFileName angegeben.",LogIntottDB);
                 }
                 break;
 
@@ -87,7 +87,7 @@
                 if (recordFileName != "") {
                     ttWeb.saveRecording(recordFileName);
                 } else {
-                    logIntoDebug("record(save)","Error: Kein RecordFileName angegeben.",true);
+                    logIntoDebug("record(save)","Error: Kein RecordFileName angegeben.",LogIntottDB);
                 }
                 break;
 
@@ -98,7 +98,7 @@
                 break;
 
             default: //Error_msg
-                logIntoDebug(`record(${state}), Error: invalider state`, true);
+                logIntoDebug(`record(${state}), Error: invalider state`, LogIntottDB);
         }   
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -127,7 +127,6 @@
                     CustomerData.some((entry) => {
                         if (entry.match === getInfo) {
                             recordName += entry.value;
-                            console.log(CostumerData);
                             matchfound = true;
                         } 
                     }); // wenn nicht gefunden, versuche Variable aufzurufen

@@ -40,7 +40,8 @@ import PopupRotz from "@components/PopupRotz.astro";
         <div class="middle_block">
             <NavTabs
                 tabs={[
-                    ["tab2", "tab_produkt", "Produkt"],
+                 // ["tab1", "tab_start", "Start"], <= Auto-generiert
+                    ["tab2", "tab_product", "Produkt"],
                     ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
                 ]}
             >
@@ -55,7 +56,7 @@ import PopupRotz from "@components/PopupRotz.astro";
             >                           <!-- Anfang <form> -->
                 <Page
                     id="tab_start"
-                    myTab="tab_start"
+                    myTab="tab1"
                     isVisible 
                 >                      <!-- Anfang tab_start -->
                     <div class="history">
@@ -63,15 +64,14 @@ import PopupRotz from "@components/PopupRotz.astro";
                             id="kundenhistorie" 
                             legend="Kundenhistorie" 
                         >
-                            Keine Historie verfügbar
                         </Field>
                     </div>
                 </Page>                <!--  Ende tab_start -->
                 
                 <Page 
-                    id="tab_produkt"
+                    id="tab_product"
                     myTab="tab2"
-                >                      <!-- Anfang tab_produkt -->
+                >                      <!-- Anfang tab_product -->
                     <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
                     <div 
                         id="produkt" 
@@ -95,110 +95,111 @@ import PopupRotz from "@components/PopupRotz.astro";
                                     ["nein", "trigger", "NAtxt1"],
                                 ]}
                                 gruppe="grp1"
-                                call="validateSelectNew(datenerfassung_produkt, ja)"
+                                page="tab_product_gk_grp1"
                                 pageLock
                             >
                             </Gatekeeper>
                         </Field>
                     </div>
 
-                    <div
-                        id="datenerfassung_product"
-                        class="input_form d-none"
-                        data-grp="grp1"
-                    >
-                        <div class="grid">
-                            <Field 
-                                legend="Datenerfassung" 
-                                klasse="grid-col_1"
-                            >
-                                <Input
-                                    id="datenerfassung_email"
-                                    label="E-Mail-Adresse"
-                                    type="email"
-                                    validate="email"
-                                    call=""
-                                >
-                                </Input>
-                                <Input
-                                    id="datenerfassung_telefon"
-                                    label="Abweichende Telefonnummer?"
-                                    type="text"
-                                    validate="tel"
-                                    blur="weiterBtn(tab_produkt)" 
-                                                    
-                                >
-                                </Input>
-                                <Select
-                                    id="datenerfassung_lead"
-                                    label="Lead"
-                                    firstOption={
-                                        ["Kein Lead", "Kein Lead"]
-                                    }
-                                    options={[
-                                        ["Strom", "Strom"],
-                                        ["Gas", "Gas"],
-                                    ]}
-                                    call="showVertragsende()"
-                                ></Select>
-                                <div
-                                    id="datenerfassung_vertragsende_div"
-                                    class="input_form oneColumn d-none"
-                                >
-                                    <Input
-                                        id="datenerfassung_vertragsende"
-                                        label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
-                                        type="text"
-                                        validate="date"
-                                    >
-                                    </Input>
-                                </div>
-                            </Field>
-
-                            <Field 
-                                legend="Optin"
-                                klasse="grid-col_1"
-                            >
-                                <Select
-                                    id="datenerfassung_optin_detail"
-                                    label="Optin?"
-                                    call="weiterBtn(tab_produkt)"
-                                    firstOption={
-                                        ["keine", "Keine Änderung der Werbeerlaubnis"]
-                                    }
-                                    options={[
-                                        ["voll", "Volle Werbeerlaubnis"],
-                                        ["schrift", "Nur schriftlich (Mail/Brief)"],
-                                        ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
-                                    ]}
-                                >
-                                </Select>
-                            </Field>
-                        </div>
-                    </div>
-
-                    <div class="grid">
+                    <section id ="tab_product_gk_grp1">
                         <div
-                            id="datenerfassung_ablehnung"
-                            class="d-none"
+                            id="datenerfassung_product"
+                            class="input_form d-none"
                             data-grp="grp1"
                         >
-                            <Field 
-                                legend="Kein Vertragsabschluss" 
-                                klasse="grid-col_1"
-                            >
-                                <SQL_Select
-                                    id="datenerfassung_ablehnungsgrund"
-                                    label="Ablehnungsgrund:"
-                                    name="datenerfassung_ablehnungsgrund"
-                                    call="weiterBtn('tab_produkt')"
-                                    load="cancellation_reasons"
+                            <div class="grid">
+                                <Field
+                                    legend="Datenerfassung"
+                                    klasse="grid-col_1"
                                 >
-                                </SQL_Select>
-                            </Field>
+                                    <Input
+                                        id="datenerfassung_email"
+                                        label="E-Mail-Adresse"
+                                        type="email"
+                                        validate="email"
+                                        blur='weiterBtn("tab_product_gk_grp1")'
+                                        required
+                                    >
+                                    </Input>
+                                    <Input
+                                        id="datenerfassung_telefon"
+                                        label="Abweichende Telefonnummer?"
+                                        type="text"
+                                        validate="tel"
+                                    >
+                                    </Input>
+                                    <Select
+                                        id="datenerfassung_lead"
+                                        label="Lead"
+                                        firstOption={
+                                            ["Kein Lead", "Kein Lead"]
+                                        }
+                                        options={[
+                                            ["Strom", "Strom"],
+                                            ["Gas", "Gas"],
+                                        ]}
+                                        call="showVertragsende()"
+                                    ></Select>
+                                    <div
+                                        id="datenerfassung_vertragsende_div"
+                                        class="input_form oneColumn d-none"
+                                    >
+                                        <Input
+                                            id="datenerfassung_vertragsende"
+                                            label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                                            type="text"
+                                            validate="date"
+                                        >
+                                        </Input>
+                                    </div>
+                                </Field>
+                                <Field
+                                    legend="Optin"
+                                    klasse="grid-col_1"
+                                >
+                                    <Select
+                                        id="datenerfassung_optin_detail"
+                                        label="Optin?"
+                                        call='weiterBtn("tab_product_gk_grp1")'
+                                        firstOption={
+                                            ["keine", "Keine Änderung der Werbeerlaubnis"]
+                                        }
+                                        options={[
+                                            ["voll", "Volle Werbeerlaubnis"],
+                                            ["schrift", "Nur schriftlich (Mail/Brief)"],
+                                            ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
+                                        ]}
+                                    >
+                                    </Select>
+                                </Field>
+                            </div>
                         </div>
-                    </div>
-                </Page>             <!-- Ende tab_produkt -->
+                        <div class="grid">
+                            <div
+                                id="datenerfassung_ablehnung"
+                                class="d-none"
+                                data-grp="grp1"
+                            >
+                                <Field
+                                    legend="Kein Vertragsabschluss"
+                                    klasse="grid-col_1"
+                                >
+                                    <SQL_Select
+                                        id="datenerfassung_ablehnungsgrund"
+                                        label="Ablehnungsgrund:"
+                                        name="datenerfassung_ablehnungsgrund"
+                                        call="weiterBtn('tab_product_gk_grp1')"
+                                        load="cancellation_reasons"
+                                        required
+                                    >
+                                    </SQL_Select>
+                                </Field>
+                            </div>
+                        </div>
+                    </section> 
+                </Page>
+                      <!-- Ende tab_product -->
         
             
                 <Page 

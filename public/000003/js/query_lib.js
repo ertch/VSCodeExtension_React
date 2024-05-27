@@ -58,7 +58,7 @@ function ste_out_1() { // Der Name der gewünschten Funktion wird im CustumerCel
     // Hier dataField aus DataObjekt zuweisen
     SqlField = SQLdataset[0].rows[0].fields;
 
-    logIntoDebug(`SQL ${addressdatatableId}`,query, false);
+    logsqlIntoDebug(`SQL ${addressdatatableId}`,query, SqlField==""?true:false );
     return SqlField;                           
 };
 
@@ -109,9 +109,9 @@ function pullSQL (promtName) {
 
             default:
         };
-
-        logIntoDebug(promtName, query, false);
-        return executeSql(query);
+        let awnser = executeSql(query);
+        logsqlIntoDebug(promtName, query, awnser==""?true:false );
+        return awnser;
     } catch(error) {
         logIntoDebug("pullSQL", `query ${promtName} konnte nicht geladen werden.`);
         return [];
@@ -143,7 +143,7 @@ function pushSQL (promtName) {
         
         
         default:
-            logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, false)
+            logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
     }
 
    

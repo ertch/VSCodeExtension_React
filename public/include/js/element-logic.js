@@ -58,12 +58,12 @@ function buildUp() {
        let callResultId = abschlussStatus.fields.result_id;
 
         if (callResultId == resultIdPositiv) {
-            logIntoDebug("fatal", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.",false);
+            logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
             ttWeb.clearRecording();
             ttWeb.terminateCall('100');
 
         } else if (callResultId == resultIdNegativ) {
-            logIntoDebug("fatal", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", false);
+            logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
             ttWeb.clearRecording();
             ttWeb.terminateCall('200');
         }
@@ -97,14 +97,14 @@ function buildUp() {
                 $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
                 $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
             }
-            logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `);
+            logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, LogIntottDB);
         }
     };
     
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects()    // Fülle alle SQLinjectionSelects
     
-    logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen"); 
+    logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -180,7 +180,6 @@ function createCustomerData() {
                             </div>
                         `;
                     } else {
-                        console.log("seperartor i= " + i + " / id = " + id)
                         cardHolder.innerHTML = ` 
                             ${cardHolder.innerHTML}
                             <div class='separator'></div>
@@ -197,15 +196,20 @@ function createCustomerData() {
 
     // Kundenhistorie laden und anzeigen
     let historyCount =  pullSQL("historyCount");
-    console.log(historyCount)
-    if (historyCount[0].rows[0].fields.length > 0) {
-        let historyData = pullSQL("historyData");
-        historyData = historyData[0].rows;
-        let kundenhistorie = document.getElementById('kundenhistorie');
-        for (var i = 0; i < historyData.length; i++) {
-            kundenhistorie += `<div class="history">${historyData[i].fields.message}</div>`;
+    let historyBox = document.getElementById('kundenhistorie');
+    if (historyCount[0].rows[0].fields.anzahl > 0) {
+        let historyData = pullSQL("historyData");   
+        historyData = historyData[0];
+    
+        let kundenhistorie = historyBox.innerHTML;
+        for (let i = 0; i < historyData.rows.length; i++) {
+            kundenhistorie += `<div class="history">${historyData.rows[i].fields.message}</div>`;
         }
+        historyBox.innerHTML = kundenhistorie;
         logIntoDebug("createCostumerData", "Kundenhistorie erfolgreich geladen.", false);  
+    } else {
+       historyBox.innerHTML = "Keine Historie verfügbar";
+       logIntoDebug("createCostumerData", "Keine Kundenhistorie gefunden.", LogIntottDB); 
     };
 };
 
@@ -223,7 +227,6 @@ function createCustomerData() {
         // "Show the dialog" button opens the dialog modal
         for(let x = 0; x < showButtonList.length; x++) {
             showButtonList[x].addEventListener("click", () => {
-                console.log("click on " + showButtonList[x].id);
                 dialogList[x].showModal();
             });
         }
@@ -323,7 +326,7 @@ function gatekeeper(actionArr) {
         // Wenn actionArr ein Array ist, die relevanten Werte zuweisen
         [select, switchGrp, nextFunc] = [
             document.getElementById(actionArr[0][0]),
-            document.querySelectorAll(`[data-grp=${actionArr[0][1]}]`),
+            document.querySelectorAll(`[data-group=${actionArr[0][1]}]`),
             actionArr[0][2]
         ];
     } else {
@@ -336,17 +339,11 @@ function gatekeeper(actionArr) {
                                         .replace(/\bt\b/g, 'trigger')
                                         .replace(/\.+/g, ',')
                                         .replace(/([^,\[\]]+)/g, '"$1"'); 
-        console.log(gateArr)
-        gateArr = JSON.parse(gateArr);
-        gateArr.forEach(entry => {
-            if (entry.length > 3) {
-                entry[2] = [entry.slice(3)];
-                entry.length = 3;
-            }                       //  --- Erklärung :
-        });                         //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
+        gateArr = stringToArray(gateArr);
+                                         //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
         [select, switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
             actionArr,
-            document.querySelectorAll(`[data-grp=${actionArr.getAttribute("data-trigger")}]`),
+            document.querySelectorAll(`[data-grp=${actionArr.getAttribute("data-group")}]`),
             actionArr.getAttribute("data-call")
         ];
     }   
@@ -356,9 +353,11 @@ function gatekeeper(actionArr) {
         let [value, action, target] = operation; 
         // Überprüfen, ob die aktuelle Select-Option mit dem Wert übereinstimmt
         if (value === select.value) {
-            try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
+            // try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
                 if (action === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
-                    switchGrp.forEach(element => element.classList.add('d-none'));
+                    switchGrp.forEach(element => {
+                        element.classList.add('d-none'); 
+                    });
                 } else if (target === 'all') {        // wenn all --> target = Gruppe
                     switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
                 };
@@ -386,19 +385,42 @@ function gatekeeper(actionArr) {
                 
                     default:
                         // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
-                        logIntoDebug(select.id ,`Error: gatekeeper hat fehlerhafte action: ${action} in ${gateArr}`, false);
+                        logIntoDebug(select.id ,`Error: gatekeeper hat fehlerhafte action: ${action} in ${gateArr}`, LogIntottDB);
                 } 
                 // Ausführen der Folgefunktion, falls vorhanden
-                executeFunctionFromString(nextFunc);
+                nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
+
+                let pageCheck = actionArr.getAttribute("data-page");
+                if (pageCheck != 0) {weiterBtn(pageCheck)};
+
                 let lock = actionArr.getAttribute("data-lock");
                 if (lock === "lock") {pageLock = true};
 
-            } catch (error) {
-                // Fehlermeldung ausgeben
-               logIntoDebug(select.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!`, false);
-            };
+            // } catch (error) {
+            //     // Fehlermeldung ausgeben
+            //    logIntoDebug(select.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!`, LogIntottDB);
+            // };
         };
     });
+};
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** getTrigger - hole triggerListe aus Element
+ * 
+ * @param {*} callerId 
+ * @param {*} validate 
+ */
+function getTrigger(callerId, validate){
+    let caller = document.getElementById(callerId);
+    triggerArr = stringToArray(caller.getAttribute("data-trigger"));
+    triggerArr.forEach(operation => {
+        let [value, target] = operation; 
+        if(value === caller.value){
+            setTrigger(target);
+        };
+    });
+    if(validate > "") {
+        weiterBtn(validate);
+    };
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
@@ -471,59 +493,58 @@ function readTrigger() {
  */
 function switchTab(newPageName) { 
     // Überprüfen, ob der neue Tab gültig ist
-    
-        let lockedBool;
-        switch (currentPageName) {
-            
-            case "tab_produkt":
-                if (pageLock === true) {
-                    lockedBool = bundleInputs(currentPageName);  
-                    console.log("lockedBool: " + lockedBool) 
-                } else {
+    if (currentPageName != newPageName){
+            let lockedBool;
+            switch (currentPageName) {
+                
+                case "tab_product":
+                    if (pageLock === true) {
+                        lockedBool = bundleInputs(currentPageName);  
+                    } else {
+                        lockedBool = true;
+                    };
+                    break;
+
+                default:
                     lockedBool = true;
-                };
-                break;
-
-            default:
-                lockedBool = true;
-        }
-        if(lockedBool === true){
-
-        // Aktuellen Tabnamen aktualisieren
-        let currentPage = document.getElementById(newPageName);
-        let oldPage = document.getElementById(currentPageName);
-        currentPageName = newPageName;
-        
-        oldPage.className = "page_content d-none";
-        currentPage.className = "page_content";
-
-
-        // Wenn der neue Tab bereits sichtbar ist, nichts tun
-        if (!document.getElementById(newPageName).classname === ("page_content d-none")) {
-            return;
-        }
-
-        // Alle Tabs deaktivieren und den neuen Tab aktivieren
-        let tabs = document.querySelectorAll('.tab');
-        let newTab = currentPage.getAttribute("data-tab");
-        tabs.forEach(function(tab, index) {
-            tab.className = 'tab';
-            
-            if (tab.id === newTab) {
-                tab.className = 'tab current';
             }
-        });
+            if(lockedBool === true){
 
-        // Anzeigen oder Ausblenden von Elementen basierend auf dem Tab
-        var myStyle = (newPageName !== 'tab_start') ? 'none' : 'block';
-        ['div_go_ane', 'div_go_abfax', 'div_go_positiv'].forEach(function(elementId) {
-            $(elementId).style.display = myStyle;
-        });
+            // Aktuellen Tabnamen aktualisieren
+            let currentPage = document.getElementById(newPageName);
+            let oldPage = document.getElementById(currentPageName);
+            currentPageName = newPageName;
+            
+            oldPage.className = "page_content d-none";
+            currentPage.className = "page_content";
 
-        // Zusätzliche Funktionen basierend auf dem Tab aufrufen
-        if (newPageName === 'tab_zusammenfassung') {
-            createEndcard();
-        } 
+
+            // Wenn der neue Tab bereits sichtbar ist, nichts tun
+            if (!document.getElementById(newPageName).classname === ("page_content d-none")) {
+                return;
+            }
+
+            // Alle Tabs deaktivieren und den neuen Tab aktivieren
+            let tabs = document.querySelectorAll('.tab');
+            let newTab = currentPage.getAttribute("data-tab");
+            tabs.forEach(function(tab, index) {
+                tab.className = 'tab';
+                if (tab.id === newTab) {
+                    tab.className = 'tab current';
+                }
+            });
+
+            // Anzeigen oder Ausblenden von Elementen basierend auf dem Tab
+            var myStyle = (newPageName !== 'tab_start') ? 'none' : 'block';
+            ['div_go_ane', 'div_go_abfax', 'div_go_positiv'].forEach(function(elementId) {
+                $(elementId).style.display = myStyle;
+            });
+
+            // Zusätzliche Funktionen basierend auf dem Tab aufrufen
+            if (newPageName === 'tab_zusammenfassung') {
+                createEndcard();
+            } 
+        }
     }
 };
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -534,9 +555,9 @@ function switchTab(newPageName) {
 
 
 function weiterBtn(page_id) {
-    let successBool = silentValidation(page_id);
+    let successBool = silent(document.getElementById(page_id));
     let weiterBtn = document.getElementById('weiterBtn');
-
+    console.log("WTBtn" + page_id)
     if (successBool == true) {
         weiterBtn.className = "left_right go";
     } else {
@@ -559,7 +580,7 @@ function  createEndcard() {
  *      @param {string} funcString - Die Zeichenkette, die den Funktionsaufruf enthält.
  */
 function executeFunctionFromString(funcString) {
-        
+    console.log(funcString)
     let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
     let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
     let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array
@@ -569,7 +590,7 @@ function executeFunctionFromString(funcString) {
     if (funcName && typeof window[funcName] === 'function') {
        giveBack = window[funcName](...args); // Aufruf
     } else {
-        logIntoDebug( "executeFunctionFromString:",`Aufgerufene Funktion ${funcName} existiert nicht.`, false); //Error_msg
+        logIntoDebug( "executeFunctionFromString:",`Aufgerufene Funktion ${funcName} existiert nicht.`, LogIntottDB); //Error_msg
     }
     return giveBack;
 };
@@ -606,7 +627,7 @@ function submitForm(form_id) {
             return addressDataArray;
         } catch (error) {
             // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
-            logIntoDebug( "createAdressDataArray","Error: SQL-Ergebnisse konnten nicht in Array geladen werden", false);
+            logIntoDebug( "createAdressDataArray","Error: SQL-Ergebnisse konnten nicht in Array geladen werden", LogIntottDB);
             return []; 
         }
     };
@@ -635,6 +656,17 @@ function submitForm(form_id) {
     function debugWindowClear() { // Log löschen
         document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
     };
+
+    function logsqlIntoDebug(caller, query, awnser) {
+        if (showDebug) { // showDebug => ttEditor-config.js
+            let window = document.getElementById("debugLog");
+            let log = window.innerHTML
+            let awnserTxt = awnser ? "<I class='txt--red'>Keine Daten in der DB gefunden</I>" : "<I class='txt--green'>Daten aus DB empfangen</I>"
+            log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + query + "<br>" + awnserTxt;
+            window.innerHTML = log;
+        };
+    }
+    
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-005                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
@@ -642,11 +674,11 @@ function submitForm(form_id) {
  */
     function keyUp (event) {
         // Wenn die Taste [Zirkumflex] losgelassen wird
-        if (event === 220) { 
+        if (event === 68) { 
             keyCode1Pressed = false; // Setze den Status der ersten Taste auf false
         } 
-        // Wenn die Taste [Strg] losgelassen wird
-        else if (event === 17) { 
+        // Wenn die Taste [Tab] losgelassen wird
+        else if (event === 9) { 
             keyCode2Pressed = false; // Setze den Status der zweiten Taste auf false
         } 
         // Wenn die Taste [C] losgelassen wird
@@ -657,11 +689,11 @@ function submitForm(form_id) {
 
     function keyDown (event) {
     // Wenn die Taste [Zirkumflex] gedrückt wird
-        if (event === 220) { 
+        if (event === 68) { 
             keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
         } 
-        // Wenn die Taste [Strg] gedrückt wird
-        else if (event === 17) { 
+        // Wenn die Taste [Tab] gedrückt wird
+        else if (event === 9) { 
             keyCode2Pressed = true; // Setze den Status der zweiten Taste auf true
         }  
         // Wenn die Taste [C] gedrückt wird
@@ -696,3 +728,13 @@ function submitForm(form_id) {
         });
     };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function stringToArray(stringArr) {
+   let newArr = JSON.parse(stringArr);
+    newArr.forEach(entry => {
+        if (entry.length > 3) {
+            entry[2] = [entry.slice(3)];
+            entry.length = 3;
+        }              
+    });   
+    return newArr;
+}

@@ -283,4 +283,18 @@ dialog {
     width: 65%;
 }
 
+.txt {
+    font-size: .69em;
+
+    &--green {
+        @extend .txt;
+        color: forestgreen;
+    }
+
+    &--red {
+        @extend .txt;
+        color: rgb(117, 10, 10);
+    }
+}
+
 

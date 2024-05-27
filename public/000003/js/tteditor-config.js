@@ -48,7 +48,7 @@ let fieldname_lastname = "surname";
 // [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
 let recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
 let FileNamePattern = ["date", "time", "agendID", "customerid", "" ]; // Zuweisung in setRecordName()
-let recordingNameSuffix = ""; //mit . 
+let recordingNameSuffix = ".ogg"; //mit . 
 let recordFileName;
 
 let currentPageName="tab_start";        // Set tab_start als Starttab
@@ -62,9 +62,9 @@ let showStats = false;                  // wenn true, lade AbschlussStatistik
 let wiedervorlage = false;              // wenn true, lade WiedervorlageDaten 
 let wievorElement = "html-Element.id"   // Lade WiedervorlageDaten in dieses Element
 
-let LogIntottDB = false;                // Wenn true, werden Errormsg an die ttFrameDB geschickt
-let showDebug = true                    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Strg] + [°^])
-var debug = true;                       // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
+let LogIntottDB = false;                // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+let showDebug = true;                   // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
+let debug = true;                       // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
 
 
 //------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------

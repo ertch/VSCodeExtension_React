@@ -152,7 +152,7 @@ function validateSelect(value,description,errorId) {
 	errorId.innerHTML="";
 
 	if(value.length == 0) {
-		console.log("Error bei: " + value + " " + errorId.id);
+		logIntoDebug( "validateSelect", `Error bei value: ${errorId.id}`, LogIntottDB);
 		blnError=true;
 		errorId.innerHTML="Pflichtfeld: "+description;
 	}

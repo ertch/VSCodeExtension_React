@@ -1,6 +1,6 @@
 // ######################################################################################### VALIDATORS #############################################################################################
 
- /** silentValidation - Validierung der Inputs für User-Weitereitung
+ /** silent - Validierung der Inputs für User-Weitereitung
  * 
  *      Um zu prüfen, wann ein tab-content vollständig ausgefüllt ist, ohne es bei jeder
  *      Eingabe gegen einen Validator zu werfen, werden die Silent Validators genutzt.
@@ -11,33 +11,55 @@
  * 
  *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder[requierd] validiert werden sollen.
  */
- function silentValidation(page_content) {
+ function silent(page) {
+    console.log("page " + page)
+    let page_content;
     let filled = true;
+    if (page instanceof HTMLElement) {
+        page_content =  page;
+    } else {
+        page_content = document.getElementById(page);
+    };
     
     // Prüfen, ob das (Tab-content)Elternelement die Klasse "d-none" trägt
-    if (page_content.classList.contains('d-none')) {
-
+    if (!page_content.classList.contains('d-none')) {
+        
         // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
-        let requiredInputs = page_content.querySelectorAll(':scope > fieldset:not(.d-none) input[required]');
-        if(requiredInputs === 0){ // wenn kein Fieldset vorhanden, prüfe nur auf inputs
-            requiredInputs = page_content.querySelectorAll(':scope > input[required]') 
-        }
+        try {
+            let allInputs = page_content.querySelectorAll('input');
+            let visibleInputs = Array.from(allInputs).filter(isVisible);
+            let allSelects =  page_content.querySelectorAll('select'); 
+            let visibleSelects = Array.from(allSelects).filter(isVisible);
+            console.log("selects " + visibleSelects)
+            visibleInputs.forEach(input => {
+                // Überprüfen, ob die Input[required] ausgefüllt sind (Wert > "")
                 
-        requiredInputs.forEach(input => {
-            // Überprüfen, ob das Feld ausgefüllt ist (Wert > "")
-            if (input.tagName === 'INPUT' && !input.value.trim()) {
-                filled = false;
-            }
+                if (input.value == 0 && input.hasAttribute('required')) {
+                    filled = false;
+                }
+            });    
 
-            // Prüfe select auf "Bitte Auswählen" (= null)
-            if (input.tagName === 'SELECT' && !input.value) {
-                filled = false;
-            }
-        });    
+            visibleSelects.forEach(select => {
+                // Überprüfen, ob die Select[required] ausgefüllt sind (Wert > "")
+                
+                if (select.value == 0 && select.hasAttribute('required')) {
+                    
+                    filled = false;
+                    console.log(select.id + " " + filled)
+                }
+            }); 
+            if (visibleInputs.length === "0" && visibleSelects.length == 0) {
+                logIntoDebug("silent (Validation)","Kein [required]-Element gefunden", false);
+            }   
+        } catch(error) {
+            logIntoDebug("silent (Validation)", `Error: ${page_content.id} konnte nicht vallidiert werden`, LogIntottDB);
+            filled = false;
+        };
+        
     }else {
         filled = false;
     };
-
+    console.log(filled)
     return filled;
 }
 
@@ -67,7 +89,6 @@ function bundleInputs(page_content) {
             dateandtime: [],
             default: []
         };
-        console.log('page-content: ' + page_content)
         // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
         let allInputs = document.getElementById(page_content).querySelectorAll('input');
         let visibleInputs = Array.from(allInputs).filter(isVisible);
@@ -75,7 +96,6 @@ function bundleInputs(page_content) {
         let visibleSelects = Array.from(allSelects).filter(isVisible);
 
         const ids = Array.from(visibleInputs).map(element => element.id);
-        console.log("ids" + ids)
         visibleInputs.forEach(input => {
            
             let valiTyp = input.dataset.vali || 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
@@ -112,7 +132,7 @@ function bundleInputs(page_content) {
                 validateSelects += `Validierung nicht möglich : ${select.id} <br>`;
             }
         })
-        logIntoDebug("validateSelects", validateSelects, false)
+        logIntoDebug("validateSelects", validateSelects, LogIntottDB)
         
         // Übergabe an die Validierung der Inputs
         for (let valiTyp in inputsTypeArr) {  
@@ -121,7 +141,6 @@ function bundleInputs(page_content) {
                 successBool = false;
             };
         } // wenn Valiedierung fehlerhaft gib false zurück
-        console.log("successBool: " + successBool)
         return successBool;
     // } catch (error) {
     //     logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
@@ -231,7 +250,7 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
         }    
         
     }catch (error) { //  Error Nachrichten und return
-        logIntoDebug( "validateInput:" ,`Error at array: ${idArr} with ${id}`, false);
+        logIntoDebug( "validateInput:" ,`Error at array: ${idArr} with ${id}`, LogIntottDB);
         return giveAnswer ? false : undefined;
     }
 }

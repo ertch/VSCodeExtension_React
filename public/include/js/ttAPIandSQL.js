@@ -70,7 +70,7 @@ function ttErrorLog(caller, msg) {
         )`;
         ttWeb.execDatabase(insertSql);
     } catch(error) { 
-        logIntoDebug(`ttErrorLog(${caller})`, "Error: SQL-INSERT konnte nicht an DB gesendet werden", false);
+        logIntoDebug(`ttErrorLog(${caller})`, "Error: SQL-INSERT konnte nicht an DB gesendet werden", LogIntottDB);
     };
 };
 
@@ -85,7 +85,7 @@ function ttErrorLog(caller, msg) {
         try {   
             return s.replace(/'/g,"\\'");
         } catch (ex){
-            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", false)
+            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", LogIntottDB)
         }
     };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -99,50 +99,59 @@ function ttErrorLog(caller, msg) {
         try { 
             return s.replace(/\\/g,"/");
         } catch (ex){
-            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", false)
+            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", LogIntottDB)
         }
     };
 
-
-
+    //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /** autoInject_selects - Fülle die SQLinjektionSelects
+     * 
+     *      Wird innerhaelb des buildUps aufgerufen und gibt alle Elemente die
+     *      ein data-injection Attribute haben an "sqlInject_select"
+     */
 
     function autoInject_selects() {
         let selelects = document.querySelectorAll('[data-injection]');
         selelects.forEach((sel) => {
-            let injection = sel.getAttribute('data-injektion');
+            let injection = sel.getAttribute('data-injection');
             sqlInject_select(sel.id, 0, injection);
         })
     };
 
     function sqlInject_select(target_id, selectValue, injection) {
-
         let selectBox = document.getElementById(target_id);
         let dataObj = pullSQL(injection);
-        let NewOptions = new Object();
-        for (let i = 0; i < dataObj[0].rows.length; i++) {
-            NewOptions[dataObj[0].rows[i].fields.id] = dataObj[0].rows[i].fields.label;
-        };
-        let arraySize = NewOptions.length;
+        let newOptions = [];
 
+        // itteriere durch das DataObj von der DB und erstelle Array aus id(value) und label[Anzeigetext] 
+        for (let i = 0; i < dataObj[0].rows.length; i++) {
+            newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
+        };
+
+        let arraySize = newOptions.length;
         if(selectBox != null) {
-        while(selectBox.hasChildNodes()) {
-            selectBox.removeChild(selectBox.lastChild);
-        }
-        }
-        if((arraySize > 0) || (arraySize == -1)) {
-        injectOpt=document.createElement('option');
-        injectOpt.text="[Bitte auswählen]";
-        injectOpt.value=0;
-        selectBox.appendChild(injectOpt);
-    
-        for(let [index, value] of NewOptions.entries) {
-            if(value.length > 0) {
-            injectOpt=document.createElement('option');
-            injectOpt.text= value;
-            injectOpt.value= index + 1;
-            selectBox.appendChild(injectOpt);
+            // Falls das Select schon Einträge besitzt, entferne diese
+            while(selectBox.hasChildNodes()) {
+                selectBox.removeChild(selectBox.lastChild);
             }
         }
+        if((arraySize > 0) || (arraySize == -1)) {
+            // Füge ein Bitte auswählen ein
+            injectOpt=document.createElement('option');
+            injectOpt.text="[Bitte auswählen]";
+            injectOpt.value=0;
+            selectBox.appendChild(injectOpt);
+        
+            newOptions.forEach((item) => {
+                // Erstelle die Einträge
+                if(item[0] > 0) {
+                    injectOpt=document.createElement('option');
+                    injectOpt.text= item[1];
+                    injectOpt.value= item[0];
+                    selectBox.appendChild(injectOpt);
+                }
+            })
         }
+        // Einträge in Select schieben
         selectBox.value=selectValue;
     };
