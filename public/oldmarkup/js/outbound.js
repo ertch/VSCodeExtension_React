@@ -142,7 +142,6 @@ function switchTab($newTabName) {
     if (validateTab(currentTabName)) {
 
         currentTabName = $newTabName;
-        console.log(currentTabName)
         /* wenn der neue Tab bereits sichtbar ist, nix machen */
         if ($($newTabName).style.display == 'block') {
             return;
@@ -550,7 +549,6 @@ function generateVoicefilename(prefix,template,suffix,recordingComp, terminate) 
 
 function gatekeeper(actionArr) {
     let gateArr
-    console.log("gatekeeper in action");
     if (Array.isArray(actionArr)) {
         gateArr = actionArr
     }else {

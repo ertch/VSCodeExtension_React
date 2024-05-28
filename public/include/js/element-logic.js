@@ -390,8 +390,8 @@ function gatekeeper(actionArr) {
                 // Ausführen der Folgefunktion, falls vorhanden
                 nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
 
-                let pageCheck = actionArr.getAttribute("data-page");
-                if (pageCheck != 0) {weiterBtn(pageCheck)};
+                let gateCheck = actionArr.getAttribute("data-gate");
+                if (gateCheck != "") {weiterBtn(gateCheck)};
 
                 let lock = actionArr.getAttribute("data-lock");
                 if (lock === "lock") {pageLock = true};
@@ -444,7 +444,7 @@ function setTrigger(id) {
             trigger.active = true;
             break;
         }
-    }          
+    }        
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** readTrigger                                                                                                             Funktion geprüft am: 22.05.24 von Erik
@@ -454,7 +454,7 @@ function setTrigger(id) {
 *      Es können auch Variablennamen genutzt werden, dessen Inhalt dann genutzt wird. 
 */
 function readTrigger() {
-    let insert;
+    let insert = "";
     let cache = new Set();
     triggerData.forEach((list) => {
             // durchlaufe triggerData 
@@ -466,12 +466,11 @@ function readTrigger() {
             };
             // cache prüft, ob das Element schon aufgerufen wurde und löscht den Inhalt einmalig falls nicht.
             // wenn Element bekannt, dann füge neuen Text, zum Vorhandenen hinzu.
-            if (cache.has(list.target_id)) {
-                document.getElementById(list.target_id).innerHTML += insert;
-            } else {
+            if (!cache.has(list.target_id)) {
                 cache.add(list.target_id);
-                document.getElementById(list.target_id).innerHTML = insert;
+                document.getElementById(list.target_id).innerHTML = "";
             }
+            document.getElementById(list.target_id).innerHTML += `${insert}`;
             // Alle ungenutzten Elemente zurücksetzten
         } else if (cache.has(list.target_id)) {}else {
                 document.getElementById(list.target_id).innerHTML = "";
@@ -496,7 +495,6 @@ function switchTab(newPageName) {
     if (currentPageName != newPageName){
             let lockedBool;
             switch (currentPageName) {
-                
                 case "tab_product":
                     if (pageLock === true) {
                         lockedBool = bundleInputs(currentPageName);  
@@ -534,16 +532,21 @@ function switchTab(newPageName) {
                 }
             });
 
-            // Anzeigen oder Ausblenden von Elementen basierend auf dem Tab
-            var myStyle = (newPageName !== 'tab_start') ? 'none' : 'block';
+            // Anzeigen oder Ausblenden von Buttons basierend auf dem Tab
             ['div_go_ane', 'div_go_abfax', 'div_go_positiv'].forEach(function(elementId) {
-                $(elementId).style.display = myStyle;
+                if (newPageName !== 'tab_start'){
+                    document.getElementById(elementId).className = "go d-none";
+                    weiterBtn(newPageName);
+                } else {
+                    document.getElementById(elementId).className = "go";
+                    document.getElementById('weiterBtn').className = "left_right go d-none";
+                }
             });
-
-            // Zusätzliche Funktionen basierend auf dem Tab aufrufen
+            
             if (newPageName === 'tab_zusammenfassung') {
+                document.getElementById('weiterBtn').className = "left_right go d-none";
                 createEndcard();
-            } 
+            }   
         }
     }
 };
@@ -557,7 +560,6 @@ function switchTab(newPageName) {
 function weiterBtn(page_id) {
     let successBool = silent(document.getElementById(page_id));
     let weiterBtn = document.getElementById('weiterBtn');
-    console.log("WTBtn" + page_id)
     if (successBool == true) {
         weiterBtn.className = "left_right go";
     } else {
@@ -566,8 +568,16 @@ function weiterBtn(page_id) {
 }
 
 function  createEndcard() {
-
+    document.getElementById('weiterBtn').className = "left_right go d-none";
     readTrigger();
+
+    // TODO: hier API-abfrage nach Aufnahmestatus
+    let RecState = 2;
+    // Austauschen sobald verfügbar
+
+    if(RecState === 2){
+
+    }
 };
 
 
@@ -580,7 +590,6 @@ function  createEndcard() {
  *      @param {string} funcString - Die Zeichenkette, die den Funktionsaufruf enthält.
  */
 function executeFunctionFromString(funcString) {
-    console.log(funcString)
     let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
     let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
     let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array

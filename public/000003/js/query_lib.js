@@ -140,12 +140,8 @@ function pushSQL (promtName) {
                         ');`;
             break;
         
-        
-        
         default:
             logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
     }
-
-   
 }
 

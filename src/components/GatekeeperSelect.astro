@@ -6,12 +6,12 @@ interface Props {
   call?: String;
   disabled?: boolean;
   firstOption?: Array<any>;
-  gruppe: String;
+  group: String;
   id: string;
   klasse?: string;
   label: string;
   options?: Array<Array<any>>;
-  page?: string;
+  gate?: string;
   pageLock?: boolean;
   required?: boolean;
 }
@@ -31,14 +31,14 @@ interface Props {
 
 
 
-const { actions, call, disabled, firstOption, gruppe, id, klasse, label, page, pageLock, required } = Astro.props;
+const { actions, call, disabled, firstOption, group, id, klasse, label, gate, pageLock, required } = Astro.props;
 const { options } = Astro.props as Props;
 
 let lock = pageLock? "lock" : undefined;
-let gate = `gatekeeper(${id})`
+let gateway = `gatekeeper(${id})`
 let errorname = `${id}_errorMsg`;
-let gateArr = JSON.stringify(actions);
-gateArr = gateArr
+let gatewayArr = JSON.stringify(actions);
+gatewayArr = gatewayArr
             .replace(/openOnly/g, 'oo')
             .replace(/open/g, 'o')
             .replace(/close/g, 'c')
@@ -57,12 +57,13 @@ gateArr = gateArr
   name={id}
   {required}
   {disabled}
-  data-array={gateArr}
-  data-group = {gruppe}
-  data-page = {page}
+  data-array={gatewayArr}
+  data-group = {group}
+  data-gate = {gate}
   data-call={call}
   data-lock={lock} 
-  onchange={gate}
+  onchange={gateway}
+  required
 >
   {
     firstOption ? (

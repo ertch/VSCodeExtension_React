@@ -1,0 +1,16 @@
+---
+interface Props {
+  id?: string;
+  grp?: string;
+  klasse?: string;
+
+}
+
+const { id, grp, klasse } = Astro.props;
+
+---
+<section id={id} class={klasse} data-grp={grp}>
+  <slot>
+    
+  </slot>
+</section>

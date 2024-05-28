@@ -12,7 +12,6 @@
  *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder[requierd] validiert werden sollen.
  */
  function silent(page) {
-    console.log("page " + page)
     let page_content;
     let filled = true;
     if (page instanceof HTMLElement) {
@@ -30,7 +29,6 @@
             let visibleInputs = Array.from(allInputs).filter(isVisible);
             let allSelects =  page_content.querySelectorAll('select'); 
             let visibleSelects = Array.from(allSelects).filter(isVisible);
-            console.log("selects " + visibleSelects)
             visibleInputs.forEach(input => {
                 // Überprüfen, ob die Input[required] ausgefüllt sind (Wert > "")
                 
@@ -42,10 +40,8 @@
             visibleSelects.forEach(select => {
                 // Überprüfen, ob die Select[required] ausgefüllt sind (Wert > "")
                 
-                if (select.value == 0 && select.hasAttribute('required')) {
-                    
+                if (select.value == 0 && select.hasAttribute('required')) {     
                     filled = false;
-                    console.log(select.id + " " + filled)
                 }
             }); 
             if (visibleInputs.length === "0" && visibleSelects.length == 0) {
@@ -59,7 +55,6 @@
     }else {
         filled = false;
     };
-    console.log(filled)
     return filled;
 }
 
@@ -113,23 +108,27 @@ function bundleInputs(page_content) {
         visibleSelects.forEach(select => {
             try{
                 let hit = false;
-                let shouldHave = document.getElementById(select).getAttribute("data-required");
-                shouldHave.forEach(value => {
+                if(select.hasAttribute("data-required")) {
+                    let shouldHave = select.getAttribute("data-required");
+                    shouldHave.forEach(value => {
 
-                    if (value = "!0") {
-                        if (select.value > 0){
+                        if (value = "!0") {
+                            if (select.value > 0){
+                                hit = true;
+                            }
+                        } else if (value === select.value){ 
                             hit = true;
-                        }
-                    } else if (value === select.value){ 
-                        hit = true;
-                        validateSelects += `Validierung ${hit}  |  ${select.id} = "${value}"  <br>`;
+                            validateSelects += `Validierung ${hit}  |  ${select.id} = "${value}"  <br>`;
+                        };
+                    })
+                    if (hit === false){
+                        successBool = false;
                     };
-                })
-                if (hit === false){
-                    successBool = false;
-                };
+                } else {
+                    validateSelects += `Select ohne soll-wert : ${select.id} <br>`;
+                }
             } catch(error) {
-                validateSelects += `Validierung nicht möglich : ${select.id} <br>`;
+                validateSelects += ` Error: Validierung nicht möglich : ${select.id} <br>`;
             }
         })
         logIntoDebug("validateSelects", validateSelects, LogIntottDB)

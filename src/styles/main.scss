@@ -149,7 +149,7 @@ td {
     }
 
     &-abschluss::before {
-        content: "\E804"; // Quadrat mit Pfeil nach rechts
+        content: "\E828"; // Quadrat mit Pfeil nach rechts
     }
 
     &-apne::before {
@@ -161,19 +161,19 @@ td {
     }
 
     &-outro::before {
-        content: "\E820"; // Kreis mit Pfeil nach rechts
+        content: "\E80C"; // Pfeil nach rechts
     }
 
     &-telephone::before {
-        content: "\E807"; // Telefonhörer nach rechts offen
+        content: "\E817"; // Telefonhörer nach rechts offen
     }
 
     &-publish::before {
-        content: "\E81B"; // Bildschirm mit Pfeil nach oben
+        content: "\E82C"; // Bildschirm mit Pfeil nach oben
     }
 
     &-save::before {
-        content: "\E805"; // Pfeil nach unten der auf Festplatte zeigt
+        content: "\E816"; // Floppydisk
     }
 
     &-record::before {
@@ -184,12 +184,27 @@ td {
         content: "\F131"; // durchgestrichenes Mikrofonsymbol
     }
 
-    &-add::before {
-        content: "\E81F"; // Pluszeichen in einem Kreis
+    &-circle::before {
+        content: "\F2BE"; // Kreis mit Person in der Mitte
     }
 
     &-close::before {
-        content: "\E808"; // X zum schließen
+        content: "\E809"; // X zum schließen
+        width: 12px;
+    }
+
+    &-code::before {
+        content: "\E829"; // Rechteck mit >_
+        width: 12px;
+    }
+
+    &-final::before {
+        content: "\F11E"; // karrierte Zeil-Flagge
+        width: 12px;
+    }
+
+    &-easteregg::before {
+        content: "\E1D0"; 
         width: 12px;
     }
 }
@@ -231,9 +246,16 @@ dialog {
     border: 2px solid black;
     margin: 3px;
     overflow-y: scroll;
-    padding: 10px;
+    padding: 0 10px 10px 10px;
     position: absolute;
     width: 99.7vw;
+}
+
+.debugLog--header {
+    background-color: burlywood;
+    border-bottom: 1px solid black;
+    margin: 1px -9px;
+    padding: 3px;
 }
 
 .recordDisplay{

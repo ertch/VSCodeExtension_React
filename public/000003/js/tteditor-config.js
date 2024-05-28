@@ -20,7 +20,8 @@ let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let triggerData = triggerPattern();
 let CostumerData;
 let CurrCostumer = new Object();
-
+let SendBack = new Object();
+    
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 let campaignId = 679;
@@ -160,9 +161,11 @@ function gettime() { // Uhrzeit
 
     function triggerPattern() {
         let triggerData = [
-            { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-            { id: 'NAtxt2',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
+            { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
         ];
         return triggerData;
     }
