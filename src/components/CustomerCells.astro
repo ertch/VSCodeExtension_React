@@ -2,7 +2,7 @@
 import { callGetStaticPaths } from 'node_modules/astro/dist/core/render/route-cache';
 
 interface Props {
-  provider: string;
+  pattern: string;
   queryId: String;
 }
 
@@ -18,13 +18,14 @@ interface Props {
  * 
  */
 
-const { queryId, provider } = Astro.props;
+const { queryId, pattern } = Astro.props;
 
 let errorname = `customerCells_errorMsg`;
 ---
-
-<div id="customerCells" 
-    data-provider={provider} 
-    data-query={queryId}>
-  <span class="errormessage--db_error d-none" id={errorname}></span>
-</div>
+<aside class="left_block">
+    <div id="customerCells" 
+        data-provider={pattern} 
+        data-query={queryId}>
+        <span class="errormessage--db_error d-none" id={errorname}></span>
+    </div>
+</aside>

@@ -7,7 +7,6 @@ interface Props {
 
 const { title, campaignNr, jsFiles } = Astro.props;
 import "../styles/main.scss";
-
 ---
 
 <!doctype html>
@@ -70,6 +69,7 @@ import "../styles/main.scss";
 		<!-- do not touch - END -->
 	</head>
 	<body class="">
+			
 		<slot />
 		<!-- ! Statt onload="" auf dem <body> hier am Ende der Seite geladen -->
 		<script>

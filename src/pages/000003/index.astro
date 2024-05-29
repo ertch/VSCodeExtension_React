@@ -1,5 +1,5 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import CampaignLayout from "@/layouts/CampaignLayout.astro";
 import Input from "@components/SimpleInput.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
@@ -7,321 +7,278 @@ import Gatekeeper from "@/components/GatekeeperSelect.astro";
 import Gate from "@/components/Gate.astro";
 import GateGroup from "@/components/GateGroup.astro";
 import SQL_Select from "@/components/SQLinjectionSelect.astro";
-import CustomerCells from "@components/CustomerCells.astro";
 import Textfield from "@components/SimpleTextfield.astro";
 import NavTabs from "@components/NavTabs.astro";
-import FootButtons from "@components/FootButtons.astro";
-import Bild from "@components/Bild.astro";
-import Page from "@components/Section_tabPage.astro";
-import FinishBtn from "@components/FinishButton.astro";
-import PopupRotz from "@components/PopupRotz.astro";
+import TabPage from "@components/Section_tabPage.astro";
+import WeiterBtn from "@/components/WeiterButton.astro";
 ---
+                <!-- Grunddaten -->
+<CampaignLayout     
+    campaignTitle="STE_WEL"
+    campaignNr="000003"
+    jsFiles={["query_lib.js", "tteditor-config.js"]}
+    header_imgs={["skon.png", "stadtenergie.svg"]}
+    header_name="Stadtenergie Welcome Call"
+    cell_pattern="providerPattern()"
+    cell_query="ste_out_1()" 
+ >                 <!-- main -->
 
-<Layout
-  title="STE_WEL"
-  campaignNr="000003"
-  jsFiles={["query_lib.js", "tteditor-config.js"]}
->
-    <div class="black_overlay" id="lightbox"></div>
-
-    <header>
-        <Bild dateiname="skon.png" />
-        <Bild dateiname="stadtenergie.svg" />
-        <h1>Stadtenergie Welcome Call</h1>
-    </header>
-
-    <main>                     <!-- Kundeninformationen links -->
-        <aside class="left_block">
-            <CustomerCells
-                provider="providerPattern()"
-                queryId="ste_out_1()" 
-            >
-            </CustomerCells>
-        </aside>
-
-        <div class="middle_block">
-            <NavTabs
-                tabs={[
-                 // ["tab1", "tab_start", "Start"], <= Auto-generiert
-                    ["tab2", "tab_product", "Produkt"],
-                    ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
-                ]}
-            >
-            </NavTabs>
-
-            <form
-                class="datenerf-bg"
-                action="#"
-                name="formular"
-                method="POST"
-                id="datenerfassung_form"
-            >                           <!-- Anfang <form> -->
-                <Page
-                    id="tab_start"
-                    myTab="tab1"
-                    isVisible 
-                >                      <!-- Anfang tab_start -->
-                    <div class="history">
-                        <Field 
-                            id="kundenhistorie" 
-                            legend="Kundenhistorie" 
-                        >
-                        </Field>
-                    </div>
-                </Page>                <!--  Ende tab_start -->
-                
-                <Page 
-                    id="tab_product"
-                    myTab="tab2"
-                >                      <!-- Anfang tab_product -->
-                    <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
-                    <section 
-                        id="produkt" 
-                        class="input_form grid"
-                    >
-                        <Field 
-                            klasse="grid-col_1" 
-                            legend="Stadtenergie Welcome Call"
-                        >
-                            <Gatekeeper
-                                id="datenerfassung_produkt"
-                                label="Kunde erreicht?"
-                                options={[
-                                    ["ja", "Ja"],
-                                    ["nein", "Nein"],
-                                ]}
-                                actions={[
-                                    [`ja`, 'openOnly', "datenerfassung_product"],
-                                    [`ja`, 'trigger', "PAtxt1"],
-                                    ["nein", "openOnly", "datenerfassung_ablehnung"],
-                                    ["nein", "trigger", "NAtxt1"],
-                                ]}
-                                group="grp1"
-                                gate="gk_grp1"
-                                pageLock
-                            >
-                            </Gatekeeper>
-                        </Field>
-                    </section>
-
-                    <Gate 
-                        id="gk_grp1" 
-                        klasse="grid"
-                    >
-                        <GateGroup
-                            id="datenerfassung_product"
-                            klasse="input_form d-none"
-                            group="grp1"
-                        >
-                                <Field
-                                    legend="Datenerfassung"
-                                    klasse="grid-col_1"
-                                >
-                                    <Input
-                                        id="datenerfassung_email"
-                                        label="E-Mail-Adresse"
-                                        type="email"
-                                        validate="email"
-                                        blur='weiterBtn("gk_grp1")'
-                                        required
-                                    >
-                                    </Input>
-                                    <Input
-                                        id="datenerfassung_telefon"
-                                        label="Abweichende Telefonnummer?"
-                                        type="text"
-                                        validate="tel"
-                                        blur='weiterBtn("gk_grp1")'
-                                    >
-                                    </Input>
-                                    <Gatekeeper
-                                        id="datenerfassung_lead"
-                                        label="Lead"
-                                        firstOption={
-                                            ["Kein Lead", "Kein Lead"]
-                                        }
-                                        options={[
-                                            ["strom", "Strom"],
-                                            ["gas", "Gas"],
-                                        ]}
-                                        actions={[
-                                            ["strom","openOnly","vertragsende_datagrp"],
-                                            ["strom","trigger","VEs01"],
-                                            ["gas","openOnly","vertragsende_datagrp"],
-                                            ["gas","trigger","VEg01"]
-                                        ]}
-                                        group="grp2"
-                                        gate="gk_grp2"
-                                    ></Gatekeeper>
-                                    <Gate
-                                        id="gk_grp2"
-                                    >
-                                        <GateGroup
-                                            id="vertragsende_datagrp"
-                                            klasse="input_form oneColumn d-none"
-                                            group="grp2"
-                                        >
-                                            <Input
-                                                id="vertragsende_dataErf"
-                                                label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
-                                                type="text"
-                                                validate="date"
-                                                blur='weiterBtn("gk_grp1")'
-                                                required
-                                            >
-                                            </Input>
-                                        </GateGroup>
-                                    </Gate>
-                                </Field>
-                                <Field
-                                    legend="Optin"
-                                    klasse="grid-col_1"
-                                >
-                                    <Select
-                                        id="datenerfassung_optin_detail"
-                                        label="Optin?"
-                                        call='weiterBtn("tab_product_gk_grp1")'
-                                        firstOption={
-                                            ["keine", "Keine Änderung der Werbeerlaubnis"]
-                                        }
-                                        options={[
-                                            ["voll", "Volle Werbeerlaubnis"],
-                                            ["schrift", "Nur schriftlich (Mail/Brief)"],
-                                            ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
-                                        ]}
-                                    >
-                                    </Select>
-                                </Field>
-                            <!-- </div> -->
-                        </GateGroup>
-                        <GateGroup 
-                            id="datenerfassung_ablehnung"
-                            klasse="d-none"
-                            group="grp1"    
-                        >
-                                <Field
-                                    legend="Kein Vertragsabschluss"
-                                    klasse="grid-col_1"
-                                >
-                                    <SQL_Select
-                                        id="datenerfassung_ablehnungsgrund"
-                                        label="Ablehnungsgrund:"
-                                        name="datenerfassung_ablehnungsgrund"
-                                        call="weiterBtn('gk_grp1')"
-                                        load="cancellation_reasons"
-                                        required
-                                    >
-                                    </SQL_Select>
-                                </Field>
-                        </GateGroup>
-                    </Gate> 
-                </Page>
-                      <!-- Ende tab_product -->
-        
-                <Page 
-                    id="tab_zusammenfassung"
-                    myTab="tab3"
-                >               <!-- Anfang tab_zusammenfassung -->
-                    <Gate
-                        id="zusammenfassung"
-                        klasse="input_form oneColumn grid"
-                    >
-                        <GateGroup 
-                            klasse="grid-col_1"
-                            group="endCard"
-                        >
-                            <div id="zusammenfassung_errors"></div>
-                            <Field legend="Zusammenfassung">
-                                <div id="zusammenfassung_text"></div>
-                            </Field>
-                        </GateGroup>
-                    
-                        <GateGroup
-                            id="recording"
-                            klasse="input_form oneColumn grid-col_1"
-                            group="endCard"
-                        >
-                            <Field 
-                                legend="Aufnahme" 
-                                klasse="grid-col_1 field__bg"
-                            >
-                                <div  
-                                    id="recorddisplay" 
-                                    class="recordDisplay"
-                                >
-                                    <div class="recordDisplay__info">
-                                        <i class="glyph glyph-record"></i> 
-                                        Aufnahme läuft nur für Sie
-                                    </div>
-
-                                    <div 
-                                        class="go recordDisplay__Btn" 
-                                        id="recordDisplay_Btn"
-                                    >
-                                        <button
-                                            id="go_record"
-                                            type="button"
-                                            data-id="freedial" 
-                                            class="calldialog"
-                                        >
-                                            <i class="glyph glyph-circle"></i>
-                                            Kunden aufnehmen
-                                        </button>
-                                    </div>
-                                </div>
-                            </Field>
-                        </GateGroup>
-                    </Gate>
-
-                    <Gate
-                        id="abschliessen"
-                        klasse="input_form oneColumn"
-                    >
-                        <div class="grid abschlussfeld">
-                            <Field legend="Abschluss" klasse="field__bg">
-                            </Field>
-                        </div>
-                        <div 
-                            class="absenden" 
-                            id="div_publish"
-                        >
-                            <button
-                                class="absenden__Btn"
-                                type="button"
-                                id="go_publish"
-                                onclick="finish()"
-                                >
-                                    <i class="glyph glyph-final"></i>
-                                     &nbsp; Auftrag abschließen
-                            </button>
-                        </div>
-                    </Gate>
-                    
-                </Page>                 <!-- Ende tab_zusammenfassung -->
-            
-                <FinishBtn />
-
-            </form>
-
-            <FootButtons />
-            
-        </div>
-    </main>
-
-    <PopupRotz />
-
-    <div 
-        id="debugLog" 
-        class="debug-window d-none"
+    <NavTabs
+        tabs={[
+        //  ["tab1", "tab_start", "Start"], <= Auto-generiert
+            ["tab2", "tab_product", "Produkt"],
+            ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
+        ]}
     >
-        <div class="debugLog--header">
-            <i class="glyph glyph-code"> &nbsp; DebugLog &nbsp;</i> 
-            <button 
-                type="button" 
-                onclick="debugWindowClear()"
-            >   clear   
-            </button>
-        </div>
-        <p>-- Initialisierung --</p>
-    </div>
-</Layout>
+    </NavTabs>
+
+    <form
+        class="datenerf-bg"
+        action="#"
+        name="formular"
+        method="POST"
+        id="datenerfassung_form"
+    >                           <!-- Anfang <form> -->
+        <TabPage
+            id="tab_start"
+            myTab="tab1"
+            isVisible 
+        >                      <!-- tab_start -->
+            <div class="history">
+                <Field 
+                    id="kundenhistorie" 
+                    legend="Kundenhistorie" 
+                >
+                </Field>
+            </div>
+        </TabPage>          <!--  Ende tab_start -->
+        
+        <TabPage 
+            id="tab_product"
+            myTab="tab2"
+        >                      <!-- tab_product -->  
+            <section 
+                id="produkt" 
+                class="input_form grid"
+            >
+            <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
+                <Field 
+                    klasse="grid-col_1" 
+                    legend="Stadtenergie Welcome Call"
+                >
+                    <Gatekeeper
+                        id="datenerfassung_produkt"
+                        label="Kunde erreicht?"
+                        options={[
+                            ["ja", "Ja"],
+                            ["nein", "Nein"],
+                        ]}
+                        actions={[
+                            [`ja`, 'openOnly', "datenerfassung_product"],
+                            [`ja`, 'trigger', "PAtxt1"],
+                            ["nein", "openOnly", "datenerfassung_ablehnung"],
+                            ["nein", "trigger", "NAtxt1"],
+                        ]}
+                        group="grp1"
+                        gate="gk_grp1"
+                        pageLock
+                    >
+                    </Gatekeeper>
+                </Field>
+            </section>
+
+            <Gate 
+                id="gk_grp1" 
+                klasse="grid"
+            >
+                <GateGroup
+                    id="datenerfassung_product"
+                    klasse="input_form d-none"
+                    group="grp1"
+                >
+                    <Field
+                        legend="Datenerfassung"
+                        klasse="grid-col_1"
+                    >
+                        <Input
+                            id="datenerfassung_email"
+                            label="E-Mail-Adresse"
+                            type="email"
+                            validate="email"
+                            blur='weiterBtn("gk_grp1")'
+                            required
+                        >
+                        </Input>
+                        <Input
+                            id="datenerfassung_telefon"
+                            label="Abweichende Telefonnummer?"
+                            type="text"
+                            validate="tel"
+                            blur='weiterBtn("gk_grp1")'
+                        >
+                        </Input>
+                        <Gatekeeper
+                            id="datenerfassung_lead"
+                            label="Lead"
+                            firstOption={
+                                ["Kein Lead", "Kein Lead"]
+                            }
+                            options={[
+                                ["strom", "Strom"],
+                                ["gas", "Gas"],
+                            ]}
+                            actions={[
+                                ["strom","openOnly","vertragsende_datagrp"],
+                                ["strom","trigger","VEs01"],
+                                ["gas","openOnly","vertragsende_datagrp"],
+                                ["gas","trigger","VEg01"]
+                            ]}
+                            group="grp2"
+                            gate="gk_gate2"
+                        ></Gatekeeper>
+                        <Gate
+                            id="gk_gate2"
+                        >
+                            <GateGroup
+                                id="vertragsende_datagrp"
+                                klasse="input_form oneColumn d-none"
+                                group="grp2"
+                            >
+                                <Input
+                                    id="vertragsende_dataErf"
+                                    label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
+                                    type="text"
+                                    validate="date"
+                                    blur='weiterBtn("gk_grp1")'
+                                    required
+                                >
+                                </Input>
+                            </GateGroup>
+                        </Gate>
+                    </Field>
+                    <Field
+                        legend="Optin"
+                        klasse="grid-col_1"
+                    >
+                        <Select
+                            id="datenerfassung_optin_detail"
+                            label="Optin?"
+                            call='weiterBtn("tab_product_gk_grp1")'
+                            firstOption={
+                                ["keine", "Keine Änderung der Werbeerlaubnis"]
+                            }
+                            options={[
+                                ["voll", "Volle Werbeerlaubnis"],
+                                ["schrift", "Nur schriftlich (Mail/Brief)"],
+                                ["out", "Opt-OUT !ACHTUNG! Voller Entzug der Werbeerlaubnis"],
+                            ]}
+                        >
+                        </Select>
+                    </Field>
+                </GateGroup>
+
+                <GateGroup 
+                    id="datenerfassung_ablehnung"
+                    klasse="d-none"
+                    group="grp1"    
+                >
+                        <Field
+                            legend="Kein Vertragsabschluss"
+                            klasse="grid-col_1"
+                        >
+                            <SQL_Select
+                                id="datenerfassung_ablehnungsgrund"
+                                label="Ablehnungsgrund:"
+                                name="datenerfassung_ablehnungsgrund"
+                                call="weiterBtn('gk_grp1')"
+                                load="cancellation_reasons"
+                                required
+                            >
+                            </SQL_Select>
+                        </Field>
+                </GateGroup>
+            </Gate> 
+        </TabPage>         <!-- Ende tab_product -->
+                               
+        <TabPage 
+            id="tab_zusammenfassung"
+            myTab="tab3"
+        >                 <!-- tab_zusammenfassung -->
+            <Gate
+                id="zusammenfassung"
+                klasse="input_form oneColumn grid"
+            >
+                <GateGroup 
+                    klasse="grid-col_1"
+                    group="endCard"
+                >
+                    <div id="zusammenfassung_errors"></div>
+                    <Field legend="Zusammenfassung">
+                        <div id="zusammenfassung_text"></div>
+                    </Field>
+                </GateGroup>
+            
+                <GateGroup
+                    id="recording"
+                    klasse="input_form oneColumn grid-col_1"
+                    group="endCard"
+                >
+                    <Field 
+                        legend="Aufnahme" 
+                        klasse="grid-col_1 field__bg"
+                    >
+                        <div  
+                            id="recorddisplay" 
+                            class="recordDisplay"
+                        >
+                            <div class="recordDisplay__info">
+                                <i class="glyph glyph-record"></i> 
+                                Aufnahme läuft nur für Sie
+                            </div>
+
+                            <div 
+                                class="go recordDisplay__Btn" 
+                                id="recordDisplay_Btn"
+                            >
+                                <button
+                                    id="go_record"
+                                    type="button"
+                                    data-id="freedial" 
+                                    class="calldialog"
+                                >
+                                    <i class="glyph glyph-circle"></i>
+                                    Kunden aufnehmen
+                                </button>
+                            </div>
+                        </div>
+                    </Field>
+                </GateGroup>
+            </Gate>
+
+            <Gate
+                id="abschliessen"
+                klasse="input_form oneColumn"
+            >
+                <div class="grid abschlussfeld">
+                    <Field legend="Abschluss" klasse="field__bg">
+                    </Field>
+                </div>
+                <div 
+                    class="absenden" 
+                    id="div_publish"
+                >
+                    <button
+                        class="absenden__Btn"
+                        type="button"
+                        id="go_publish"
+                        onclick="finish()"
+                        >
+                            <i class="glyph glyph-final"></i>
+                                &nbsp; Auftrag abschließen
+                    </button>
+                </div>
+            </Gate>
+        </TabPage>      
+        <WeiterBtn /> <!-- Ende tab_zusammenfassung -->      
+    </form>                 <!-- Ende main -->
+ </CampaignLayout>

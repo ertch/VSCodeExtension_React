@@ -12,15 +12,15 @@ function bootUpAPI() {
             function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
                 
                 ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
-                gf_initialize();
+                //TODO: startRec
+                buildUp();
             },
             function onInitializeError(e) {             // Fehler bei der Initialisierung
                 debug && console.log('Initialize contentInterface failed: ' + e.message); 
             }
         );
-    } else {  
-        buildUp(); // Wenn Debugging aktiviert ist, führe gf_initialize aus
-    }
+    }  
+    buildUp(); 
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** buildUp -  Laden und anzeigen aller Daten.

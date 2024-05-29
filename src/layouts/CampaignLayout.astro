@@ -1,0 +1,97 @@
+---
+import CustomerCells from "@components/CustomerCells.astro";
+import Bild from "@components/Bild.astro";
+import FootButtons from "@components/FootButtons.astro";
+import Popups from "@/components/Popups.astro";
+import DebugLog from "@/components/DebugLog.astro";
+import "../styles/main.scss";
+
+interface Props {
+	campaignTitle: string;
+	campaignNr: string;
+	jsFiles: Array<String>;
+	header_imgs: Array<any>;
+	header_name: string;
+	cell_pattern: string;
+	cell_query: string;
+}
+
+const { campaignTitle, campaignNr, jsFiles, header_imgs, header_name, cell_pattern,cell_query} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{campaignTitle + campaignNr}</title>
+
+		<!-- Campaign specific file loading -->
+		{jsFiles.map((data) => (
+		<>
+			<script type="text/javascript" src={`${campaignNr}/js/${data}`}></script></>
+		))}
+		<script type="text/javascript" 	  src="include/js/element-logic.js"></script>
+		<script type="text/javascript" 	  src="include/js/valididator.js"></script>
+		<script type="text/javascript" 	  src="include/js/ttAPIandSQL.js"></script>
+		<script type="text/javascript" 	  src="include/js/ttWebFunctions.js"></script>
+
+		<!-- TODO: Herausfinden an welcher Stelle Prototype noch gebraucht wird -->
+		<script type="text/javascript"    src="include/js/prototype/prototype.js"></script>
+
+		<link rel="stylesheet" type="text/css" media="screen" href="include/css/general.css" />
+		<link rel="stylesheet" type="text/css" media="screen" href="include/css/outbound.css" />	
+
+	</head>
+
+	<body>
+
+		<header> <!-- Kopfleiste mit Titel und Logo -->
+			{header_imgs.map((img) => (
+					<Bild dateiname={img} />
+				))}
+			<h1>{header_name}</h1>
+		</header>
+	
+		<main>   <!-- Kundeninformationen links -->	
+			<CustomerCells
+				pattern={cell_pattern}
+				queryId={cell_query} 
+			>
+			</CustomerCells>
+
+			<section class="middle_block"></div>
+
+				<slot /> <!-- Hier HTML -->
+			
+				<FootButtons />    
+			</section>
+		</main>
+
+		<Popups />
+		<DebugLog />
+
+		<script>
+			// boot JS
+			document.addEventListener('DOMContentLoaded', bootUpAPI());
+
+			// HotKey event
+			document.onkeyup = function(event) {
+				event = event || window.event;
+				if (showDebug) {
+					keyUp(event.keyCode);
+				}
+			};
+			document.onkeydown = function(event) {
+				event = event || window.event;
+				if (showDebug) {
+					keyDown(event.keyCode);
+				}
+			};
+		</script>
+
+	</body>
+</html>

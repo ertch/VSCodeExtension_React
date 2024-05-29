@@ -1,9 +1,23 @@
 // const { renderUniqueStylesheet } = require("astro/runtime/server/index.js");
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/** TODO:
+ *          PresetPattern für Select adding and selecting option aus CustomerData.x  { CusDa: [key] , id: [target] , disable: [bool] }
+ *          ProviderPattern add createCard bool
+ *          Debug-Version der ttWebFunctions
+ *          record(start, recState)
+ *          Schaltungslogik mit ttWeb für Elemente tab_verabschiedung
+ *          Input.value trigger
+ *          GK disable operator
+ *          GK setOption operator
+ *          SQL-gen form SenBa-Filter
+ *          get Data for CuCDa
+ *          GK_lite?
+ *          start call with buildUp option
+ *          startRecWithCall 
+ *          
+ */
 
-let blnRecord=false;            // 
-let blnFinishPositive=false;    // Bool, ob der Vorgang positiv abgespeichert werden kann
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 let calldatatableId;            // ID des Kampagnien-CallTable
 let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
@@ -12,15 +26,16 @@ let agentId;                    // ID des Agenten
 let ttWeb = new Object();       // Objekt für ttFrame-API
 let recordingName;              // Name des Recordings
 
-let keyCode1Pressed = false;    // Status des ersten Hotkey (Zirkumflex)
-let keyCode2Pressed = false;    // Status des zweiten Hotkey (Strg)
+let keyCode1Pressed = false;    // Status des ersten Hotkey (Tabulator)
+let keyCode2Pressed = false;    // Status des zweiten Hotkey (D)
 let keyCode3Pressed = false;    // Status des dritten  (C)
+
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 
-let triggerData = triggerPattern();
-let CostumerData;
-let CurrCostumer = new Object();
-let SendBack = new Object();
+let triggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
+let CostumerData;                       // Erstellung global CustomerData   (CusDa)
+let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
+let SendBack = new Object();            // Erstellung global SendBackfilter (SenBa)
     
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -31,7 +46,7 @@ let resultIdNegativ =   8912;
 let resultIdWv =        8913;
 let resultIdAbfax =     8915;
 
-let resultIdApne0h =    8916;
+let resultIdApne0h =    8916;              
 let resultIdApne1h =    8917;
 let resultIdApne2h =    8918;
 let resultIdApne3h =    8919;
@@ -41,40 +56,39 @@ let resultIdApne6h =    8922;
 let resultIdApne8h =    8923;
 let resultIdApne20h =   8924;
 
-let addressdatatable = 'ste_wel_addressdata';
-let salesdatatable = 'ste_wel_addressdata';
-let fieldname_firstname = "firstname";
-let fieldname_lastname = "surname";
+let addressdatatable = 'ste_wel_addressdata';   // SQL adresstable
+let salesdatatable = 'ste_wel_addressdata';     // SQL datatable
+let fieldname_firstname = "firstname";          // SQL column-Bezeichner
+let fieldname_lastname = "surname";             // SQL column-Bezeichner
 
-// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
+let recordFileName; // [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
 let recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
-let FileNamePattern = ["date", "time", "agendID", "customerid", "" ]; // Zuweisung in setRecordName()
-let recordingNameSuffix = ".ogg"; //mit . 
-let recordFileName;
+let FileNamePattern = ["date", "time", "agendID", "customerid", "ste_wel" ]; // nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
+let recordingNameSuffix = ".ogg"; 
 
-let currentPageName="tab_start";        // Set tab_start als Starttab
-let startCallwithState = 2;
+let currentPageName="tab_start";        // Set Starttab (erster angezeigert Tab)
 
-let blnPersonalAppointment = 1;
-let direction = 2;
-let recordingComplete = 0;
+let startCallwithState = 2;             // Call state bei Beginn des Anrufes
+let startRecWithBuildUp = false;        // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
+let startRecWithCall = false;           // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
+let direction;                          // Aktueller Call state
 
-let showStats = false;                  // wenn true, lade AbschlussStatistik
+let showStats = false;                  // wenn true, lade AbschlussStatistik (in DebugLog)
 let wiedervorlage = false;              // wenn true, lade WiedervorlageDaten 
 let wievorElement = "html-Element.id"   // Lade WiedervorlageDaten in dieses Element
 
 let LogIntottDB = false;                // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
 let showDebug = true;                   // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
-let debug = true;                       // Wenn true, dann wird der SQL-Fakeconnector zu Nestor genommen
-
+let debug = true;                       // Wenn true, dann wird mit SQL-Fakeconnector verbunden
 
 //------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------
 // Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.       Funktion geprüft am: 23.05.24 von Erik
+// Um in den Filenames einen Zeitsempel einzutragen, ist die Funktion notwendig
 
 function getdate() { // Datum
     let datum = new Date().toLocaleDateString('default',{ day: 'numeric' , month: 'short', year: 'numeric'});
     datum = datum.replace(/\.+/g, '')
-                 .replace(/\s+/g, '');      // tt(monat)yyyy = "22Mai2024"
+                 .replace(/\s+/g, '');      // tt(monat)yyyy = "23Mai2024"
     return datum;
 }
 
@@ -82,7 +96,6 @@ function gettime() { // Uhrzeit
     let time = new Date().toLocaleTimeString();
     return `${time.replace(/\:+/g, '-')}uhr`; // hh-mm-ss
 }
-
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //---------------------------------------------------------------------------------------------------------------------------------------------------------

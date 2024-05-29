@@ -40,8 +40,10 @@ let errorname = `${id}_errorMsg`;
 let gatewayArr = JSON.stringify(actions);
 gatewayArr = gatewayArr
             .replace(/openOnly/g, 'oo')
+            .replace(/setOption/g, 'so')
             .replace(/open/g, 'o')
             .replace(/close/g, 'c')
+            .replace(/disable/g, 'd')
             .replace(/all/g, 'a')
             .replace(/trigger/g, 't')
             .replace(/&quot;/g, '')
