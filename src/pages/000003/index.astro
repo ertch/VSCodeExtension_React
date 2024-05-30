@@ -78,12 +78,13 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                             [`ja`, 'trigger', "PAtxt1"],
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
                             ["nein", "trigger", "NAtxt1"],
+                            ["nein", ["setValue{6999},disable"], "datenerfassung_ablehnungsgrund"]
                         ]}
                         group="grp1"
                         gate="gk_grp1"
                         pageLock
                     >
-                    </Gatekeeper>
+                    </Gatekeeper>                                   
                 </Field>
             </section>
 

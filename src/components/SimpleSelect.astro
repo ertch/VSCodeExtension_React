@@ -9,10 +9,11 @@ interface Props {
   required?: boolean;
   requiredValue?: Array<any>;
   disabled?: boolean;
+  preset?: string;
   call?: string;
 }
 
-const {actions, id, label, firstOption, required, requiredValue, disabled, call, klasse } = Astro.props;
+const {actions, id, label, firstOption, required, requiredValue, disabled, call, preset, klasse } = Astro.props;
 const { options } = Astro.props as Props;
 // TODO: in anderen Komponenten errorname glattziehen
 let errorname = `${id}_errorMsg`;
@@ -37,7 +38,8 @@ valueArr = valueArr.replace(/&quot;/g, '')
   {disabled}
   onchange={call}
   data-required = {valueArr};
-  data-trigger = {triggerArr} 
+  data-trigger = {triggerArr}
+  data-preset = {preset} 
 >
   {
     firstOption ? (

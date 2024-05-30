@@ -7,26 +7,29 @@
   *      Alle notwenigen Variablen zurücksetzten, für einen neuen Anruf.
   */
     function call_initialize() {
-                
-        ttWeb.setRecordingState(0);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
-        direction = ttWeb.getCallDirection();            // Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
-        calldatatableId = ttWeb.getCalltableField('ID'); // Bestimme die ID des Anrufdatensatzes in der Datenbank
-        msisdn = ttWeb.getCalltableField('HOME');        // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
-        indicator = ttWeb.getIndicator();                // Bestimme den Indikator für die Art des Anrufs (1-9)
+        try{
+            ttWeb.setRecordingState(0);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
+            direction = ttWeb.getCallDirection();            // Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
+            calldatatableId = ttWeb.getCalltableField('ID'); // Bestimme die ID des Anrufdatensatzes in der Datenbank
+            msisdn = ttWeb.getCalltableField('HOME');        // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
+            indicator = ttWeb.getIndicator();                // Bestimme den Indikator für die Art des Anrufs (1-9)
 
-        // Bestimme die Telefonnummer des Kontakts basierend auf dem Indikator
-        if (indicator == 1) {
-            telKontakt = ttWeb.getCalltableField('HOME');       // Privatnummer
-        } else if (indicator == 2) {
-            telKontakt = ttWeb.getCalltableField('BUSINESS');   // Geschäftsnummer
-        } else {
-            telKontakt = ttWeb.getCalltableField('OTHER');      // Andere Nummer
-        };
+            // Bestimme die Telefonnummer des Kontakts basierend auf dem Indikator
+            if (indicator == 1) {
+                telKontakt = ttWeb.getCalltableField('HOME');       // Privatnummer
+            } else if (indicator == 2) {
+                telKontakt = ttWeb.getCalltableField('BUSINESS');   // Geschäftsnummer
+            } else {
+                telKontakt = ttWeb.getCalltableField('OTHER');      // Andere Nummer
+            };
 
-        festnetz = ttWeb.getCalltableField('BUSINESS'); // Festnetznummer wird immer als Geschäftsnummer beschrieben?
-        agentId = ttWeb.getUser().Login; // Bestimme die Agenten-ID des Benutzers
+            festnetz = ttWeb.getCalltableField('BUSINESS'); // Festnetznummer wird immer als Geschäftsnummer beschrieben?
+            agentId = ttWeb.getUser().Login; // Bestimme die Agenten-ID des Benutzers
 
-        logIntoDebug("call_initialize()", "calltable successfully refreshed", false) //Debug
+            logIntoDebug("call_initialize()", "<span class='txt--orange'>Calltable</span> erfolgreich refreshed", false);
+        }catch(error) {
+            logIntoDebug("call_initialize()", `<span class='txt--bigRed'>Error:</span> <span class='txt--orange'>Calltable</span> konnte nicht refreshed werden<br>=> ${error.stack}`, false);
+        }
     };
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** call_freedial - got a new number
@@ -34,17 +37,24 @@
  *      Wenn der Kunde unter einer anderen Nummer kontaktiert werden möchte.
  *      Eingabe über den Freedial-Dialog.
  */
-    function call_freedial() {
+    function callFreedial() {
+        try {
+            let freedial = document.getElementById('freedial_number');
+            if (validateRufnummer(freedial.value, errMsg)) { //TODO: validateRufnummer austauschen
+                debug? undefined : ttWeb.setCalltableField('OTHER', freedial.value);
+                debug? undefined : ttWeb.setIndicator(3);
+                record('clear');
+                debug? undefined : ttWeb.terminateCall('RR', null, null, 1);
+                logIntoDebug( "callFreedial",`Neue Nummer: <span class="txt--gray">${freedial.value}</span> gespeichert`,false);
+            } else {
+                logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${freedial.value}</span> vom Validator abgelehnt`,false);
+            }
+        } catch(error) {
+            logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${freedial.value}</span> kommte nicht gespeichert werden`,false);
+        };
+    }
+    // Wenn Rufnummer valide speichere neue Nummer
         
-        // Wenn Rufnummer valide speichere neue Nummer
-        let freedial = document.getElementById('freedial_number');
-        if (validateRufnummer(freedial.value, errMsg)) {
-            ttWeb.setCalltableField('OTHER', freedial.value);
-            ttWeb.setIndicator(3);
-            record('clear');
-            ttWeb.terminateCall('RR', null, null, 1);
-        }
-    };
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 //#############################################################################################################################################################################
@@ -61,12 +71,12 @@
  *                 save    = Speichern der Aufnahme
  *                 clear   = Verwerfen der Aufnahme 
  */
-    function record(state) {
+    function record(state, recState) {
         switch (state) {
             // Wenn der Zustand 'start' ist, wird die Aufnahme (agent & customer) gestartet 
             case 'start':
-                ttWeb.setRecordingState(3);
-                logIntoDebug( "record(start)","Aufnahme wurde gestartet / state: 3",false);
+               debug? undefined : ttWeb.setRecordingState(recState);
+                logIntoDebug( "record(start)",`Aufnahme wurde gestartet / state: ${recState}`,false);
                 break;
 
             // Wenn der Zustand 'stop' ist, wird die Aufnahme gestoppt (und die Sprachaufzeichnung wird ggf. gespeichert?) 
@@ -75,9 +85,9 @@
                 if (recordFileName != "") {
                     pushSQL(update_rec_info);
                     pushSQL(save_rec_path);
-                    logIntoDebug("record(stop)","Aufnahme wurde gestoppt", false);
+                    logIntoDebug("record(stop)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${recordFileName}</span>`, false);
                 } else {
-                    logIntoDebug("record(stop)","Error: Kein RecordFileName angegeben.",LogIntottDB);
+                    logIntoDebug("record(stop)",`<span class="txt-red">Error:</span> Kein RecordFileName angegeben.`,LogIntottDB);
                 }
                 break;
 
@@ -85,20 +95,21 @@
             case 'save':
                 setRecordName(pattern);
                 if (recordFileName != "") {
-                    ttWeb.saveRecording(recordFileName);
+                    debug? undefined : ttWeb.saveRecording(recordFileName);
+                    logIntoDebug("record(save)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${recordFileName}</span>`, false);
                 } else {
-                    logIntoDebug("record(save)","Error: Kein RecordFileName angegeben.",LogIntottDB);
+                    logIntoDebug("record(save)",`<span class="txt-red">Error:</span> Kein RecordFileName angegeben.`,LogIntottDB);
                 }
                 break;
 
             // Wenn der Zustand 'clear' ist, wird die Aufnahme gelöscht.
-            case 'clear':
+            case 'clear':   
+                debug? undefined : ttWeb.clearRecording();
                 logIntoDebug("record(clear)", "Aufnahme wurde verworfen", false);
-                ttWeb.clearRecording();
                 break;
 
             default: //Error_msg
-                logIntoDebug(`record(${state}), Error: invalider state`, LogIntottDB);
+                logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, LogIntottDB);
         }   
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------

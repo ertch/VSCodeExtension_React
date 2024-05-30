@@ -1,14 +1,14 @@
 // const { renderUniqueStylesheet } = require("astro/runtime/server/index.js");
 
 /** TODO:
- *          PresetPattern für Select adding and selecting option aus CustomerData.x  { CusDa: [key] , id: [target] , disable: [bool] }
- *          ProviderPattern add createCard bool
+ *          Prototype raus bekommen
+ *         
  *          Debug-Version der ttWebFunctions
  *          record(start, recState)
  *          Schaltungslogik mit ttWeb für Elemente tab_verabschiedung
  *          Input.value trigger
- *          GK disable operator
- *          GK setOption operator
+ *          
+ *          
  *          SQL-gen form SenBa-Filter
  *          get Data for CuCDa
  *          GK_lite?
@@ -81,6 +81,8 @@ let LogIntottDB = false;                // Wenn true, werden Errormsg an die ttF
 let showDebug = true;                   // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
 let debug = true;                       // Wenn true, dann wird mit SQL-Fakeconnector verbunden
 
+let logGK = true;                       // Gatekeeper in Log anzeigen
+let logSQL = false;                     // SQL-Statemants in Log anzeigen
 //------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------
 // Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.       Funktion geprüft am: 23.05.24 von Erik
 // Um in den Filenames einen Zeitsempel einzutragen, ist die Funktion notwendig
@@ -118,6 +120,8 @@ function gettime() { // Uhrzeit
  *                  Andernfalls wird es zusammen mit dem nächsten standAlone = true Element in dessen Cell geschieben.
  *                  Es ist sozusagen ein Copy/Paste für die Werte. Aber Achtung: zwei standAlone hintereinadner überschreiben sich.
  * 
+ *      createCard: Ein Bool für die Erstellung der CustomerCards. Wenn true, wird aus dem Eintrag eine Card erstellt. 
+ * 
  *                  Der Aufbau eines HTML-Elements ist wie folgt:
  *                      <div>           
  *                          <div class="cell_head"> 'label' </div>      
@@ -126,27 +130,27 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerData = [
-            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true   },
-            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true   },
-            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true   },
-            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true   },
-            { label: '',                match: 'seperator',             value: "",   standAlone: true   },
-            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true   },
-            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true   },
-            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true   },
-            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false  },
-            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true   },
-            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false  },
-            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true   },
-            { label: '',                match: 'seperator',             value: "",   standAlone: true   },
-            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true   },
-            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true   },
-            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true   },
-            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true   },
-            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true   },
-            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true   },
-            { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true   },
-            { label: 'Datensatz',       match: '',                      value: "",   standAlone: true   },
+            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCard: true },
+            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCard: true },
+            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCard: true },
+            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCard: true },
+            { label: '',                match: 'seperator',             value: "",   standAlone: true,     createCard: true },
+            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCard: true },
+            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCard: true },
+            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCard: true },
+            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCard: true },
+            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCard: true },
+            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCard: true },
+            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCard: true },
+            { label: '',                match: 'seperator',             value: "",   standAlone: true,     createCard: true },
+            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCard: true },
+            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCard: true },
+            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCard: true },
+            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCard: true },
+            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCard: true },
+            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCard: true },
+            { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true,     createCard: true },
+            { label: 'Datensatz',       match: 'preset1',               value: "test",   standAlone: true,     createCard: false },
         ];
         return CustomerData
     };

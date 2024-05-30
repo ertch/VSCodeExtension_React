@@ -58,7 +58,7 @@ function ste_out_1() { // Der Name der gewünschten Funktion wird im CustumerCel
     // Hier dataField aus DataObjekt zuweisen
     SqlField = SQLdataset[0].rows[0].fields;
 
-    logsqlIntoDebug(`SQL ${addressdatatableId}`,query, SqlField==""?true:false );
+    logSQL? logsqlIntoDebug(`SQL TableID: <span class="txt--blue">${addressdatatableId}</span>`,query, SqlField==""?true:false ) : undefined;
     return SqlField;                           
 };
 
@@ -110,7 +110,7 @@ function pullSQL (promtName) {
             default:
         };
         let awnser = executeSql(query);
-        logsqlIntoDebug(promtName, query, awnser==""?true:false );
+        logSQL? logsqlIntoDebug(promtName, query, awnser==""?true:false ): undefined;
         return awnser;
     } catch(error) {
         logIntoDebug("pullSQL", `query ${promtName} konnte nicht geladen werden.`);

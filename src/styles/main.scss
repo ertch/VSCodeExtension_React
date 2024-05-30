@@ -241,7 +241,7 @@ dialog {
 
 .debug-window {
     height: 30%;
-    background-color: antiquewhite;
+    background-color: rgb(247, 240, 232);
     bottom: 1em;
     border: 2px solid black;
     margin: 3px;
@@ -252,7 +252,7 @@ dialog {
 }
 
 .debugLog--header {
-    background-color: burlywood;
+    background-color: rgb(212, 167, 107);
     border-bottom: 1px solid black;
     margin: 1px -9px;
     padding: 3px;
@@ -308,14 +308,54 @@ dialog {
 .txt {
     font-size: .69em;
 
-    &--green {
+    &--smallGreen {
         @extend .txt;
         color: forestgreen;
     }
 
-    &--red {
+    &--green {
+        color: forestgreen;
+    }
+
+    &--bigGreen {
+        color: forestgreen;
+        font-weight: bold;
+    }
+
+    &--smallRed {
         @extend .txt;
         color: rgb(117, 10, 10);
+    }
+
+    &--red {
+        color: rgb(172, 16, 16);
+    }
+
+    &--bigRed {
+        color: rgb(153, 6, 6);
+        font-weight: bold;
+    }
+
+    &--blue {
+        color: rgb(5, 18, 207);
+    }
+
+    &--bigBlue {
+        color: rgb(5, 18, 207);
+        font-weight: bold;
+    }
+
+    &--bigOrange {
+        color: rgb(117, 42, 7);
+        font-weight: bold;
+    }
+
+    &--orange {
+        color: rgb(131, 44, 4);
+    }
+
+    &--gray {
+        color: rgb(100, 99, 99);
     }
 }
 

@@ -13,6 +13,7 @@ interface Props {
   options?: Array<Array<any>>;
   gate?: string;
   pageLock?: boolean;
+  preset?: string;
   required?: boolean;
 }
 
@@ -27,11 +28,12 @@ interface Props {
 // actions:[
 //        [value1, close, targetId1],                        
 //        [value1, open, [targetId1, targetId2, targetId3]]
+//        [value2, [setValue, disable], targetId3]
 // ]; 
 
 
 
-const { actions, call, disabled, firstOption, group, id, klasse, label, gate, pageLock, required } = Astro.props;
+const { actions, call, disabled, firstOption, group, id, klasse, label, gate, pageLock, preset, required } = Astro.props;
 const { options } = Astro.props as Props;
 
 let lock = pageLock? "lock" : undefined;
@@ -40,7 +42,7 @@ let errorname = `${id}_errorMsg`;
 let gatewayArr = JSON.stringify(actions);
 gatewayArr = gatewayArr
             .replace(/openOnly/g, 'oo')
-            .replace(/setOption/g, 'so')
+            .replace(/setValue/g, 'sv')
             .replace(/open/g, 'o')
             .replace(/close/g, 'c')
             .replace(/disable/g, 'd')
@@ -55,17 +57,17 @@ gatewayArr = gatewayArr
 <span class="errormessage" id={errorname}></span>
 <select
   class=`dropdown h-drop ${klasse}`
-  id={id}
-  name={id}
+  id          = {id}
+  name        = {id}
+  data-array  = {gatewayArr}
+  data-group  = {group}
+  data-gate   = {gate}
+  data-call   = {call}
+  data-lock   = {lock}
+  data-preset = {preset} 
+  onchange    = {gateway}
   {required}
   {disabled}
-  data-array={gatewayArr}
-  data-group = {group}
-  data-gate = {gate}
-  data-call={call}
-  data-lock={lock} 
-  onchange={gateway}
-  required
 >
   {
     firstOption ? (

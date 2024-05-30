@@ -1,27 +1,35 @@
 //################################################################################### BUILD / BOOT ######################################################################
 
+const { preview } = require("astro");
+
 /** bootUpAPI - Verbindung zur API aufbauen
  * 
  *      Wir nach dem Aufbau der Seite automatisch aufgerufen
  */
 function bootUpAPI() {
     if (!debug) {
-
+        logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
         // Initialisierung des Inhalts-Interfaces
         this.parent.contentInterface.initialize(window,
             function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
                 
                 ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
-                //TODO: startRec
+                            
                 buildUp();
+                call_initialize()
+                //TODO: recordAutoStart()
+                logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
             },
             function onInitializeError(e) {             // Fehler bei der Initialisierung
-                debug && console.log('Initialize contentInterface failed: ' + e.message); 
+                logIntoDebug("bootUpDebug", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${e}` , false);
             }
         );
-    }  
-    buildUp(); 
-};
+    } else {
+        logIntoDebug("bootUpDebug", "Debug: <span class='txt--blue'>true</span> => Initialisierung für Debug-Modus gestartet<br> <span class='txt--red'>Überspringe</span> call_initialize()<br><span class='txt--red'>Überspringe</span> recordAutoStart()" , false);
+        buildUp(); 
+    };
+} 
+   
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** buildUp -  Laden und anzeigen aller Daten.
  * 
@@ -102,7 +110,8 @@ function buildUp() {
     };
     
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
-    autoInject_selects()    // Fülle alle SQLinjectionSelects
+    autoInject_selects();  // Fülle alle SQLinjectionSelects
+    loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
     
     logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
 }
@@ -114,6 +123,7 @@ function buildUp() {
  *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
  */ 
 function createCustomerData() {
+    let logCCD="";
     try {
         // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
         let cardHolder = document.getElementById("customerCells");
@@ -135,12 +145,11 @@ function createCustomerData() {
         } else {
             SqlField = queryDefault();
         };
-
         // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
-        if (typeof SqlField.keys === 'function' && SqlField.keys("standAlone")) { 
+        if (typeof SqlField.keys === 'function' && SqlField.keys("createCard")) { 
             error_msg.innerHTML =  "Datensatz fehlerhaft";
             error_msg.className = "errormessage--db_error";
-
+            logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft"
         } else {
             error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
             // Durchlaufe jedes Element in CustomerData
@@ -159,38 +168,46 @@ function createCustomerData() {
             
             // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerData-Werten
             let chache = ""; // Zwischenspeicher für zu übertragende Werte
-            for (let i = 0; i < CustomerData.length; i++) {
-                let label = CustomerData[i].label; 
-                let id = CustomerData[i].match;
-                let value = CustomerData[i].value;
-                let standAlone = CustomerData[i].standAlone;
+            try {
+                for (let i = 0; i < CustomerData.length; i++) {
+                    let label = CustomerData[i].label; 
+                    let id = CustomerData[i].match;
+                    let value = CustomerData[i].value;
+                    let standAlone = CustomerData[i].standAlone;
+                    let createCard = CustomerData[i].createCard;
+                    
+                    if(createCard) {
+                        // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
+                        standAlone ? undefined : chache = value;
+                        // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
+                        if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
 
-                // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
-                standAlone ? undefined : chache = value;
-                // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
-                if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
-
-                if (standAlone) { // Füge die Cell oder Separator in das HTML ein wenn standAlone true
-                    if (id != "seperator") { 
-                        cardHolder.innerHTML = ` 
-                            ${cardHolder.innerHTML}  
-                            <div class="cell">
-                                <div class="cell__head">${label}</div>
-                                <div class="data_value cell__data" id=${id}>${value}</div>
-                            </div>
-                        `;
-                    } else {
-                        cardHolder.innerHTML = ` 
-                            ${cardHolder.innerHTML}
-                            <div class='separator'></div>
-                        `;
-                    }
+                        if (standAlone) { // Füge die Cell oder Separator in das HTML ein wenn standAlone true
+                            if (id != "seperator") { 
+                                cardHolder.innerHTML = ` 
+                                    ${cardHolder.innerHTML}  
+                                    <div class="cell">
+                                        <div class="cell__head">${label}</div>
+                                        <div class="data_value cell__data" id=${id}>${value}</div>
+                                    </div>
+                                `;
+                            } else {
+                                cardHolder.innerHTML = ` 
+                                    ${cardHolder.innerHTML}
+                                    <div class='separator'></div>
+                                `;
+                            }
+                        };
+                    }  
                 };
-            };
+                logCCD += "<span class='txt--orange'>CustomerData</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
+            } catch(error) {
+                logCCD += "<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
+            }
         }; 
-        logIntoDebug("createCustomerData", "Adressdaten erfolgreich geladen.", false);       
+               
     } catch (error) {
-        debug && console.log("Error: => SQL-Ergebnisse konnten nicht in Cells geladen werden");
+        logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
         debug && console.log(error);
     } 
 
@@ -206,12 +223,71 @@ function createCustomerData() {
             kundenhistorie += `<div class="history">${historyData.rows[i].fields.message}</div>`;
         }
         historyBox.innerHTML = kundenhistorie;
-        logIntoDebug("createCostumerData", "Kundenhistorie erfolgreich geladen.", false);  
+        logCCD += "Kundenhistorie erfolgreich geladen.";  
     } else {
        historyBox.innerHTML = "Keine Historie verfügbar";
-       logIntoDebug("createCostumerData", "Keine Kundenhistorie gefunden.", LogIntottDB); 
+       logCCD += "<span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
     };
+    logIntoDebug("createCustomerData", logCCD, false);
 };
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** loadProviderPreset() - AutoFill Vorgaben vom Provider
+ * 
+ *      Wird im buildUp aufgerufen und Befüllt alle Inputs, oder selects, die das Attribute data-preset bestitzten.
+ *      Der im Attribute abgelegte String besteht aus der id (CustomerData[match]) und einem optionalen "disabled"
+ *      data-preset = "preS1,disabled" füt also den Wert von perS1 hinzu un disabled das Element 
+ */
+function loadProviderPreset() {
+    let presetTargets = document.querySelectorAll('[data-preset]');
+    if (presetTargets.length > 0){
+        let logInserts = "";
+        presetTargets.forEach(target => {
+            let presetData = target.getAttribute("data-preset");
+            let presetId; 
+            let presetState;
+
+            if (presetData.includes(',')) {
+                // Splite den String am Komma, wenn verhanden
+                [presetId, presetState] = presetData.split(',').map(item => item.trim());
+            } else {
+                // Wenn kein Komma vorhanden, nutze String unverändert
+                presetId = presetData;
+            }
+    
+            try { // Suche in CustomerData 
+                CustomerData.some((entry) => {
+                    // wenn passender Eintrag vorhanden, erstelle neue Option
+                    if (entry.match === presetId) {
+                        //Unterscheide zwischen Input und select
+                        console.log(target.tagName)
+                        if(target.tagName === "SELECT") {
+                            injectPreset=document.createElement('option');
+                            injectPreset.text=entry.value;
+                            injectPreset.value=entry.value;
+                            target.appendChild(injectPreset);
+                        }
+                        target.value= entry.value;
+                        logInserts += `Preset <span class"txt--blue">${presetId}</span> in <span class="txt--orange">${target.id}</span> geladen`;
+                        // Wenn disable-Befehl übergeben target = disabled
+                        if(presetState == "disabled"){
+                            target.setAttribute('disabled','');
+                            logInserts += " und <span class='txt--red'>disabled</span>.<br>";
+                        } else {
+                            logInserts += ".<br>";
+                        }
+                    }
+                }); // wenn nicht gefunden, versuche Variable aufzurufen
+                    
+            } catch (error) {
+                    // wenn gar nichts geht, nutzte String (von getInfo)
+                logInserts += `<I class='txt--bigRed'>Error:</I> <span class="txt--orange">${target.id}</span> hat Preset <span class="txt--blue">${presetData}</span> nicht erkannt.<br>`
+            }
+        })
+        logIntoDebug("loadProviderPreset", logInserts, false);
+    } else {
+        logIntoDebug("loadProviderPreset", "Keine Presets gefunden.", false);
+    }
+}
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** PopUp & Debug - Loader / watchdog                                                                                          Funktion geprüft am: 22.05.24 von Erik
@@ -332,14 +408,19 @@ function gatekeeper(actionArr) {
     } else {
         // Wenn actionArr eine String-Id ist, die Anweisungen aus dem Datenattribut des Selects parsen und zuweisen
         gateArr = actionArr.getAttribute("data-array")
-                                        .replace(/oo/g, 'openOnly')
+                                        .replace(/\boo\b/g, 'openOnly')
+                                        .replace(/\bsv\b/g, 'setValue')
                                         .replace(/\bo\b/g, 'open') 
                                         .replace(/\bc\b/g, 'close') 
                                         .replace(/\ba\b/g, 'all')   
                                         .replace(/\bt\b/g, 'trigger')
+                                        .replace(/\bd\b/g, 'disable')
+                                        .replace(/\be\b/g, 'enable')
                                         .replace(/\.+/g, ',')
                                         .replace(/([^,\[\]]+)/g, '"$1"'); 
+        console.log(gateArr);
         gateArr = stringToArray(gateArr);
+        console.log(gateArr);
                                          //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
         [select, switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
             actionArr,
@@ -347,46 +428,76 @@ function gatekeeper(actionArr) {
             actionArr.getAttribute("data-call")
         ];
     }   
-
+    let logOperations = "";
     // Durchlaufen der Anweisungen im gateArr
     gateArr.forEach(operation => {
+        console.log("operation :"+ operation)
         let [value, action, target] = operation; 
         // Überprüfen, ob die aktuelle Select-Option mit dem Wert übereinstimmt
         if (value === select.value) {
-            // try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
-                if (action === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
-                    switchGrp.forEach(element => {
-                        element.classList.add('d-none'); 
-                    });
-                } else if (target === 'all') {        // wenn all --> target = Gruppe
-                    switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
-                };
-                
-                // Ausführen der entsprechenden Aktion (öffnen oder schließen) für jedes Ziel
-                switch (action) {
-                    case 'close':
-                        (Array.isArray(target) ? target : [target]).forEach(id => {
-                            document.getElementById(id).classList.add('d-none');
+            try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
+                (Array.isArray(action) ? action : [action]).forEach(operator => {
+                    console.log("operator: " + operator)
+                    if (operator === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
+                        switchGrp.forEach(element => {
+                            element.classList.add('d-none'); 
                         });
+                    } else if (target === 'all') {        // wenn all --> target = Gruppe
+                        switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
+                    };
+                    
+                    let setValOp; // hole wert aus setValue
+                    if(operator.includes("setValue")) {
+                        prefix = operator.split('{')[1];
+                        console.log("prefix " + prefix)
+                        setValOp = prefix.replace(/}/,"");
+                        operator = operator.split('{')[0];
+                    }
+                                      // Ausführen der entsprechenden Aktion (öffnen oder schließen) für jedes Ziel
+                    switch (operator) {
+                        case 'close':
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                document.getElementById(id).classList.add('d-none');
+                            });
+                            break;
+                    
+                        case 'open':
+                        case 'openOnly':
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                document.getElementById(id).classList.remove('d-none');
+                            });
+                            break;
+                        
+                        case "trigger": // setzte Trigger für übergebene id auf true 
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                setTrigger(id);
+                            });
+                            break;
+                        
+                        case "disable": // setzte Trigger für übergebene id auf true 
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                document.getElementById(id).setAttribute('disabled','');
+                            });
                         break;
-                
-                    case 'open':
-                    case 'openOnly':
-                        (Array.isArray(target) ? target : [target]).forEach(id => {
-                            document.getElementById(id).classList.remove('d-none');
-                        });
+
+                        case "enable": // setzte Trigger für übergebene id auf true 
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                document.getElementById(id).removeAttribute('disabled');
+                            });
+                        break;
+
+                        case "setValue": // setzte Trigger für übergebene id auf true 
+                            (Array.isArray(target) ? target : [target]).forEach(id => {
+                                document.getElementById(id).value = setValOp;
+                            });
                         break;
                     
-                    case "trigger": // setzte Trigger für übergebene id auf true 
-                        (Array.isArray(target) ? target : [target]).forEach(id => {
-                            setTrigger(id);
-                        });
-                        break;
-                
-                    default:
-                        // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
-                        logIntoDebug(select.id ,`Error: gatekeeper hat fehlerhafte action: ${action} in ${gateArr}`, LogIntottDB);
-                } 
+                        default:
+                            // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
+                            logOperations += `<I class='txt--bigRed'>Error:</I> gatekeeper hat fehlerhafte action: ${operator} in ${gateArr} <br>`
+                    }
+                    logOperations += ` --> <span class="txt--blue">${operator}</span> <span class="txt--orange">${target}</span><br>`
+                }) 
                 // Ausführen der Folgefunktion, falls vorhanden
                 nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
 
@@ -396,12 +507,13 @@ function gatekeeper(actionArr) {
                 let lock = actionArr.getAttribute("data-lock");
                 if (lock === "lock") {pageLock = true};
 
-            // } catch (error) {
-            //     // Fehlermeldung ausgeben
-            //    logIntoDebug(select.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!`, LogIntottDB);
-            // };
+            } catch (error) {
+                // Fehlermeldung ausgeben
+               logIntoDebug(select.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!`, LogIntottDB);
+            };
         };
     });
+    logGK? logIntoDebug(`GK <span class="txt--bigOrange">${select.id}</span> = <I class="txt--gray">"${select.value}"</I> `,logOperations, LogIntottDB) : undefined;
 };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** getTrigger - hole triggerListe aus Element
@@ -599,7 +711,7 @@ function executeFunctionFromString(funcString) {
     if (funcName && typeof window[funcName] === 'function') {
        giveBack = window[funcName](...args); // Aufruf
     } else {
-        logIntoDebug( "executeFunctionFromString:",`Aufgerufene Funktion ${funcName} existiert nicht.`, LogIntottDB); //Error_msg
+        logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, LogIntottDB); //Error_msg
     }
     return giveBack;
 };
@@ -636,7 +748,7 @@ function submitForm(form_id) {
             return addressDataArray;
         } catch (error) {
             // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
-            logIntoDebug( "createAdressDataArray","Error: SQL-Ergebnisse konnten nicht in Array geladen werden", LogIntottDB);
+            logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", LogIntottDB);
             return []; 
         }
     };
@@ -670,7 +782,7 @@ function submitForm(form_id) {
         if (showDebug) { // showDebug => ttEditor-config.js
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
-            let awnserTxt = awnser ? "<I class='txt--red'>Keine Daten in der DB gefunden</I>" : "<I class='txt--green'>Daten aus DB empfangen</I>"
+            let awnserTxt = awnser ? "<I class='txt--smallred'>Keine Daten in der DB gefunden</I>" : "<I class='txt--green'>Daten aus DB empfangen</I>"
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + query + "<br>" + awnserTxt;
             window.innerHTML = log;
         };
@@ -680,7 +792,8 @@ function submitForm(form_id) {
 /** Helper H-005                                                                                                             Funktion geprüft am: 22.05.24 von Erik
  * 
  *          HotKeys 
- */
+ */ 
+    let timer;
     function keyUp (event) {
         // Wenn die Taste [Zirkumflex] losgelassen wird
         if (event === 68) { 
@@ -694,10 +807,13 @@ function submitForm(form_id) {
         else if (event === 67) { 
             keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
         }
+        else if (event === 20) {
+            clearTimeout(timer);
+        }
     };
 
     function keyDown (event) {
-    // Wenn die Taste [Zirkumflex] gedrückt wird
+        // Wenn die Taste [D] gedrückt wird
         if (event === 68) { 
             keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
         } 
@@ -708,6 +824,10 @@ function submitForm(form_id) {
         // Wenn die Taste [C] gedrückt wird
         else if (event === 67) { 
             keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
+        }
+
+        else if (event === 20) {
+            timer = setTimeout(callFS, 6000);
         }
 
         // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
@@ -722,6 +842,11 @@ function submitForm(form_id) {
             document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
         } 
     };
+
+    function callFS() {
+        // document.getElementById("fs_txt").innerHTML = fsList[Math.floor(Math.random() * 15) + 1];
+        document.getElementById("fs_dialog").showModal()
+    }
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-006
  * 

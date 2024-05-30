@@ -25,7 +25,8 @@
   }
 
   &:disabled {
-    opacity: 0.5;
+    background-color: #cfcdcd;
+    border-color: #9c9c9c;
     pointer-events: none;
   }
 }
