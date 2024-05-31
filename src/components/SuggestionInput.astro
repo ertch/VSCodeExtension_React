@@ -1,0 +1,67 @@
+---
+interface Props {
+    actions?: Array<Array<any>>;
+    disabled?: boolean;
+    gate?:string;
+    gatekeeper?: boolean;
+    group?:string;
+    id: string;
+    label: string;
+    maxlength?: string;
+    options: Array<string>;
+    pattern?: string;
+    preset?: string;
+    required?: boolean;
+    type?: string;
+    validate?: string;
+    value?: any; 
+}
+
+const { actions, disabled, gate, gatekeeper, group, id, label, maxlength, options, pattern, preset, required, type, validate, value} = Astro.props; 
+
+let errorname = `${id}_errorMsg`;
+let gatewayArr = "";
+let gatekeeperCall="";
+if(gatekeeper===true) {
+    gatekeeperCall = 'GK';
+    gatewayArr = JSON.stringify(actions);
+    gatewayArr = gatewayArr
+                .replace(/openOnly/g, 'oo')
+                .replace(/setValue/g, 'sv')
+                .replace(/open/g, 'o')
+                .replace(/close/g, 'c')
+                .replace(/disable/g, 'd')
+                .replace(/all/g, 'a')
+                .replace(/trigger/g, 't')
+                .replace(/&quot;/g, '')
+                .replace(/"/g, '')
+                .replace(/,/g, '.');
+};
+---
+
+<div>
+    <label for={id}>{label}</label>
+    <span class="errormessage" id={errorname}></span>
+</div>
+
+<input
+    class="input-text"
+    data-array={gatewayArr}
+    data-preset = {preset}
+    data-vali = {validate}
+    {disabled}
+    data-gate   = {gate}
+    data-group  = {group}
+    id={id}
+    list =`${id}List`
+    maxlength={maxlength}
+    name={id}
+    onblur=`triggerDatalist('${id}','${gatekeeperCall}')`
+    {pattern}
+    {required}
+    type={type as "text"}
+    value={value}
+/>
+<datalist id=`${id}List`>
+    {options.map((item) => <option value={item}></option>)}
+</datalist>

@@ -467,3 +467,14 @@ function validateSelect(optionId, optionValue){ // Prüfe ob select den gewünsc
     }
     return true;
 }
+
+function stringToArray(stringArr) {
+    let newArr = JSON.parse(stringArr);
+        newArr.forEach(entry => {
+            if (entry.length > 3) {
+                entry[2] = [entry.slice(3)];
+                entry.length = 3;
+            }              
+        });   
+        return newArr;
+    }

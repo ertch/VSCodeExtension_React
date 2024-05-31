@@ -1,122 +1,5 @@
+// const { preview } = require("astro");
 //################################################################################### BUILD / BOOT ######################################################################
-
-const { preview } = require("astro");
-
-/** bootUpAPI - Verbindung zur API aufbauen
- * 
- *      Wir nach dem Aufbau der Seite automatisch aufgerufen
- */
-function bootUpAPI() {
-    if (!debug) {
-        logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
-        // Initialisierung des Inhalts-Interfaces
-        this.parent.contentInterface.initialize(window,
-            function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
-                
-                ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
-                            
-                buildUp();
-                call_initialize()
-                //TODO: recordAutoStart()
-                logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
-            },
-            function onInitializeError(e) {             // Fehler bei der Initialisierung
-                logIntoDebug("bootUpDebug", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${e}` , false);
-            }
-        );
-    } else {
-        logIntoDebug("bootUpDebug", "Debug: <span class='txt--blue'>true</span> => Initialisierung für Debug-Modus gestartet<br> <span class='txt--red'>Überspringe</span> call_initialize()<br><span class='txt--red'>Überspringe</span> recordAutoStart()" , false);
-        buildUp(); 
-    };
-} 
-   
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** buildUp -  Laden und anzeigen aller Daten.
- * 
- */
-function buildUp() {
-    blnFinishPositive = false; // Variable zur Überprüfung, ob der Anruf positiv abgeschlossen wurde
-
-    if (!debug) {
-        // Richtung des Anrufs
-        calldatatableId = ttWeb.getCalltableField('ID');
-        msisdn = ttWeb.getCalltableField('HOME');
-        indicator = ttWeb.getIndicator();
-        // Telefonkontakt basierend auf dem Indikator festlegen
-        if (indicator == 1) {
-            telKontakt = ttWeb.getCalltableField('HOME');
-        } else if (indicator == 2) {
-            telKontakt = ttWeb.getCalltableField('BUSINESS');
-        } else {
-            telKontakt = ttWeb.getCalltableField('OTHER');
-        }
-        festnetz = ttWeb.getCalltableField('BUSINESS');
-        agentId = ttWeb.getUser().Login;
-
-    } else { // Wenn Debugging aktiviert ist, werden Dummy-Daten gesetzt
-        calldatatableId = 79880808;
-        msisdn = "01768655885";
-        telKontakt = "0190123123";
-        agentId = "2008";
-    }
-
-    // Wenn Debugging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
-    abschlussStatus = pullSQL("result_id");
-    if (!debug && abschlussStatus[0].rows[0].length > 0) {
-       let callResultId = abschlussStatus.fields.result_id;
-
-        if (callResultId == resultIdPositiv) {
-            logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
-            ttWeb.clearRecording();
-            ttWeb.terminateCall('100');
-
-        } else if (callResultId == resultIdNegativ) {
-            logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
-            ttWeb.clearRecording();
-            ttWeb.terminateCall('200');
-        }
-    };
-
-    let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-    document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
-    // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
-    document.getElementById('wiedervorlage_Text').value = "";
-    document.getElementById('apne_delay').value = "";
-    document.getElementById('apne_notiz').value = "";
-
-    if (wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
-        let wievorCount = pullSQL("wiedervorlageCount");
-        if (wievorCount[0].rows[0].fields.length > 0) {
-            wievorData = pullSQL("wiedervorlageData")[0].rows;
-            let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
-            for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
-            document.getElementById(wievorElement).innerHTML = wvtext;
-        }
-    };
-
-    if (showStats) { // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
-        stats = pullSQL("statistik");
-        if (stats[0].rows.length > 0) {
-            stats = stats[0].fields;
-
-            quote = stats.UMWANDLUNGSQUOTE;
-            nettos = stats.NETTOKONTAKTE;
-            if (nettos > 0) {
-                $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
-                $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
-            }
-            logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, LogIntottDB);
-        }
-    };
-    
-    createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
-    autoInject_selects();  // Fülle alle SQLinjectionSelects
-    loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
-    
-    logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
-}
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 /**createCusomerCells
  * 
  *          Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
@@ -315,50 +198,6 @@ function loadProviderPreset() {
         }
     });
 
-    // function freedialBtn() {
-    //     var blnSuccess = true;
-    //     var errMsg = '';
-
-    //     if (document.getElementById('recall_number').value === '') {
-    //     blnSuccess = false;
-    //     errMsg = 'Bitte Rufnummer eingeben!';
-    //     }
-
-    //     if (blnSuccess) {
-    //     document.getElementById('lightbox').style.display = 'none';
-    //     document.getElementById('negativ').style.display = 'none';
-    //     makeRecall();
-    //     } else {
-    //     alert(errMsg);
-    //     }
-    //     return false;
-    // }
-
-    // function recallBtn() {
-    //     if((validateDate($('wiedervorlage_Date').value,'Datum',$('dummyText'),true,2008,2023)) && (validateProductionTime($('wiedervorlage_Time').value,'Zeit',$('dummyText'),true))) {
-    //         document.getElementById('lightbox').style.display='none';
-    //         document.getElementById('wiedervorlage').style.display='none';
-    //         finishCallback();
-    //         return false;
-    //     } else {
-    //         alert($('dummyText').innerHTML);
-    //         return false;
-    //     }
-    // }
-
-    // function apneBtn() {
-    //     if(document.getElementById('apne_delay').value!='') {
-    //         document.getElementById('lightbox').style.display='none';
-    //         document.getElementById('apne').style.display='none';
-    //         finishApne();
-    //         // TODO: Warum return false?
-    //         return false;
-    //       }
-    //       else  {
-    //         alert('Bitte wählen Sie einen Zeitintervall!');
-    //         return false;
-    //       }
-    // }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ################################################################################### GATEKEEPER #############################################################################################
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
@@ -418,9 +257,7 @@ function gatekeeper(actionArr) {
                                         .replace(/\be\b/g, 'enable')
                                         .replace(/\.+/g, ',')
                                         .replace(/([^,\[\]]+)/g, '"$1"'); 
-        console.log(gateArr);
         gateArr = stringToArray(gateArr);
-        console.log(gateArr);
                                          //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
         [select, switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
             actionArr,
@@ -431,25 +268,25 @@ function gatekeeper(actionArr) {
     let logOperations = "";
     // Durchlaufen der Anweisungen im gateArr
     gateArr.forEach(operation => {
-        console.log("operation :"+ operation)
         let [value, action, target] = operation; 
         // Überprüfen, ob die aktuelle Select-Option mit dem Wert übereinstimmt
-        if (value === select.value) {
+       
+        if (value === select.value || value === "default" ) {
+            
             try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
                 (Array.isArray(action) ? action : [action]).forEach(operator => {
-                    console.log("operator: " + operator)
+                    
                     if (operator === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
                         switchGrp.forEach(element => {
                             element.classList.add('d-none'); 
                         });
                     } else if (target === 'all') {        // wenn all --> target = Gruppe
-                        switchGrp.forEach(element => 'open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
+                        switchGrp.forEach(element => action==='open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
                     };
                     
                     let setValOp; // hole wert aus setValue
                     if(operator.includes("setValue")) {
                         prefix = operator.split('{')[1];
-                        console.log("prefix " + prefix)
                         setValOp = prefix.replace(/}/,"");
                         operator = operator.split('{')[0];
                     }
@@ -494,7 +331,7 @@ function gatekeeper(actionArr) {
                     
                         default:
                             // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
-                            logOperations += `<I class='txt--bigRed'>Error:</I> gatekeeper hat fehlerhafte action: ${operator} in ${gateArr} <br>`
+                            logOperations += `<I class='txt--bigRed'>Error:</I> gatekeeper hat fehlerhafte action: ${operator} in ${gateArr.id} <br>`
                     }
                     logOperations += ` --> <span class="txt--blue">${operator}</span> <span class="txt--orange">${target}</span><br>`
                 }) 
@@ -515,50 +352,18 @@ function gatekeeper(actionArr) {
     });
     logGK? logIntoDebug(`GK <span class="txt--bigOrange">${select.id}</span> = <I class="txt--gray">"${select.value}"</I> `,logOperations, LogIntottDB) : undefined;
 };
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** getTrigger - hole triggerListe aus Element
- * 
- * @param {*} callerId 
- * @param {*} validate 
- */
-function getTrigger(callerId, validate){
-    let caller = document.getElementById(callerId);
-    triggerArr = stringToArray(caller.getAttribute("data-trigger"));
-    triggerArr.forEach(operation => {
-        let [value, target] = operation; 
-        if(value === caller.value){
-            setTrigger(target);
-        };
-    });
-    if(validate > "") {
-        weiterBtn(validate);
-    };
+// optionaler Gatekeeperaufruf für SuggestionInputs
+function triggerDatalist(id, gatekeeperCall) {
+    console.log(id + " / " + gatekeeperCall)
+    if(gatekeeperCall>""){
+        gatekeeper(document.getElementById(id));
+    }
 };
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
-* 
-*      setTrigger ist die Zusatzfunktion vom Gatekeeper-Select. Mit dem Befehl 'trigger' kann eine id auf active = true gesetzt werden.
-*      Alle aktiv geschalteten IDs aus der triggerData werden mit der readTrigger-Funktion in ihr jeweiliges ziel geschrieben. 
-* 
-* @param {*} id - ID des zu schaltenden Eintrags
-*/
-function setTrigger(id) {
-    // Setze mitgebene id in triggerData active = true
-    // Setzte alle id der selben Gruppe auf active = false
-    for (const trigger of triggerData) {
-        if (trigger.id === id) {
-            let killGrp = trigger.grp;
-            triggerData.forEach((grpMember) => {
-                if (grpMember.grp === killGrp) {
-                    grpMember.active = false;
-                }
-            });
-            trigger.active = true;
-            break;
-        }
-    }        
-};
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ################################################################################# Text Trigger #############################################################################################
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 /** readTrigger                                                                                                             Funktion geprüft am: 22.05.24 von Erik
 * 
 *      Mit dem Aufruf von readTrigger werden alle bis dahin, in der triggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
@@ -589,6 +394,49 @@ function readTrigger() {
                 cache.add(list.target_id);
         }   
     })
+};
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
+* 
+*      setTrigger ist die Zusatzfunktion vom Gatekeeper-Select. Mit dem Befehl 'trigger' kann eine id auf active = true gesetzt werden.
+*      Alle aktiv geschalteten IDs aus der triggerData werden mit der readTrigger-Funktion in ihr jeweiliges ziel geschrieben. 
+* 
+* @param {*} id - ID des zu schaltenden Eintrags
+*/
+function setTrigger(id) {
+    // Setze mitgebene id in triggerData active = true
+    // Setzte alle id der selben Gruppe auf active = false
+    for (const trigger of triggerData) {
+        if (trigger.id === id) {
+            let killGrp = trigger.grp;
+            triggerData.forEach((grpMember) => {
+                if (grpMember.grp === killGrp) {
+                    grpMember.active = false;
+                }
+            });
+            trigger.active = true;
+            break;
+        }
+    }        
+};
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** getTrigger - hole triggerListe aus Element
+ * 
+ * @param {*} callerId 
+ * @param {*} validate 
+ */
+function getTrigger(callerId, validate){
+    let caller = document.getElementById(callerId);
+    triggerArr = stringToArray(caller.getAttribute("data-trigger"));
+    triggerArr.forEach(operation => {
+        let [value, target] = operation; 
+        if(value === caller.value){
+            setTrigger(target);
+        };
+    });
+    if(validate > "") {
+        weiterBtn(validate);
+    };
 };
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -662,8 +510,9 @@ function switchTab(newPageName) {
         }
     }
 };
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Buttons & Weiterleitungen +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Buttons & Weiterleitungen +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // Validierung der Seite aufrufen und wenn bestanden Button einfügen 
@@ -692,7 +541,69 @@ function  createEndcard() {
     }
 };
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** HotKeys
+ * 
+ *       Anhand des übergebenen KeyCodes -Führe aus...
+ *       @param {*} KeyCode 
+ */
+    function keyDown (event) {
+        // Wenn die Taste [D] gedrückt wird
+        if (event === 68) { 
+            keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
+        } 
+        // Wenn die Taste [Tab] gedrückt wird
+        else if (event === 9) { 
+            keyCode2Pressed = true; // Setze den Status der zweiten Taste auf true
+        }  
+        // Wenn die Taste [C] gedrückt wird
+        else if (event === 67) { 
+            keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
+        }
+        // else if (event === 20) {
+        //     let keyrnd = Math.floor(Math.random() * 55) + 1;
+        //     if (keyrnd === 20) {callFS();};       
+        // }
 
+        // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
+        if (keyCode1Pressed && keyCode2Pressed) {
+            // Ändere die Sichtbarkeit des Debug-Logs
+            document.getElementById("debugLog").classList.toggle("d-none");
+            console.log("Debuglog geöffnet!");
+        }
+        // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
+        if (keyCode2Pressed && keyCode3Pressed) {
+            // Setze den Inhalt des Debug-Logs zurück
+            document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+        } 
+    };
+    function keyUp (event) {
+        // Wenn die Taste [Zirkumflex] losgelassen wird
+        if (event === 68) { 
+            keyCode1Pressed = false; // Setze den Status der ersten Taste auf false
+        } 
+        // Wenn die Taste [Tab] losgelassen wird
+        else if (event === 9) { 
+            keyCode2Pressed = false; // Setze den Status der zweiten Taste auf false
+        } 
+        // Wenn die Taste [C] losgelassen wird
+        else if (event === 67) { 
+            keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
+        }
+    };
+    function callFS() {
+        document.getElementById("fst").showModal();
+        gimmefacts();
+    function fst_C() {
+        document.getElementById("fst").close();
+    }
+    function gimmefacts() {
+        const fsList = ["Schnecken bis zu drei Jahre ohne Nahrung überleben können.","die kürzeste Zeit zwischen zwei Geburten 87 Tage beträgt, was bei einem Elefanten passierte.","das kleinste Säugetier der Welt die Zwergfledermaus ist, die etwa so groß wie eine Hummel ist.","einige Glühwürmchenarten andere Glühwürmchen essen.","Elefanten sich im Spiegel erkennen und verstehen können, dass sie ihr eigenes Spiegelbild sehen.","es in der Antarktis einen Wasserfall gibt, der rot ist. Er wird von roten Algen verursacht.","die durchschnittliche Wolke mehr als eine Million Pfund wiegt.","der Geruch von frisch gemähtem Gras eigentlich das Gras ist, das sich vor Angst wehrt, da es denkt, es würde gemäht werden.","einige Quallenarten niemals altern und potenziell unsterblich sein können.","die längste Zeit, die jemand je ohne Schlaf ausgekommen ist, 11 Tage beträgt.","der längste Wurm der Welt bis zu 55 Meter lang werden kann.","der durchschnittliche Mensch etwa sechs Monate seines Lebens mit Warten an roten Ampeln verbringt.","die erste E-Mail im Jahr 1971 von Ray Tomlinson gesendet wurde, der das @-Symbol für die Adressierung von E-Mails erfand.","Honigbienen miteinander durch Tanz kommunizieren, um ihren Kollegen den Standort von Nahrungsquellen zu zeigen.","die längste Zeit, die jemand je ohne Wasser überlebt hat, 18 Tage beträgt.","die Wahrscheinlichkeit, von einem Hai getötet zu werden, geringer ist als die Wahrscheinlichkeit, vom Blitz getroffen zu werden."];
+        let rnd = Math.floor(Math.random() * 15) + 1;
+        let fact = fsList[rnd];
+        document.getElementById("fs_txt").innerHTML = fact;
+    }
+}
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ HELPER +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -721,9 +632,11 @@ function executeFunctionFromString(funcString) {
  *      Submit Form
  *      @param {string} form_id absenden
  */
-function submitForm(form_id) {
-    document.getElementById(form_id).submit();
-};
+    function submitForm(form_id) {
+        document.getElementById(form_id).submit();
+    };
+
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-003
  * 
@@ -793,60 +706,7 @@ function submitForm(form_id) {
  * 
  *          HotKeys 
  */ 
-    let timer;
-    function keyUp (event) {
-        // Wenn die Taste [Zirkumflex] losgelassen wird
-        if (event === 68) { 
-            keyCode1Pressed = false; // Setze den Status der ersten Taste auf false
-        } 
-        // Wenn die Taste [Tab] losgelassen wird
-        else if (event === 9) { 
-            keyCode2Pressed = false; // Setze den Status der zweiten Taste auf false
-        } 
-        // Wenn die Taste [C] losgelassen wird
-        else if (event === 67) { 
-            keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
-        }
-        else if (event === 20) {
-            clearTimeout(timer);
-        }
-    };
-
-    function keyDown (event) {
-        // Wenn die Taste [D] gedrückt wird
-        if (event === 68) { 
-            keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
-        } 
-        // Wenn die Taste [Tab] gedrückt wird
-        else if (event === 9) { 
-            keyCode2Pressed = true; // Setze den Status der zweiten Taste auf true
-        }  
-        // Wenn die Taste [C] gedrückt wird
-        else if (event === 67) { 
-            keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
-        }
-
-        else if (event === 20) {
-            timer = setTimeout(callFS, 6000);
-        }
-
-        // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
-        if (keyCode1Pressed && keyCode2Pressed) {
-            // Ändere die Sichtbarkeit des Debug-Logs
-            document.getElementById("debugLog").classList.toggle("d-none");
-            console.log("Debuglog geöffnet!");
-        }
-        // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
-        if (keyCode2Pressed && keyCode3Pressed) {
-            // Setze den Inhalt des Debug-Logs zurück
-            document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
-        } 
-    };
-
-    function callFS() {
-        // document.getElementById("fs_txt").innerHTML = fsList[Math.floor(Math.random() * 15) + 1];
-        document.getElementById("fs_dialog").showModal()
-    }
+   
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-006
  * 
@@ -862,13 +722,6 @@ function submitForm(form_id) {
         });
     };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function stringToArray(stringArr) {
-   let newArr = JSON.parse(stringArr);
-    newArr.forEach(entry => {
-        if (entry.length > 3) {
-            entry[2] = [entry.slice(3)];
-            entry.length = 3;
-        }              
-    });   
-    return newArr;
-}
+
+
+ 

@@ -1,3 +1,119 @@
+//################################################################################### BUILD / BOOT ######################################################################
+
+/** bootUpAPI - Verbindung zur API aufbauen
+ * 
+ *      Wir nach dem Aufbau der Seite automatisch aufgerufen
+ */
+function bootUpAPI() {
+    if (!debug) {
+        logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
+        // Initialisierung des Inhalts-Interfaces
+        this.parent.contentInterface.initialize(window,
+            function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
+                
+                ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
+
+                buildUp();
+                call_initialize()
+                //TODO: recordAutoStart()
+                logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
+            },
+            function onInitializeError(e) {             // Fehler bei der Initialisierung
+                logIntoDebug("bootUpAPI", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${e}` , false);
+            }
+        );
+    } else {
+        logIntoDebug("bootUpDebug", "Debug: <span class='txt--blue'>true</span> => Initialisierung für Debug-Modus gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
+        buildUp(); 
+    };
+} 
+   
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** buildUp -  Laden und anzeigen aller Daten.
+ * 
+ */
+function buildUp() {
+    blnFinishPositive = false; // Variable zur Überprüfung, ob der Anruf positiv abgeschlossen wurde
+
+    if (!debug) {
+        // Abruf der notwendigen Daten aus der API
+        clientIP = ttWeb.getClientIP();
+        calldatatableId = ttWeb.getCalltableField('ID');
+        msisdn = ttWeb.getCalltableField('HOME');
+        indicator = ttWeb.getIndicator();
+        // Telefonkontakt basierend auf dem Indikator festlegen
+        if (indicator == 1) {
+            telKontakt = ttWeb.getCalltableField('HOME');
+        } else if (indicator == 2) {
+            telKontakt = ttWeb.getCalltableField('BUSINESS');
+        } else {
+            telKontakt = ttWeb.getCalltableField('OTHER');
+        }
+        festnetz = ttWeb.getCalltableField('BUSINESS');
+        agentId = ttWeb.getUser().Login;
+
+    } else { // Wenn Debugging aktiviert ist, werden Dummy-Daten gesetzt
+        calldatatableId = 79880808;
+        msisdn = "01768655885";
+        telKontakt = "0190123123";
+        agentId = "2008";
+    }
+
+    // Wenn Debugging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
+    abschlussStatus = pullSQL("result_id");
+    if (!debug && abschlussStatus[0].rows[0].length > 0) {
+       let callResultId = abschlussStatus.fields.result_id;
+
+        if (callResultId == resultIdPositiv) {
+            logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
+            ttWeb.clearRecording();
+            ttWeb.terminateCall('100');
+
+        } else if (callResultId == resultIdNegativ) {
+            logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
+            ttWeb.clearRecording();
+            ttWeb.terminateCall('200');
+        }
+    };
+
+    let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
+    document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
+    // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
+    document.getElementById('wiedervorlage_Text').value = "";
+    document.getElementById('apne_delay').value = "";
+    document.getElementById('apne_notiz').value = "";
+
+    if (wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
+        let wievorCount = pullSQL("wiedervorlageCount");
+        if (wievorCount[0].rows[0].fields.length > 0) {
+            wievorData = pullSQL("wiedervorlageData")[0].rows;
+            let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
+            for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
+            document.getElementById(wievorElement).innerHTML = wvtext;
+        }
+    };
+
+    if (showStats) { // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
+        stats = pullSQL("statistik");
+        if (stats[0].rows.length > 0) {
+            stats = stats[0].fields;
+
+            quote = stats.UMWANDLUNGSQUOTE;
+            nettos = stats.NETTOKONTAKTE;
+            if (nettos > 0) {
+                $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
+                $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
+            }
+            logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, LogIntottDB);
+        }
+    };
+    
+    createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
+    autoInject_selects();  // Fülle alle SQLinjectionSelects
+    loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
+    
+    logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
+}
 //#############################################################################################################################################################################
 //---------------------------------------------------------------------------- Anrufe / Calls -------------------------------------------------------------------------------------
 //#############################################################################################################################################################################
@@ -75,7 +191,7 @@
         switch (state) {
             // Wenn der Zustand 'start' ist, wird die Aufnahme (agent & customer) gestartet 
             case 'start':
-               debug? undefined : ttWeb.setRecordingState(recState);
+               debug? debugDirectionState = recState : ttWeb.setRecordingState(recState);
                 logIntoDebug( "record(start)",`Aufnahme wurde gestartet / state: ${recState}`,false);
                 break;
 

@@ -70,7 +70,7 @@ import Select from "@components/SimpleSelect.astro";
 
 <!-- -------------------------------- APNE ------------------------------------- -->
 
-<dialog id="freedial">
+<dialog id="apne">
   <div class="dialog--header">
       <span>Anrufpartner nicht erreicht</span>
       <button id="apne_closeBtn" type="button" class="closedialog" data-id="apne"><i class="glyph glyph-close"></i></button>
@@ -109,10 +109,10 @@ import Select from "@components/SimpleSelect.astro";
       </form>
   </div>
 </dialog>
-<dialog id="fs_dialog">
+<dialog id="fst">
   <div class="dialog--header">
       <span>Feststelltaste aktiviert</span>
-      <button id="freedial_closeBtn" type="button" class="closedialog" data-id="freedial"><i class="glyph glyph-close"></i></button>
+      <button id="fst_closeBtn" type="button" class="closedialog" onclick="fst_C" data-id="fst"><i class="glyph glyph-close"></i></button>
   </div>
   <div>
       <h3>Ich habe festgestellt, dass:</h3>

@@ -3,8 +3,8 @@
 /** TODO:
  *          Prototype raus bekommen
  *         
- *          Debug-Version der ttWebFunctions
- *          record(start, recState)
+ *          
+ *          
  *          Schaltungslogik mit ttWeb für Elemente tab_verabschiedung
  *          Input.value trigger
  *          
@@ -22,6 +22,7 @@
 let calldatatableId;            // ID des Kampagnien-CallTable
 let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
+let clientIP;                   
 
 let ttWeb = new Object();       // Objekt für ttFrame-API
 let recordingName;              // Name des Recordings
@@ -29,6 +30,8 @@ let recordingName;              // Name des Recordings
 let keyCode1Pressed = false;    // Status des ersten Hotkey (Tabulator)
 let keyCode2Pressed = false;    // Status des zweiten Hotkey (D)
 let keyCode3Pressed = false;    // Status des dritten  (C)
+let timer;
+let keyPressStartTime;
 
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 
@@ -71,7 +74,7 @@ let currentPageName="tab_start";        // Set Starttab (erster angezeigert Tab)
 let startCallwithState = 2;             // Call state bei Beginn des Anrufes
 let startRecWithBuildUp = false;        // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
 let startRecWithCall = false;           // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
-let direction;                          // Aktueller Call state
+let debugDirectionState;                // Aktueller Call state
 
 let showStats = false;                  // wenn true, lade AbschlussStatistik (in DebugLog)
 let wiedervorlage = false;              // wenn true, lade WiedervorlageDaten 

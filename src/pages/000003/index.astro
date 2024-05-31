@@ -7,7 +7,7 @@ import Gatekeeper from "@/components/GatekeeperSelect.astro";
 import Gate from "@/components/Gate.astro";
 import GateGroup from "@/components/GateGroup.astro";
 import SQL_Select from "@/components/SQLinjectionSelect.astro";
-import Textfield from "@components/SimpleTextfield.astro";
+import Suggestion from "@components/SuggestionInput.astro";
 import NavTabs from "@components/NavTabs.astro";
 import TabPage from "@components/Section_tabPage.astro";
 import WeiterBtn from "@/components/WeiterButton.astro";
@@ -84,7 +84,29 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                         gate="gk_grp1"
                         pageLock
                     >
-                    </Gatekeeper>                                   
+                    </Gatekeeper>  
+
+                    <Suggestion
+                    id = "datenerfassung_input"
+                    label="Kunde erreicht?"
+
+                    options={[
+                        ,"ja",
+                        "nein",
+                    ]}
+                    actions={[
+                        [`ja`, 'openOnly', "datenerfassung_product"],
+                        [`ja`, 'trigger', "PAtxt1"],
+                        ["nein", "openOnly", "datenerfassung_ablehnung"],
+                        ["nein", "trigger", "NAtxt1"],
+                        ["default", "close", "all"]
+                    ]}
+
+                    gatekeeper
+                    gate="gk_grp1"
+                    group="grp1"
+                    >
+                    </Suggestion>
                 </Field>
             </section>
 
@@ -116,6 +138,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                             type="text"
                             validate="tel"
                             blur='weiterBtn("gk_grp1")'
+                            call="triggerByInput('datenerfassung_email', '015204817689', 'close')"
                         >
                         </Input>
                         <Gatekeeper

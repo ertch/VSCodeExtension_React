@@ -2,7 +2,7 @@
 interface Props {
   id: string;
   label: string;
-  type: string;
+  type?: string;
   call?: string;
   value?: any;
   required?: boolean;
@@ -15,7 +15,7 @@ interface Props {
 
 const { id, label, type, required, maxlength, pattern, call, value, disabled, blur, validate} = Astro.props; 
 
-// TODO: ACHTUNG! Funktioniert nicht im Tab "Zusammenfassung", da das Errordiv "zusammenfassung_errors" heißt
+
 let errorname = `${id}_errorMsg`;
 ---
 
