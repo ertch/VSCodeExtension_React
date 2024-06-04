@@ -8,10 +8,9 @@ interface Props {
   required?: boolean;
   requiredValue?: Array<any>;
   preset?: string;
-  call?: string;
 }
 
-const { trigger, id, label, name, requiredValue, required, call, preset, load } = Astro.props;
+const { trigger, id, label, name, requiredValue, required, preset, load } = Astro.props;
 let errorname = `${id}_errorMsg`;
 let valueArr;
 let triggerArr = JSON.stringify(trigger);
@@ -29,7 +28,6 @@ valueArr = valueArr.replace(/&quot;/g, '')
     id={id} 
     name={name} 
     {required} 
-    onchange={call} 
     data-injection={load} 
     data-required = {valueArr};
     data-trigger = {triggerArr};

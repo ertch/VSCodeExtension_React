@@ -37,7 +37,7 @@ const { actions, call, disabled, firstOption, group, id, klasse, label, gate, pa
 const { options } = Astro.props as Props;
 
 let lock = pageLock? "lock" : undefined;
-let gateway = `gatekeeper(${id})`
+let gateway = `callGatekeeper(${id})`
 let errorname = `${id}_errorMsg`;
 let gatewayArr = JSON.stringify(actions);
 gatewayArr = gatewayArr
@@ -60,6 +60,7 @@ gatewayArr = gatewayArr
   id          = {id}
   name        = {id}
   data-array  = {gatewayArr}
+  data-cache  = "[Bitte auswählen]"
   data-group  = {group}
   data-gate   = {gate}
   data-call   = {call}

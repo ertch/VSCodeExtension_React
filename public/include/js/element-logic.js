@@ -32,7 +32,7 @@ function createCustomerData() {
         if (typeof SqlField.keys === 'function' && SqlField.keys("createCard")) { 
             error_msg.innerHTML =  "Datensatz fehlerhaft";
             error_msg.className = "errormessage--db_error";
-            logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft"
+            logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
         } else {
             error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
             // Durchlaufe jedes Element in CustomerData
@@ -121,6 +121,7 @@ function createCustomerData() {
  *      data-preset = "preS1,disabled" füt also den Wert von perS1 hinzu un disabled das Element 
  */
 function loadProviderPreset() {
+    console.log("loadProviderPreset")
     let presetTargets = document.querySelectorAll('[data-preset]');
     if (presetTargets.length > 0){
         let logInserts = "";
@@ -142,7 +143,6 @@ function loadProviderPreset() {
                     // wenn passender Eintrag vorhanden, erstelle neue Option
                     if (entry.match === presetId) {
                         //Unterscheide zwischen Input und select
-                        console.log(target.tagName)
                         if(target.tagName === "SELECT") {
                             injectPreset=document.createElement('option');
                             injectPreset.text=entry.value;
@@ -210,6 +210,7 @@ function loadProviderPreset() {
 *   Wenn target = "all" genutzt wird, wird ebendfalls an allen Gruppenmitgliedern, die gewählte Aktion ausgeführt. Hinzu kommt der trigger-Befehl, welcher im 
 *   triggerPattern die genannte aktiv schaltet. So kann direkt am Selebt bestimmt werden, welcher Text in der Zusammenfassung erscheinen soll.  
 *   Also eine Funktion zur Steuerung von Modalen oder Elementen basierend auf den Werten ihres Select-Menüs.
+*   Ein zu schaltendes Element muss in einer Gategroup liegen. Falls die Gategroup nicht innerhalb eines Gates liegt. mussen die Element einzeln geschaltet werden
 *   
 *   @param {Array|string} actionArr -   Ein Array mit Anweisungen zur Steuerung der Elemente oder die ID des auslösenden Gatekeeper-Selects.
 *                                       Im Array enthalten sind Anweisungen in folgendem Format: [selectId, switchGrpName, nextFunc].
@@ -229,132 +230,139 @@ function loadProviderPreset() {
 *       [value1, trigger, zmsF12]                              << string, string, string          [Operation] = Nutzte diesen Baustein(Variablenname) für Zusammenfassung. 
 *       ])    
 */
+    function gatekeeper(incomming) { 
+        
+        let callingElement;
+        let gateArr;
+        let switchGrp; 
+        let nextFunc; // alwaysClose bool
+        
+        // Prüfen, ob incomming ein Array, ein Element oder eine ID ist
+        if (Array.isArray(incomming)) {
+            // Wenn incomming ein Array ist, die relevanten Werte zuweisen
+            [callingElement, switchGrp, nextFunc] = [
+                document.getElementById(incomming[0][0]),
+                document.querySelectorAll(`[data-group=${incomming[0][1]}]`),
+                incomming[0][2]
+            ];
+        } else {
+            // Wenn incomming ein String (Id) ist get callingElement und die Anweisungen aus dem Datenattribut parsen und zuweisen
+            incomming instanceof HTMLElement? callingElement=incomming : callingElement=document.getElementById(incomming);
+            gateArr = callingElement.getAttribute("data-array")
+                                    .replace(/\boo\b/g, 'openOnly')
+                                    .replace(/\bsv\b/g, 'setValue')
+                                    .replace(/\bo\b/g, 'open') 
+                                    .replace(/\bc\b/g, 'close') 
+                                    .replace(/\ba\b/g, 'all')   
+                                    .replace(/\bt\b/g, 'trigger')
+                                    .replace(/\bd\b/g, 'disable')
+                                    .replace(/\be\b/g, 'enable')
+                                    .replace(/\.+/g, ',')
+                                    .replace(/([^,\[\]]+)/g, '"$1"'); 
+            gateArr = stringToArray(gateArr);
+                                            //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
+            [switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige callingElement enthält.
+                document.querySelectorAll(`[data-grp=${callingElement.getAttribute("data-group")}]`),
+                callingElement.getAttribute("data-call")
+            ];
+        }   
+        let logOperations = "";
+        // Durchlaufen der Anweisungen im gateArr
+        gateArr.forEach(operation => {
+            let [value, action, target] = operation; 
 
-function gatekeeper(actionArr) { 
-    let gateArr;
-    let select;
-    let switchGrp; 
-    let nextFunc; // alwaysClose bool
-    
-    // Prüfen, ob actionArr ein Array oder eine String-Id ist
-    if (Array.isArray(actionArr)) {
-        // Wenn actionArr ein Array ist, die relevanten Werte zuweisen
-        [select, switchGrp, nextFunc] = [
-            document.getElementById(actionArr[0][0]),
-            document.querySelectorAll(`[data-group=${actionArr[0][1]}]`),
-            actionArr[0][2]
-        ];
-    } else {
-        // Wenn actionArr eine String-Id ist, die Anweisungen aus dem Datenattribut des Selects parsen und zuweisen
-        gateArr = actionArr.getAttribute("data-array")
-                                        .replace(/\boo\b/g, 'openOnly')
-                                        .replace(/\bsv\b/g, 'setValue')
-                                        .replace(/\bo\b/g, 'open') 
-                                        .replace(/\bc\b/g, 'close') 
-                                        .replace(/\ba\b/g, 'all')   
-                                        .replace(/\bt\b/g, 'trigger')
-                                        .replace(/\bd\b/g, 'disable')
-                                        .replace(/\be\b/g, 'enable')
-                                        .replace(/\.+/g, ',')
-                                        .replace(/([^,\[\]]+)/g, '"$1"'); 
-        gateArr = stringToArray(gateArr);
-                                         //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
-        [select, switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige Select enthält.
-            actionArr,
-            document.querySelectorAll(`[data-grp=${actionArr.getAttribute("data-group")}]`),
-            actionArr.getAttribute("data-call")
-        ];
-    }   
-    let logOperations = "";
-    // Durchlaufen der Anweisungen im gateArr
-    gateArr.forEach(operation => {
-        let [value, action, target] = operation; 
-        // Überprüfen, ob die aktuelle Select-Option mit dem Wert übereinstimmt
-       
-        if (value === select.value || value === "default" ) {
-            
-            try {                   // <<<>>> Auftrag für aktuelle Select.value ausführen
-                (Array.isArray(action) ? action : [action]).forEach(operator => {
-                    
-                    if (operator === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
-                        switchGrp.forEach(element => {
-                            element.classList.add('d-none'); 
-                        });
-                    } else if (target === 'all') {        // wenn all --> target = Gruppe
-                        switchGrp.forEach(element => action==='open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
-                    };
-                    
-                    let setValOp; // hole wert aus setValue
-                    if(operator.includes("setValue")) {
-                        prefix = operator.split('{')[1];
-                        setValOp = prefix.replace(/}/,"");
-                        operator = operator.split('{')[0];
-                    }
-                                      // Ausführen der entsprechenden Aktion (öffnen oder schließen) für jedes Ziel
-                    switch (operator) {
-                        case 'close':
-                            (Array.isArray(target) ? target : [target]).forEach(id => {
-                                document.getElementById(id).classList.add('d-none');
-                            });
-                            break;
-                    
-                        case 'open':
-                        case 'openOnly':
-                            (Array.isArray(target) ? target : [target]).forEach(id => {
-                                document.getElementById(id).classList.remove('d-none');
-                            });
-                            break;
-                        
-                        case "trigger": // setzte Trigger für übergebene id auf true 
-                            (Array.isArray(target) ? target : [target]).forEach(id => {
-                                setTrigger(id);
-                            });
-                            break;
-                        
-                        case "disable": // setzte Trigger für übergebene id auf true 
-                            (Array.isArray(target) ? target : [target]).forEach(id => {
-                                document.getElementById(id).setAttribute('disabled','');
-                            });
-                        break;
-
-                        case "enable": // setzte Trigger für übergebene id auf true 
-                            (Array.isArray(target) ? target : [target]).forEach(id => {
-                                document.getElementById(id).removeAttribute('disabled');
-                            });
-                        break;
-
-                        case "setValue": // setzte Trigger für übergebene id auf true 
-                            (Array.isArray(target) ? target : [target]).forEach(id => {
-                                document.getElementById(id).value = setValOp;
-                            });
-                        break;
-                    
-                        default:
-                            // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
-                            logOperations += `<I class='txt--bigRed'>Error:</I> gatekeeper hat fehlerhafte action: ${operator} in ${gateArr.id} <br>`
-                    }
-                    logOperations += ` --> <span class="txt--blue">${operator}</span> <span class="txt--orange">${target}</span><br>`
+            let inputDefault=false; // teste auf Default-Option
+            if(value === "default"){
+                inputDefault=true;  // Ein ein SuggestionInput = "default" prüfe ob ein anderer triggerWert zutrifft
+                DataListChild = document.getElementById(`${callingElement.id}List`).querySelectorAll('option');
+                DataListChild.forEach( options => {
+                    options.value==callingElement.value? inputDefault=false : undefined;
                 }) 
-                // Ausführen der Folgefunktion, falls vorhanden
-                nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
-
-                let gateCheck = actionArr.getAttribute("data-gate");
-                if (gateCheck != "") {weiterBtn(gateCheck)};
-
-                let lock = actionArr.getAttribute("data-lock");
-                if (lock === "lock") {pageLock = true};
-
-            } catch (error) {
-                // Fehlermeldung ausgeben
-               logIntoDebug(select.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!`, LogIntottDB);
             };
-        };
-    });
-    logGK? logIntoDebug(`GK <span class="txt--bigOrange">${select.id}</span> = <I class="txt--gray">"${select.value}"</I> `,logOperations, LogIntottDB) : undefined;
-};
+
+            // Überprüfen, ob die aktuelle callingElement-Option mit dem Wert übereinstimmt oder InputDefault true ist
+            if (value === callingElement.value || inputDefault ) {
+                try {                   // <<<>>> Auftrag für aktuelle callingElement.value ausführen
+                    (Array.isArray(action) ? action : [action]).forEach(operator => {
+                        
+                        if (operator === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
+                            switchGrp.forEach(element => {
+                                element.classList.add('d-none'); 
+                            });
+                        } else if (target === 'all') {        // wenn all --> target = Gruppe
+                            switchGrp.forEach(element => action==='open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
+                        };
+                        
+                        let setValOp; // hole wert aus setValue
+                        if(operator.includes("setValue")) {
+                            prefix = operator.split('{')[1];
+                            setValOp = prefix.replace(/}/,"");
+                            operator = operator.split('{')[0];
+                        }
+                                        // Ausführen der entsprechenden Aktion (öffnen oder schließen) für jedes Ziel
+                        switch (operator) {
+                            case 'close':
+                                (Array.isArray(target) ? target : [target]).forEach(id => {
+                                    target==="all"? undefined : document.getElementById(id).classList.add('d-none');
+                                });
+                                break;
+                        
+                            case 'open':
+                            case 'openOnly':
+                                (Array.isArray(target) ? target : [target]).forEach(id => {
+                                    target==="all"? undefined : document.getElementById(id).classList.remove('d-none');
+                                });
+                                break;
+                            
+                            case "trigger": // setzte Trigger für übergebene id auf true 
+                                (Array.isArray(target) ? target : [target]).forEach(id => {
+                                    setTrigger(id);
+                                });
+                                break;
+                            
+                            case "disable": // setzte Trigger für übergebene id auf true 
+                                (Array.isArray(target) ? target : [target]).forEach(id => {
+                                    document.getElementById(id).setAttribute('disabled','');
+                                });
+                            break;
+
+                            case "enable": // setzte Trigger für übergebene id auf true 
+                                (Array.isArray(target) ? target : [target]).forEach(id => {
+                                    document.getElementById(id).removeAttribute('disabled');
+                                });
+                            break;
+
+                            case "setValue": // setzte Trigger für übergebene id auf true 
+                                (Array.isArray(target) ? target : [target]).forEach(id => {
+                                    document.getElementById(id).value = setValOp;
+                                });
+                            break;
+                        
+                            default:
+                                // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
+                                logOperations += `<I class='txt--bigRed'>Error:</I> gatekeeper hat fehlerhafte action: ${operator} in ${gateArr.id} <br>`
+                        }
+                        logOperations += ` --> <span class="txt--blue">${operator}</span> <span class="txt--orange">${target}</span><br>`
+                    }) 
+                    // Ausführen der Folgefunktion, falls vorhanden
+                    nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
+
+                    let gateCheck = callingElement.getAttribute("data-gate");
+                    if (gateCheck != "") {weiterBtn(gateCheck)};
+
+                    let lock = callingElement.getAttribute("data-lock");
+                    if (lock === "lock") {pageLock = true};
+
+                } catch (error) {
+                    // Fehlermeldung ausgeben
+                logIntoDebug(callingElement.id,`Error: Gatekeeper wurde fehlerhaft ausgeführt!<br> ${error.stack}`, false);
+                }; 
+            };
+        });
+        logGK? logIntoDebug(`GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,logOperations, LogIntottDB) : undefined;
+    };
 // optionaler Gatekeeperaufruf für SuggestionInputs
 function triggerDatalist(id, gatekeeperCall) {
-    console.log(id + " / " + gatekeeperCall)
     if(gatekeeperCall>""){
         gatekeeper(document.getElementById(id));
     }
@@ -451,6 +459,7 @@ function getTrigger(callerId, validate){
  *      @param {*} newTabName 
  */
 function switchTab(newPageName) { 
+    
     // Überprüfen, ob der neue Tab gültig ist
     if (currentPageName != newPageName){
             let lockedBool;
@@ -509,6 +518,7 @@ function switchTab(newPageName) {
             }   
         }
     }
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -519,18 +529,19 @@ function switchTab(newPageName) {
 
 
 function weiterBtn(page_id) {
-    let successBool = silent(document.getElementById(page_id));
     let weiterBtn = document.getElementById('weiterBtn');
-    if (successBool == true) {
+    if (silent(document.getElementById(page_id)) == true) {
         weiterBtn.className = "left_right go";
     } else {
         weiterBtn.className = "left_right go d-none";
     }
 }
 
+
 function  createEndcard() {
     document.getElementById('weiterBtn').className = "left_right go d-none";
     readTrigger();
+    ifTheDivs("tab_zusammenfassung");
 
     // TODO: hier API-abfrage nach Aufnahmestatus
     let RecState = 2;
@@ -695,7 +706,14 @@ function executeFunctionFromString(funcString) {
         if (showDebug) { // showDebug => ttEditor-config.js
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
-            let awnserTxt = awnser ? "<I class='txt--smallred'>Keine Daten in der DB gefunden</I>" : "<I class='txt--green'>Daten aus DB empfangen</I>"
+            console.log(caller + " / " + awnser)
+            let awnserTxt = "";  
+            if (awnser === false) {
+                awnserTxt = "<I class='txt--red'>Keine Daten in der DB gefunden</I>"
+                buildupFail = true;
+            } else {
+                awnserTxt ="<I class='txt--green'>Daten aus DB empfangen</I>"
+            };
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + query + "<br>" + awnserTxt;
             window.innerHTML = log;
         };
@@ -723,5 +741,62 @@ function executeFunctionFromString(funcString) {
     };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ################################################################################# Endcard Trigger #############################################################################################
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/**     Um au der letzten Tab-Page (tab_zusammenfassung) nru jene elemente anzuziegen  die auch gebraucht oder gefordert sind, nutzt man das IfDiv-
+ *      dieses hat die jeweilige Bedingung direkt im data-Attribute. So kann bei jeder Validierung die jeweiligen IfDivs der Seite aufgerufen werden oder bei CallEndcard()
+ *      können die auf der Endcard hinterlegeten IfDivs geladen werden.
+ * 
+ */
 
- 
+function ifTheDivs(tabPage) {
+    let calledDivs = document.getElementById(tabPage).querySelectorAll('.ifDiv');
+
+    calledDivs.forEach(ifDiv => {
+        let validationBool = true;
+        let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
+        let lastStatus = "";
+        let lastBool = true;
+
+        ifcheck.forEach(([status, elementId]) => {
+            let currentBool;
+            let checkstatus = (status === "and" || status === "or") ? lastStatus : status;
+            let element = document.getElementById(elementId);
+
+            switch (checkstatus) {
+                case "active":
+                    currentBool = element.offsetHeight > 0 ;
+                    break;
+                case "hidden":
+                    currentBool = element.offsetHeight === 0;
+                    break;
+                case "filled":
+                    currentBool = element.value.trim() !== "";
+                    break;
+                case "empty":
+                    currentBool = element.value.trim() === "";
+                    break;
+                default:
+                    currentBool = true;
+                    logIntoDebug( "ifTheDiv",`<I class='txt--bigRed'>Error:</I> ${checkstatus}`, LogIntottDB); 
+            }
+            console.log(currentBool + " / " + checkstatus + " / " + elementId + " / v: " + element.offsetHeight)
+            if (status === "and") {
+                currentBool && lastBool? undefined : validationBool = false;
+            } else if (status === "or") {
+                currentBool || lastBool? undefined : validationBool = false;
+            } else {
+                currentBool? undefined : validationBool = false;
+            }
+            lastBool = currentBool;
+            lastStatus = checkstatus;
+        });
+        if (validationBool && ifDiv.classList.contains("d-none")) {
+            ifDiv.classList.remove("d-none");
+        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {
+            ifDiv.classList.add("d-none");
+        }
+    });
+}
+   

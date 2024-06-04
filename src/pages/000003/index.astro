@@ -10,6 +10,7 @@ import SQL_Select from "@/components/SQLinjectionSelect.astro";
 import Suggestion from "@components/SuggestionInput.astro";
 import NavTabs from "@components/NavTabs.astro";
 import TabPage from "@components/Section_tabPage.astro";
+import IfDiv from "@components/IfDiv.astro";
 import WeiterBtn from "@/components/WeiterButton.astro";
 ---
                 <!-- Grunddaten -->
@@ -75,38 +76,49 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                         ]}
                         actions={[
                             [`ja`, 'openOnly', "datenerfassung_product"],
+                            [`ja`, 'open', "kauf"],
+                            [`ja`, "setValue{ja}", "datenerfassung_input"],
                             [`ja`, 'trigger', "PAtxt1"],
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
+                            [`nein`, 'close', "kauf"],
                             ["nein", "trigger", "NAtxt1"],
-                            ["nein", ["setValue{6999},disable"], "datenerfassung_ablehnungsgrund"]
+                            ["nein", ["setValue{7000},disable"], "datenerfassung_ablehnungsgrund"]
                         ]}
                         group="grp1"
                         gate="gk_grp1"
                         pageLock
+                        required
                     >
                     </Gatekeeper>  
 
-                    <Suggestion
-                    id = "datenerfassung_input"
-                    label="Kunde erreicht?"
-
-                    options={[
-                        ,"ja",
-                        "nein",
-                    ]}
-                    actions={[
-                        [`ja`, 'openOnly', "datenerfassung_product"],
-                        [`ja`, 'trigger', "PAtxt1"],
-                        ["nein", "openOnly", "datenerfassung_ablehnung"],
-                        ["nein", "trigger", "NAtxt1"],
-                        ["default", "close", "all"]
-                    ]}
-
-                    gatekeeper
-                    gate="gk_grp1"
-                    group="grp1"
+                    <GateGroup 
+                        id="kauf"
+                        klasse="d-none"
+                        group="grp3"    
                     >
-                    </Suggestion>
+                        <Suggestion
+                        id = "datenerfassung_input"
+                        label="Kunde kaufwillig?"
+                        options={[
+                            "ja",
+                            "nein",
+                        ]}
+                        actions={[
+                            [`ja`, 'openOnly', "datenerfassung_product"],
+                            [`ja`, 'trigger', "PAtxt1"],
+                            ["nein", "openOnly", "datenerfassung_ablehnung"],
+                            ["nein", "enable", "datenerfassung_ablehnungsgrund"],
+                            ["nein", "trigger", "NAtxt1"],
+                            ["default", "close", "all"]
+                        ]}
+                        type="txt"
+                        validate="txt"
+                        gatekeeper
+                        gate="gk_grp1"
+                        group="grp1"
+                        >
+                        </Suggestion>
+                    </GateGroup> 
                 </Field>
             </section>
 
@@ -138,7 +150,6 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                             type="text"
                             validate="tel"
                             blur='weiterBtn("gk_grp1")'
-                            call="triggerByInput('datenerfassung_email', '015204817689', 'close')"
                         >
                         </Input>
                         <Gatekeeper
@@ -279,9 +290,15 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                 </GateGroup>
             </Gate>
 
-            <Gate
+            <IfDiv
                 id="abschliessen"
                 klasse="input_form oneColumn"
+                If={[
+                    ["active","datenerfassung_produkt"],
+                    ["and","datenerfassung_product"],
+                    ["filled", "datenerfassung_email"],
+                    ["or", "datenerfassung_telefon"]
+                ]}
             >
                 <div class="grid abschlussfeld">
                     <Field legend="Abschluss" klasse="field__bg">
@@ -301,7 +318,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                                 &nbsp; Auftrag abschließen
                     </button>
                 </div>
-            </Gate>
+            </IfDiv>
         </TabPage>      
         <WeiterBtn /> <!-- Ende tab_zusammenfassung -->      
     </form>                 <!-- Ende main -->

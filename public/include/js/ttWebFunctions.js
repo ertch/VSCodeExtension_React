@@ -111,8 +111,8 @@ function buildUp() {
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
-    
-    logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
+    console.log(buildupFail)
+    buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
 }
 //#############################################################################################################################################################################
 //---------------------------------------------------------------------------- Anrufe / Calls -------------------------------------------------------------------------------------

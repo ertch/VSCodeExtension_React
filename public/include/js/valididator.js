@@ -1,5 +1,6 @@
+addEventListener("handleMouseUp_", (event) => {});
 // ######################################################################################### VALIDATORS #############################################################################################
-
+let isValidating = 0;
  /** silent - Validierung der Inputs für User-Weitereitung
  * 
  *      Um zu prüfen, wann ein tab-content vollständig ausgefüllt ist, ohne es bei jeder
@@ -11,52 +12,23 @@
  * 
  *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder[requierd] validiert werden sollen.
  */
- function silent(page) {
-    let page_content;
-    let filled = true;
-    if (page instanceof HTMLElement) {
-        page_content =  page;
-    } else {
-        page_content = document.getElementById(page);
-    };
-    
-    // Prüfen, ob das (Tab-content)Elternelement die Klasse "d-none" trägt
-    if (!page_content.classList.contains('d-none')) {
-        
-        // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
-        try {
-            let allInputs = page_content.querySelectorAll('input');
-            let visibleInputs = Array.from(allInputs).filter(isVisible);
-            let allSelects =  page_content.querySelectorAll('select'); 
-            let visibleSelects = Array.from(allSelects).filter(isVisible);
-            visibleInputs.forEach(input => {
-                // Überprüfen, ob die Input[required] ausgefüllt sind (Wert > "")
-                
-                if (input.value == 0 && input.hasAttribute('required')) {
-                    filled = false;
-                }
-            });    
 
-            visibleSelects.forEach(select => {
-                // Überprüfen, ob die Select[required] ausgefüllt sind (Wert > "")
-                
-                if (select.value == 0 && select.hasAttribute('required')) {     
-                    filled = false;
-                }
-            }); 
-            if (visibleInputs.length === "0" && visibleSelects.length == 0) {
-                logIntoDebug("silent (Validation)","Kein [required]-Element gefunden", false);
-            }   
+    function silent(page) {
+        let page_content = page instanceof HTMLElement? page : document.getElementById(page);
+        let filled = true; // visibleInputs = Alle Inputs und Selects der Page die sichtbar['required'] sind 
+        let visibleInputs = getVisibles(page_content.id);  
+        try{
+            visibleInputs.forEach(input => {
+                if (input.value == 0 && input.value == "") {   
+                    filled = false; // Ist ein required-Input leer gib false aus
+                }  
+            })  
         } catch(error) {
             logIntoDebug("silent (Validation)", `Error: ${page_content.id} konnte nicht vallidiert werden`, LogIntottDB);
             filled = false;
         };
-        
-    }else {
-        filled = false;
-    };
-    return filled;
-}
+        return filled;
+    }
 
 // ############################################################################### BUNDLE VALIDATORS #############################################################################################
 
@@ -68,84 +40,71 @@
 * 
 *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder validiert werden sollen.
 */
-function bundleInputs(page_content) {
-    let successBool = true; 
-    // try {
-        let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
-            txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
-            handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
-            email: [],          // Input. Inputs die kein [required] Attribut besitzten, werden von der Validierug ausgeschlossen.
-            tel: [],            // Selects werden nur darauf geprüft, ob sie > null sind. Soll ein Select darauf geprüft werden, ob
-            plz: [],            // eine bestimmte Option ausgewählt wurde; benötigt das Select data-call = "validateSelect(option.value)".    
-            call: [],
-            empty: [],
-            date: [],
-            time: [],
-            dateandtime: [],
-            default: []
-        };
-        // Sammel alle Inputs der Fieldsets, die nicht "d-none" sind aber das Attribut "required" haben
-        let allInputs = document.getElementById(page_content).querySelectorAll('input');
-        let visibleInputs = Array.from(allInputs).filter(isVisible);
-        let allSelects =  document.getElementById(page_content).querySelectorAll('select') 
-        let visibleSelects = Array.from(allSelects).filter(isVisible);
-
-        const ids = Array.from(visibleInputs).map(element => element.id);
-        visibleInputs.forEach(input => {
-           
-            let valiTyp = input.dataset.vali || 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
-
-            if (valiTyp in inputsTypeArr) {
-                // valiTyp entspricht einem Namen in inputsTypeArr, füge es dem entsprechenden Array hinzu
-                inputsTypeArr[valiTyp].push(input.id);
-            } else {
-                // füge das Input in das Array "default" ein (Auffangbecken)
-                inputsTypeArr.default.push(input.id);
-            }
-        });
-
-        let validateSelects = "";
-        visibleSelects.forEach(select => {
-            try{
-                let hit = false;
-                if(select.hasAttribute("data-required")) {
-                    let shouldHave = select.getAttribute("data-required");
-                    shouldHave.forEach(value => {
-
-                        if (value = "!0") {
-                            if (select.value > 0){
-                                hit = true;
-                            }
-                        } else if (value === select.value){ 
-                            hit = true;
-                            validateSelects += `Validierung ${hit}  |  ${select.id} = "${value}"  <br>`;
-                        };
-                    })
-                    if (hit === false){
-                        successBool = false;
-                    };
-                } else {
-                    validateSelects += `Select ohne soll-wert : ${select.id} <br>`;
-                }
-            } catch(error) {
-                validateSelects += ` Error: Validierung nicht möglich : ${select.id} <br>`;
-            }
-        })
-        logIntoDebug("validateSelects", validateSelects, LogIntottDB)
-        
-        // Übergabe an die Validierung der Inputs
-        for (let valiTyp in inputsTypeArr) {  
-            let idArr = inputsTypeArr[valiTyp];
-            if (validateInput(valiTyp, idArr, true) === false) {
-                successBool = false;
+    function bundleInputs(page) {
+        console.log("bundleInputs")
+        let successBool = true; 
+        // try {
+            let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
+                txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
+                handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
+                email: [],          // Input. Inputs die kein [required] Attribut besitzten, werden von der Validierug ausgeschlossen.
+                tel: [],            // Selects werden nur darauf geprüft, ob sie > null sind. Soll ein Select darauf geprüft werden, ob
+                plz: [],            // eine bestimmte Option ausgewählt wurde; benötigt das Select data-call = "validateSelect(option.value)".    
+                call: [],
+                empty: [],
+                date: [],
+                time: [],
+                dateandtime: [],
+                default: []
             };
-        } // wenn Valiedierung fehlerhaft gib false zurück
-        return successBool;
-    // } catch (error) {
-    //     logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
-    //     return false;
-    // }
-};
+            let validateSpecial = [];
+            
+            let visibleInputs = getVisibles(page);
+            visibleInputs.forEach(input => {
+                // Trenne zwischen Inputs und Selects 
+                if (input.tagName == "SELECT") {
+                    input.dataset.required? validateSpecial.push([input, input.getAttribute("data-required")]) :validateSpecial.push([input, ""]) ;
+                } else {
+                    let valiTyp = input.dataset.vali?  input.getAttribute("data-vali") : 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
+                    if (valiTyp in inputsTypeArr) {
+                        // valiTyp entspricht einem Namen in inputsTypeArr, füge es dem entsprechenden Array hinzu
+                        inputsTypeArr[valiTyp].push(input.id);
+                    } else {
+                        // füge das Input in das Array "default" ein (Auffangbecken)
+                        inputsTypeArr.default.push(input.id);
+                    
+                    }
+                }
+            });
+            if(validateSpecial.length>0) {
+                let validateResults = "";
+                validateSpecial.forEach( data => {
+                    
+                    let select = data[0];
+                    if(data[1]=="") {
+                        validateResults += `Select ohne soll-wert : ${select.id} <br>`; 
+                    } else {
+                        let shouldHave = JSON.parse(data[1]);
+                        // Prüfe auf das 
+                        let hit = shouldHave.some(value => value === "!0" ? select.value > 0 : value === select.value);
+                        hit? validateResults += `Validierung ${hit}  |  ${select.id} = "${select.value}"  <br>`:  successBool = false; 
+                    }
+                })
+                logIntoDebug("validateSelects", validateResults, false)
+            }
+            for (let valiTyp in inputsTypeArr) {  
+                let idArr = inputsTypeArr[valiTyp];
+                if (validateInput(valiTyp, idArr, true) === false) {
+                    successBool = false;
+                };
+            } 
+            return successBool;
+
+        // } catch (error) {
+        //     logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
+        //     return false;
+        // }
+    };
 
 //--------------------------------------------------------------------- Vaidierung der Bundles -----------------------------------------------------------------
 
@@ -164,11 +123,11 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
     let boolErr = true;         //
     let extVali = false;
     let successBool = true; 
-
+    
     switch (type) { // RegEx und Fehlernachricht nach Type auswählen
 
         case 'txt':
-            regX = /^(?=.*\b[\p{L}\d\s.,:;!?+()\[\]{}="'-]+\b)[\p{L}\d\s.,:;!?+()\[\]{}"='-]{1,255}$/; 
+            regX = /^.{1,255}$/; 
             errTxt = "Ungültiger oder zu langer Text"; //wenn kleiner als 1 oder länger als 255
             break;
     
@@ -221,7 +180,9 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
     }; 
     
     try {
+        
         if (idArr != 0) {
+            typeof idArr==="string"? idArr=[idArr]:undefined;
             let logValidation ="";
             idArr.forEach(id => { // ArrayEinträge Iterieren -> Input.value auslesen
                 let target = document.getElementById(id).value;
@@ -454,18 +415,22 @@ function validateSelect(optionId, optionValue){ // Prüfe ob select den gewünsc
     return select.value === optionValue ? true : false;
  }
 
- function isVisible(element) {
-    // Prüfe, ob das Element oder eines seiner Eltern die Klasse 'd-none' hat oder 'display: none' verwendet
-    while (element) {
-        if (element.classList && element.classList.contains('d-none')) {
-            return false;
-        }
-        if (window.getComputedStyle(element).display === 'none') {
-            return false;
-        }
-        element = element.parentElement;
+ function getVisibles(elementid) {
+    // Prüfe, ob die Element ein Tab-Page oder dessen Eltern die Klasse 'd-none' hat oder 'display: none' verwendet
+    console.trace()
+    let visibleInputs = [];
+    let element = elementid instanceof HTMLElement? elementid : document.getElementById(elementid);
+    try {
+        let allInputs = element.querySelectorAll('input[required], select[required]');
+        allInputs.forEach((currentElement) => {
+            currentElement.offsetHeight>0? visibleInputs.push(currentElement) : undefined;
+        })
+        visibleInputs.length === 0?  logIntoDebug("getVisible","Kein [required]-Element gefunden", false) : undefined;
+        return visibleInputs;
+    }catch(error) {
+        logIntoDebug("getVisible", `Error: ${element} konnte nicht verarbeitet werden <br> ${error.stack}`, false);
+        return [];
     }
-    return true;
 }
 
 function stringToArray(stringArr) {
@@ -478,3 +443,10 @@ function stringToArray(stringArr) {
         });   
         return newArr;
     }
+
+function callGatekeeper(gk){
+    if(gk.getAttribute("data-cache") != gk.value) {
+        gk.setAttribute("data-cache", gk.value);
+        gatekeeper(gk);
+    }
+}

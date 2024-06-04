@@ -50,15 +50,18 @@ function ste_out_1() { // Der Name der gewünschten Funktion wird im CustumerCel
         join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
         where calldatatable.id = ${calldatatableId} LIMIT 1
     `;
-    let SQLdataset = executeSql(query);
-    
-    // Hier ID aus DataObjekt zuweisen
-    addressdatatableId = SQLdataset[0].rows[0].columns[0];
+    try {
+        let SQLdataset = executeSql(query);
+        // Hier ID aus DataObjekt zuweisen
+        addressdatatableId = SQLdataset[0].rows[0].columns[0];
 
-    // Hier dataField aus DataObjekt zuweisen
-    SqlField = SQLdataset[0].rows[0].fields;
-
-    logSQL? logsqlIntoDebug(`SQL TableID: <span class="txt--blue">${addressdatatableId}</span>`,query, SqlField==""?true:false ) : undefined;
+        // Hier dataField aus DataObjekt zuweisen
+        SqlField = SQLdataset[0].rows[0].fields;
+    } catch {
+        SqlField = [];
+    }
+    let send = SqlField>[]?true:false;
+    logSQL? logsqlIntoDebug(`SQL TableID: <span class="txt--blue">${addressdatatable}</span>`,query, send ) : undefined;
     return SqlField;                           
 };
 
@@ -110,7 +113,8 @@ function pullSQL (promtName) {
             default:
         };
         let awnser = executeSql(query);
-        logSQL? logsqlIntoDebug(promtName, query, awnser==""?true:false ): undefined;
+        let send = awnser.length>0?true:false;
+        logSQL? logsqlIntoDebug(promtName, query, send): undefined;
         return awnser;
     } catch(error) {
         logIntoDebug("pullSQL", `query ${promtName} konnte nicht geladen werden.`);

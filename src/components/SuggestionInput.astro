@@ -5,7 +5,9 @@ interface Props {
     gate?:string;
     gatekeeper?: boolean;
     group?:string;
+    hidden?:boolean;
     id: string;
+    klasse?: string;
     label: string;
     maxlength?: string;
     options: Array<string>;
@@ -17,11 +19,12 @@ interface Props {
     value?: any; 
 }
 
-const { actions, disabled, gate, gatekeeper, group, id, label, maxlength, options, pattern, preset, required, type, validate, value} = Astro.props; 
+const { actions, disabled, gate, gatekeeper, group, hidden, id, klasse, label, maxlength, options, pattern, preset, required, type, validate, value} = Astro.props; 
 
 let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
 let gatekeeperCall="";
+let setClass = hidden===true? klasse + " d-none" : klasse;
 if(gatekeeper===true) {
     gatekeeperCall = 'GK';
     gatewayArr = JSON.stringify(actions);
@@ -39,20 +42,19 @@ if(gatekeeper===true) {
 };
 ---
 
-<div>
-    <label for={id}>{label}</label>
-    <span class="errormessage" id={errorname}></span>
-</div>
+
+<label for=`${id}`>{label}</label>
+<span class="errormessage" id={errorname}></span>
 
 <input
-    class="input-text"
+    class=`input-text ${setClass}`
     data-array={gatewayArr}
     data-preset = {preset}
     data-vali = {validate}
     {disabled}
     data-gate   = {gate}
     data-group  = {group}
-    id={id}
+    id=`${id}`
     list =`${id}List`
     maxlength={maxlength}
     name={id}
@@ -65,3 +67,4 @@ if(gatekeeper===true) {
 <datalist id=`${id}List`>
     {options.map((item) => <option value={item}></option>)}
 </datalist>
+

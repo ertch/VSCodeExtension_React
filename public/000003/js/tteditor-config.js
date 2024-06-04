@@ -6,7 +6,7 @@
  *          
  *          
  *          Schaltungslogik mit ttWeb für Elemente tab_verabschiedung
- *          Input.value trigger
+ *          
  *          
  *          
  *          SQL-gen form SenBa-Filter
@@ -34,7 +34,7 @@ let timer;
 let keyPressStartTime;
 
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
-
+let buildupFail = false;
 let triggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
 let CostumerData;                       // Erstellung global CustomerData   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
@@ -85,7 +85,7 @@ let showDebug = true;                   // Wenn true, kann der Log auf der Seite
 let debug = true;                       // Wenn true, dann wird mit SQL-Fakeconnector verbunden
 
 let logGK = true;                       // Gatekeeper in Log anzeigen
-let logSQL = false;                     // SQL-Statemants in Log anzeigen
+let logSQL = true;                     // SQL-Statemants in Log anzeigen
 //------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------
 // Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.       Funktion geprüft am: 23.05.24 von Erik
 // Um in den Filenames einen Zeitsempel einzutragen, ist die Funktion notwendig
@@ -101,6 +101,8 @@ function gettime() { // Uhrzeit
     let time = new Date().toLocaleTimeString();
     return `${time.replace(/\:+/g, '-')}uhr`; // hh-mm-ss
 }
+
+
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //---------------------------------------------------------------------------------------------------------------------------------------------------------

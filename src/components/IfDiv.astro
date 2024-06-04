@@ -1,0 +1,25 @@
+---
+interface Props {
+  id?: string;
+  If: Array<Array<any>>;
+  group?: string;
+  klasse?: string;
+  required?:boolean;
+  hidden?:boolean
+}
+
+const { id, If, group, klasse, hidden, required } = Astro.props;
+let ifArr = JSON.stringify(If);
+let setClass = {hidden}? klasse + " d-none" : klasse;
+---
+<div 
+    id={id} 
+    class=`ifDiv ${setClass}` 
+    data-grp={group} 
+    data-if={ifArr}
+    {required}
+>
+    <slot>
+    
+    </slot>
+</div>
