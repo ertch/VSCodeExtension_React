@@ -11,7 +11,7 @@ import Suggestion from "@components/SuggestionInput.astro";
 import NavTabs from "@components/NavTabs.astro";
 import TabPage from "@components/Section_tabPage.astro";
 import IfDiv from "@components/IfDiv.astro";
-import WeiterBtn from "@/components/WeiterButton.astro";
+import NextPageBtn from "@/components/WeiterButton.astro";
 ---
                 <!-- Grunddaten -->
 <CampaignLayout     
@@ -45,13 +45,14 @@ import WeiterBtn from "@/components/WeiterButton.astro";
             myTab="tab1"
             isVisible 
         >                      <!-- tab_start -->
-            <div class="history">
+            <section class="history grid">
                 <Field 
                     id="kundenhistorie" 
                     legend="Kundenhistorie" 
+                    klasse="dis-p"
                 >
                 </Field>
-            </div>
+            </section>
         </TabPage>          <!--  Ende tab_start -->
         
         <TabPage 
@@ -140,7 +141,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                             label="E-Mail-Adresse"
                             type="email"
                             validate="email"
-                            blur='weiterBtn("gk_grp1")'
+                            blur='showWeiterBtn("gk_grp1")'
                             required
                         >
                         </Input>
@@ -149,7 +150,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                             label="Abweichende Telefonnummer?"
                             type="text"
                             validate="tel"
-                            blur='weiterBtn("gk_grp1")'
+                            blur='showWeiterBtn("gk_grp1")'
                         >
                         </Input>
                         <Gatekeeper
@@ -184,7 +185,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                                     label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
                                     type="text"
                                     validate="date"
-                                    blur='weiterBtn("gk_grp1")'
+                                    blur='showWeiterBtn("gk_grp1")'
                                     required
                                 >
                                 </Input>
@@ -198,7 +199,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                         <Select
                             id="datenerfassung_optin_detail"
                             label="Optin?"
-                            call='weiterBtn("tab_product_gk_grp1")'
+                            call='showWeiterBtn("tab_product_gk_grp1")'
                             firstOption={
                                 ["keine", "Keine Änderung der Werbeerlaubnis"]
                             }
@@ -225,7 +226,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                                 id="datenerfassung_ablehnungsgrund"
                                 label="Ablehnungsgrund:"
                                 name="datenerfassung_ablehnungsgrund"
-                                call="weiterBtn('gk_grp1')"
+                                call="showWeiterBtn('gk_grp1')"
                                 load="cancellation_reasons"
                                 required
                             >
@@ -249,22 +250,25 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                 >
                     <div id="zusammenfassung_errors"></div>
                     <Field legend="Zusammenfassung">
-                        <div id="zusammenfassung_text"></div>
+                        <div id="zusammenfassung_text" class="dis-p" ></div>
                     </Field>
                 </GateGroup>
             
-                <GateGroup
+                <IfDiv
                     id="recording"
-                    klasse="input_form oneColumn grid-col_1"
+                    klasse="input_form grid-col_1 d-none"
                     group="endCard"
+                    If={[
+                        ["hasValue{015204817689}", "datenerfassung_telefon"]
+                    ]} 
                 >
                     <Field 
                         legend="Aufnahme" 
                         klasse="grid-col_1 field__bg"
                     >
-                        <div  
+                        <div
                             id="recorddisplay" 
-                            class="recordDisplay"
+                            class="input_form recordDisplay"
                         >
                             <div class="recordDisplay__info">
                                 <i class="glyph glyph-record"></i> 
@@ -287,7 +291,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                             </div>
                         </div>
                     </Field>
-                </GateGroup>
+                </IfDiv>
             </Gate>
 
             <IfDiv
@@ -301,7 +305,7 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                 ]}
             >
                 <div class="grid abschlussfeld">
-                    <Field legend="Abschluss" klasse="field__bg">
+                    <Field legend="Abschluss" klasse="field__bg dis-p">
                     </Field>
                 </div>
                 <div 
@@ -320,6 +324,6 @@ import WeiterBtn from "@/components/WeiterButton.astro";
                 </div>
             </IfDiv>
         </TabPage>      
-        <WeiterBtn /> <!-- Ende tab_zusammenfassung -->      
+        <NextPageBtn></NextPageBtn> <!-- Ende tab_zusammenfassung -->      
     </form>                 <!-- Ende main -->
  </CampaignLayout>

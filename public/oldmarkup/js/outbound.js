@@ -558,7 +558,6 @@ function gatekeeper(actionArr) {
     let select = document.getElementById(gateArr[0][0]);
     let selectedValue = select.value;
     let dataGrp = gateArr[0][1]; // muss vorhanden sein
-    console.log(`gatekeeper von ${select}`)
     gateArr.forEach(operation => {
         let [value, action, target] = operation; 
 

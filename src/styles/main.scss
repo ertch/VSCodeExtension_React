@@ -372,3 +372,28 @@ dialog {
     right: 0;
     margin: auto;
 }
+
+.dis-p {
+    padding: 0px 15px 10px;
+
+    & p {
+        margin: 0 0 2px;
+    }
+}
+
+.recordDisplay {
+    display: flex;
+}
+
+input::-webkit-calendar-picker-indicator {
+    color: rgb(180, 166, 166);
+
+}
+
+datalist {
+    background-color: #1fd41f;
+
+    & option {
+        background-color: blue;
+    }
+}

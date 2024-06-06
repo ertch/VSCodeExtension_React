@@ -88,14 +88,11 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_name, cell_patte
 		<script>
 			document.querySelector("body").style.visibility = "hidden";
 			document.querySelector("#loader").style.visibility = "visible";
-			 window.onload = function() { 
+			window.onload = function() { // Loading-Symbol
     			document.querySelector("#loader").style.display = "none";
 				document.querySelector("body").style.visibility = "visible";
 			}
 			
-			// boot JS
-			document.addEventListener('DOMContentLoaded', bootUpAPI());
-
 			// HotKey event
 			let timer = 0;
 			document.onkeyup = function(event) {
@@ -108,7 +105,17 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_name, cell_patte
 			};
 			document.onkeydown = function(event) {
 				event = event || window.event;
-				if (event.keyCode === 20) { 
+				if (event.keyCode === 13 && btnLock) {
+					event.preventDefault();  
+
+					// var $item = $('item');
+
+					// var keypressEvent = $.Event('keypress');
+					// keypressEvent.which = 9; // Tab key code
+					// keypressEvent.keyCode = 9;
+					// $item.trigger(keypressEvent);
+										
+				} else if (event.keyCode === 20) { 
 					timer++;
 					timer===150? callFS() : undefined ;
 				}else if (showDebug) {
@@ -116,7 +123,8 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_name, cell_patte
 				}
 			};
 			
-			
+			// boot JS
+			document.addEventListener('DOMContentLoaded', bootUpAPI());
 			document.addEventListener("DOMContentLoaded", function() {
 
 				const dialogList    = document.getElementsByTagName("dialog");
@@ -126,7 +134,7 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_name, cell_patte
 				// "Show the dialog" button opens the dialog modal
 				for(let x = 0; x < showButtonList.length; x++) {
 					showButtonList[x].addEventListener("click", () => {
-						console.log("click on " + showButtonList[x].id);
+						// console.log("click on " + showButtonList[x].id);
 						dialogList[x].showModal();
 					});
 				}
@@ -138,6 +146,17 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_name, cell_patte
 					});
 				}
 			});
+			// prevent using Buttons via Enter, when focus on element
+			document.addEventListener('focusin', function(event) {
+				try{
+					if(document.activeElement.tagName === ('INPUT')){
+						btnLock = true;
+					} else {
+						btnLock = false;
+					}
+				}catch(e){};
+			});
+
 		</script>
 
 	</body>

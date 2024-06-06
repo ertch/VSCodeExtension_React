@@ -161,14 +161,6 @@ textarea:focus{
 	min-height: 0px;
 }
 
-#kundenhistorie {
-	text-align: left;
-	font-family: sans-serif;
-	width: 90%;
-	margin: 0 auto;
-	min-height: 0px;
-}
-
 .go {
 	margin: 5px;
 	width: 160px;

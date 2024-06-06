@@ -24,7 +24,7 @@ const { actions, disabled, gate, gatekeeper, group, hidden, id, klasse, label, m
 let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
 let gatekeeperCall="";
-let setClass = hidden===true? klasse + " d-none" : klasse;
+let setClass = hidden===true? klasse + " d-none" : `${klasse}`;
 if(gatekeeper===true) {
     gatekeeperCall = 'GK';
     gatewayArr = JSON.stringify(actions);
@@ -47,7 +47,7 @@ if(gatekeeper===true) {
 <span class="errormessage" id={errorname}></span>
 
 <input
-    class=`input-text ${setClass}`
+    class=`input-text suggest ${setClass}`
     data-array={gatewayArr}
     data-preset = {preset}
     data-vali = {validate}
@@ -64,7 +64,7 @@ if(gatekeeper===true) {
     type={type as "text"}
     value={value}
 />
-<datalist id=`${id}List`>
+<datalist id=`${id}List` class="suggestion">
     {options.map((item) => <option value={item}></option>)}
 </datalist>
 

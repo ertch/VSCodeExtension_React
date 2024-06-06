@@ -19,7 +19,7 @@ function executeSql(sql) {
     }else {
         try { // Debug: Dem Debug-SQL-Connector kontaktieren  
             var result = null;
-            new Ajax.Request('http://admin/outbound.dbconnector/index.php?sql=' + encodeURIComponent(sql), {
+            new Ajax.Request(`${nestor}${encodeURIComponent(sql)}`, {
                 method: 'get',
                 asynchronous: false,
                 onSuccess: function(transport) {

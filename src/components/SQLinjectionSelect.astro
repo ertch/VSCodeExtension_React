@@ -1,5 +1,6 @@
 ---
 interface Props {
+  call?: string;
   trigger?: Array<Array<any>>;
   id: string;
   label: string;
@@ -10,7 +11,7 @@ interface Props {
   preset?: string;
 }
 
-const { trigger, id, label, name, requiredValue, required, preset, load } = Astro.props;
+const { call, trigger, id, label, name, requiredValue, required, preset, load } = Astro.props;
 let errorname = `${id}_errorMsg`;
 let valueArr;
 let triggerArr = JSON.stringify(trigger);
@@ -27,6 +28,7 @@ valueArr = valueArr.replace(/&quot;/g, '')
 <select class="dropdown h-drop" 
     id={id} 
     name={name} 
+    onchange={call}
     {required} 
     data-injection={load} 
     data-required = {valueArr};

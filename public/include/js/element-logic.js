@@ -91,7 +91,7 @@ function createCustomerData() {
                
     } catch (error) {
         logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
-        debug && console.log(error);
+        debug && console.log(error.stack);
     } 
 
     // Kundenhistorie laden und anzeigen
@@ -103,7 +103,7 @@ function createCustomerData() {
     
         let kundenhistorie = historyBox.innerHTML;
         for (let i = 0; i < historyData.rows.length; i++) {
-            kundenhistorie += `<div class="history">${historyData.rows[i].fields.message}</div>`;
+            kundenhistorie += `<p class="history">${historyData.rows[i].fields.message}</p>`;
         }
         historyBox.innerHTML = kundenhistorie;
         logCCD += "Kundenhistorie erfolgreich geladen.";  
@@ -121,7 +121,6 @@ function createCustomerData() {
  *      data-preset = "preS1,disabled" füt also den Wert von perS1 hinzu un disabled das Element 
  */
 function loadProviderPreset() {
-    console.log("loadProviderPreset")
     let presetTargets = document.querySelectorAll('[data-preset]');
     if (presetTargets.length > 0){
         let logInserts = "";
@@ -348,7 +347,7 @@ function loadProviderPreset() {
                     nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
 
                     let gateCheck = callingElement.getAttribute("data-gate");
-                    if (gateCheck != "") {weiterBtn(gateCheck)};
+                    if (gateCheck != "") {showWeiterBtn(gateCheck)};
 
                     let lock = callingElement.getAttribute("data-lock");
                     if (lock === "lock") {pageLock = true};
@@ -443,7 +442,7 @@ function getTrigger(callerId, validate){
         };
     });
     if(validate > "") {
-        weiterBtn(validate);
+        showWeiterBtn(validate);
     };
 };
 
@@ -458,67 +457,69 @@ function getTrigger(callerId, validate){
  * 
  *      @param {*} newTabName 
  */
-function switchTab(newPageName) { 
+    function switchTab(newTabName) { 
     
     // Überprüfen, ob der neue Tab gültig ist
-    if (currentPageName != newPageName){
+        if (currentTabName != newTabName){
             let lockedBool;
-            switch (currentPageName) {
-                case "tab_product":
-                    if (pageLock === true) {
-                        lockedBool = bundleInputs(currentPageName);  
-                    } else {
-                        lockedBool = true;
-                    };
-                    break;
-
-                default:
+            if (currentTabName != firstTab && currentTabName != lastTab)  {
+                // Prüfe ob Seite gesperrt wenn nicht start oder end
+                if (pageLock === true) {
+                    // prüfe üb alle requierd ausgefüllt sind
+                    lockedBool = bundleInputs(currentTabName);  
+                } else {
                     lockedBool = true;
+                };
+            } else { // wenn start oder end
+                lockedBool = true;
             }
+
             if(lockedBool === true){
 
-            // Aktuellen Tabnamen aktualisieren
-            let currentPage = document.getElementById(newPageName);
-            let oldPage = document.getElementById(currentPageName);
-            currentPageName = newPageName;
-            
-            oldPage.className = "page_content d-none";
-            currentPage.className = "page_content";
+                if (newTabName === lastTab) {  
+                    ifTheDivs(lastTab);
+                    createEndcard();
+                } 
 
-
-            // Wenn der neue Tab bereits sichtbar ist, nichts tun
-            if (!document.getElementById(newPageName).classname === ("page_content d-none")) {
+                // Aktuellen Tabnamen aktualisieren
+                let currentPage = document.getElementById(newTabName);
+                let oldPage = document.getElementById(currentTabName);
+                currentTabName = newTabName;
+                
+                oldPage.className = "page_content d-none";
+                currentPage.className = "page_content";
+        
+                // Wenn der neue Tab bereits sichtbar ist, nichts tun
+                if (!document.getElementById(newTabName).classname === ("page_content d-none")) {
+                    return;
+                }
+        
+                // Alle Tabs deaktivieren und den neuen Tab aktivieren
+                let tabs = document.querySelectorAll('.tab');
+                let newTab = currentPage.getAttribute("data-tab");
+                tabs.forEach(function(tab, index) {
+                    tab.className = 'tab';
+                    if (tab.id === newTab) {
+                        tab.className = 'tab current';
+                    }
+                });
+        
+                // Anzeigen oder Ausblenden von Buttons basierend auf dem Tab
+                ['div_go_ane', 'div_go_abfax', 'div_go_positiv'].forEach(function(elementId) {
+                    if (newTabName !== firstTab && newTabName !== lastTab){
+                        document.getElementById(elementId).className = "go d-none";
+                        showWeiterBtn(newTabName);
+                    } else {
+                        document.getElementById(elementId).className = "go";
+                        document.getElementById('weiterBtn').className = "left_right go d-none";
+                    }
+                }); 
+                // Buton kann erst nach der Validierung entfernt werden
+                newTabName === lastTab? document.getElementById('weiterBtn').classList.add("d-none") : undefined;
+            } else {
                 return;
-            }
-
-            // Alle Tabs deaktivieren und den neuen Tab aktivieren
-            let tabs = document.querySelectorAll('.tab');
-            let newTab = currentPage.getAttribute("data-tab");
-            tabs.forEach(function(tab, index) {
-                tab.className = 'tab';
-                if (tab.id === newTab) {
-                    tab.className = 'tab current';
-                }
-            });
-
-            // Anzeigen oder Ausblenden von Buttons basierend auf dem Tab
-            ['div_go_ane', 'div_go_abfax', 'div_go_positiv'].forEach(function(elementId) {
-                if (newPageName !== 'tab_start'){
-                    document.getElementById(elementId).className = "go d-none";
-                    weiterBtn(newPageName);
-                } else {
-                    document.getElementById(elementId).className = "go";
-                    document.getElementById('weiterBtn').className = "left_right go d-none";
-                }
-            });
-            
-            if (newPageName === 'tab_zusammenfassung') {
-                document.getElementById('weiterBtn').className = "left_right go d-none";
-                createEndcard();
-            }   
         }
     }
-
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -528,20 +529,37 @@ function switchTab(newPageName) {
 // Validierung der Seite aufrufen und wenn bestanden Button einfügen 
 
 
-function weiterBtn(page_id) {
-    let weiterBtn = document.getElementById('weiterBtn');
+function showWeiterBtn(page_id) {
+    let showWeiterBtn = document.getElementById('weiterBtn');
     if (silent(document.getElementById(page_id)) == true) {
-        weiterBtn.className = "left_right go";
+        showWeiterBtn.className = "left_right go";
     } else {
-        weiterBtn.className = "left_right go d-none";
+        showWeiterBtn.className = "left_right go d-none";
     }
 }
 
+function weiterBtn(){
+    let currentTab = document.querySelector(".current").id;
+    let currentNumber = parseInt(currentTab.replace('tab', ''));
+    let newNumber = currentNumber + 1;
+
+    // Neue ID erstellen
+    let newTabId = 'tab' + newNumber;
+
+    // Button mit der neuen ID finden
+    let newTabButton = document.getElementById(newTabId);
+
+    // Wenn der Button existiert, das onclick-Event auslösen
+    if (newTabButton) {
+        newTabButton.click();
+    } 
+}
 
 function  createEndcard() {
+    // debugger;
     document.getElementById('weiterBtn').className = "left_right go d-none";
     readTrigger();
-    ifTheDivs("tab_zusammenfassung");
+    
 
     // TODO: hier API-abfrage nach Aufnahmestatus
     let RecState = 2;
@@ -580,12 +598,12 @@ function  createEndcard() {
         if (keyCode1Pressed && keyCode2Pressed) {
             // Ändere die Sichtbarkeit des Debug-Logs
             document.getElementById("debugLog").classList.toggle("d-none");
-            console.log("Debuglog geöffnet!");
+            debug && console.log("Debuglog geöffnet!");
         }
         // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
         if (keyCode2Pressed && keyCode3Pressed) {
             // Setze den Inhalt des Debug-Logs zurück
-            document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+            debugWindowClear()        
         } 
     };
     function keyUp (event) {
@@ -699,14 +717,14 @@ function executeFunctionFromString(funcString) {
         }
     }
     function debugWindowClear() { // Log löschen
-        document.getElementById("debugLog").innerHTML = `<button type="button" onclick="debugWindowClear()">clear</button>`;
+        document.getElementById("debugLog").innerHTML = `<div class="debugLog--header"><i class="glyph glyph-code"> &nbsp; DebugLog &nbsp;</i> <button type="button" onclick="debugWindowClear()"> clear </button></div>`;
+
     };
 
     function logsqlIntoDebug(caller, query, awnser) {
         if (showDebug) { // showDebug => ttEditor-config.js
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
-            console.log(caller + " / " + awnser)
             let awnserTxt = "";  
             if (awnser === false) {
                 awnserTxt = "<I class='txt--red'>Keine Daten in der DB gefunden</I>"
@@ -744,59 +762,10 @@ function executeFunctionFromString(funcString) {
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ################################################################################# Endcard Trigger #############################################################################################
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/**     Um au der letzten Tab-Page (tab_zusammenfassung) nru jene elemente anzuziegen  die auch gebraucht oder gefordert sind, nutzt man das IfDiv-
- *      dieses hat die jeweilige Bedingung direkt im data-Attribute. So kann bei jeder Validierung die jeweiligen IfDivs der Seite aufgerufen werden oder bei CallEndcard()
- *      können die auf der Endcard hinterlegeten IfDivs geladen werden.
- * 
- */
 
-function ifTheDivs(tabPage) {
-    let calledDivs = document.getElementById(tabPage).querySelectorAll('.ifDiv');
-
-    calledDivs.forEach(ifDiv => {
-        let validationBool = true;
-        let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
-        let lastStatus = "";
-        let lastBool = true;
-
-        ifcheck.forEach(([status, elementId]) => {
-            let currentBool;
-            let checkstatus = (status === "and" || status === "or") ? lastStatus : status;
-            let element = document.getElementById(elementId);
-
-            switch (checkstatus) {
-                case "active":
-                    currentBool = element.offsetHeight > 0 ;
-                    break;
-                case "hidden":
-                    currentBool = element.offsetHeight === 0;
-                    break;
-                case "filled":
-                    currentBool = element.value.trim() !== "";
-                    break;
-                case "empty":
-                    currentBool = element.value.trim() === "";
-                    break;
-                default:
-                    currentBool = true;
-                    logIntoDebug( "ifTheDiv",`<I class='txt--bigRed'>Error:</I> ${checkstatus}`, LogIntottDB); 
-            }
-            console.log(currentBool + " / " + checkstatus + " / " + elementId + " / v: " + element.offsetHeight)
-            if (status === "and") {
-                currentBool && lastBool? undefined : validationBool = false;
-            } else if (status === "or") {
-                currentBool || lastBool? undefined : validationBool = false;
-            } else {
-                currentBool? undefined : validationBool = false;
-            }
-            lastBool = currentBool;
-            lastStatus = checkstatus;
-        });
-        if (validationBool && ifDiv.classList.contains("d-none")) {
-            ifDiv.classList.remove("d-none");
-        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {
-            ifDiv.classList.add("d-none");
-        }
-    });
+function finish() {
+    alert(`${console.trace()} test`)
 }
+
+
    

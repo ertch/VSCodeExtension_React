@@ -2,16 +2,10 @@
 
 /** TODO:
  *          Prototype raus bekommen
- *         
- *          
- *          
- *          Schaltungslogik mit ttWeb für Elemente tab_verabschiedung
- *          
- *          
  *          
  *          SQL-gen form SenBa-Filter
  *          get Data for CuCDa
- *          GK_lite?
+ *         
  *          start call with buildUp option
  *          startRecWithCall 
  *          
@@ -33,12 +27,16 @@ let keyCode3Pressed = false;    // Status des dritten  (C)
 let timer;
 let keyPressStartTime;
 
+let btnLock = false;
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
 let triggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
 let CostumerData;                       // Erstellung global CustomerData   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
 let SendBack = new Object();            // Erstellung global SendBackfilter (SenBa)
+
+let firstTab = "tab_start";
+let lastTab = "tab_zusammenfassung";
     
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -63,18 +61,19 @@ let addressdatatable = 'ste_wel_addressdata';   // SQL adresstable
 let salesdatatable = 'ste_wel_addressdata';     // SQL datatable
 let fieldname_firstname = "firstname";          // SQL column-Bezeichner
 let fieldname_lastname = "surname";             // SQL column-Bezeichner
+let nestor = `http://admin/outbound.dbconnector/index.php?sql=`;
 
 let recordFileName; // [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
 let recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
 let FileNamePattern = ["date", "time", "agendID", "customerid", "ste_wel" ]; // nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
 let recordingNameSuffix = ".ogg"; 
 
-let currentPageName="tab_start";        // Set Starttab (erster angezeigert Tab)
+let currentTabName="tab_start";        // Set Starttab (erster angezeigert Tab)
 
 let startCallwithState = 2;             // Call state bei Beginn des Anrufes
 let startRecWithBuildUp = false;        // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
 let startRecWithCall = false;           // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
-let debugDirectionState;                // Aktueller Call state
+let directionState;                     // Aktueller Call state
 
 let showStats = false;                  // wenn true, lade AbschlussStatistik (in DebugLog)
 let wiedervorlage = false;              // wenn true, lade WiedervorlageDaten 
@@ -185,9 +184,18 @@ function gettime() { // Uhrzeit
         let triggerData = [
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value:  "<p>Keine nutzbaren Daten gefunden</p>"    },
             { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
             { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
         ];
         return triggerData;
+    }
+
+
+    function pushData() {
+        SendBack = [
+            { id: 'PAtxt1',   table:'a',    target_col: 'zusammenfassung_text',    type: "string"   },
+            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
+        ];
     }

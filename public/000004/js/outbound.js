@@ -193,10 +193,6 @@ function centerDiv(divId, xSize) {
     document.getElementById(divId).style.left = ((windowXSize() - xSize) / 2) + 'px';
 }
 
-function teC() {
-    console.log("Klick mich du sau");
-}
-
 function switchTab(newTabName) { // Gefixed von Erik
 
     currentTabName = document.querySelector(".activeTab")

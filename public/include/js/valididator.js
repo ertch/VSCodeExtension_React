@@ -19,7 +19,7 @@ let isValidating = 0;
         let visibleInputs = getVisibles(page_content.id);  
         try{
             visibleInputs.forEach(input => {
-                if (input.value == 0 && input.value == "") {   
+                if (input.value == 0 || input.value == "") {   
                     filled = false; // Ist ein required-Input leer gib false aus
                 }  
             })  
@@ -41,9 +41,9 @@ let isValidating = 0;
 *      @param {HTMLElement} page_content - Registerkarte, dessen Eingabefelder validiert werden sollen.
 */
     function bundleInputs(page) {
-        console.log("bundleInputs")
+        
         let successBool = true; 
-        // try {
+        try {
             let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
                 txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
                 handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
@@ -63,9 +63,10 @@ let isValidating = 0;
             visibleInputs.forEach(input => {
                 // Trenne zwischen Inputs und Selects 
                 if (input.tagName == "SELECT") {
-                    input.dataset.required? validateSpecial.push([input, input.getAttribute("data-required")]) :validateSpecial.push([input, ""]) ;
+                    let sollVal = input.hasAttribute('data-required')? input.getAttribute('data-required'):"";
+                    validateSpecial.push([input , `${sollVal}`]) 
                 } else {
-                    let valiTyp = input.dataset.vali?  input.getAttribute("data-vali") : 'default'; // Wenn data-vali nicht vorhanden ist -> type = default
+                    let valiTyp = input.hasAttribute('data-vali')? input.getAttribute('data-vali') :""; // Wenn data-vali nicht vorhanden ist -> type = default
                     if (valiTyp in inputsTypeArr) {
                         // valiTyp entspricht einem Namen in inputsTypeArr, füge es dem entsprechenden Array hinzu
                         inputsTypeArr[valiTyp].push(input.id);
@@ -76,34 +77,48 @@ let isValidating = 0;
                     }
                 }
             });
+            let validateResults = "";
             if(validateSpecial.length>0) {
-                let validateResults = "";
                 validateSpecial.forEach( data => {
-                    
                     let select = data[0];
-                    if(data[1]=="") {
-                        validateResults += `Select ohne soll-wert : ${select.id} <br>`; 
+                    if (select.value !== 0) {
+                        if(data[1]=="") {
+                            validateResults += `<span class='txt--orange'>Ohne soll-wert</span>  :  ${select.id} = ${select.value} <br>`; 
+                        } else {
+                            let shouldHave = JSON.parse(data[1]);
+                            // Prüfe auf das 
+                            let hit = shouldHave.some(value => value === "!0" ? select.value > 0 : value === select.value);
+                            if(hit) { 
+                                validateResults += `Validierung <span class='txt--green'>true</span>  |  ${select.id} = "${select.value}"  <br>`;
+                            } else {  
+                                validateResults += `Validierung <span class='txt--red'>false</span>  |  ${select.id} = "${select.value}"  <br>`;
+                                successBool = false; 
+                            }
+                        }
                     } else {
-                        let shouldHave = JSON.parse(data[1]);
-                        // Prüfe auf das 
-                        let hit = shouldHave.some(value => value === "!0" ? select.value > 0 : value === select.value);
-                        hit? validateResults += `Validierung ${hit}  |  ${select.id} = "${select.value}"  <br>`:  successBool = false; 
+                        validateInput = false;
+                        let errTxtId = `${select.id}_errorMsg`;
+                        document.getElementById(errTxtId).innerHTML = "Fehler: Muss ausgefüllt werden";
+                        validateResults += `Validierung <span class='txt--red'>false</span>  |  ${select.id} = "${select.value}"  <br>`
+                        successBool = false;
                     }
                 })
-                logIntoDebug("validateSelects", validateResults, false)
             }
+            validateResults>""? logIntoDebug("validateSelects", validateResults, false): undefined;
             for (let valiTyp in inputsTypeArr) {  
                 let idArr = inputsTypeArr[valiTyp];
-                if (validateInput(valiTyp, idArr, true) === false) {
-                    successBool = false;
-                };
+                if (idArr.length > 0){
+                    if (validateInput(valiTyp, idArr, true) === false) {
+                        successBool = false;
+                    };
+                }
             } 
             return successBool;
 
-        // } catch (error) {
-        //     logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
-        //     return false;
-        // }
+        } catch (error) {
+            logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
+            return false;
+        }
     };
 
 //--------------------------------------------------------------------- Vaidierung der Bundles -----------------------------------------------------------------
@@ -340,7 +355,7 @@ function validateDatum(dateArr, targetDate, giveAnswer) {
         }
     }
     // Debugging-Ausgabe
-    debug && console.log(`validateDatum: Ergebnis = ${boolErr} Zieldatum=${targetDate} \n${dateArr} \n${errTextId}`);
+    logIntoDebug(`validateDatum`,`Ergebnis = ${boolErr} Zieldatum=${targetDate} \n${dateArr} \n${errTextId}`, fa);
     
     // Rückgabe des Ergebnisses, wenn `giveAnswer` `true` ist, andernfalls `undefined`
     return giveAnswer ? boolErr : undefined;
@@ -417,7 +432,6 @@ function validateSelect(optionId, optionValue){ // Prüfe ob select den gewünsc
 
  function getVisibles(elementid) {
     // Prüfe, ob die Element ein Tab-Page oder dessen Eltern die Klasse 'd-none' hat oder 'display: none' verwendet
-    console.trace()
     let visibleInputs = [];
     let element = elementid instanceof HTMLElement? elementid : document.getElementById(elementid);
     try {
@@ -449,4 +463,79 @@ function callGatekeeper(gk){
         gk.setAttribute("data-cache", gk.value);
         gatekeeper(gk);
     }
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/**     Um au der letzten Tab-Page (lastTab = "tab_zusammenfassung") nru jene elemente anzuziegen  die auch gebraucht oder gefordert sind, nutzt man das IfDiv-
+ *      dieses hat die jeweilige Bedingung direkt im data-Attribute. So kann bei jeder Validierung die jeweiligen IfDivs der Seite aufgerufen werden oder bei CallEndcard()
+ *      können die auf der Endcard hinterlegeten IfDivs geladen werden.
+ * 
+ */
+function ifTheDivs(tabPage) {
+    let calledDivs = document.getElementById(tabPage).querySelectorAll('.ifDiv');
+
+    calledDivs.forEach(ifDiv => { // Hole Vorgaben aus Elementen
+        let validationBool = true;
+        let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
+        let lastStatus = "";
+        let lastBool = true;
+
+        ifcheck.forEach(([status, elementId]) => { //prüfe Vorgaben
+            let currentBool;
+            let hasVal;
+            let checkstatus = (status === "and" || status === "or") ? lastStatus : status;
+            let element = document.getElementById(elementId);
+            // trenne wert aus "hasValue{wert}"
+            if(status.includes("hasValue")) {
+                prefix = status.split('{')[1];
+                hasVal = prefix.replace(/}/,"");
+                checkstatus = status.split('{')[0];
+            }
+
+            switch (checkstatus) { // Prüfung auf...
+                case "active":
+                    currentBool = element.offsetHeight > 0 ;    // wird angezeigt
+                    break;
+                case "hidden":
+                    currentBool = element.offsetHeight === 0;   // wird nicht angezeigt
+                    break;
+                case "filled":
+                    currentBool = element.value.trim() !== "";  // hat Wert > ""
+                    break;
+                case "empty":
+                    currentBool = element.value.trim() == "";   // hat keinen Wert
+                    break;
+                case "hasValue":
+                    let isValue;                                // hat Wert X
+                    try{
+                        isValue = document.getElementById(elementId).value;
+                    } catch(e) {
+                        try{
+                            isValue = eval(elementId); // Wenn Wert X nicht value eines Elementes ist, versuche Variablen
+                        } catch (er) {
+                            logIntoDebug( "ifTheDiv",`<I class='txt--bigRed'>Error:</I> "${elementId}" ist weder Element noch Variable`, false);
+                        }  
+                    }
+                    currentBool = hasVal === isValue;
+                    break;
+                default:
+                    currentBool = true;                         
+                    logIntoDebug( "ifTheDiv",`<I class='txt--bigRed'>Error:</I> falscher Status "${checkstatus}"`, false); 
+            }
+            if (status === "and") { // and und or operatoren auswerten mit vorrangegangener Prüfung
+                currentBool && lastBool? undefined : validationBool = false;
+            } else if (status === "or") {
+                currentBool || lastBool? undefined : validationBool = false;
+            } else {
+                currentBool? undefined : validationBool = false;
+            }
+           
+            lastBool = currentBool;
+            lastStatus = checkstatus;
+        }); // schalte Element sichtbar / hidden
+        if (validationBool && ifDiv.classList.contains("d-none")) {
+            ifDiv.classList.remove("d-none");
+        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {
+            ifDiv.classList.add("d-none");
+        }
+    });
 }
