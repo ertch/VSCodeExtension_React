@@ -4,7 +4,6 @@ interface Props {
     disabled?: boolean;
     gate?:string;
     gatekeeper?: boolean;
-    group?:string;
     hidden?:boolean;
     id: string;
     klasse?: string;
@@ -19,7 +18,7 @@ interface Props {
     value?: any; 
 }
 
-const { actions, disabled, gate, gatekeeper, group, hidden, id, klasse, label, maxlength, options, pattern, preset, required, type, validate, value} = Astro.props; 
+const { actions, disabled, gate, gatekeeper, hidden, id, klasse, label, maxlength, options, pattern, preset, required, type, validate, value} = Astro.props; 
 
 let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
@@ -53,7 +52,6 @@ if(gatekeeper===true) {
     data-vali = {validate}
     {disabled}
     data-gate   = {gate}
-    data-group  = {group}
     id=`${id}`
     list =`${id}List`
     maxlength={maxlength}

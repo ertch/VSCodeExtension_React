@@ -98,7 +98,7 @@ let isValidating = 0;
                     } else {
                         validateInput = false;
                         let errTxtId = `${select.id}_errorMsg`;
-                        document.getElementById(errTxtId).innerHTML = "Fehler: Muss ausgefüllt werden";
+                        document.getElementById(errTxtId).innerHTML = "Fehler: Feld muss ausgefüllt sein";
                         validateResults += `Validierung <span class='txt--red'>false</span>  |  ${select.id} = "${select.value}"  <br>`
                         successBool = false;
                     }

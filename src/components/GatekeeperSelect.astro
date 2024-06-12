@@ -6,7 +6,6 @@ interface Props {
   call?: String;
   disabled?: boolean;
   firstOption?: Array<any>;
-  group: String;
   id: string;
   klasse?: string;
   label: string;
@@ -33,9 +32,10 @@ interface Props {
 
 
 
-const { actions, call, disabled, firstOption, group, id, klasse, label, gate, pageLock, preset, required } = Astro.props;
+const { actions, call, disabled, firstOption, id, klasse, label, gate, pageLock, preset, required } = Astro.props;
 const { options } = Astro.props as Props;
 
+let firstOpt = firstOption? firstOption : ["", "Bitte Auswählen"];
 let lock = pageLock? "lock" : undefined;
 let gateway = `callGatekeeper(${id})`
 let errorname = `${id}_errorMsg`;
@@ -60,8 +60,7 @@ gatewayArr = gatewayArr
   id          = {id}
   name        = {id}
   data-array  = {gatewayArr}
-  data-cache  = "[Bitte auswählen]"
-  data-group  = {group}
+  data-cache  = {firstOpt[1]}
   data-gate   = {gate}
   data-call   = {call}
   data-lock   = {lock}
@@ -70,17 +69,10 @@ gatewayArr = gatewayArr
   {required}
   {disabled}
 >
-  {
-    firstOption ? (
-      <option value={firstOption[0]} selected>
-        {firstOption[1]}
-      </option>
-    ) : (
-      <option disabled value="" selected>
-        [Bitte auswählen]
-      </option>
-    )
-  }
+
+  <option value={firstOpt[0]} selected>
+    {firstOpt[1]}
+  </option>
 
   {options.map((item) => <option value={item[0]}>{item[1]}</option>)}
 </select>

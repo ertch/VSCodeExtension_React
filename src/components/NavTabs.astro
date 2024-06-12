@@ -13,10 +13,10 @@ const { tabs } = Astro.props as Props;
     </button>
 
     {
-      tabs.map((item) => (
+      tabs.map((item,index) => (
         <button
-          id={item[0]}
-          class="tab"
+          id={`${item[0]}`}
+          class= 'tab'
           onclick={`switchTab('${item[1]}')`}
         >
           {item[2]}

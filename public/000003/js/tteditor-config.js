@@ -138,7 +138,7 @@ function gettime() { // Uhrzeit
             { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCard: true },
             { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCard: true },
             { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCard: true },
-            { label: '',                match: 'seperator',             value: "",   standAlone: true,     createCard: true },
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCard: true },
             { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCard: true },
             { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCard: true },
             { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCard: true },
@@ -146,7 +146,7 @@ function gettime() { // Uhrzeit
             { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCard: true },
             { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCard: true },
             { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCard: true },
-            { label: '',                match: 'seperator',             value: "",   standAlone: true,     createCard: true },
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCard: true },
             { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCard: true },
             { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCard: true },
             { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCard: true },
@@ -184,17 +184,17 @@ function gettime() { // Uhrzeit
         let triggerData = [
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value:  "<p>Keine nutzbaren Daten gefunden</p>"    },
+            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value:  "<p>Keine nutzbaren Daten gefunden</p>"},
             { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
             { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
         ];
         return triggerData;
     }
-
+ 
 
     function pushData() {
         SendBack = [
-            { id: 'PAtxt1',   table:'a',    target_col: 'zusammenfassung_text',    type: "string"   },
+            { id: 'PAtxt1',   table:'a',    target_col: 'zusammenfassung_text',    type: "string"},
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
         ];

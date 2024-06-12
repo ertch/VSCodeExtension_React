@@ -11,7 +11,7 @@ function createCustomerData() {
         // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
         let cardHolder = document.getElementById("customerCells");
         let error_msg = document.getElementById("customerCells_errorMsg");
-        let SqlField ;
+        let SqlField;
 
         // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
         if (cardHolder.getAttribute("data-provider") != null){
@@ -66,7 +66,7 @@ function createCustomerData() {
                         if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
 
                         if (standAlone) { // Füge die Cell oder Separator in das HTML ein wenn standAlone true
-                            if (id != "seperator") { 
+                            if (id != "separator") { 
                                 cardHolder.innerHTML = ` 
                                     ${cardHolder.innerHTML}  
                                     <div class="cell">
@@ -211,9 +211,15 @@ function loadProviderPreset() {
 *   Also eine Funktion zur Steuerung von Modalen oder Elementen basierend auf den Werten ihres Select-Menüs.
 *   Ein zu schaltendes Element muss in einer Gategroup liegen. Falls die Gategroup nicht innerhalb eines Gates liegt. mussen die Element einzeln geschaltet werden
 *   
-*   @param {Array|string} actionArr -   Ein Array mit Anweisungen zur Steuerung der Elemente oder die ID des auslösenden Gatekeeper-Selects.
+*   @param {Array} actionArr   =        Ein Array mit Anweisungen zur Steuerung der Elemente oder die ID des auslösenden Gatekeeper-Selects.
 *                                       Im Array enthalten sind Anweisungen in folgendem Format: [selectId, switchGrpName, nextFunc].
-*                                       Die verfügbaren Aktionen sind: 'open', 'close', 'openOnly' und 'trigger'.
+*   OR                                  Die verfügbaren Aktionen sind: 'open', 'close', 'openOnly' und 'trigger'.
+*
+*    @param {string} actionArr =        Übergeben einer ElementID des Gatekeeperselects, oder SuggestionInputs (bei Gatekeeperselect automatisch)
+*
+*   OR
+*
+*    @param {HTMLElement} actionArr =   Übergebe das Element des Gatkeeperselects oder des SuggestionInputs. 
 *
 *   Nutzt Helper H-001: "executeFunctionFromString"
 *
@@ -221,25 +227,26 @@ function loadProviderPreset() {
 *   gatekeeper([
 *       [thisSelect, switchGrp, alwaysClose],                  << string, string, string          [HEADER]    = Select = null --> Alle Elemente = d-none | data-grp | FolgeFunktion )
 *      
-*       [value1, close, targetId1],                            << string, string, string          [OPERATION] = Element mit targetId = d-none
-*       [value1, open, [targetId1, targetId2, targetId3]],     << string, string, Array[string]   [OPERATION] = Alle Element aus Array = display
-*       [value2, openOnly, targetId3],                         << string, string, string          [OPERATION] = Alle Elemente außer targetId = d-noneZ                                                                                  
-*       [value3, close, all]                                   << string, string, string          [OPERATION] = Alle Elemente = d-none
-
-*       [value1, trigger, zmsF12]                              << string, string, string          [Operation] = Nutzte diesen Baustein(Variablenname) für Zusammenfassung. 
+*       [value1, close, targetId1],                            << string, array,  array             [OPERATION] = Element mit targetId = d-none
+*       [value1, open, [targetId1, targetId2, targetId3]],     << string, string, Array[string]     [OPERATION] = Alle Element aus Array = display
+*       [value2, openOnly, targetId3],                         << string, array,  array             [OPERATION] = Alle Elemente außer targetId = d-noneZ                                                                                  
+*       [value3, close, all]                                   << string, array,  string            [OPERATION] = Alle Elemente = d-none
+*       [value4, disable, targetId2]                           << string, array,  array             [OPERATION] = setAttribute disabled auf targetId2
+*       [value, [setValue{4}, enable], tagretId3]              << string, array,  array             [OPERATION] = removeAttribute disabled und select Wert 4 auf targetId2 
+*       [value1, trigger, zmsF12]                              << string, array,  string            [Operation] = Nutzte diesen Baustein(Variablenname) für Zusammenfassung. 
 *       ])    
 */
     function gatekeeper(incomming) { 
         
         let callingElement;
         let gateArr;
-        let switchGrp; 
+        let gate; 
         let nextFunc; // alwaysClose bool
         
         // Prüfen, ob incomming ein Array, ein Element oder eine ID ist
         if (Array.isArray(incomming)) {
             // Wenn incomming ein Array ist, die relevanten Werte zuweisen
-            [callingElement, switchGrp, nextFunc] = [
+            [callingElement, gate, nextFunc] = [
                 document.getElementById(incomming[0][0]),
                 document.querySelectorAll(`[data-group=${incomming[0][1]}]`),
                 incomming[0][2]
@@ -260,8 +267,8 @@ function loadProviderPreset() {
                                     .replace(/([^,\[\]]+)/g, '"$1"'); 
             gateArr = stringToArray(gateArr);
                                             //      Mit dem was an die Funtion übereben wird, wird ein Array aufgebaut, 
-            [switchGrp, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige callingElement enthält.
-                document.querySelectorAll(`[data-grp=${callingElement.getAttribute("data-group")}]`),
+            [gate, nextFunc] = [//     welches alle Anweisungen für die Zustände des jeweilige callingElement enthält.
+                callingElement.getAttribute("data-gate"),
                 callingElement.getAttribute("data-call")
             ];
         }   
@@ -271,33 +278,47 @@ function loadProviderPreset() {
             let [value, action, target] = operation; 
 
             let inputDefault=false; // teste auf Default-Option
-            if(value === "default"){
+            if(value === "default" && callingElement.value > ""){
                 inputDefault=true;  // Ein ein SuggestionInput = "default" prüfe ob ein anderer triggerWert zutrifft
                 DataListChild = document.getElementById(`${callingElement.id}List`).querySelectorAll('option');
                 DataListChild.forEach( options => {
                     options.value==callingElement.value? inputDefault=false : undefined;
                 }) 
             };
-
+            
             // Überprüfen, ob die aktuelle callingElement-Option mit dem Wert übereinstimmt oder InputDefault true ist
             if (value === callingElement.value || inputDefault ) {
                 try {                   // <<<>>> Auftrag für aktuelle callingElement.value ausführen
                     (Array.isArray(action) ? action : [action]).forEach(operator => {
-                        
-                        if (operator === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
-                            switchGrp.forEach(element => {
-                                element.classList.add('d-none'); 
-                            });
-                        } else if (target === 'all') {        // wenn all --> target = Gruppe
-                            switchGrp.forEach(element => action==='open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
-                        };
-                        
+                                              
                         let setValOp; // hole wert aus setValue
                         if(operator.includes("setValue")) {
                             prefix = operator.split('{')[1];
                             setValOp = prefix.replace(/}/,"");
                             operator = operator.split('{')[0];
                         }
+
+                        let switchGrp; // Wenn target all{grp} finde alle GroupMember
+                        if(target.includes("all")) {
+                            prefix = target.split('{')[1];
+                            switchGrp = prefix.replace(/}/,"");
+                            switchGrp = document.querySelectorAll(`[data-grp=${switchGrp}]`),
+                            target = target.split('{')[0];
+                        }
+
+                        if (operator === 'openOnly') {  // wenn openOnly oder alwaysClose --> Gruppe = d-none
+                            let gatemember=[]; //Rattenfänger von Hameln
+                            let parent = document.getElementById(gate);
+                            for(const child of parent.children){
+                                gatemember.push(child);
+                            }
+                            console.log(gatemember)
+                            gatemember.forEach(element => {
+                                element.classList.add('d-none'); 
+                            });
+                        } else if (target === 'all') {        // wenn all --> target = Gruppe
+                            switchGrp.forEach(element => action==='open' ? element.classList.remove('d-none') : element.classList.add('d-none'));
+                        };
                                         // Ausführen der entsprechenden Aktion (öffnen oder schließen) für jedes Ziel
                         switch (operator) {
                             case 'close':
@@ -346,8 +367,8 @@ function loadProviderPreset() {
                     // Ausführen der Folgefunktion, falls vorhanden
                     nextFunc!=null? executeFunctionFromString(nextFunc) : undefined;
 
-                    let gateCheck = callingElement.getAttribute("data-gate");
-                    if (gateCheck != "") {showWeiterBtn(gateCheck)};
+                    
+                    showWeiterBtn(gate);
 
                     let lock = callingElement.getAttribute("data-lock");
                     if (lock === "lock") {pageLock = true};

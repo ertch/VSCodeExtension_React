@@ -8,7 +8,7 @@
 * 
 */
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function ste_out_1() { // Der Name der gewünschten Funktion wird im CustumerCells HTML-Element unter query ="" eingetragen.
+function main_query() { // Der Name der gewünschten Funktion wird im CustumerCells HTML-Element unter query ="" eingetragen.
     let query = `
         select 
             ${addressdatatable}.id as addressdataid, \

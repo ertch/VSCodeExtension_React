@@ -21,14 +21,14 @@ import NextPageBtn from "@/components/WeiterButton.astro";
     header_imgs={["skon.png", "stadtenergie.svg"]}
     header_name="Stadtenergie Welcome Call"
     cell_pattern="providerPattern()"
-    cell_query="ste_out_1()" 
+    cell_query="main_query()" 
  >                 <!-- main -->
 
     <NavTabs
         tabs={[
-        //  ["tab1", "tab_start", "Start"], <= Auto-generiert
-            ["tab2", "tab_product", "Produkt"],
-            ["tab3", "tab_zusammenfassung", "Zusammenfassung"],
+        //  ["tab1","tab_start", "Start"], <= Auto-generiert
+            ["tab2","tab_product", "Produkt"],
+            ["tab3","tab_zusammenfassung", "Zusammenfassung"],
         ]}
     >
     </NavTabs>
@@ -85,7 +85,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                             ["nein", "trigger", "NAtxt1"],
                             ["nein", ["setValue{7000},disable"], "datenerfassung_ablehnungsgrund"]
                         ]}
-                        group="grp1"
+                       
                         gate="gk_grp1"
                         pageLock
                         required
@@ -110,13 +110,12 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
                             ["nein", "enable", "datenerfassung_ablehnungsgrund"],
                             ["nein", "trigger", "NAtxt1"],
-                            ["default", "close", "all"]
+                            ["default", "close", "all{grp1}"]
                         ]}
                         type="txt"
                         validate="txt"
                         gatekeeper
                         gate="gk_grp1"
-                        group="grp1"
                         >
                         </Suggestion>
                     </GateGroup> 
@@ -169,7 +168,6 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                                 ["gas","openOnly","vertragsende_datagrp"],
                                 ["gas","trigger","VEg01"]
                             ]}
-                            group="grp2"
                             gate="gk_gate2"
                         ></Gatekeeper>
                         <Gate
