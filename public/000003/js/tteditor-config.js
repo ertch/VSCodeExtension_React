@@ -30,7 +30,7 @@ let keyPressStartTime;
 let btnLock = false;
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
-let triggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
+let TriggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
 let CostumerData;                       // Erstellung global CustomerData   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
 let SendBack = new Object();            // Erstellung global SendBackfilter (SenBa)
@@ -124,7 +124,7 @@ function gettime() { // Uhrzeit
  *                  Andernfalls wird es zusammen mit dem nächsten standAlone = true Element in dessen Cell geschieben.
  *                  Es ist sozusagen ein Copy/Paste für die Werte. Aber Achtung: zwei standAlone hintereinadner überschreiben sich.
  * 
- *      createCard: Ein Bool für die Erstellung der CustomerCards. Wenn true, wird aus dem Eintrag eine Card erstellt. 
+ *      createCell: Ein Bool für die Erstellung der CustomerCards. Wenn true, wird aus dem Eintrag eine Card erstellt. 
  * 
  *                  Der Aufbau eines HTML-Elements ist wie folgt:
  *                      <div>           
@@ -134,27 +134,27 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerData = [
-            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCard: true },
-            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCard: true },
-            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCard: true },
-            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCard: true },
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCard: true },
-            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCard: true },
-            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCard: true },
-            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCard: true },
-            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCard: true },
-            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCard: true },
-            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCard: true },
-            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCard: true },
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCard: true },
-            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCard: true },
-            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCard: true },
-            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCard: true },
-            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCard: true },
-            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCard: true },
-            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCard: true },
-            { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true,     createCard: true },
-            { label: 'Datensatz',       match: 'preset1',               value: "test",   standAlone: true,     createCard: false },
+            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true },
+            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true },
+            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true },
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true },
+            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true },
+            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true },
+            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true },
+            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true },
+            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true },
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true },
+            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true },
+            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true },
+            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true },
+            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true },
+            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Datensatz',       match: 'preset1',               value: "test",   standAlone: true,     createCell: false },
         ];
         return CustomerData
     };
@@ -181,14 +181,14 @@ function gettime() { // Uhrzeit
 */
 
     function triggerPattern() {
-        let triggerData = [
+        let TriggerData = [
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value:  "<p>Keine nutzbaren Daten gefunden</p>"},
             { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
             { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
         ];
-        return triggerData;
+        return TriggerData;
     }
  
 

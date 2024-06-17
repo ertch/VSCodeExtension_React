@@ -1,5 +1,5 @@
 ---
-import CampaignLayout from "@/layouts/CampaignLayout.astro";
+import Layout from "@/layouts/Layout.astro";
 import Input from "@components/SimpleInput.astro";
 import Field from "@components/SimpleFieldset.astro";
 import Select from "@components/SimpleSelect.astro";
@@ -14,14 +14,14 @@ import IfDiv from "@components/IfDiv.astro";
 import NextPageBtn from "@/components/WeiterButton.astro";
 ---
                 <!-- Grunddaten -->
-<CampaignLayout     
+<Layout     
     campaignTitle="STE_WEL"
     campaignNr="000003"
     jsFiles={["query_lib.js", "tteditor-config.js"]}
     header_imgs={["skon.png", "stadtenergie.svg"]}
-    header_name="Stadtenergie Welcome Call"
-    cell_pattern="providerPattern()"
-    cell_query="main_query()" 
+    header_title="Stadtenergie Welcome Call"
+    pattern="providerPattern()"
+    query="main_query()" 
  >                 <!-- main -->
 
     <NavTabs
@@ -42,7 +42,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
     >                           <!-- Anfang <form> -->
         <TabPage
             id="tab_start"
-            myTab="tab1"
+            tab="tab1"
             isVisible 
         >                      <!-- tab_start -->
             <section class="history grid">
@@ -57,7 +57,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
         
         <TabPage 
             id="tab_product"
-            myTab="tab2"
+            tab="tab2"
         >                      <!-- tab_product -->  
             <section 
                 id="produkt" 
@@ -236,7 +236,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                                
         <TabPage 
             id="tab_zusammenfassung"
-            myTab="tab3"
+            tab="tab3"
         >                 <!-- tab_zusammenfassung -->
             <Gate
                 id="zusammenfassung"

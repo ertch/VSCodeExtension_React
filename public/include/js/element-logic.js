@@ -29,7 +29,7 @@ function createCustomerData() {
             SqlField = queryDefault();
         };
         // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
-        if (typeof SqlField.keys === 'function' && SqlField.keys("createCard")) { 
+        if (typeof SqlField.keys === 'function' && SqlField.keys("createCell")) { 
             error_msg.innerHTML =  "Datensatz fehlerhaft";
             error_msg.className = "errormessage--db_error";
             logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
@@ -57,9 +57,9 @@ function createCustomerData() {
                     let id = CustomerData[i].match;
                     let value = CustomerData[i].value;
                     let standAlone = CustomerData[i].standAlone;
-                    let createCard = CustomerData[i].createCard;
+                    let createCell = CustomerData[i].createCell;
                     
-                    if(createCard) {
+                    if(createCell) {
                         // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
                         standAlone ? undefined : chache = value;
                         // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
@@ -394,15 +394,15 @@ function triggerDatalist(id, gatekeeperCall) {
 
 /** readTrigger                                                                                                             Funktion geprüft am: 22.05.24 von Erik
 * 
-*      Mit dem Aufruf von readTrigger werden alle bis dahin, in der triggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
+*      Mit dem Aufruf von readTrigger werden alle bis dahin, in der TriggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
 *      Diese Funktion ist dafür vorgesehen die Zusammenfassung, in Bezug auf die ausgewählten Optionen zusammen zu stellen.
 *      Es können auch Variablennamen genutzt werden, dessen Inhalt dann genutzt wird. 
 */
 function readTrigger() {
     let insert = "";
     let cache = new Set();
-    triggerData.forEach((list) => {
-            // durchlaufe triggerData 
+    TriggerData.forEach((list) => {
+            // durchlaufe TriggerData 
         if(list.active === true) {    
             try { // Falls list.value eine Variable ist, nutzte deren Wert
                     insert = eval(list.value);
@@ -427,17 +427,17 @@ function readTrigger() {
 /** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
 * 
 *      setTrigger ist die Zusatzfunktion vom Gatekeeper-Select. Mit dem Befehl 'trigger' kann eine id auf active = true gesetzt werden.
-*      Alle aktiv geschalteten IDs aus der triggerData werden mit der readTrigger-Funktion in ihr jeweiliges ziel geschrieben. 
+*      Alle aktiv geschalteten IDs aus der TriggerData werden mit der readTrigger-Funktion in ihr jeweiliges ziel geschrieben. 
 * 
 * @param {*} id - ID des zu schaltenden Eintrags
 */
 function setTrigger(id) {
-    // Setze mitgebene id in triggerData active = true
+    // Setze mitgebene id in TriggerData active = true
     // Setzte alle id der selben Gruppe auf active = false
-    for (const trigger of triggerData) {
+    for (const trigger of TriggerData) {
         if (trigger.id === id) {
             let killGrp = trigger.grp;
-            triggerData.forEach((grpMember) => {
+            TriggerData.forEach((grpMember) => {
                 if (grpMember.grp === killGrp) {
                     grpMember.active = false;
                 }

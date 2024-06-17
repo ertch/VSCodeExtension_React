@@ -36,6 +36,35 @@ function executeSql(sql) {
 		sqlReturnArray = result;
 	  
 	}
+
+	///// neu
+
+// 	else {
+
+//         let result = null;
+//         // console.log("executeSql is debug");
+
+//         const url = 'http://admin/outbound/index.php?sql=' + encodeURIComponent(sql);
+
+//         let xhr = new XMLHttpRequest();
+//         xhr.open('GET', url, false);  // Synchronous request
+//         xhr.send();
+
+//         if (xhr.status === 200) {
+//             try {
+//                 result = JSON.parse(xhr.responseText);
+//                 sqlReturnArray = result;
+//             } catch (error) {
+//                 console.error('Error parsing JSON response:', error);
+//             }
+//         } else {
+//             console.error('Request failed. Status:', xhr.status);
+//             alert('Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + xhr.statusText);
+//         }
+//     }
+// }
+
+//neu ende
 	
 	return sqlReturnArray;
 }

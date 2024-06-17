@@ -17,26 +17,37 @@ function executeSql(sql) {
             return null;
         };
     }else {
-        try { // Debug: Dem Debug-SQL-Connector kontaktieren  
-            var result = null;
-            new Ajax.Request(`${nestor}${encodeURIComponent(sql)}`, {
-                method: 'get',
-                asynchronous: false,
-                onSuccess: function(transport) {
-                    result = transport.responseText.evalJSON();
-                },
-                onFailure: function() {
-                    logIntoDebug("executeSql()",'Error: Keine Verbindung zum Debug-SQL-Connector.', false);
-                }
-            });
-            return result;
+        let result = null;
+        // console.log("executeSql is debug");
 
-        }catch (ex) { // Error protokollieren von Debug-Modus
-            logIntoDebug("executeSql()", `Error: Fehlerhafter Debug-SQL-Befehl: ${ex.Message}`, false);
-            return null;
-        };
-    };
-};
+        const url = `${nestor}${encodeURIComponent(sql)}`;
+
+        // Create a new XMLHttpRequest object
+        let xhr = new XMLHttpRequest();
+
+        // Open a synchronous GET request
+        xhr.open('GET', url, false);
+
+        try {
+            // Send the request
+            xhr.send();
+
+            if (xhr.status === 200) {
+                // Parse the JSON response
+                result = JSON.parse(xhr.responseText);
+                sqlReturnArray = result;
+            } else {
+                console.error('SQL Request failed. Status:', xhr.status);
+                logIntoDebug("executeSQL",'Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + xhr.statusText, false);
+            }
+        } catch (error) {
+            console.error('SQL Request error:', error);
+           logIntoDebug("executeSQL",'Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + error.message, false);
+        }
+    }
+    return sqlReturnArray;
+}
+
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** ttErrorLog  
