@@ -14,6 +14,7 @@ interface Props {
   pageLock?: boolean;
   preset?: string;
   required?: boolean;
+  submitTo?: string;
 }
 
 // Das Gatekeeper-Select fragt neben den Optionen-Array auch ein Aktionen-Array ab.
@@ -32,7 +33,7 @@ interface Props {
 
 
 
-const { actions, call, disabled, firstOption, id, klasse, label, gate, pageLock, preset, required } = Astro.props;
+const { actions, call, disabled, firstOption, id, klasse, label, gate, pageLock, preset, required, submitTo } = Astro.props;
 const { options } = Astro.props as Props;
 
 let firstOpt = firstOption? firstOption : ["", "Bitte Auswählen"];
@@ -64,6 +65,7 @@ gatewayArr = gatewayArr
   data-gate   = {gate}
   data-call   = {call}
   data-lock   = {lock}
+  data-submit = {submitTo}
   data-preset = {preset} 
   onchange    = {gateway}
   {required}

@@ -4,9 +4,10 @@ interface Props {
   name: string;
   rows: string;
   required?: boolean;
+  submitTo?: string;
 }
 
-const { id, name, required, rows } = Astro.props;
+const { id, name, required, rows, submitTo } = Astro.props;
 let errorname = `${id}_errorMsg`;
 ---
 
@@ -16,4 +17,11 @@ let errorname = `${id}_errorMsg`;
     Pflichtfeld: Neutrales Produkt oder Tarif
   </span>
 </div>
-<textarea id={id} class="input-textarea" {required} rows={rows} data-required = 'false';></textarea>
+<textarea 
+  id={id} 
+  class="input-textarea" 
+  {required} 
+  rows={rows} 
+  data-required = 'false'
+  data-submit={submitTo}
+  ></textarea>

@@ -9,9 +9,11 @@ import GateGroup from "@/components/GateGroup.astro";
 import SQL_Select from "@/components/SQLinjectionSelect.astro";
 import Suggestion from "@components/SuggestionInput.astro";
 import NavTabs from "@components/NavTabs.astro";
-import TabPage from "@components/Section_tabPage.astro";
+import TabPage from "@/components/TabPage.astro";
+import TabWrapper from "@components/TabWrapper.astro";
 import IfDiv from "@components/IfDiv.astro";
 import NextPageBtn from "@/components/WeiterButton.astro";
+import FinishBtn from "@components/FinishButton.astro";
 ---
                 <!-- Grunddaten -->
 <Layout     
@@ -33,13 +35,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
     >
     </NavTabs>
 
-    <form
-        class="datenerf-bg"
-        action="#"
-        name="formular"
-        method="POST"
-        id="datenerfassung_form"
-    >                           <!-- Anfang <form> -->
+    <TabWrapper>              <!-- Anfang <form> -->
         <TabPage
             id="tab_start"
             tab="tab1"
@@ -49,7 +45,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                 <Field 
                     id="kundenhistorie" 
                     legend="Kundenhistorie" 
-                    klasse="dis-p"
+                    klasse="dis-p grid-col_center"
                 >
                 </Field>
             </section>
@@ -65,7 +61,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
             >
             <span id="datenerfassung_produkt_errorMsg" class="errormessage"></span>
                 <Field 
-                    klasse="grid-col_1" 
+                    klasse="grid-col_center" 
                     legend="Stadtenergie Welcome Call"
                 >
                     <Gatekeeper
@@ -87,6 +83,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                         ]}
                        
                         gate="gk_grp1"
+                        submitTo="test1"
                         pageLock
                         required
                     >
@@ -116,6 +113,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                         validate="txt"
                         gatekeeper
                         gate="gk_grp1"
+                        submitTo="test2"
                         >
                         </Suggestion>
                     </GateGroup> 
@@ -128,12 +126,12 @@ import NextPageBtn from "@/components/WeiterButton.astro";
             >
                 <GateGroup
                     id="datenerfassung_product"
-                    klasse="input_form d-none"
+                    klasse="input_form grid-col_center d-none"
                     group="grp1"
                 >
                     <Field
                         legend="Datenerfassung"
-                        klasse="grid-col_1"
+                        klasse="grid-col_center"
                     >
                         <Input
                             id="datenerfassung_email"
@@ -192,7 +190,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                     </Field>
                     <Field
                         legend="Optin"
-                        klasse="grid-col_1"
+                        klasse="grid-col_center"
                     >
                         <Select
                             id="datenerfassung_optin_detail"
@@ -213,12 +211,12 @@ import NextPageBtn from "@/components/WeiterButton.astro";
 
                 <GateGroup 
                     id="datenerfassung_ablehnung"
-                    klasse="d-none"
+                    klasse="grid-col_center d-none"
                     group="grp1"    
                 >
                         <Field
                             legend="Kein Vertragsabschluss"
-                            klasse="grid-col_1"
+                            klasse="grid-col_center"
                         >
                             <SQL_Select
                                 id="datenerfassung_ablehnungsgrund"
@@ -243,7 +241,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                 klasse="input_form oneColumn grid"
             >
                 <GateGroup 
-                    klasse="grid-col_1"
+                    klasse="grid-col_center"
                     group="endCard"
                 >
                     <div id="zusammenfassung_errors"></div>
@@ -254,7 +252,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
             
                 <IfDiv
                     id="recording"
-                    klasse="input_form grid-col_1 d-none"
+                    klasse="input_form grid-col_center d-none"
                     group="endCard"
                     If={[
                         ["hasValue{015204817689}", "datenerfassung_telefon"]
@@ -262,7 +260,7 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                 >
                     <Field 
                         legend="Aufnahme" 
-                        klasse="grid-col_1 field__bg"
+                        klasse="grid-col_center field__bg"
                     >
                         <div
                             id="recorddisplay" 
@@ -280,8 +278,6 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                                 <button
                                     id="go_record"
                                     type="button"
-                                    data-id="freedial" 
-                                    class="calldialog"
                                 >
                                     <i class="glyph glyph-circle"></i>
                                     Kunden aufnehmen
@@ -302,26 +298,9 @@ import NextPageBtn from "@/components/WeiterButton.astro";
                     ["or", "datenerfassung_telefon"]
                 ]}
             >
-                <div class="grid abschlussfeld">
-                    <Field legend="Abschluss" klasse="field__bg dis-p">
-                    </Field>
-                </div>
-                <div 
-                    class="absenden" 
-                    id="div_publish"
-                >
-                    <button
-                        class="absenden__Btn"
-                        type="button"
-                        id="go_publish"
-                        onclick="finish()"
-                        >
-                            <i class="glyph glyph-final"></i>
-                                &nbsp; Auftrag abschließen
-                    </button>
-                </div>
             </IfDiv>
-        </TabPage>      
-        <NextPageBtn></NextPageBtn> <!-- Ende tab_zusammenfassung -->      
-    </form>                 <!-- Ende main -->
+            <FinishBtn></FinishBtn>
+        </TabPage>          <!-- Ende tab_zusammenfassung -->         
+        <NextPageBtn></NextPageBtn> 
+    </TabWrapper>                 <!-- Ende main -->
  </CampaignLayout>

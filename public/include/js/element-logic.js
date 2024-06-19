@@ -91,7 +91,7 @@ function createCustomerData() {
                
     } catch (error) {
         logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
-        debug && console.log(error.stack);
+        Global.debugMode && console.log(error.stack);
     } 
 
     // Kundenhistorie laden und anzeigen
@@ -172,7 +172,7 @@ function loadProviderPreset() {
 }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** PopUp & Debug - Loader / watchdog                                                                                          Funktion geprüft am: 22.05.24 von Erik
+/** PopUp & debugMode - Loader / watchdog                                                                                          Funktion geprüft am: 22.05.24 von Erik
  * 
  *      Eventlistener für Popup-Modale      
  */
@@ -312,7 +312,6 @@ function loadProviderPreset() {
                             for(const child of parent.children){
                                 gatemember.push(child);
                             }
-                            console.log(gatemember)
                             gatemember.forEach(element => {
                                 element.classList.add('d-none'); 
                             });
@@ -379,7 +378,7 @@ function loadProviderPreset() {
                 }; 
             };
         });
-        logGK? logIntoDebug(`GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,logOperations, LogIntottDB) : undefined;
+        Global.logGK? logIntoDebug(`GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,logOperations, Global.LogIntottDB) : undefined;
     };
 // optionaler Gatekeeperaufruf für SuggestionInputs
 function triggerDatalist(id, gatekeeperCall) {
@@ -479,7 +478,7 @@ function getTrigger(callerId, validate){
  *      @param {*} newTabName 
  */
     function switchTab(newTabName) { 
-    
+    let currentTabName = Global.currentTabName;
     // Überprüfen, ob der neue Tab gültig ist
         if (currentTabName != newTabName){
             let lockedBool;
@@ -505,7 +504,7 @@ function getTrigger(callerId, validate){
                 // Aktuellen Tabnamen aktualisieren
                 let currentPage = document.getElementById(newTabName);
                 let oldPage = document.getElementById(currentTabName);
-                currentTabName = newTabName;
+                Global.currentTabName = newTabName;
                 
                 oldPage.className = "page_content d-none";
                 currentPage.className = "page_content";
@@ -532,7 +531,7 @@ function getTrigger(callerId, validate){
                         showWeiterBtn(newTabName);
                     } else {
                         document.getElementById(elementId).className = "go";
-                        document.getElementById('weiterBtn').className = "left_right go d-none";
+                        document.getElementById('weiterBtn').className = "nextpage go d-none";
                     }
                 }); 
                 // Buton kann erst nach der Validierung entfernt werden
@@ -553,17 +552,17 @@ function getTrigger(callerId, validate){
 function showWeiterBtn(page_id) {
     let showWeiterBtn = document.getElementById('weiterBtn');
     if (silent(document.getElementById(page_id)) == true) {
-        showWeiterBtn.className = "left_right go";
+        showWeiterBtn.className = "nextpage go";
     } else {
-        showWeiterBtn.className = "left_right go d-none";
+        showWeiterBtn.className = "nextpage go d-none";
     }
 }
 
 function weiterBtn(){
     let currentTab = document.querySelector(".current").id;
+    
     let currentNumber = parseInt(currentTab.replace('tab', ''));
     let newNumber = currentNumber + 1;
-
     // Neue ID erstellen
     let newTabId = 'tab' + newNumber;
 
@@ -577,8 +576,8 @@ function weiterBtn(){
 }
 
 function  createEndcard() {
-    // debugger;
-    document.getElementById('weiterBtn').className = "left_right go d-none";
+
+    document.getElementById('weiterBtn').className = "nextpage go d-none";
     readTrigger();
     
 
@@ -617,13 +616,13 @@ function  createEndcard() {
 
         // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
         if (keyCode1Pressed && keyCode2Pressed) {
-            // Ändere die Sichtbarkeit des Debug-Logs
+            // Ändere die Sichtbarkeit des debug-Logs
             document.getElementById("debugLog").classList.toggle("d-none");
-            debug && console.log("Debuglog geöffnet!");
+            Global.debugMode && console.log("debuglog geöffnet!");
         }
         // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
         if (keyCode2Pressed && keyCode3Pressed) {
-            // Setze den Inhalt des Debug-Logs zurück
+            // Setze den Inhalt des debug-Logs zurück
             debugWindowClear()        
         } 
     };
@@ -672,7 +671,7 @@ function executeFunctionFromString(funcString) {
     if (funcName && typeof window[funcName] === 'function') {
        giveBack = window[funcName](...args); // Aufruf
     } else {
-        logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, LogIntottDB); //Error_msg
+        logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
     }
     return giveBack;
 };
@@ -711,7 +710,7 @@ function executeFunctionFromString(funcString) {
             return addressDataArray;
         } catch (error) {
             // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
-            logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", LogIntottDB);
+            logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", Global.LogIntottDB);
             return []; 
         }
     };
@@ -726,24 +725,24 @@ function executeFunctionFromString(funcString) {
  */
 
     function logIntoDebug(caller, msg, dbExport) {
-        if (showDebug) { // showDebug => ttEditor-config.js
+        if (Global.showDebug) { // Global.showdebug=> ttEditor-config.js
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + msg;
             window.innerHTML = log;
         } 
-        if (dbExport && LogIntottDB) { // LogIntottDB => ttEditor-config.js
+        if (dbExport && Global.LogIntottDB) { // Global.LogIntottDB => ttEditor-config.js
             // Erstelle und sende Log an Datenbank
             ttErrorLog(caller, msg);
         }
     }
     function debugWindowClear() { // Log löschen
-        document.getElementById("debugLog").innerHTML = `<div class="debugLog--header"><i class="glyph glyph-code"> &nbsp; DebugLog &nbsp;</i> <button type="button" onclick="debugWindowClear()"> clear </button></div>`;
+        document.getElementById("debugLog").innerHTML = `<div class="debugLog--header"><i class="glyph glyph-code"> &nbsp; debugLog &nbsp;</i> <button type="button" onclick="debugWindowClear()"> clear </button></div>`;
 
     };
 
-    function logsqlIntoDebug(caller, query, awnser) {
-        if (showDebug) { // showDebug => ttEditor-config.js
+    function logsqlIntodebug(caller, query, awnser) {
+        if (Global.showDebug) { // Global.showdebug => ttEditor-config.js
             let window = document.getElementById("debugLog");
             let log = window.innerHTML
             let awnserTxt = "";  
@@ -784,9 +783,20 @@ function executeFunctionFromString(funcString) {
 // ################################################################################# Endcard Trigger #############################################################################################
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-function finish() {
-    alert(`${console.trace()} test`)
-}
-
-
-   
+    function finish() {
+        SendBack = convertFormToJson("tabsForm");
+        if (Global.debugMode){
+            alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
+            logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
+          
+        } else {
+            let submitFailed = pushData();
+            if (submitFailed === true){
+                call("terminate");
+                refresh();
+            } else {
+                // Achtung Achtung Notfall !! Wiiiuuu WIiiiuuu
+            } ;
+            
+        }
+    }

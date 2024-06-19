@@ -8,9 +8,10 @@ interface Props {
   value?: any;
   required?: boolean;
   maxlength?: string;
+  submitTo?: string;
 }
 
-const { id, label, row, col, required, maxlength, call, value } = Astro.props;
+const { id, label, row, col, required, maxlength, call, value, submitTo } = Astro.props;
 let errorname = `${id}_errorMsg`;
 ---
 
@@ -27,6 +28,7 @@ let errorname = `${id}_errorMsg`;
   {required}
   maxlength={maxlength}
   onchange={call}
-  data-required = 'false';
+  data-required = 'false'
+  data-submit = {submitTo}
 >
 </textarea>

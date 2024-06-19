@@ -11,7 +11,7 @@
 function main_query() { // Der Name der gewünschten Funktion wird im CustumerCells HTML-Element unter query ="" eingetragen.
     let query = `
         select 
-            ${addressdatatable}.id as addressdataid, \
+            ${Global.addressdatatable}.id as addressdataid, \
             trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))) as customerid, \
             trim(if(isnull(firstname),'-',if(firstname = '','',firstname))) as firstname, \
             trim(if(isnull(surname),'-',if(surname = '','',surname))) as surname, \
@@ -46,14 +46,14 @@ function main_query() { // Der Name der gewünschten Funktion wird im CustumerCe
             trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))) as counternumber, \
             trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))) as vertrag, \
             trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) as grossamount \
-        from ${addressdatatable} \
-        join calldatatable on calldatatable.addressdata_id = ${addressdatatable}.id \
-        where calldatatable.id = ${calldatatableId} LIMIT 1
+        from ${Global.addressdatatable} \
+        join calldatatable on calldatatable.addressdata_id = ${Global.addressdatatable}.id \
+        where calldatatable.id = ${Global.calldatatableId} LIMIT 1
     `;
     try {
         let SQLdataset = executeSql(query);
         // Hier ID aus DataObjekt zuweisen
-        addressdatatableId = SQLdataset[0].rows[0].columns[0];
+        Global.addressdatatableId = SQLdataset[0].rows[0].columns[0];
 
         // Hier dataField aus DataObjekt zuweisen
         SqlField = SQLdataset[0].rows[0].fields;
@@ -61,7 +61,7 @@ function main_query() { // Der Name der gewünschten Funktion wird im CustumerCe
         SqlField = [];
     }
     let send = SqlField>[]?true:false;
-    logSQL? logsqlIntoDebug(`SQL TableID: <span class="txt--blue">${addressdatatable}</span>`,query, send ) : undefined;
+    Global.logSQL? logsqlIntodebug(`SQL TableID: <span class="txt--blue">${Global.addressdatatable}</span>`,query, send ) : undefined;
     return SqlField;                           
 };
 
@@ -77,33 +77,33 @@ function pullSQL (promtName) {
     try {
         switch (promtName) {
             case "result_id":
-                query = `SELECT result_id FROM calldatatable where id=${calldatatableId} LIMIT 1`;
+                query = `SELECT result_id FROM calldatatable where id=${Global.calldatatableId} LIMIT 1`;
                 break;
 
             case "cancellation_reasons":
                 query = `SELECT id, label FROM cancellation_reasons WHERE campaign_id=${campaignId} AND active=1 ORDER BY label DESC`;
                 break;
             
-            case "wiedervorlageCount":
-                query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${addressdatatable} 
-                         ON ${addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
+            case "Global.wiedervorlageCount":
+                query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
+                         ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
                          AND is_wv=1 AND wv_date>NOW()`;
                 break;
 
-            case "wiedervorlageData":
-                query = `SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ', ${fieldname_firstname},' ', ${fieldname_lastname},' : 
-                        ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${addressdatatable} 
-                         ON ${addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
+            case "Global.wiedervorlageData":
+                query = `SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ', ${Global.fieldname_firstname},' ', ${Global.fieldname_lastname},' : 
+                        ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
+                         ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
                          AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5`;
                 break;
 
             case "historyCount":
-                query = `SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id=${calldatatableId}`;
+                query = `SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id=${Global.calldatatableId}`;
                 break;
             
             case "historyData":
                 query = `SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message 
-                         FROM contact_history WHERE calldatatable_id=${calldatatableId} ORDER BY called_at DESC`; 
+                         FROM contact_history WHERE calldatatable_id=${Global.calldatatableId} ORDER BY called_at DESC`; 
                 break;
             
             case "statistik":
@@ -114,7 +114,7 @@ function pullSQL (promtName) {
         };
         let awnser = executeSql(query);
         let send = awnser.length>0?true:false;
-        logSQL? logsqlIntoDebug(promtName, query, send): undefined;
+        Global.logSQL? logsqlIntodebug(promtName, query, send): undefined;
         return awnser;
     } catch(error) {
         logIntoDebug("pullSQL", `query ${promtName} konnte nicht geladen werden.`);
@@ -127,20 +127,20 @@ function pushSQL (promtName) {
     
     switch(promtName){
 
-        case "update_rec_info": // Speichere Verweis für aktuellen VoiceFiles in der DB (addressdatatable) ab.
+        case "update_rec_info": // Speichere Verweis für aktuellen VoiceFiles in der DB (Global.addressdatatable) ab.
             teile = splitRecName();
-            query =    `UPDATE ${addressdatatable} set voice_id = '${teile[teile.length - 1]}' WHERE id = '${addressdatatableId}' LIMIT 1`;
+            query =    `UPDATE ${Global.addressdatatable} set voice_id = '${teile[teile.length - 1]}' WHERE id = '${Global.addressdatatableId}' LIMIT 1`;
             break;
         
         case "save_rec_path": // Speichere den Pfad des aktuellen VoiceFiles in der DB (calldatatable) ab.
             teile = splitRecName();
             query =    `insert into voicefiles (calldatatable_id, campaign_id , voicefile, calldate, location) 
                         values ('
-                            ${calldatatableId},    
+                            ${Global.calldatatableId},    
                             ${campaignId},
                             ${teile[teile.length - 3]} / ${teile[teile.length - 2]} / ${teile[teile.length - 1]},
                             now(),
-                            ${removeSlashes(recordingPrefix)}
+                            ${removeSlashes(Global.recordingPrefix)}
                         ');`;
             break;
         

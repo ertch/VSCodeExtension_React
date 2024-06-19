@@ -17,16 +17,19 @@ let isValidating = 0;
         let page_content = page instanceof HTMLElement? page : document.getElementById(page);
         let filled = true; // visibleInputs = Alle Inputs und Selects der Page die sichtbar['required'] sind 
         let visibleInputs = getVisibles(page_content.id);  
-        try{
+        // try{
             visibleInputs.forEach(input => {
                 if (input.value == 0 || input.value == "") {   
                     filled = false; // Ist ein required-Input leer gib false aus
-                }  
+                }  else {
+                    document.getElementById(`${input.id}_errorMsg`).innerHTML = "";
+                    input.classList.remove('errorborder');
+                }
             })  
-        } catch(error) {
-            logIntoDebug("silent (Validation)", `Error: ${page_content.id} konnte nicht vallidiert werden`, LogIntottDB);
-            filled = false;
-        };
+        // } catch(error) {
+        //     logIntoDebug("silent (Validation)", `Error: ${page_content.id} konnte nicht vallidiert werden`, Global.LogIntottDB);
+        //     filled = false;
+        // };
         return filled;
     }
 
@@ -43,7 +46,7 @@ let isValidating = 0;
     function bundleInputs(page) {
         
         let successBool = true; 
-        try {
+        // try {
             let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
                 txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
                 handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
@@ -115,10 +118,10 @@ let isValidating = 0;
             } 
             return successBool;
 
-        } catch (error) {
-            logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
-            return false;
-        }
+        // } catch (error) {
+        //     logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
+        //     return false;
+        // }
     };
 
 //--------------------------------------------------------------------- Vaidierung der Bundles -----------------------------------------------------------------
@@ -213,8 +216,10 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
 
                 if (boolErr) {
                     document.querySelector(`#${errTxtId}`).innerHTML = "";
+                    document.getElementById(id).classList.remove('errorborder');
                 } else {
                     document.querySelector(`#${errTxtId}`).innerHTML = errTxt;
+                    document.getElementById(id).classList.add('errorborder');
                     successBool = false
                 }
                 
@@ -225,7 +230,7 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
         }    
         
     }catch (error) { //  Error Nachrichten und return
-        logIntoDebug( "validateInput:" ,`Error at array: ${idArr} with ${id}`, LogIntottDB);
+        logIntoDebug( "validateInput:" ,`Error at array: ${idArr} with ${id}`, Global.LogIntottDB);
         return giveAnswer ? false : undefined;
     }
 }
@@ -426,7 +431,7 @@ function noDoubles(idArr) {
 
 function validateSelect(optionId, optionValue){ // Prüfe ob select den gewünschten wert hat
     let select = document.getElementById(optionId);
-    debug && console.log(select.value);
+    debugMode && console.log(select.value);
     return select.value === optionValue ? true : false;
  }
 

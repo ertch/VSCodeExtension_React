@@ -19,7 +19,8 @@
 
 @font-face {
     font-family: "salesfontor";
-    src: url("include/fonts/salesfontor.woff2") format('woff2');
+    src:url('../include/fonts/salesfontor.woff2') format('woff2'), 
+        url('./include/fonts/salesfontor.woff2') format('woff2');
   }
 
 body {
@@ -59,8 +60,12 @@ td {
 
 .grid {
     display: grid;
-    grid-template-columns: 65% 1fr;
-    margin: 1em 0;
+    grid-template-columns: 1fr 95% 1fr;
+
+    &-col_center {
+        grid-column: 2/3;
+        margin: 1.5em 0 0;
+    }
 
     &-col_1 {
         grid-column: 1/2;
@@ -106,7 +111,7 @@ td {
     background-color: $bg_graysuit;  
     border-top: 1px solid $darkgrey;
     margin-top: -7px;
-    padding: 0 1em 0.1em 1em;
+    padding: 0 1em 1.5em 1em;
 }
 
 .datenerf-block-border2 {
@@ -396,4 +401,14 @@ datalist {
     & option {
         background-color: blue;
     }
+}
+
+.errorborder {
+    border: 1px solid red;
+}
+.errormessage {
+    color: red;
+    font-size: .75em;
+    font-weight: bold;
+    text-shadow: #000;
 }

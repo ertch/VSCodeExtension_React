@@ -146,8 +146,6 @@ function validateInteger(mynum,description, errorId,blnRequired,minValue,maxValu
 
 
 function validateSelect(value,description,errorId) {
-	//alert("MOIN");
-
 	var blnError=false;
 	errorId.innerHTML="";
 
@@ -392,7 +390,7 @@ function validateEmail(s,description, errorId,blnRequired) {// NB
 	
 	if(blz=='00000000') return true;
 
-	//if(debug) url='http://www.wort2.de:8180/bankcheck';
+	//if(Global.debugMode) url='http://www.wort2.de:8180/bankcheck';
 	//else
 //	url='http://192.168.200.14:8080/bankcheck';
 

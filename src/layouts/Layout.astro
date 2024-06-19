@@ -17,6 +17,10 @@ interface Props {
 }
 
 const { campaignTitle, campaignNr, jsFiles, header_imgs, header_title, pattern, query} = Astro.props;
+let mode = "";
+if (import.meta.env.DEV) {
+	mode = `${campaignNr}/`;
+}
 ---
 
 <!doctype html>
@@ -29,15 +33,14 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_title, pattern, 
 		<meta name="generator" content='Erik Tchorz' />
 		<title>{campaignTitle + campaignNr}</title>
 
-		<!-- Campaign specific file loading -->
+		<!-- Campaign specific file loading --> 
 		{jsFiles.map((data) => (
-		<>
-			<script type="text/javascript" src={`/${campaignNr}/js/${data}`}></script></>
+			<script type="text/javascript" src={`${mode}js/${data}`}></script>
 		))}
-		<script type="text/javascript" 	  src="../../public/include/js/element-logic.js"></script>
-		<script type="text/javascript" 	  src="../../public/include/js/valididator.js"></script>
-		<script type="text/javascript" 	  src="../../public/include/js/ttAPIandSQL.js"></script>
-		<script type="text/javascript" 	  src="../../public/include/js/ttWebFunctions.js"></script>
+		<script type="text/javascript" 	  src="../include/js/element-logic.js"></script>
+		<script type="text/javascript" 	  src="../include/js/valididator.js"></script>
+		<script type="text/javascript" 	  src="../include/js/ttAPIandSQL.js"></script>
+		<script type="text/javascript" 	  src="../include/js/ttWebFunctions.js"></script>
 	</head>
 
 	<body>
@@ -84,26 +87,30 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_title, pattern, 
 			window.onload = function() { // Loading-Symbol
     			document.querySelector("#loader").style.display = "none";
 				document.querySelector("body").style.visibility = "visible";
+				if (import.meta.env.DEV) {
+					const newFontUrl = '../include/fonts/otherfont.woff2';
+					document.documentElement.style.setProperty('--font-url', newFontUrl);
+				}
 			}
-			
 			// HotKey event
 			let timer = 0;
 			document.onkeyup = function(event) {
 				event = event || window.event;
 				if (event.keyCode === 20) { 
 					timer = 0;
-				} else if (showDebug) {
+				} else if (Global.showDebug) {
 					keyUp(event.keyCode);
 				}
 			};
 			document.onkeydown = function(event) {
 				event = event || window.event;
-				if (event.keyCode === 13 && btnLock) {
+				console.log("btn down")
+				if (event.keyCode === 13 && Global.btnLock) {
 					event.preventDefault();  
-				} else if (event.keyCode === 20) { 
-					timer++;
-					timer===150? callFS() : undefined ;
-				}else if (showDebug) {
+				// } else if (event.keyCode === 20) { 
+				// 	timer++;
+				// 	timer===150? callFS() : undefined ;
+				}else if (Global.showDebug) {
 					keyDown(event.keyCode);
 				}
 			};
@@ -119,8 +126,8 @@ const { campaignTitle, campaignNr, jsFiles, header_imgs, header_title, pattern, 
 				// "Show the dialog" button opens the dialog modal
 				for(let x = 0; x < showButtonList.length; x++) {
 					showButtonList[x].addEventListener("click", () => {
-						// console.log("click on " + showButtonList[x].id);
 						dialogList[x].showModal();
+						logIntoDebug(`FootBtn - ${showButtonList[x].id}`, `Modal: "<span class='txt--blue'>${dialogList[x].id}</span>" geöffnet`, false);
 					});
 				}
 

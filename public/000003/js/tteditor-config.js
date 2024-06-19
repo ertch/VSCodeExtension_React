@@ -13,7 +13,7 @@
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-let calldatatableId;            // ID des Kampagnien-CallTable
+       
 let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
 let clientIP;                   
@@ -33,7 +33,7 @@ let buildupFail = false;
 let TriggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
 let CostumerData;                       // Erstellung global CustomerData   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
-let SendBack = new Object();            // Erstellung global SendBackfilter (SenBa)
+let SendBack = [];                      // Erstellung global SendBackfilter (SenBa)
 
 let firstTab = "tab_start";
 let lastTab = "tab_zusammenfassung";
@@ -57,34 +57,39 @@ let resultIdApne6h =    8922;
 let resultIdApne8h =    8923;
 let resultIdApne20h =   8924;
 
-let addressdatatable = 'ste_wel_addressdata';   // SQL adresstable
-let salesdatatable = 'ste_wel_addressdata';     // SQL datatable
-let fieldname_firstname = "firstname";          // SQL column-Bezeichner
-let fieldname_lastname = "surname";             // SQL column-Bezeichner
-let nestor = `http://admin/outbound.dbconnector/index.php?sql=`;
 
-let recordFileName; // [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
-let recordingPrefix = "\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\";
-let FileNamePattern = ["date", "time", "agendID", "customerid", "ste_wel" ]; // nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
-let recordingNameSuffix = ".ogg"; 
+let Global ={
+    currentTabName:       `${firstTab}`,
+    
+    directionState:        0        , // Aktueller Call state
+    startCallwithState:    2        , // Call state bei Beginn des Anrufes
+    startRecWithBuildUp:   false    , // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
+    startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
+    
+    debugMode:             true     , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
+    LogIntottDB:           false    , // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+    logGK:                 true     , // Gatekeeper in Log anzeigen
+    logSQL:                true     , // SQL-Statemants in Log anzeigen
+    showStats:             false    , // wenn true, lade AbschlussStatistik (in DebugLog)
 
-let currentTabName="tab_start";        // Set Starttab (erster angezeigert Tab)
+    addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
+    calldatatableId:       ''                      ,  // ID des Kampagnien-CallTable (aus DB)
+    salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable
+    fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
+    fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
 
-let startCallwithState = 2;             // Call state bei Beginn des Anrufes
-let startRecWithBuildUp = false;        // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
-let startRecWithCall = false;           // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
-let directionState;                     // Aktueller Call state
+    nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
+    
+    recordingPrefix:       '\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\'  ,// Path zur Ablage der Audiodatei auf dem Fileserver
+    FileNamePattern:       ["date", "time", "agendID", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
+    recordingNameSuffix:   '.ogg'                                                          ,// Suffix der Audiodatei
+    recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
 
-let showStats = false;                  // wenn true, lade AbschlussStatistik (in DebugLog)
-let wiedervorlage = false;              // wenn true, lade WiedervorlageDaten 
-let wievorElement = "html-Element.id"   // Lade WiedervorlageDaten in dieses Element
+    wiedervorlage:         false               ,  // wenn true, lade WiedervorlageDaten 
+    wievorElement:         'html-Element.id'   ,  // Lade WiedervorlageDaten in dieses Element
+}
 
-let LogIntottDB = false;                // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
-let showDebug = true;                   // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
-let debug = true;                       // Wenn true, dann wird mit SQL-Fakeconnector verbunden
-
-let logGK = true;                       // Gatekeeper in Log anzeigen
-let logSQL = true;                     // SQL-Statemants in Log anzeigen
 //------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------
 // Diese Funktionen werden für Zeitstempel genutzt. Wie diese ausgegeben werden sollen, kann man hier anpassen.       Funktion geprüft am: 23.05.24 von Erik
 // Um in den Filenames einen Zeitsempel einzutragen, ist die Funktion notwendig
@@ -124,7 +129,7 @@ function gettime() { // Uhrzeit
  *                  Andernfalls wird es zusammen mit dem nächsten standAlone = true Element in dessen Cell geschieben.
  *                  Es ist sozusagen ein Copy/Paste für die Werte. Aber Achtung: zwei standAlone hintereinadner überschreiben sich.
  * 
- *      createCell: Ein Bool für die Erstellung der CustomerCards. Wenn true, wird aus dem Eintrag eine Card erstellt. 
+ *      createCell: Ein Bool für die Erstellung der CustomerCells. Wenn true, wird aus dem Eintrag eine Cell erstellt. 
  * 
  *                  Der Aufbau eines HTML-Elements ist wie folgt:
  *                      <div>           

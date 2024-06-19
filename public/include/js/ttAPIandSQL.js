@@ -7,7 +7,7 @@
  */
 function executeSql(sql) {
 
-    if (!debug) {
+    if (!Global.debugMode) {
         try { // dataObject zurückgeben
             return ttWeb.execDatabase(sql);
         }catch (ex) {
@@ -18,9 +18,8 @@ function executeSql(sql) {
         };
     }else {
         let result = null;
-        // console.log("executeSql is debug");
 
-        const url = `${nestor}${encodeURIComponent(sql)}`;
+        const url = `${Global.nestor}${encodeURIComponent(sql)}`;
 
         // Create a new XMLHttpRequest object
         let xhr = new XMLHttpRequest();
@@ -71,7 +70,7 @@ function ttErrorLog(caller, msg) {
             log_message,
             client_ip
         ) VALUES (
-            ${calldatatableId},
+            ${Global.calldatatableId},
             ${campaignId},
             ${agentId},
             'error',
@@ -81,7 +80,7 @@ function ttErrorLog(caller, msg) {
         )`;
         ttWeb.execDatabase(insertSql);
     } catch(error) { 
-        logIntoDebug(`ttErrorLog(${caller})`, "Error: SQL-INSERT konnte nicht an DB gesendet werden", LogIntottDB);
+        logIntoDebug(`ttErrorLog(${caller})`, "Error: SQL-INSERT konnte nicht an DB gesendet werden", Global.LogIntottDB);
     };
 };
 
@@ -96,7 +95,7 @@ function ttErrorLog(caller, msg) {
         try {   
             return s.replace(/'/g,"\\'");
         } catch (ex){
-            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", LogIntottDB)
+            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", Global.LogIntottDB)
         }
     };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -110,7 +109,7 @@ function ttErrorLog(caller, msg) {
         try { 
             return s.replace(/\\/g,"/");
         } catch (ex){
-            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", LogIntottDB)
+            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", Global.LogIntottDB)
         }
     };
 
@@ -165,4 +164,40 @@ function ttErrorLog(caller, msg) {
         }
         // Einträge in Select schieben
         selectBox.value=selectValue;
+    };
+
+    function convertFormToJson(formId) {
+        
+        let target = [];
+        let form = document.getElementById(formId);
+        if (!form || form.nodeName !== "FORM") {
+            console.error("Invalid form ID");
+            return;
+        }
+        for (let i = 0; i < form.elements.length; i++) {
+            let element = form.elements[i];
+            if (element.hasAttribute("data-submit")) {
+                target.push([element.getAttribute("data-submit"), element.value]);
+            }
+        }
+        return target;    
+    }
+
+    function pushData(){
+        let fail = false;
+        let sql = `UPDATE ${Global.addressdatatable} SET `;
+        SendBack.forEach(entry => {
+            sql += `${entry[0]} = '${entry[1]}', `;
+        })
+        sql += `where id = '${Global.calldatatableId}' LIMIT 1`;
+
+        // Handshake mit der DB
+        let serverStatus = executeSql("show status");
+        if (serverStatus.length <= 0 || serverStatus === null) {
+            fail = true;
+            //TODO: Sichere Daten... irgendwie
+        } else {
+            executeSql(sql)===null? fail = true : undefined;
+        };
+        return fail;
     };

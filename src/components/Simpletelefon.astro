@@ -6,9 +6,10 @@ interface Props {
   required?: boolean;
   maxlength?: string;
   pattern?: string;
+  submitTo?: string;
 }
 
-const { id, name, type, required, maxlength, pattern } = Astro.props;
+const { id, name, type, required, maxlength, submitTo, pattern } = Astro.props;
 let errorname = `${id}_errorMsg`;
 // type={type as 'text'} statt type={type}, da das Attribute 'type' nicht alle strings zulässt, sondern nur eine Auswahl wie text, password, email, number, date, etc.
 ---
@@ -24,5 +25,6 @@ let errorname = `${id}_errorMsg`;
   {required}
   maxlength={maxlength}
   pattern={pattern}
-  data-required = 'false';
+  data-required = 'false'
+  data-submit={submitTo}
 />

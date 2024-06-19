@@ -39,26 +39,29 @@ import "../styles/main.scss";
 			window.onload = function() { // Loading-Symbol
     			document.querySelector("#loader").style.display = "none";
 				document.querySelector("body").style.visibility = "visible";
+				if (import.meta.env.DEV) {
+					const newFontUrl = '../include/fonts/otherfont.woff2';
+					document.documentElement.style.setProperty('--font-url', newFontUrl);
+				}
 			}
-			
 			// HotKey event
 			let timer = 0;
 			document.onkeyup = function(event) {
 				event = event || window.event;
 				if (event.keyCode === 20) { 
 					timer = 0;
-				} else if (showDebug) {
+				} else if (Global.showDebug) {
 					keyUp(event.keyCode);
 				}
 			};
 			document.onkeydown = function(event) {
 				event = event || window.event;
-				if (event.keyCode === 13 && btnLock) {
+				if (event.keyCode === 13 && Global.btnLock) {
 					event.preventDefault();  
-				} else if (event.keyCode === 20) { 
-					timer++;
-					timer===150? callFS() : undefined ;
-				}else if (showDebug) {
+				// } else if (event.keyCode === 20) { 
+				// 	timer++;
+				// 	timer===150? callFS() : undefined ;
+				}else if (Global.showDebug) {
 					keyDown(event.keyCode);
 				}
 			};
@@ -74,8 +77,8 @@ import "../styles/main.scss";
 				// "Show the dialog" button opens the dialog modal
 				for(let x = 0; x < showButtonList.length; x++) {
 					showButtonList[x].addEventListener("click", () => {
-						// console.log("click on " + showButtonList[x].id);
 						dialogList[x].showModal();
+						logIntoDebug(`FootBtn - ${showButtonList[x].id}`, `Modal: "<span class='txt--blue'>${dialogList[x].id}</span>" geöffnet`, false);
 					});
 				}
 
@@ -96,7 +99,6 @@ import "../styles/main.scss";
 					}
 				}catch(e){};
 			});
-
 		</script>
 	</body>
 </html>

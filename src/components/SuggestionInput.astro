@@ -13,12 +13,13 @@ interface Props {
     pattern?: string;
     preset?: string;
     required?: boolean;
+    submitTo?: string;
     type?: string;
     validate?: string;
     value?: any; 
 }
 
-const { actions, disabled, gate, gatekeeper, hidden, id, klasse, label, maxlength, options, pattern, preset, required, type, validate, value} = Astro.props; 
+const { actions, disabled, gate, gatekeeper, hidden, id, klasse, label, maxlength, options, pattern, preset, required, submitTo, type, validate, value} = Astro.props; 
 
 let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
@@ -48,6 +49,7 @@ if(gatekeeper===true) {
 <input
     class=`input-text suggest ${setClass}`
     data-array={gatewayArr}
+    data-submit={submitTo}
     data-preset = {preset}
     data-vali = {validate}
     {disabled}

@@ -5,12 +5,13 @@ interface Props {
   required?: boolean;
   value: string;
   label: string;
+  submitTo?: string;
 }
 
-const { id, name, required, value, label } = Astro.props;
+const { id, name, required, value, label, submitTo } = Astro.props;
 ---
 
 <div class="radio-option">
-  <input class="radio-option__input" type="radio" id={id} name={name} value={value} {required} data-required = 'false';/>
+  <input class="radio-option__input" type="radio" id={id} name={name} value={value} {required} data-required = 'false' data-submit={submitTo}/>
   <label class="radio-option__label" for={id}>{label}</label>
 </div>

@@ -5,7 +5,7 @@
  *      Wir nach dem Aufbau der Seite automatisch aufgerufen
  */
 function bootUpAPI() {
-    if (!debug) {
+    if (!Global.debugMode) {
         logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
         // Initialisierung des Inhalts-Interfaces
         this.parent.contentInterface.initialize(window,
@@ -23,7 +23,7 @@ function bootUpAPI() {
             }
         );
     } else {
-        logIntoDebug("bootUpDebug", "Debug: <span class='txt--blue'>true</span> => Initialisierung für Debug-Modus gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
+        logIntoDebug("bootUp", "debugMode: <span class='txt--blue'>true</span> => Initialisierung für debugMode gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
         buildUp(); 
     };
 } 
@@ -34,11 +34,10 @@ function bootUpAPI() {
  */
 function buildUp() {
     blnFinishPositive = false; // Variable zur Überprüfung, ob der Anruf positiv abgeschlossen wurde
-
-    if (!debug) {
+    if (!Global.debugMode) {
         // Abruf der notwendigen Daten aus der API
         clientIP = ttWeb.getClientIP();
-        calldatatableId = ttWeb.getCalltableField('ID');
+        Global.calldatatableId = ttWeb.getCalltableField('ID');
         msisdn = ttWeb.getCalltableField('HOME');
         indicator = ttWeb.getIndicator();
         // Telefonkontakt basierend auf dem Indikator festlegen
@@ -52,62 +51,67 @@ function buildUp() {
         festnetz = ttWeb.getCalltableField('BUSINESS');
         agentId = ttWeb.getUser().Login;
 
-    } else { // Wenn Debugging aktiviert ist, werden Dummy-Daten gesetzt
-        calldatatableId = 79880808;
+        if(clientIP === null || Global.calldatatableId === null || msisdn === null || indicator === null) {
+            buildupFail = true;
+        }
+
+    } else { // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
+        Global.calldatatableId = 79880808;
         msisdn = "01768655885";
         telKontakt = "0190123123";
         agentId = "2008";
     }
 
-    // Wenn Debugging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
-    abschlussStatus = pullSQL("result_id");
-    if (!debug && abschlussStatus[0].rows[0].length > 0) {
-       let callResultId = abschlussStatus.fields.result_id;
+    // Wenn Global.debugModeging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
+    if (buildupFail){
+        abschlussStatus = pullSQL("result_id");
+        if (!Global.debugMode && abschlussStatus[0].rows[0].length > 0) {
+        let callResultId = abschlussStatus.fields.result_id;
 
-        if (callResultId == resultIdPositiv) {
-            logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
-            ttWeb.clearRecording();
-            ttWeb.terminateCall('100');
+            if (callResultId == resultIdPositiv) {
+                logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                ttWeb.clearRecording();
+                ttWeb.terminateCall('100');
 
-        } else if (callResultId == resultIdNegativ) {
-            logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", LogIntottDB);
-            ttWeb.clearRecording();
-            ttWeb.terminateCall('200');
-        }
-    };
-
-    let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-    document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
-    // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
-    document.getElementById('wiedervorlage_Text').value = "";
-    document.getElementById('apne_delay').value = "";
-    document.getElementById('apne_notiz').value = "";
-
-    if (wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
-        let wievorCount = pullSQL("wiedervorlageCount");
-        if (wievorCount[0].rows[0].fields.length > 0) {
-            wievorData = pullSQL("wiedervorlageData")[0].rows;
-            let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
-            for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
-            document.getElementById(wievorElement).innerHTML = wvtext;
-        }
-    };
-
-    if (showStats) { // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
-        stats = pullSQL("statistik");
-        if (stats[0].rows.length > 0) {
-            stats = stats[0].fields;
-
-            quote = stats.UMWANDLUNGSQUOTE;
-            nettos = stats.NETTOKONTAKTE;
-            if (nettos > 0) {
-                $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
-                $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
+            } else if (callResultId == resultIdNegativ) {
+                logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                ttWeb.clearRecording();
+                ttWeb.terminateCall('200');
             }
-            logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, LogIntottDB);
-        }
+        };
+
+        let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
+        document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
+        // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
+        document.getElementById('wiedervorlage_Text').value = "";
+        document.getElementById('apne_delay').value = "";
+        document.getElementById('apne_notiz').value = "";
+
+        if (Global.wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
+            let wievorCount = pullSQL("wiedervorlageCount");
+            if (wievorCount[0].rows[0].fields.length > 0) {
+                wievorData = pullSQL("wiedervorlageData")[0].rows;
+                let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
+                for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
+                document.getElementById(Global.wievorElement).innerHTML = wvtext;
+            }
+        };
+
+        if (Global.showStats) { // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
+            stats = pullSQL("statistik");
+            if (stats[0].rows.length > 0) {
+                stats = stats[0].fields;
+
+                quote = stats.UMWANDLUNGSQUOTE;
+                nettos = stats.NETTOKONTAKTE;
+                if (nettos > 0) {
+                    $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
+                    $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
+                }
+                logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, Global.LogIntottDB);
+            }
+        };
     };
-    
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
@@ -154,18 +158,31 @@ function buildUp() {
  */
     function callFreedial() {
         try {
-            let freedial = document.getElementById('freedial_number');
-            if (validateRufnummer(freedial.value, errMsg)) { //TODO: validateRufnummer austauschen
-                debug? undefined : ttWeb.setCalltableField('OTHER', freedial.value);
-                debug? undefined : ttWeb.setIndicator(3);
-                record('clear');
-                debug? undefined : ttWeb.terminateCall('RR', null, null, 1);
-                logIntoDebug( "callFreedial",`Neue Nummer: <span class="txt--gray">${freedial.value}</span> gespeichert`,false);
+            let newNumber = document.getElementById('freedial_number');
+            
+            if (validateRufnummer('tel', newNumber.id, true)) { //TODO: validateRufnummer austauschen
+
+                logIntoDebug("ttWEB", `setCalltable('Other', ${newNumber.value})`, false)
+                Global.debugMode?  undefined : ttWeb.setCalltableField('OTHER', newNumber.value); //rufnummer abspeichern
+
+                logIntoDebug("ttWEB", `setCallState: ${Global.startCallwithState}`, false)
+                Global.debugMode? undefined : ttWeb.setIndicator(Global.startCallwithState);   // Callstate zurücksetzten
+
+                record('clear'); // Aufnahme löschen wenn gewollt
+
+
+                logIntoDebug("ttWEB", "Call terminiert ('RR', null, null, 1)", false)
+                Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
+
+                ttWeb.clearRecording();
+			    ttWeb.makeCustomerCall(newNumber.value);
+
+                logIntoDebug( "callFreedial",`Neue Nummer: <span class="txt--gray">${newNumber.value}</span> gespeichert`,false);
             } else {
-                logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${freedial.value}</span> vom Validator abgelehnt`,false);
+                logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${newNumber.value}</span> vom Validator abgelehnt`,false);
             }
         } catch(error) {
-            logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${freedial.value}</span> kommte nicht gespeichert werden`,false);
+            logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${newNumber.value}</span> kommte nicht gespeichert werden`,false);
         };
     }
     // Wenn Rufnummer valide speichere neue Nummer
@@ -190,41 +207,41 @@ function buildUp() {
         switch (state) {
             // Wenn der Zustand 'start' ist, wird die Aufnahme (agent & customer) gestartet 
             case 'start':
-               debug? debugDirectionState = recState : ttWeb.setRecordingState(recState);
+               Global.debugMode? Global.directionState = recState : ttWeb.setRecordingState(recState); //TODO
                 logIntoDebug( "record(start)",`Aufnahme wurde gestartet / state: ${recState}`,false);
                 break;
 
             // Wenn der Zustand 'stop' ist, wird die Aufnahme gestoppt (und die Sprachaufzeichnung wird ggf. gespeichert?) 
             case 'stop':
                 setRecordName(pattern);
-                if (recordFileName != "") {
+                if (Global.recordFileName != "") {
                     pushSQL(update_rec_info);
                     pushSQL(save_rec_path);
-                    logIntoDebug("record(stop)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${recordFileName}</span>`, false);
+                    logIntoDebug("record(stop)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${Global.recordFileName}</span>`, false);
                 } else {
-                    logIntoDebug("record(stop)",`<span class="txt-red">Error:</span> Kein RecordFileName angegeben.`,LogIntottDB);
+                    logIntoDebug("record(stop)",`<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,Global.LogIntottDB);
                 }
                 break;
 
             // Wenn der Zustand 'save' ist, wird die Aufnahme gespeichert und eine Fehlermeldung wird protokolliert, wenn kein Dateiname angegeben wurde.
             case 'save':
                 setRecordName(pattern);
-                if (recordFileName != "") {
-                    debug? undefined : ttWeb.saveRecording(recordFileName);
-                    logIntoDebug("record(save)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${recordFileName}</span>`, false);
+                if (Global.recordFileName != "") {
+                    Global.debugMode? undefined : ttWeb.saveRecording(Global.recordFileName);
+                    logIntoDebug("record(save)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${Global.recordFileName}</span>`, false);
                 } else {
-                    logIntoDebug("record(save)",`<span class="txt-red">Error:</span> Kein RecordFileName angegeben.`,LogIntottDB);
+                    logIntoDebug("record(save)",`<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,Global.LogIntottDB);
                 }
                 break;
 
             // Wenn der Zustand 'clear' ist, wird die Aufnahme gelöscht.
             case 'clear':   
-                debug? undefined : ttWeb.clearRecording();
+                Global.debugMode? undefined : ttWeb.clearRecording();
                 logIntoDebug("record(clear)", "Aufnahme wurde verworfen", false);
                 break;
 
             default: //Error_msg
-                logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, LogIntottDB);
+                logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, Global.LogIntottDB);
         }   
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -243,6 +260,7 @@ function buildUp() {
  */
 
     function setRecordName(style, useName) {
+        let FileNamePattern = Global.FileNamePattern;
         let recordName = "";
         let date = getdate();
         let time = gettime();
@@ -265,7 +283,7 @@ function buildUp() {
                 }
                 if (index != FileNamePattern.length - 1) recordName += '_'; // Trenner einbauen
             });
-            recordName += `${recordingNameSuffix}`;
+            recordName += `${Global.recordingNameSuffix}`;
 
         } else if (style === "use"){ // nutze mitgegebenen Namen
             recordName += `${useName}${recordingNameSuffix}`;
@@ -273,8 +291,8 @@ function buildUp() {
         } else { // Generiere einen Namen [datum + hashwert] 
             recordName = `${agentId}_${$crypto.randomUUID()}${recordingNameSuffix}`;
         }
-        recordFileName = recordName;
-        logIntoDebug("setRecordingName", `RecordFileName = ${recordFileName}`, false);    
+        Global.recordFileName = recordName;
+        logIntoDebug("setRecordingName", `RecordFileName = ${Global.recordFileName}`, false);    
     };
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-SQL-003

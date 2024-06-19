@@ -1,0 +1,20 @@
+---
+interface Props {
+    id?: string;
+    klasse?: string;
+    
+}
+
+const { id, klasse,} = Astro.props;
+---
+
+<form
+    class=`datenerf-bg ${klasse}`
+    name="formular"
+    method="POST"
+    id="tabsForm"
+> 
+    <slot>
+        
+    </slot>
+</form>

@@ -9,9 +9,10 @@ interface Props {
   required?: boolean;
   requiredValue?: Array<any>;
   preset?: string;
+  submitTo?: string;
 }
 
-const { call, trigger, id, label, name, requiredValue, required, preset, load } = Astro.props;
+const { call, trigger, id, label, name, requiredValue, required, preset, load, submitTo } = Astro.props;
 let errorname = `${id}_errorMsg`;
 let valueArr;
 let triggerArr = JSON.stringify(trigger);
@@ -31,9 +32,10 @@ valueArr = valueArr.replace(/&quot;/g, '')
     onchange={call}
     {required} 
     data-injection={load} 
-    data-required = {valueArr};
-    data-trigger = {triggerArr};
-    data-preset = {preset};
+    data-required = {valueArr}
+    data-trigger = {triggerArr}
+    data-preset = {preset}
+    data-submit = {submitTo}
   >
   <option disabled value="" selected>[Bitte Auswählen]</option>
 </select>
