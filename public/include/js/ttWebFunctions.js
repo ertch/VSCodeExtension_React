@@ -5,28 +5,32 @@
  *      Wir nach dem Aufbau der Seite automatisch aufgerufen
  */
 function bootUpAPI() {
-    if (!Global.debugMode) {
-        logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
+    try {
+    logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
         // Initialisierung des Inhalts-Interfaces
         this.parent.contentInterface.initialize(window,
             function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
                 
                 ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
 
-                buildUp();
-                call_initialize()
-                //TODO: recordAutoStart()
-                logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
+                if(Global.debugMode === true){
+                    logIntoDebug("<span class='txt--bigGreen'>:API-Verbindung positiv getestet</span>", "" , false);
+                } else {
+                    buildUp();
+                    call_initialize();
+                    //TODO: recordAutoStart()
+                    logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
+                }               
             },
-            function onInitializeError(e) {             // Fehler bei der Initialisierung
-                logIntoDebug("bootUpAPI", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${e}` , false);
-            }
         );
-    } else {
-        logIntoDebug("bootUp", "debugMode: <span class='txt--blue'>true</span> => Initialisierung für debugMode gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
-        buildUp(); 
+    } catch(error) {
+        logIntoDebug("bootUpAPI", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${error}` , false);
     };
-} 
+    if (Global.debugMode) {
+        logIntoDebug("bootUp", "debugMode: <span class='txt--blue'>true</span> => Initialisierung für debugMode gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
+        buildUp();
+    };
+};
    
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** buildUp -  Laden und anzeigen aller Daten.
@@ -34,8 +38,8 @@ function bootUpAPI() {
  */
 function buildUp() {
     blnFinishPositive = false; // Variable zur Überprüfung, ob der Anruf positiv abgeschlossen wurde
-    if (!Global.debugMode) {
         // Abruf der notwendigen Daten aus der API
+    try {
         clientIP = ttWeb.getClientIP();
         Global.calldatatableId = ttWeb.getCalltableField('ID');
         msisdn = ttWeb.getCalltableField('HOME');
@@ -54,18 +58,20 @@ function buildUp() {
         if(clientIP === null || Global.calldatatableId === null || msisdn === null || indicator === null) {
             buildupFail = true;
         }
-
-    } else { // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
-        Global.calldatatableId = 79880808;
-        msisdn = "01768655885";
-        telKontakt = "0190123123";
-        agentId = "2008";
+    } catch(error){
+        if (Global.debugMode) {  // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
+            Global.calldatatableId = 79880808;
+            msisdn = "01768655885";
+            telKontakt = "0190123123";
+            agentId = "2008";
+        } else {
+            logIntoDebug("buildUp()", "Calldatatable konnte nicht geladen werden", false)
+        }
     }
-
     // Wenn Global.debugModeging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
     if (buildupFail){
         abschlussStatus = pullSQL("result_id");
-        if (!Global.debugMode && abschlussStatus[0].rows[0].length > 0) {
+        if (!Global.debugMode && abschlussStatus.length > 0) {
         let callResultId = abschlussStatus.fields.result_id;
 
             if (callResultId == resultIdPositiv) {
@@ -111,7 +117,7 @@ function buildUp() {
                 logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, Global.LogIntottDB);
             }
         };
-    };
+    }
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
@@ -128,7 +134,7 @@ function buildUp() {
     function call_initialize() {
         try{
             ttWeb.setRecordingState(0);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
-            direction = ttWeb.getCallDirection();            // Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
+            // direction = ttWeb.getCallDirection();    // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
             calldatatableId = ttWeb.getCalltableField('ID'); // Bestimme die ID des Anrufdatensatzes in der Datenbank
             msisdn = ttWeb.getCalltableField('HOME');        // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
             indicator = ttWeb.getIndicator();                // Bestimme den Indikator für die Art des Anrufs (1-9)
@@ -170,7 +176,7 @@ function buildUp() {
 
                 record('clear'); // Aufnahme löschen wenn gewollt
 
-
+                //TODO was muss hier genau passieren?
                 logIntoDebug("ttWEB", "Call terminiert ('RR', null, null, 1)", false)
                 Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
 
@@ -262,8 +268,6 @@ function buildUp() {
     function setRecordName(style, useName) {
         let FileNamePattern = Global.FileNamePattern;
         let recordName = "";
-        let date = getdate();
-        let time = gettime();
         if(style === "pattern") {
             FileNamePattern.forEach((getInfo, index) => {
                 let matchfound = false;
@@ -275,7 +279,7 @@ function buildUp() {
                         } 
                     }); // wenn nicht gefunden, versuche Variable aufzurufen
                     if (!matchfound) {
-                        recordName += eval(getInfo);
+                       recordName += specialNames(getInfo);
                     }
                 } catch (error) {
                         // wenn gar nichts geht, nutzte String (von getInfo)

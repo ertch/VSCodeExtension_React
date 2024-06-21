@@ -1346,6 +1346,7 @@ function loadData() {
         // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
         if (keyCode1Pressed && keyCode2Pressed) {
             // Ändere die Sichtbarkeit des Debug-Logs
+            givemeabeep();
             document.getElementById("debugLog").classList.toggle("d-none");
             console.log("Debuglog geöffnet!");
         }

@@ -182,22 +182,3 @@ function ttErrorLog(caller, msg) {
         }
         return target;    
     }
-
-    function pushData(){
-        let fail = false;
-        let sql = `UPDATE ${Global.addressdatatable} SET `;
-        SendBack.forEach(entry => {
-            sql += `${entry[0]} = '${entry[1]}', `;
-        })
-        sql += `where id = '${Global.calldatatableId}' LIMIT 1`;
-
-        // Handshake mit der DB
-        let serverStatus = executeSql("show status");
-        if (serverStatus.length <= 0 || serverStatus === null) {
-            fail = true;
-            //TODO: Sichere Daten... irgendwie
-        } else {
-            executeSql(sql)===null? fail = true : undefined;
-        };
-        return fail;
-    };

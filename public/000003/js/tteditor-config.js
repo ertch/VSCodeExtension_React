@@ -66,7 +66,7 @@ let Global ={
     startRecWithBuildUp:   false    , // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
     startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
     
-    debugMode:             true     , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    debugMode:             false   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
     showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
     LogIntottDB:           false    , // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
     logGK:                 true     , // Gatekeeper in Log anzeigen
@@ -82,12 +82,34 @@ let Global ={
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
     
     recordingPrefix:       '\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\'  ,// Path zur Ablage der Audiodatei auf dem Fileserver
-    FileNamePattern:       ["date", "time", "agendID", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
-    recordingNameSuffix:   '.ogg'                                                          ,// Suffix der Audiodatei
+    FileNamePattern:       ["date", "time", "agentId", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
+    recordingNameSuffix:   '.mp3'                                                          ,// Suffix der Audiodatei
     recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
+    terminationCode:       ''                                                              ,
 
     wiedervorlage:         false               ,  // wenn true, lade WiedervorlageDaten 
     wievorElement:         'html-Element.id'   ,  // Lade WiedervorlageDaten in dieses Element
+
+    posSale:               false  , // Indikator für positiven Verkauf
+}
+
+//--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
+function specialNames(varName){
+    let giveBack = '';
+    let date = getdate();
+    let time = gettime();
+    // soll eine Variable in de, RecordFileName einen besonderem Ausdruck entsprechen, kann dies hier
+    // eingtragen werden und wird eins zu eins so übernommen.
+    switch(varName){
+
+        case 'agentId':
+            giveBack = `agent-${eval(varName)}`;
+            break;
+
+        default :
+            giveBack = eval(varName);
+    }
+    return giveBack;
 }
 
 //------------------------------------------------------------------- Systemzeit ---------------------------------------------------------------------------
@@ -96,14 +118,17 @@ let Global ={
 
 function getdate() { // Datum
     let datum = new Date().toLocaleDateString('default',{ day: 'numeric' , month: 'short', year: 'numeric'});
-    datum = datum.replace(/\.+/g, '')
+    datum = datum.includes('ä') ? datum.replace(/ä/g, 'ae') : datum;   // März filtern
+    datum = datum.replace(/\.+/g, '')   
                  .replace(/\s+/g, '');      // tt(monat)yyyy = "23Mai2024"
     return datum;
 }
 
 function gettime() { // Uhrzeit
     let time = new Date().toLocaleTimeString();
-    return `${time.replace(/\:+/g, '-')}uhr`; // hh-mm-ss
+    let cache = time.split(':');
+    time = `${cache[0]}${cache[1]}`; // sekunden filtern
+    return `${time}uhr`; // hh_mm_uhr
 }
 
 
@@ -158,8 +183,6 @@ function gettime() { // Uhrzeit
             { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true },
             { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true },
             { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Lieferbeginn',    match: 'cratedate',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Datensatz',       match: 'preset1',               value: "test",   standAlone: true,     createCell: false },
         ];
         return CustomerData
     };

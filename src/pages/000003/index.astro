@@ -19,7 +19,7 @@ import FinishBtn from "@components/FinishButton.astro";
 <Layout     
     campaignTitle="STE_WEL"
     campaignNr="000003"
-    jsFiles={["query_lib.js", "tteditor-config.js"]}
+    jsFiles={["tteditor-config.js", "query_lib.js"]}
     header_imgs={["skon.png", "stadtenergie.svg"]}
     header_title="Stadtenergie Welcome Call"
     pattern="providerPattern()"
@@ -76,10 +76,12 @@ import FinishBtn from "@components/FinishButton.astro";
                             [`ja`, 'open', "kauf"],
                             [`ja`, "setValue{ja}", "datenerfassung_input"],
                             [`ja`, 'trigger', "PAtxt1"],
+                            ['ja', 'true', 'Global.posSale'],
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
                             [`nein`, 'close', "kauf"],
                             ["nein", "trigger", "NAtxt1"],
-                            ["nein", ["setValue{7000},disable"], "datenerfassung_ablehnungsgrund"]
+                            ["nein", ["setValue{7000},disable"], "datenerfassung_ablehnungsgrund"],
+                            ['nein', 'false', 'Global.posSale'],
                         ]}
                        
                         gate="gk_grp1"

@@ -431,7 +431,6 @@ function noDoubles(idArr) {
 
 function validateSelect(optionId, optionValue){ // Prüfe ob select den gewünschten wert hat
     let select = document.getElementById(optionId);
-    debugMode && console.log(select.value);
     return select.value === optionValue ? true : false;
  }
 

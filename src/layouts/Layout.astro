@@ -41,6 +41,7 @@ if (import.meta.env.DEV) {
 		<script type="text/javascript" 	  src="../include/js/valididator.js"></script>
 		<script type="text/javascript" 	  src="../include/js/ttAPIandSQL.js"></script>
 		<script type="text/javascript" 	  src="../include/js/ttWebFunctions.js"></script>
+		<script type="text/javascript" 	  src="../include/js/beep.js"></script>
 	</head>
 
 	<body>
@@ -82,6 +83,7 @@ if (import.meta.env.DEV) {
 		<DebugLog />
 
 		<script>
+			let prod = false;
 			document.querySelector("body").style.visibility = "hidden";
 			document.querySelector("#loader").style.visibility = "visible";
 			window.onload = function() { // Loading-Symbol
@@ -90,6 +92,7 @@ if (import.meta.env.DEV) {
 				if (import.meta.env.DEV) {
 					const newFontUrl = '../include/fonts/otherfont.woff2';
 					document.documentElement.style.setProperty('--font-url', newFontUrl);
+					prod = true;
 				}
 			}
 			// HotKey event
@@ -116,8 +119,8 @@ if (import.meta.env.DEV) {
 			};
 			
 			// boot JS
-			document.addEventListener('DOMContentLoaded', bootUpAPI());
-			document.addEventListener("DOMContentLoaded", function() {
+			document.addEventListener('load', bootUpAPI());
+			document.addEventListener("laod", function() {
 
 				const dialogList    = document.getElementsByTagName("dialog");
 				const showButtonList = document.getElementsByClassName("calldialog");

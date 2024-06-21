@@ -356,6 +356,19 @@ function loadProviderPreset() {
                                     document.getElementById(id).value = setValOp;
                                 });
                             break;
+
+                            case "true": // setzte Trigger für übergebene id auf true 
+                                (Array.isArray(target) ? target : [target]).forEach(targetVar => {
+                                    Global.posSale = true;
+                                    // TODO mache das targetVar auch das Ziel ist
+                                });
+                            break;
+
+                            case "false": // setzte Trigger für übergebene id auf true 
+                                (Array.isArray(target) ? target : [target]).forEach(targetVar => {
+                                    Global.posSale = false;
+                                });
+                            break;
                         
                             default:
                                 // Fehlermeldung ausgeben, wenn die Aktion nicht erkannt wird
@@ -525,17 +538,19 @@ function getTrigger(callerId, validate){
                 });
         
                 // Anzeigen oder Ausblenden von Buttons basierend auf dem Tab
-                ['div_go_ane', 'div_go_abfax', 'div_go_positiv'].forEach(function(elementId) {
+                ['div_go_ane', 'div_go_abfax'].forEach(function(elementId) {
                     if (newTabName !== firstTab && newTabName !== lastTab){
                         document.getElementById(elementId).className = "go d-none";
                         showWeiterBtn(newTabName);
                     } else {
                         document.getElementById(elementId).className = "go";
-                        document.getElementById('weiterBtn').className = "nextpage go d-none";
+                        document.getElementById('weiterBtn').classname ="d-none";
                     }
                 }); 
                 // Buton kann erst nach der Validierung entfernt werden
-                newTabName === lastTab? document.getElementById('weiterBtn').classList.add("d-none") : undefined;
+                if (newTabName === lastTab) {
+                    document.getElementById('weiterBtn').classList.add("d-none"); 
+                }
             } else {
                 return;
         }
@@ -550,37 +565,47 @@ function getTrigger(callerId, validate){
 
 
 function showWeiterBtn(page_id) {
-    let showWeiterBtn = document.getElementById('weiterBtn');
-    if (silent(document.getElementById(page_id)) == true) {
-        showWeiterBtn.className = "nextpage go";
+    let showWeiterBtn = document.querySelector('.nextpage--btn');
+
+    if(Global.posSale === true) {
+        showWeiterBtn.innerHTML = '<i class="glyph glyph-outro"></i>Weiter';
     } else {
-        showWeiterBtn.className = "nextpage go d-none";
+        showWeiterBtn.innerHTML = '<i class="glyph glyph-abschluss"></i> Abschluss';
     }
-}
+        
+    if (silent(document.getElementById(page_id)) == true) {
+        document.getElementById('weiterBtn').classList.remove("d-none");
+    } else {
+        document.getElementById('weiterBtn').classList.add("d-none");
+    };
+};
 
 function weiterBtn(){
-    let currentTab = document.querySelector(".current").id;
-    
-    let currentNumber = parseInt(currentTab.replace('tab', ''));
-    let newNumber = currentNumber + 1;
-    // Neue ID erstellen
-    let newTabId = 'tab' + newNumber;
+    if(Global.posSale === true) {
+        let currentTab = document.querySelector(".current").id;
+        
+        let currentNumber = parseInt(currentTab.replace('tab', ''));
+        let newNumber = currentNumber + 1;
+        // Neue ID erstellen
+        let newTabId = 'tab' + newNumber;
 
-    // Button mit der neuen ID finden
-    let newTabButton = document.getElementById(newTabId);
+        // Button mit der neuen ID finden
+        let newTabButton = document.getElementById(newTabId);
 
-    // Wenn der Button existiert, das onclick-Event auslösen
-    if (newTabButton) {
-        newTabButton.click();
-    } 
-}
+        // Wenn der Button existiert, das onclick-Event auslösen
+        if (newTabButton) {
+            newTabButton.click();
+        } 
+    } else {
+        switchTab(`${lastTab}`);
+    }
+};
 
-function  createEndcard() {
+function createEndcard() {
 
-    document.getElementById('weiterBtn').className = "nextpage go d-none";
+    document.getElementById('weiterBtn').className = "d-none";
     readTrigger();
     
-
     // TODO: hier API-abfrage nach Aufnahmestatus
     let RecState = 2;
     // Austauschen sobald verfügbar
@@ -589,6 +614,38 @@ function  createEndcard() {
 
     }
 };
+
+function setTerminationCode() {
+    Global.posSale? Global.terminationCode = 100 : Global.terminationCode = 200;
+}
+
+function finish() { ///// ##################### ACHTUNG HIER IST DIE FUNKTION, DIE DEN CALL BEENDET !##################### \\\\\\\\\\\\\\\\\
+
+    setRecordName();
+    setTerminationCode();
+    SendBack = convertFormToJson("tabsForm");
+
+    if (Global.debugMode){
+        alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
+        logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
+      
+    } else {
+        let submitFailed = pushData(); // Speichern der Daten
+        if (submitFailed === true){
+            
+            ttWeb.saveRecording(Global.recordFileName);
+            
+            ttWeb.terminateCall(Global.terminationCode);        
+            
+            // TODO refresh();
+        } else { // Wenn Speichern fehlgeschlagen
+            // Achtung Achtung Notfall !! Wiiiuuu Wiiiiuuu
+            // igrendwie Daten speichern oder sowas
+
+        } ;
+        
+    }
+}
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** HotKeys
@@ -609,14 +666,12 @@ function  createEndcard() {
         else if (event === 67) { 
             keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
         }
-        // else if (event === 20) {
-        //     let keyrnd = Math.floor(Math.random() * 55) + 1;
-        //     if (keyrnd === 20) {callFS();};       
-        // }
 
         // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
         if (keyCode1Pressed && keyCode2Pressed) {
             // Ändere die Sichtbarkeit des debug-Logs
+            beep(220,55,65); // Frohe Ostern
+            setTimeout(() => {beep(200,35,65)},290);
             document.getElementById("debugLog").classList.toggle("d-none");
             Global.debugMode && console.log("debuglog geöffnet!");
         }
@@ -640,19 +695,7 @@ function  createEndcard() {
             keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
         }
     };
-    function callFS() {
-        document.getElementById("fst").showModal();
-        gimmefacts();
-    function fst_C() {
-        document.getElementById("fst").close();
-    }
-    function gimmefacts() {
-        const fsList = ["Schnecken bis zu drei Jahre ohne Nahrung überleben können.","die kürzeste Zeit zwischen zwei Geburten 87 Tage beträgt, was bei einem Elefanten passierte.","das kleinste Säugetier der Welt die Zwergfledermaus ist, die etwa so groß wie eine Hummel ist.","einige Glühwürmchenarten andere Glühwürmchen essen.","Elefanten sich im Spiegel erkennen und verstehen können, dass sie ihr eigenes Spiegelbild sehen.","es in der Antarktis einen Wasserfall gibt, der rot ist. Er wird von roten Algen verursacht.","die durchschnittliche Wolke mehr als eine Million Pfund wiegt.","der Geruch von frisch gemähtem Gras eigentlich das Gras ist, das sich vor Angst wehrt, da es denkt, es würde gemäht werden.","einige Quallenarten niemals altern und potenziell unsterblich sein können.","die längste Zeit, die jemand je ohne Schlaf ausgekommen ist, 11 Tage beträgt.","der längste Wurm der Welt bis zu 55 Meter lang werden kann.","der durchschnittliche Mensch etwa sechs Monate seines Lebens mit Warten an roten Ampeln verbringt.","die erste E-Mail im Jahr 1971 von Ray Tomlinson gesendet wurde, der das @-Symbol für die Adressierung von E-Mails erfand.","Honigbienen miteinander durch Tanz kommunizieren, um ihren Kollegen den Standort von Nahrungsquellen zu zeigen.","die längste Zeit, die jemand je ohne Wasser überlebt hat, 18 Tage beträgt.","die Wahrscheinlichkeit, von einem Hai getötet zu werden, geringer ist als die Wahrscheinlichkeit, vom Blitz getroffen zu werden."];
-        let rnd = Math.floor(Math.random() * 15) + 1;
-        let fact = fsList[rnd];
-        document.getElementById("fs_txt").innerHTML = fact;
-    }
-}
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ HELPER +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -661,20 +704,20 @@ function  createEndcard() {
  *      Führt eine Funktion aus, die als Zeichenkette übergeben wird.
  *      @param {string} funcString - Die Zeichenkette, die den Funktionsaufruf enthält.
  */
-function executeFunctionFromString(funcString) {
-    let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
-    let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
-    let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array
-    let giveBack;
+    function executeFunctionFromString(funcString) {
+        let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
+        let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
+        let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array
+        let giveBack;
 
-    // Prüft, ob die extrahierte Funktion existiert und eine Funktion ist
-    if (funcName && typeof window[funcName] === 'function') {
-       giveBack = window[funcName](...args); // Aufruf
-    } else {
-        logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
-    }
-    return giveBack;
-};
+        // Prüft, ob die extrahierte Funktion existiert und eine Funktion ist
+        if (funcName && typeof window[funcName] === 'function') {
+        giveBack = window[funcName](...args); // Aufruf
+        } else {
+            logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
+        }
+        return giveBack;
+    };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** Helper H-002
  * 
@@ -783,20 +826,4 @@ function executeFunctionFromString(funcString) {
 // ################################################################################# Endcard Trigger #############################################################################################
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    function finish() {
-        SendBack = convertFormToJson("tabsForm");
-        if (Global.debugMode){
-            alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
-            logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
-          
-        } else {
-            let submitFailed = pushData();
-            if (submitFailed === true){
-                call("terminate");
-                refresh();
-            } else {
-                // Achtung Achtung Notfall !! Wiiiuuu WIiiiuuu
-            } ;
-            
-        }
-    }
+ 

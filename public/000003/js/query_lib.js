@@ -9,47 +9,7 @@
 */
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function main_query() { // Der Name der gewünschten Funktion wird im CustumerCells HTML-Element unter query ="" eingetragen.
-    let query = `
-        select 
-            ${Global.addressdatatable}.id as addressdataid, \
-            trim(if(isnull(customerid),'-',if(customerid = '','-',customerid))) as customerid, \
-            trim(if(isnull(firstname),'-',if(firstname = '','',firstname))) as firstname, \
-            trim(if(isnull(surname),'-',if(surname = '','',surname))) as surname, \
-            trim(if(isnull(dateofbirth),'-',if(dateofbirth = '','',dateofbirth))) as dateofbirth, \
-            trim(if(isnull(emailprivate),'-',if(emailprivate = '','',emailprivate))) as emailprivate, \
-            trim(if(isnull(phonemobileareacode),'-',if(phonemobileareacode = '','',phonemobileareacode))) as phonemobileareacode, \
-            trim(if(isnull(phonemobile),'-',if(phonemobile = '','',phonemobile))) as phonemobile, \
-            trim(if(isnull(phonehomeareacode),'-',if(phonehomeareacode = '','',phonehomeareacode))) as phonehomeareacode, \
-            trim(if(isnull(phonehome),'-',if(phonehome = '','',phonehome))) as phonehome, \
-            trim(if(isnull(street),'-',if(street = '','',street))) as street, \
-            trim(if(isnull(housenumber),'-',if(housenumber = '','',housenumber))) as housenumber, \
-            trim(if(isnull(zip),'-',if(zip = '','',zip))) as zip, \
-            trim(if(isnull(city),'-',if(city = '','',city))) as city, \
-            trim(if(isnull(energy),'-',if(energy = '','',energy))) as energy, \
-            trim(if(isnull(createdat),'-',if(createdat = '','',createdat))) as cratedate, \
-            trim(if(isnull(marketlocation),'-',if(marketlocation = '','-',marketlocation))) as marketlocation, \
-            trim(if(isnull(product),'-',if(product = '','-',product))) as product, \
-            trim(if(isnull(id_nr),'-',if(id_nr = '','-',id_nr))) as id_nr, \
-            trim(if(isnull(startdate),'-',if(startdate = '','-',startdate))) as startdate, \
-            trim(if(isnull(baseprice),'-',if(baseprice = '','-',baseprice))) as baseprice, \
-            trim(if(isnull(workingprice),'-',if(workingprice = '','-',workingprice))) as workingplace, \
-            trim(if(isnull(productbonus),'-',if(productbonus = '','-',productbonus))) as productbonus, \
-            trim(if(isnull(productinstantbonus),'-',if(productinstantbonus = '','-',productinstantbonus))) as productinstantbonus, \
-            trim(if(isnull(adsmail),'-',if(adsmail = '','-',adsmail))) as adsmail, \
-            trim(if(isnull(adsphone),'-',if(adsphone = '','',adsphone))) as adsphone, \
-            trim(if(isnull(adspost),'-',if(adspost = '','',adspost))) as adspost, \
-            trim(if(isnull('usage'),'-',if('usage' = '','','usage'))) as adsage, \
-            trim(if(isnull(enddate),'-',if(enddate = '','',enddate))) as enddate, \
-            trim(if(isnull(iban),'-',if(iban = '','',iban))) as iban, \
-            trim(if(isnull(bic),'-',if(bic = '','',bic))) as bic, \
-            trim(if(isnull(bank),'-',if(bank = '','',bank))) as bank, \
-            trim(if(isnull(counternumber),'-',if(counternumber = '','',counternumber))) as counternumber, \
-            trim(if(isnull(vertrag),'-',if(vertrag = '','',vertrag))) as vertrag, \
-            trim(if(isnull(grossamount),'-',if(grossamount = '','',grossamount))) as grossamount \
-        from ${Global.addressdatatable} \
-        join calldatatable on calldatatable.addressdata_id = ${Global.addressdatatable}.id \
-        where calldatatable.id = ${Global.calldatatableId} LIMIT 1
-    `;
+    let query = pullMainQuery();
     try {
         let SQLdataset = executeSql(query);
         // Hier ID aus DataObjekt zuweisen
@@ -59,16 +19,41 @@ function main_query() { // Der Name der gewünschten Funktion wird im CustumerCe
         SqlField = SQLdataset[0].rows[0].fields;
     } catch {
         SqlField = [];
-    }
+    }   
     let send = SqlField>[]?true:false;
     Global.logSQL? logsqlIntodebug(`SQL TableID: <span class="txt--blue">${Global.addressdatatable}</span>`,query, send ) : undefined;
     return SqlField;                           
 };
-
+//---------------------------------------------------------------------------------------------------------------------------------------
+/** pullMainQuery() - Automatisierte Variante des, sonnst händisch eingetragenen, Haupt-querys.
+ * 
+ *      Aus dem DataObject CustomerData, werden Alle match-key bei der DB abgefragt. (abgesehen von separator)
+ *      Diese Funktion fügt eine andere Endung an das Query, wenn man sich im DebugModus befinden.
+ * 
+ *      Notiz von Erik: Ich konnte mit dem ehemaligen (händischen) Query keine Daten vom ttFrame-clone empfangen.
+ * 
+ * @returns Dataobject
+ */
+function pullMainQuery(){
+    let query = `SELECT ${Global.addressdatatable}.id as addressdataid`;
+    for(let i = 0; i < CustomerData.length; i++) {
+        let entry = `${CustomerData[i].match}`;
+        if (entry !== 'separator' && entry !== ''){
+            query +=  `,trim(if(isnull(${entry}),'-',if(${entry} = '','-',${entry}))) as ${entry} `;
+        }
+    }
+    if (Global.debugMode) {
+        query += `FROM ${Global.addressdatatable} join calldatatable on calldatatable.addressdata_id=${Global.addressdatatable}.id where calldatatable.id=${Global.calldatatableId} LIMIT 1`;
+    } else {
+        query += `FROM ${Global.addressdatatable} WHERE ${Global.addressdatatable}.id = ${Global.calldatatableId} LIMIT 1`;
+    } 
+    return query;
+}
 //-------------------------------------------------------------------- Pull from DB -----------------------------------------------------------------------------
 /** pullSQL
  *
- *      Sammelfunktion aller SQL-Promts für das ziehen von Daten aus der DB.  
+ *      Sammelfunktion aller SQL-Promts für das laden von Daten aus der DB.
+ *      Mit Aufruf der Funktion wird das mit dem promtName angegebene Query an die DB geschickt  
  *  
  *      @param {String} promtName 
  *      @returns DataObject
@@ -84,13 +69,13 @@ function pullSQL (promtName) {
                 query = `SELECT id, label FROM cancellation_reasons WHERE campaign_id=${campaignId} AND active=1 ORDER BY label DESC`;
                 break;
             
-            case "Global.wiedervorlageCount":
+            case "wiedervorlageCount":
                 query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
                          ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
                          AND is_wv=1 AND wv_date>NOW()`;
                 break;
 
-            case "Global.wiedervorlageData":
+            case "wiedervorlageData":
                 query = `SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ', ${Global.fieldname_firstname},' ', ${Global.fieldname_lastname},' : 
                         ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
                          ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
@@ -123,6 +108,44 @@ function pullSQL (promtName) {
 }
 
 // ------------------------------------------------------------------ Push into DB -------------------------------------------------------------------------------
+/** pushMainData() - Daten an DB senden
+ * 
+ *      Die Elemente die das Attribute 'submitTo' tragen geben beim Aufruf der Funktion (finish()) ihre
+ *      Daten an der DataObject SendBack weiter. Aus diesem Element werden die Daten in ein SQL-query 
+ *      eingefügt. Um diese Query zu erstellen und an die DB zu senden ist die Funktion zuständig.
+ */
+function pushMainData(){
+    let fail = false;
+    let query = `UPDATE ${Global.addressdatatable} SET`;
+    SendBack.forEach((entry, index) => {        // Erstelle anhand der Daten in SendBack eine SQL-query
+        query += ` ${entry[0]} = '${entry[1]}'`;
+        index<SendBack.length-1? query+=",":undefined;
+    })
+    query += ` WHERE ${Global.addressdatatable}.id = ${Global.calldatatableId} LIMIT 1`;
+
+    // Handshake mit der DB
+    if (Global.debugMode){
+        logIntoDebug("pushData - DebugMode", `${query} `)
+        console.log(query);
+    } else {
+        let serverStatus = executeSql("show status");
+        if (serverStatus.length <= 0 || serverStatus === null) {
+            fail = true;
+            //TODO: Sichere Daten... irgendwie
+        } else {
+            let awnser = executeSql(query);
+            let send = awnser.length>0?true:false;
+            Global.logSQL? logsqlIntodebug("pushData", query, send): undefined;
+        };
+    }
+};
+//------------------------------------------------------------------------------------------------------------------------
+/**  pushSQL('promtName') - schicke spezielle SQL-Query an die DB
+ * 
+ *      Mit Aufruf der Funktion wird das mit dem promtName angegebene Query an die DB geschickt.
+ * 
+ *      @param {string} promtName 
+ */
 function pushSQL (promtName) {
     
     switch(promtName){
@@ -147,5 +170,4 @@ function pushSQL (promtName) {
         default:
             logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
     }
-}
-
+};
