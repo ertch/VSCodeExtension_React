@@ -166,19 +166,77 @@ function ttErrorLog(caller, msg) {
         selectBox.value=selectValue;
     };
 
-    function convertFormToJson(formId) {
+    function convertFormToQuery(formId) {
         
-        let target = [];
+        let targetTables = {};
+        let tableCache = '';
         let form = document.getElementById(formId);
         if (!form || form.nodeName !== "FORM") {
             console.error("Invalid form ID");
             return;
         }
-        for (let i = 0; i < form.elements.length; i++) {
-            let element = form.elements[i];
-            if (element.hasAttribute("data-submit")) {
-                target.push([element.getAttribute("data-submit"), element.value]);
+        // Auswertung der Form, betrachte nur Elemente mit data-Submit Attibut
+        form = form.querySelectorAll('[data-submit]');
+        let data = Array.from(form).map(element => {
+            // Mappe ein Objekt, das jeweils als columnName, tableName, tableId, element.value besteht
+            const [columnName, tableName, tableId] = element.getAttribute('data-submit').split(',');
+            if (tableCache !== tableName){ // schreibe IDs für Table mit
+                targetTables[tableName.trim()] = tableId.trim();
+                tableCache = tableName.trim();
+            }   
+            return {
+                columnName: columnName.trim(),
+                tableName: tableName.trim(),
+                value: element.value.trim(),
+              };
+        })
+        // sortiere die Einträge des Objektes nach Table und Table.id
+        data.sort((a, b) => {
+            if (a.tableName < b.tableName){ 
+                return -1;
+            } else if (a.tableName > b.tableName){ 
+                return 1;
             }
-        }
-        return target;    
+            return 0;
+        });
+        // Gruppierte Daten so, dass Objekt mit {tableName: 'query-part'} entsteht
+        const groupedData = data.reduce((row, item) => {
+            if (!row[item.tableName]) {
+                row[item.tableName] = [];
+            }
+            row[item.tableName].push(` ${item.columnName} = '${item.value}'`);
+            return row;
+        }, {});
+
+
+        Object.keys(groupedData).forEach(tableName => {
+            let tableId = targetTables[tableName];
+            try { // prüfe ob tableName eine Variable ist
+                tableId = eval(targetTables[tableName]);
+            } catch(e){}
+
+            let query = `UPDATE ${tableName} SET`;
+            console.log(`Data for table ${tableName}:`);
+            groupedData[tableName].forEach((part, index) => {
+                query += part;
+                index<groupedData[tableName].length-1? query+=`,`:undefined;
+            });
+            query += ` WHERE ${tableName}.id = ${tableId} LIMIT 1`;
+            console.log(query)
+            // if (Global.debugMode){
+            //     logIntoDebug("pushData - DebugMode", `${query} `)
+            //     console.log(query);
+            // } else {
+            //     let serverStatus = executeSql("show status");
+            //     if (serverStatus.length <= 0 || serverStatus === null) {
+            //         //TODO: Sichere Daten... irgendwie
+            //     } else {
+            //         let awnser = executeSql(query);
+            //         fail = awnser.length>0?false:true;
+            //         Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
+            //     };
+            // }
+            query = '';
+        });
+          
     }

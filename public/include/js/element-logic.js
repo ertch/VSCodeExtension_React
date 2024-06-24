@@ -623,16 +623,22 @@ function finish() { ///// ##################### ACHTUNG HIER IST DIE FUNKTION, D
 
     setRecordName();
     setTerminationCode();
-    SendBack = convertFormToJson("tabsForm");
+    SendBack = convertFormToQuery("tabsForm");
+
+    console.log("Auswertung case: " + Global.calldatatableId );
+    console.log("recordName: " + Global.recordFileName);
+    console.log("termCode: " + Global.terminationCode);
+    
 
     if (Global.debugMode){
         alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
         logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
       
     } else {
-        let submitFailed = pushData(); // Speichern der Daten
+        let submitFailed = pushMainData(); // Speichern der Daten
         if (submitFailed === true){
-            
+            console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
+
             ttWeb.saveRecording(Global.recordFileName);
             
             ttWeb.terminateCall(Global.terminationCode);        
@@ -641,7 +647,7 @@ function finish() { ///// ##################### ACHTUNG HIER IST DIE FUNKTION, D
         } else { // Wenn Speichern fehlgeschlagen
             // Achtung Achtung Notfall !! Wiiiuuu Wiiiiuuu
             // igrendwie Daten speichern oder sowas
-
+            console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
         } ;
         
     }

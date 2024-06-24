@@ -292,8 +292,13 @@ function buildUp() {
         } else if (style === "use"){ // nutze mitgegebenen Namen
             recordName += `${useName}${recordingNameSuffix}`;
 
-        } else { // Generiere einen Namen [datum + hashwert] 
-            recordName = `${agentId}_${$crypto.randomUUID()}${recordingNameSuffix}`;
+        } else { // Generiere einen Namen mit hashwert (weil UUID nicht in ttFrame funktioniert)
+            
+            let cryptoIsNotaFunction = Math.floor(Math.random() * 50) + 1;
+            let inThisdumbttFrame = Math.floor(Math.random() * 50000) + 1 ;
+            let thisIsjustStupid = inThisdumbttFrame * cryptoIsNotaFunction;
+          
+            recordName = `agent${agentId}_${gettime()}_to${Global.calldatatableId}_${thisIsjustStupid}${Global.recordingNameSuffix}`;
         }
         Global.recordFileName = recordName;
         logIntoDebug("setRecordingName", `RecordFileName = ${Global.recordFileName}`, false);    

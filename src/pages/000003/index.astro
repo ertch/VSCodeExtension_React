@@ -85,7 +85,7 @@ import FinishBtn from "@components/FinishButton.astro";
                         ]}
                        
                         gate="gk_grp1"
-                        submitTo="test1"
+                        submitTo="firstname, ste_wel_adressdata, Global.calldatatableId"
                         pageLock
                         required
                     >
@@ -115,7 +115,7 @@ import FinishBtn from "@components/FinishButton.astro";
                         validate="txt"
                         gatekeeper
                         gate="gk_grp1"
-                        submitTo="test2"
+                        submitTo="surname, ste_wel_adressdata, Global.calldatatableId"
                         >
                         </Suggestion>
                     </GateGroup> 
@@ -156,7 +156,7 @@ import FinishBtn from "@components/FinishButton.astro";
                             id="datenerfassung_lead"
                             label="Lead"
                             firstOption={
-                                ["Kein Lead", "Kein Lead"]
+                                ["keinLead", "Kein Lead"]
                             }
                             options={[
                                 ["strom", "Strom"],
@@ -168,7 +168,9 @@ import FinishBtn from "@components/FinishButton.astro";
                                 ["gas","openOnly","vertragsende_datagrp"],
                                 ["gas","trigger","VEg01"]
                             ]}
+                            required
                             gate="gk_gate2"
+                            submitTo="lead, ste_wel_providerdata, Global.calldatatableId"
                         ></Gatekeeper>
                         <Gate
                             id="gk_gate2"

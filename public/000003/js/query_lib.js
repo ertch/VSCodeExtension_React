@@ -9,7 +9,7 @@
 */
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function main_query() { // Der Name der gewünschten Funktion wird im CustumerCells HTML-Element unter query ="" eingetragen.
-    let query = pullMainQuery();
+    let query = pullMainQuery(); // Hier SQL-Query 
     try {
         let SQLdataset = executeSql(query);
         // Hier ID aus DataObjekt zuweisen
@@ -115,7 +115,7 @@ function pullSQL (promtName) {
  *      eingefügt. Um diese Query zu erstellen und an die DB zu senden ist die Funktion zuständig.
  */
 function pushMainData(){
-    let fail = false;
+    let fail = true;
     let query = `UPDATE ${Global.addressdatatable} SET`;
     SendBack.forEach((entry, index) => {        // Erstelle anhand der Daten in SendBack eine SQL-query
         query += ` ${entry[0]} = '${entry[1]}'`;
@@ -130,14 +130,14 @@ function pushMainData(){
     } else {
         let serverStatus = executeSql("show status");
         if (serverStatus.length <= 0 || serverStatus === null) {
-            fail = true;
             //TODO: Sichere Daten... irgendwie
         } else {
             let awnser = executeSql(query);
-            let send = awnser.length>0?true:false;
-            Global.logSQL? logsqlIntodebug("pushData", query, send): undefined;
+            fail = awnser.length>0?false:true;
+            Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
         };
     }
+    return fail;
 };
 //------------------------------------------------------------------------------------------------------------------------
 /**  pushSQL('promtName') - schicke spezielle SQL-Query an die DB

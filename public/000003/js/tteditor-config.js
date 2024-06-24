@@ -74,7 +74,7 @@ let Global ={
     showStats:             false    , // wenn true, lade AbschlussStatistik (in DebugLog)
 
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
-    calldatatableId:       ''                      ,  // ID des Kampagnien-CallTable (aus DB)
+    calldatatableId:       '9826'                      ,  // ID des Kampagnien-CallTable (aus DB)
     salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
@@ -212,18 +212,10 @@ function gettime() { // Uhrzeit
         let TriggerData = [
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value:  "<p>Keine nutzbaren Daten gefunden</p>"},
+            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value: "<p>Keine nutzbaren Daten gefunden</p>"},
             { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
             { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
         ];
         return TriggerData;
     }
  
-
-    function pushData() {
-        SendBack = [
-            { id: 'PAtxt1',   table:'a',    target_col: 'zusammenfassung_text',    type: "string"},
-            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-        ];
-    }

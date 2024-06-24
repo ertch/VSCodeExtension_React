@@ -46,7 +46,7 @@ let isValidating = 0;
     function bundleInputs(page) {
         
         let successBool = true; 
-        // try {
+        try {
             let inputsTypeArr = {   // (Hier im Kommentar: Inputs = Input & Select)
                 txt: [],            // txt , handy , email , tel , plz , call, date, time, dateandtime und empty sind die einzigen zugelassenen Typen für 
                 handy: [],          // die Validierung. Andere Strings laufen gegen eine Fehlermeldung unabhängig von dem Wert im
@@ -118,10 +118,10 @@ let isValidating = 0;
             } 
             return successBool;
 
-        // } catch (error) {
-        //     logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
-        //     return false;
-        // }
+        } catch (error) {
+            logIntoDebug("bundleInputs:", "Error: Inputs konnten nicht gebundelt werden", false);
+            return false;
+        }
     };
 
 //--------------------------------------------------------------------- Vaidierung der Bundles -----------------------------------------------------------------
@@ -208,7 +208,7 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
                 regX.test(target) ? undefined : boolErr = false; // prüfe Input.value gegen RegEx
 
                 if (extVali === true) { // data-call.value -> 'String to function' 
-                    let specVali = document.getElementById(id).getAttribute("data-call");
+                    let specVali = document.getElementById(id).getAttribute("data-call"); // TODO ist das noch das richtige Attribut?
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
                         window[specVali]() ? undefined : boolErr = false; // prüfe mit ext. Vali
                     }   

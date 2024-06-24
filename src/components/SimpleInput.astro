@@ -7,13 +7,14 @@ interface Props {
   required?: boolean;
   maxlength?: string;
   pattern?: string;
+  preset?: string;
   disabled?: boolean;
   blur?: string;
   submitTo?: string;
-  validate: String; // txt, email, tel, handy, plz, call
+  validate: string; // txt, email, tel, handy, plz, call
 }
 
-const { id, label, type, required, maxlength, pattern, value, disabled, blur, submitTo, validate} = Astro.props; 
+const { id, label, type, required, maxlength, pattern, preset, value, disabled, blur, submitTo, validate} = Astro.props; 
 
 
 let errorname = `${id}_errorMsg`;
@@ -34,6 +35,7 @@ let errorname = `${id}_errorMsg`;
   name={id}
   maxlength={maxlength}
   pattern={pattern}
+  data-preset = {preset}
   onblur={blur}
   data-vali = {validate}
   data-submit={submitTo} 
