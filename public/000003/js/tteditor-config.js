@@ -95,11 +95,10 @@ let Global ={
 
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
 function specialNames(varName){
-    let giveBack = '';
-    let date = getdate();
+    let giveBack = '';      // Soll eine Variable in der RecordFileName einen besonderem Ausdruck entsprechen, kann dies hier
+    let date = getdate();   // eingtragen werden, um die Veränderung einzustellen.
     let time = gettime();
-    // soll eine Variable in de, RecordFileName einen besonderem Ausdruck entsprechen, kann dies hier
-    // eingtragen werden und wird eins zu eins so übernommen.
+    
     switch(varName){
 
         case 'agentId':
@@ -141,7 +140,7 @@ function gettime() { // Uhrzeit
  *      Wenn keine benutzerdefinierten Provider-Pattern und SQL-Abfragen angegeben sind, wird die providerDefault() verwendet.
  *      Die generierten Zellen werden in Zweierreihen angeordnet und mit den entsprechenden Daten aus der Datenbank gefüllt.
  *      Die "match"-Attribute müssen exakt mit den Bezeichnern in der Datenbank übereinstimmen, um die richtigen Daten zu erhalten.
- *      Ein Tippfehler hier könnte zu Fehlern in den generierten Zellen führen.
+ *      Ein Tippfehler könnte hier zu Fehlern in den generierten Zellen führen.
  *  
  *      label:  Dieser Key beschreibt den, für den User im Cell_Head sichtbaren, String und wird für die Suche innerhalb der Daten nicht berücksichtigt.      
  *              

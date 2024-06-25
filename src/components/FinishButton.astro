@@ -1,3 +1,14 @@
+---
+interface Props {
+  auto?: boolean;
+  queryLib?: boolean;
+}
+const { auto, queryLib} = Astro.props;
+let sql = "auto";
+if (queryLib===true) {
+    sql = "queryLib";
+}
+---
 <div 
     class="absenden" 
     id="div_publish"
@@ -6,7 +17,7 @@
         class="absenden__Btn"
         type="button"
         id="go_publish"
-        onclick="finish()"
+        onclick=`finish(${sql})``
         >
             <i class="glyph glyph-final"></i>
                 &nbsp; Auftrag abschließen

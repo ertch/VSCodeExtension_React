@@ -166,6 +166,14 @@ function ttErrorLog(caller, msg) {
         selectBox.value=selectValue;
     };
 
+/** convertFormToQuery() - Alle Daten in query verpacken und an Datenback senden. 
+ * 
+ *      
+ * 
+ * @param {*} formId 
+ * @returns 
+ */
+
     function convertFormToQuery(formId) {
         
         let targetTables = {};
@@ -208,7 +216,6 @@ function ttErrorLog(caller, msg) {
             return row;
         }, {});
 
-
         Object.keys(groupedData).forEach(tableName => {
             let tableId = targetTables[tableName];
             try { // prüfe ob tableName eine Variable ist
@@ -223,20 +230,19 @@ function ttErrorLog(caller, msg) {
             });
             query += ` WHERE ${tableName}.id = ${tableId} LIMIT 1`;
             console.log(query)
-            // if (Global.debugMode){
-            //     logIntoDebug("pushData - DebugMode", `${query} `)
-            //     console.log(query);
-            // } else {
-            //     let serverStatus = executeSql("show status");
-            //     if (serverStatus.length <= 0 || serverStatus === null) {
-            //         //TODO: Sichere Daten... irgendwie
-            //     } else {
-            //         let awnser = executeSql(query);
-            //         fail = awnser.length>0?false:true;
-            //         Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
-            //     };
-            // }
-            query = '';
-        });
-          
+            if (Global.debugMode){
+                logIntoDebug("pushData - DebugMode", `${query} `)
+                console.log(query);
+            } else {
+                let serverStatus = executeSql("show status");
+                if (serverStatus.length <= 0 || serverStatus === null) {
+                    //TODO: Sichere Daten... irgendwie
+                } else {
+                    let awnser = executeSql(query);
+                    fail = awnser.length>0?false:true;
+                    Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
+                    query = '';
+                };
+            }
+        });      
     }

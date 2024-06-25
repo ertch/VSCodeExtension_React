@@ -564,94 +564,97 @@ function getTrigger(callerId, validate){
 // Validierung der Seite aufrufen und wenn bestanden Button einfügen 
 
 
-function showWeiterBtn(page_id) {
-    let showWeiterBtn = document.querySelector('.nextpage--btn');
+    function showWeiterBtn(page_id) {
+        let showWeiterBtn = document.querySelector('.nextpage--btn');
 
-    if(Global.posSale === true) {
-        showWeiterBtn.innerHTML = '<i class="glyph glyph-outro"></i>Weiter';
-    } else {
-        showWeiterBtn.innerHTML = '<i class="glyph glyph-abschluss"></i> Abschluss';
-    }
-        
-    if (silent(document.getElementById(page_id)) == true) {
-        document.getElementById('weiterBtn').classList.remove("d-none");
-    } else {
-        document.getElementById('weiterBtn').classList.add("d-none");
+        if(Global.posSale === true) {
+            showWeiterBtn.innerHTML = '<i class="glyph glyph-outro"></i>Weiter';
+        } else {
+            showWeiterBtn.innerHTML = '<i class="glyph glyph-abschluss"></i> Abschluss';
+        }
+            
+        if (silent(document.getElementById(page_id)) == true) {
+            document.getElementById('weiterBtn').classList.remove("d-none");
+        } else {
+            document.getElementById('weiterBtn').classList.add("d-none");
+        };
     };
-};
 
-function weiterBtn(){
-    if(Global.posSale === true) {
-        let currentTab = document.querySelector(".current").id;
-        
-        let currentNumber = parseInt(currentTab.replace('tab', ''));
-        let newNumber = currentNumber + 1;
-        // Neue ID erstellen
-        let newTabId = 'tab' + newNumber;
-
-        // Button mit der neuen ID finden
-        let newTabButton = document.getElementById(newTabId);
-
-        // Wenn der Button existiert, das onclick-Event auslösen
-        if (newTabButton) {
-            newTabButton.click();
-        } 
-    } else {
-        switchTab(`${lastTab}`);
-    }
-};
-
-function createEndcard() {
-
-    document.getElementById('weiterBtn').className = "d-none";
-    readTrigger();
-    
-    // TODO: hier API-abfrage nach Aufnahmestatus
-    let RecState = 2;
-    // Austauschen sobald verfügbar
-
-    if(RecState === 2){
-
-    }
-};
-
-function setTerminationCode() {
-    Global.posSale? Global.terminationCode = 100 : Global.terminationCode = 200;
-}
-
-function finish() { ///// ##################### ACHTUNG HIER IST DIE FUNKTION, DIE DEN CALL BEENDET !##################### \\\\\\\\\\\\\\\\\
-
-    setRecordName();
-    setTerminationCode();
-    SendBack = convertFormToQuery("tabsForm");
-
-    console.log("Auswertung case: " + Global.calldatatableId );
-    console.log("recordName: " + Global.recordFileName);
-    console.log("termCode: " + Global.terminationCode);
-    
-
-    if (Global.debugMode){
-        alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
-        logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
-      
-    } else {
-        let submitFailed = pushMainData(); // Speichern der Daten
-        if (submitFailed === true){
-            console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
-
-            ttWeb.saveRecording(Global.recordFileName);
+    function weiterBtn(){
+        if(Global.posSale === true) {
+            let currentTab = document.querySelector(".current").id;
             
-            ttWeb.terminateCall(Global.terminationCode);        
-            
-            // TODO refresh();
-        } else { // Wenn Speichern fehlgeschlagen
-            // Achtung Achtung Notfall !! Wiiiuuu Wiiiiuuu
-            // igrendwie Daten speichern oder sowas
-            console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
-        } ;
+            let currentNumber = parseInt(currentTab.replace('tab', ''));
+            let newNumber = currentNumber + 1;
+            // Neue ID erstellen und suchen
+            let newTabId = 'tab' + newNumber;
+            let newTabButton = document.getElementById(newTabId);
+
+            // Wenn der Button existiert, das onclick-Event auslösen
+            if (newTabButton) {
+                newTabButton.click();
+            } 
+        } else {
+            switchTab(`${lastTab}`);
+        }
+    };
+
+    function createEndcard() {
+
+        document.getElementById('weiterBtn').className = "d-none";
+        readTrigger();
         
+        // TODO: hier API-abfrage nach Aufnahmestatus
+        let RecState = 2;
+        // Austauschen sobald verfügbar
+
+        if(RecState === 2){
+
+        }
+    };
+
+    function setTerminationCode() {
+        if (Global.terminationCode == null) {
+            Global.posSale? Global.terminationCode = 100 : Global.terminationCode = 200;
+        }
     }
-}
+
+    function finish(method) { ///// ##################### ACHTUNG HIER IST DIE FUNKTION, DIE DEN CALL BEENDET !##################### \\\\\\\\\\\\\\\\\
+
+        if (method === "queryLib") {
+
+        } else {
+            setRecordName();
+            setTerminationCode();
+            SendBack = convertFormToQuery("tabsForm");
+
+            console.log("Auswertung case: " + Global.calldatatableId );
+            console.log("recordName: " + Global.recordFileName);
+            console.log("termCode: " + Global.terminationCode);
+            
+            if (Global.debugMode){
+                alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
+                logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
+            
+            } else {
+                let submitFailed = pushMainData(); // Speichern der Daten
+                if (submitFailed === true){
+                    console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
+
+                    ttWeb.saveRecording(Global.recordFileName);
+                    
+                    ttWeb.terminateCall(Global.terminationCode);        
+                    
+                    // TODO refresh();
+
+                } else { // Wenn Speichern fehlgeschlagen
+                    // Achtung Achtung Notfall !! Wiiiuuu Wiiiiuuu
+                    // igrendwie Daten speichern oder sowas
+                    console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
+                } ;  
+            }
+        }
+    }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** HotKeys
