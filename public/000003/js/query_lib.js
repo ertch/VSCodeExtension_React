@@ -40,13 +40,21 @@
         for(let i = 0; i < CustomerData.length; i++) {
             let entry = `${CustomerData[i].match}`;
             if (entry !== 'separator' && entry !== ''){
-                query +=  `,trim(if(isnull(${entry}),'-',if(${entry} = '','-',${entry}))) as ${entry} `;
+                switch (`${CustomerData[i].dbType}`) {
+                    case 'VARCHAR':
+                        query +=  `,trim(if(isnull(${entry}),'-',if(${entry} = '','-',${entry}))) as ${entry} `;
+                        break;
+                    
+                    case 'DATE':
+                        query +=  `,trim(if(isnull(${entry}),'-',if(${entry} = '','-',DATE_FORMAT(${entry}, '%d.%m.%Y')))) as ${entry} `;
+                        break;
+                }
             }
         }
         if (Global.debugMode) {
             query += `FROM ${Global.addressdatatable} join calldatatable on calldatatable.addressdata_id=${Global.addressdatatable}.id where calldatatable.id=${Global.calldatatableId} LIMIT 1`;
         } else {
-            query += `FROM ${Global.addressdatatable} WHERE ${Global.addressdatatable}.id = ${Global.calldatatableId} LIMIT 1`;
+            query += `FROM ${Global.addressdatatable} WHERE ${Global.addressdatatable}.id = ${Global.calldatatableId} LIMIT 1 FOR JSON PATH`;
         } 
         return query;
     }

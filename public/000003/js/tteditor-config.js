@@ -66,7 +66,7 @@ let Global ={
     startRecWithBuildUp:   false    , // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
     startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
     
-    debugMode:             false   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    debugMode:             true   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
     showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
     LogIntottDB:           false    , // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
     logGK:                 true     , // Gatekeeper in Log anzeigen
@@ -163,28 +163,29 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerData = [
-            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true },
-            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true },
-            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true },
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true },
-            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true },
-            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true },
-            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true },
-            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true },
-            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true },
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true },
-            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true },
-            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true },
-            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true },
-            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true },
-            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true },
+            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
+            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
+            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
         return CustomerData
     };
+    // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn 
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ TriggerPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -218,3 +219,5 @@ function gettime() { // Uhrzeit
         return TriggerData;
     }
  
+
+    // TODO Manipulation der CustomerData-Value, um die Werte anzupassen 
