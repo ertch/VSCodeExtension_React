@@ -195,7 +195,8 @@ td {
 
     &-close::before {
         content: "\E809"; // X zum schließen
-        width: 12px;
+        width: unset;
+        margin-left: -1px;
     }
 
     &-code::before {
@@ -223,22 +224,33 @@ dialog {
     background-color: rgba(0,0,0,.5);
 }
 
-.dialog--header {
-    background-color: #000;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1em;
-    padding: 3px;
+.dialog {
+    &--body {
+        min-width: 20em;
+        padding: 0 1em .8em;
+    }
 
-    & span {
-        font-size: 1.1em;
-        font-weight: bold;
+    &--header {
+        background-color: #000;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1em;
+        padding: 3px 3px 5px 10px;
+
+        & span {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        &txt {
+            margin-top: 5px;
+        }
     }
 }
 
 .closedialog {
-    background-color: #b62727;
+    background-color: #ff3838;;
     padding: .5em;
     padding: 4px 0.5em;
     width: 32px;

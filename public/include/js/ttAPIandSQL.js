@@ -35,7 +35,7 @@ function executeSql(sql) {
                 // Parse the JSON response
 
                 // TODO Hier abfangen incomming Array mit include new Data(yyyy,mm,tt)
-                
+
                 console.log(xhr.responseText)
                 result = JSON.parse(xhr.responseText);
                 sqlReturnArray = result;
@@ -240,13 +240,12 @@ function ttErrorLog(caller, msg) {
             } else {
                 let serverStatus = executeSql("show status");
                 if (serverStatus.length <= 0 || serverStatus === null) {
-                    //TODO: Sichere Daten... irgendwie
                     saveLocaly(query);
                 } else {
                     let awnser = executeSql(query);
                     fail = awnser.length>0?false:true;
                     Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
-                    savelocaly(query);
+                    // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
                     query = '';
                 };
             }

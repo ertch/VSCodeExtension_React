@@ -188,6 +188,7 @@ function buildUp() {
                 logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${newNumber.value}</span> vom Validator abgelehnt`,false);
             }
         } catch(error) {
+            Global.debugMode? alert("Neue Telefon Nummer gespeichert." <br> "Fall abgeschlossen") : alert("Das hat leider nicht funktioniert." <br> "Bitte schließen Sie den Fall unter APNE ab");
             logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${newNumber.value}</span> kommte nicht gespeichert werden`,false);
         };
     }
