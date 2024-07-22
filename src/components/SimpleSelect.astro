@@ -16,7 +16,7 @@ interface Props {
 
 const {actions, id, label, firstOption, required, requiredValue, disabled, call, preset, submitTo, klasse } = Astro.props;
 const { options } = Astro.props as Props;
-// TODO: in anderen Komponenten errorname glattziehen
+
 let errorname = `${id}_errorMsg`;
 let valueArr;
 let triggerArr = JSON.stringify(actions);

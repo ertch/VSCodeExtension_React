@@ -1,27 +1,28 @@
 ---
 import Input from "@components/SimpleInput.astro";
+import TxtArea from "@components/SimpleTextfield.astro";
 import Select from "@components/SimpleSelect.astro";
 ---
 
 <!-- -------------------------------- Freedial ------------------------------------- -->
 <dialog id="freedial">
   <div class="dialog--header">
-      <span>Freedial</span>
+      <span class="dialog--headertxt">Freedial</span>
       <button id="freedial_closeBtn" type="button" class="closedialog" data-id="freedial"><i class="glyph glyph-close"></i></button>
   </div>
-  <div>
-      <h3>Bitte Rufnummer eingeben:</h3>
-      <form action="#" method="POST" id="finish_negativ">
+  <div class="dialog--body">
+      <form action="#" method="POST" id="finish_NEG_freedial">
         <Input 
             type="tel"
             id="freedial_number"
-            label="Rufnummer:"
+            label="Bitte Rufnummer eingeben"
             validate="tel"
         ></Input>
         <button
+            class="absenden__Btn minifyed"
             id="freedial_callBtn"
-            type="submit"
-            onclick="freedialBtn()"  
+            type="button"
+            onclick="callFreedial()"  
             ><i class="glyph glyph-telephone"></i>
             Anrufen
         </button>
@@ -33,32 +34,42 @@ import Select from "@components/SimpleSelect.astro";
 <!-- -------------------------------- Wiedervorlage ------------------------------------- -->
 <dialog id="recall">
   <div class="dialog--header">
-      <span>Wiedervorlage</span>
+      <span class="dialog--headertxt">Wiedervorlage</span>
       <button id="recall_closeBtn" type="button" class="closedialog" data-id="recall"><i class="glyph glyph-close"></i></button>
   </div>
-  <div>
-    <h3>Bitte Wiedervorlagezeitraum bestimmen:</h3>
+  <div class="dialog--body">
+    <h3>Bitte Wiedervorlagezeitraum bestimmen</h3>
     <form action="#" method="POST" id="finish_wiedervorlage">
-      <Input 
-          label="Datum:"
-          type="text"
-          id="wiedervorlage_Date"
-          validate="date"
-      ></Input> 
-      <!-- hier würde der KalenderBtn sein... wenn ich einen hätte -->
-      <Input 
-          label="Uhrzeit:"
-          type="text"
-          id="wiedervorlage_Date"
-          validate="date"
-      ></Input>
-      <Input 
-          label="Notiz:"
-          type="text"
+      <div class="flex">
+          <div>
+              <Input
+                  klasse="shortend__input"
+                  label="Datum"
+                  type="date"
+                  id="wiedervorlage_Date"
+                  validate="date"
+              ></Input>
+          </div>
+          <!-- hier würde der KalenderBtn sein... wenn ich einen hätte -->
+          <div>
+              <Input
+                  klasse="shortend__input"
+                  label="Uhrzeit"
+                  type="time"
+                  id="wiedervorlage_Date"
+                  validate="date"
+              ></Input>
+          </div>
+      </div>
+      <TxtArea 
+          klasse="textarea-expend"
+          label="Notiz"
+          col="1"
+          row="1"
           id="wiedervorlage_Text"
-          validate="txt"
-      ></Input>
+      ></TxtArea>
       <button
+          class="absenden__Btn minifyed"
           type="submit"
           id="recallBtn"
           onclick="wiedervorlageBtn()"
@@ -72,15 +83,15 @@ import Select from "@components/SimpleSelect.astro";
 
 <dialog id="apne">
   <div class="dialog--header">
-      <span>Anrufpartner nicht erreicht</span>
+      <span class="dialog--headertxt">Anrufpartner nicht erreicht</span>
       <button id="apne_closeBtn" type="button" class="closedialog" data-id="apne"><i class="glyph glyph-close"></i></button>
   </div>
-  <div>
-      <h3>Erneut kontaktieren nach:</h3>
+  <div class="dialog--body">
+      <h3>Anrufpartner erneut kontaktieren nach</h3>
       <form action="#" method="POST" id="finish_apne">
         <Select
            id="apne_delay"
-           label="Zeitintervall:"
+           label="Zeitintervall"
            options={[
               ["1", "eine Stunde"],
               ["2", "zwei Stunden"],
@@ -94,12 +105,13 @@ import Select from "@components/SimpleSelect.astro";
             ]}
         ></Select>
         <Input 
-            label="Notiz:"
+            label="Notiz"
             type="text"
             id="apne_notiz"
             validate="txt"
         ></Input>
         <button
+            class="absenden__Btn minifyed"
             id="apneBtn"
             type="submit"
             onclick="apneBtn()"  

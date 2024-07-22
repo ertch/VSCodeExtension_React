@@ -33,6 +33,10 @@ function executeSql(sql) {
 
             if (xhr.status === 200) {
                 // Parse the JSON response
+
+                // TODO Hier abfangen incomming Array mit include new Data(yyyy,mm,tt)
+
+                console.log(xhr.responseText)
                 result = JSON.parse(xhr.responseText);
                 sqlReturnArray = result;
             } else {
@@ -236,13 +240,68 @@ function ttErrorLog(caller, msg) {
             } else {
                 let serverStatus = executeSql("show status");
                 if (serverStatus.length <= 0 || serverStatus === null) {
-                    //TODO: Sichere Daten... irgendwie
+                    saveLocaly(query);
                 } else {
                     let awnser = executeSql(query);
                     fail = awnser.length>0?false:true;
                     Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
+                    // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
                     query = '';
                 };
             }
         });      
+    }
+
+
+//---------------------------------------------------------------------------------- Local Storage Access --------------------------------------------------------------------------
+    
+    function createLocalStorage(){
+        let array = [];
+        localStorage.setItem('ttFrameFailedAttemptsStorage', JSON.stringify(array));
+    }
+
+    function saveLocaly(query) {
+        try { 
+            let localStatus = JSON.parse(localStorage.getItem('ttFrameFailedAttemptsStorage'));
+            let newID = generateUUID();
+
+            localStatus.push(`${newID}`); 
+            
+            localStorage.removeItem('ttFrameFailedAttemptsStorage');
+            localStorage.setItem('ttFrameFailedAttemptsStorage', JSON.stringify(localStatus));
+            localStorage.setItem(`${newID}`,`${query}`);
+        } catch (error) {
+            logIntoDebug("saveLocaly", `Es konnte nicht auf den localStorage zugegriffen werden.`);
+        }
+    }
+
+    function pushLocalQuerys(){  
+        try { // Prüfe ob es fehlgeschlagene Querys gibt und versuche diese erneut zu senden.
+            let localStatus = JSON.parse(localStorage.getItem('ttFrameFailedAttemptsStorage'));
+            if (localStatus.length>0) {
+                localStatus.forEach(entry => {
+                    storedQuery = localStorage.getItem(`${entry}`);
+                    if (pushStoredQuerys === true) {
+                        executeSql(storedQuery);
+                    }
+                })
+            }
+        } catch (error) {
+            logIntoDebug("pushLocalQuerys", `Auf die lokalen querys konnten nicht zugegriffen werden.`);
+        }
+    }
+
+    function deleteLocaly(target) {
+        try {
+            if (target = "all") {
+                let localStatus = JSON.parse(localStorage.getItem('ttFrameFailedAttemptsStorage'));
+                localStatus.forEach(entry => {
+                    localStorage.removeItem(`${entry}`);
+                })
+                localStorage.removeItem('ttFrameFailedAttemptsStorage');
+            }
+            localStorage.removeItem(`${target}`);
+        } catch (error) {
+            logIntoDebug("deleteLocaly", `Auf die Datei ${target} konnte nicht zugegriffen werden.`);
+        }
     }
