@@ -3,6 +3,7 @@ interface Props {
   id: string;
   label: string;
   type?: string;
+  klasse?: string;
   value?: any;
   required?: boolean;
   maxlength?: string;
@@ -14,10 +15,12 @@ interface Props {
   validate: string; // txt, email, tel, handy, plz, call
 }
 
-const { id, label, type, required, maxlength, pattern, preset, value, disabled, blur, submitTo, validate} = Astro.props; 
+const { id, label, klasse, type, required, maxlength, pattern, preset, value, disabled, blur, submitTo, validate} = Astro.props; 
 
 
 let errorname = `${id}_errorMsg`;
+let KlassenListe = `input-text`;
+klasse>""? KlassenListe += ` ${klasse}`: undefined;
 ---
 
 <div>
@@ -28,7 +31,7 @@ let errorname = `${id}_errorMsg`;
 <input
   id={id}
   type={type as "text"}
-  class="input-text"
+  class= {KlassenListe}
   value={value}
   {required}
   {disabled}

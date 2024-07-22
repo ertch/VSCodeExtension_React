@@ -9,9 +9,10 @@ interface Props {
   required?: boolean;
   maxlength?: string;
   submitTo?: string;
+  klasse?: string;
 }
 
-const { id, label, row, col, required, maxlength, call, value, submitTo } = Astro.props;
+const { id, label, klasse, row, col, required, maxlength, call, value, submitTo } = Astro.props;
 let errorname = `${id}_errorMsg`;
 ---
 
@@ -21,11 +22,13 @@ let errorname = `${id}_errorMsg`;
 </div>
 
 <textarea
+  class={klasse}
   id={id}
   rows={row}
   cols={col}
   value={value}
   {required}
+  onblur=`autoResize(${id})`
   maxlength={maxlength}
   onchange={call}
   data-required = 'false'

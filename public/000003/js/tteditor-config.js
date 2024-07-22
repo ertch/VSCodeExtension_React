@@ -1,15 +1,9 @@
-// const { renderUniqueStylesheet } = require("astro/runtime/server/index.js");
-
-/** TODO:
- *          Prototype raus bekommen
- *          
- *          SQL-gen form SenBa-Filter
- *          get Data for CuCDa
- *         
- *          start call with buildUp option
- *          startRecWithCall 
- *          
- */
+//                                                         _   _   _____    _ _ _                ____             __ _       
+//                                                        | |_| |_| ____|__| (_) |_ ___  _ __   / ___|___  _ __  / _(_) __ _ 
+//                                                        | __| __|  _| / _` | | __/ _ \| '__| | |   / _ \| '_ \| |_| |/ _` |
+//                                                        | |_| |_| |__| (_| | | || (_) | |    | |__| (_) | | | |  _| | (_| |
+//                                                         \__|\__|_____\__,_|_|\__\___/|_|     \____\___/|_| |_|_| |_|\__, |
+//                                                                                                                      |___/ 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -65,6 +59,7 @@ let Global ={
     startCallwithState:    2        , // Call state bei Beginn des Anrufes
     startRecWithBuildUp:   false    , // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
     startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
+    onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
     debugMode:             true   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
     showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])

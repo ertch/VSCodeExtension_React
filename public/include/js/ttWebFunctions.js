@@ -169,21 +169,28 @@ function buildUp() {
             if (validateRufnummer('tel', newNumber.id, true)) { //TODO: validateRufnummer austauschen
 
                 logIntoDebug("ttWEB", `setCalltable('Other', ${newNumber.value})`, false)
-                Global.debugMode?  undefined : ttWeb.setCalltableField('OTHER', newNumber.value); //rufnummer abspeichern
+                Global.debugMode?  undefined : ttWeb.setCalltableField('OTHER', newNumber.value); //Rufnummer abspeichern
 
                 logIntoDebug("ttWEB", `setCallState: ${Global.startCallwithState}`, false)
                 Global.debugMode? undefined : ttWeb.setIndicator(Global.startCallwithState);   // Callstate zurücksetzten
 
-                record('clear'); // Aufnahme löschen wenn gewollt
+                Global.onNegDeleteRec===true? record('clear') : undefined; // Aufnahme löschen wenn gewollt
 
-                //TODO was muss hier genau passieren?
+                // ---- submit ---- 
+                
                 logIntoDebug("ttWEB", "Call terminiert ('RR', null, null, 1)", false)
-                Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
 
+                //TODO: Abschluss von ttFrame aus steuern
+                alert("here comes the end");
+                Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
+                alert("das wars schon");
+                
                 ttWeb.clearRecording();
 			    ttWeb.makeCustomerCall(newNumber.value);
 
                 logIntoDebug( "callFreedial",`Neue Nummer: <span class="txt--gray">${newNumber.value}</span> gespeichert`,false);
+
+
             } else {
                 logIntoDebug( "callFreedial",`<span class='txt--bigRed'>Error:</span> Nummer: <span class="txt--gray">${newNumber.value}</span> vom Validator abgelehnt`,false);
             }

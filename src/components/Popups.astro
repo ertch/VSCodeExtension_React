@@ -1,5 +1,6 @@
 ---
 import Input from "@components/SimpleInput.astro";
+import TxtArea from "@components/SimpleTextfield.astro";
 import Select from "@components/SimpleSelect.astro";
 ---
 
@@ -10,7 +11,7 @@ import Select from "@components/SimpleSelect.astro";
       <button id="freedial_closeBtn" type="button" class="closedialog" data-id="freedial"><i class="glyph glyph-close"></i></button>
   </div>
   <div class="dialog--body">
-      <form action="#" method="POST" id="finish_negativ">
+      <form action="#" method="POST" id="finish_NEG_freedial">
         <Input 
             type="tel"
             id="freedial_number"
@@ -18,8 +19,9 @@ import Select from "@components/SimpleSelect.astro";
             validate="tel"
         ></Input>
         <button
+            class="absenden__Btn minifyed"
             id="freedial_callBtn"
-            type="submit"
+            type="button"
             onclick="callFreedial()"  
             ><i class="glyph glyph-telephone"></i>
             Anrufen
@@ -38,26 +40,36 @@ import Select from "@components/SimpleSelect.astro";
   <div class="dialog--body">
     <h3>Bitte Wiedervorlagezeitraum bestimmen</h3>
     <form action="#" method="POST" id="finish_wiedervorlage">
-      <Input 
-          label="Datum"
-          type="text"
-          id="wiedervorlage_Date"
-          validate="date"
-      ></Input> 
-      <!-- hier würde der KalenderBtn sein... wenn ich einen hätte -->
-      <Input 
-          label="Uhrzeit"
-          type="text"
-          id="wiedervorlage_Date"
-          validate="date"
-      ></Input>
-      <Input 
+      <div class="flex">
+          <div>
+              <Input
+                  klasse="shortend__input"
+                  label="Datum"
+                  type="date"
+                  id="wiedervorlage_Date"
+                  validate="date"
+              ></Input>
+          </div>
+          <!-- hier würde der KalenderBtn sein... wenn ich einen hätte -->
+          <div>
+              <Input
+                  klasse="shortend__input"
+                  label="Uhrzeit"
+                  type="time"
+                  id="wiedervorlage_Date"
+                  validate="date"
+              ></Input>
+          </div>
+      </div>
+      <TxtArea 
+          klasse="textarea-expend"
           label="Notiz"
-          type="text"
+          col="1"
+          row="1"
           id="wiedervorlage_Text"
-          validate="txt"
-      ></Input>
+      ></TxtArea>
       <button
+          class="absenden__Btn minifyed"
           type="submit"
           id="recallBtn"
           onclick="wiedervorlageBtn()"
@@ -99,6 +111,7 @@ import Select from "@components/SimpleSelect.astro";
             validate="txt"
         ></Input>
         <button
+            class="absenden__Btn minifyed"
             id="apneBtn"
             type="submit"
             onclick="apneBtn()"  

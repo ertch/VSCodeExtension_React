@@ -81,6 +81,11 @@ td {
     }
 }
 
+.flex {
+    display: flex;
+    justify-content: space-between;
+}
+
 #footer_button {
     display: flex;
     gap: .3em;
@@ -249,6 +254,25 @@ dialog {
     }
 }
 
+.shortend__input {
+    display: block;
+    width: 175px;
+    padding: 0.25em 0.5em 0.125em .5em;
+}
+
+.textarea-expend { 
+    font-size: 1.1em;
+    height: var(--textarea-height, 40px);
+    transition: height .5s ease-out;
+    margin-bottom:  1.5em;
+    max-height: 200px;
+    resize: none;
+
+    &:focus {
+    height: 200px;
+    }
+}
+
 .closedialog {
     background-color: #ff3838;;
     padding: .5em;
@@ -315,6 +339,12 @@ dialog {
         height: 50px;
         width: 200px;
     }
+}
+
+.minifyed {
+    height: 40px;   
+    width: 120px;
+    
 }
 
 .abschlussfeld {
