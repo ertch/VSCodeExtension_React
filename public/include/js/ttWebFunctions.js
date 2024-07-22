@@ -60,7 +60,7 @@ function buildUp() {
         }
     } catch(error){
         if (Global.debugMode) {  // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
-            Global.calldatatableId = 79880808;
+            Global.calldatatableId = Global.debugdataTableId;
             msisdn = "01768655885";
             telKontakt = "0190123123";
             agentId = "2008";
@@ -184,7 +184,7 @@ function buildUp() {
                 alert("here comes the end");
                 Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
                 alert("das wars schon");
-                
+
                 ttWeb.clearRecording();
 			    ttWeb.makeCustomerCall(newNumber.value);
 
