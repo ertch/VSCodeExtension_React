@@ -60,7 +60,7 @@ function buildUp() {
         }
     } catch(error){
         if (Global.debugMode) {  // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
-            Global.calldatatableId = 79880808;
+            Global.calldatatableId = 81880279;
             msisdn = "01768655885";
             telKontakt = "0190123123";
             agentId = "2008";
