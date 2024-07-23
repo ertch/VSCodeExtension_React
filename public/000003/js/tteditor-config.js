@@ -1,16 +1,17 @@
-// const { renderUniqueStylesheet } = require("astro/runtime/server/index.js");
+//                                                         _   _   _____    _ _ _                ____             __ _       
+//                                                        | |_| |_| ____|__| (_) |_ ___  _ __   / ___|___  _ __  / _(_) __ _ 
+//                                                        | __| __|  _| / _` | | __/ _ \| '__| | |   / _ \| '_ \| |_| |/ _` |
+//                                                        | |_| |_| |__| (_| | | || (_) | |    | |__| (_) | | | |  _| | (_| |
+//                                                         \__|\__|_____\__,_|_|\__\___/|_|     \____\___/|_| |_|_| |_|\__, |
+//                                                                                                                      |___/ 
+
 
 /** TODO:
- *          Prototype raus bekommen
- *          
- *          SQL-gen form SenBa-Filter
- *          get Data for CuCDa
- *         
- *          start call with buildUp option
- *          startRecWithCall 
- *          
+ * 
+ *      Record_BTN-component
+ * 
+ * 
  */
-
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
        
@@ -65,13 +66,16 @@ let Global ={
     startCallwithState:    2        , // Call state bei Beginn des Anrufes
     startRecWithBuildUp:   false    , // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
     startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
+    onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
-    debugMode:             false   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
-    showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
-    LogIntottDB:           false    , // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
-    logGK:                 true     , // Gatekeeper in Log anzeigen
-    logSQL:                true     , // SQL-Statemants in Log anzeigen
-    showStats:             false    , // wenn true, lade AbschlussStatistik (in DebugLog)
+    debugMode:             true   ,     // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    debugdataTableId:      79880808,    // ID für Debug Datenbank CalldataTable
+
+    showDebug:             true    ,    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
+    LogIntottDB:           false    ,   // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+    logGK:                 true     ,   // Gatekeeper in Log anzeigen
+    logSQL:                true     ,   // SQL-Statemants in Log anzeigen
+    showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
 
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
     calldatatableId:       '9826'                      ,  // ID des Kampagnien-CallTable (aus DB)
@@ -163,28 +167,29 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerData = [
-            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true },
-            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true },
-            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true },
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true },
-            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true },
-            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true },
-            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true },
-            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true },
-            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true },
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true },
-            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true },
-            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true },
-            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true },
-            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true },
-            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true },
-            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true },
+            { label: 'red!Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'gre!Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'yel!Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
+            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
+            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
         return CustomerData
     };
+    // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn 
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ TriggerPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -218,3 +223,5 @@ function gettime() { // Uhrzeit
         return TriggerData;
     }
  
+
+    // TODO Manipulation der CustomerData-Value, um die Werte anzupassen 
