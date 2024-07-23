@@ -5,6 +5,7 @@
 //                                                         \__|\__|_____\__,_|_|\__\___/|_|     \____\___/|_| |_|_| |_|\__, |
 //                                                                                                                      |___/ 
 
+<<<<<<< HEAD
 
 /** TODO:
  * 
@@ -12,6 +13,8 @@
  * 
  * 
  */
+=======
+>>>>>>> a4a06c121771d9166c09e94a7d1a27c2329ba77d
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
        
@@ -68,6 +71,7 @@ let Global ={
     startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
     onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
+<<<<<<< HEAD
     debugMode:             true   ,     // Wenn true, dann wird mit SQL-Fakeconnector verbunden
     debugdataTableId:      79880808,    // ID für Debug Datenbank CalldataTable
 
@@ -76,6 +80,14 @@ let Global ={
     logGK:                 true     ,   // Gatekeeper in Log anzeigen
     logSQL:                true     ,   // SQL-Statemants in Log anzeigen
     showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
+=======
+    debugMode:             true   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
+    LogIntottDB:           false    , // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+    logGK:                 true     , // Gatekeeper in Log anzeigen
+    logSQL:                true     , // SQL-Statemants in Log anzeigen
+    showStats:             false    , // wenn true, lade AbschlussStatistik (in DebugLog)
+>>>>>>> a4a06c121771d9166c09e94a7d1a27c2329ba77d
 
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
     calldatatableId:       '9826'                      ,  // ID des Kampagnien-CallTable (aus DB)
@@ -167,9 +179,15 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerData = [
+<<<<<<< HEAD
             { label: 'red!Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'gre!Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'yel!Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+=======
+            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+>>>>>>> a4a06c121771d9166c09e94a7d1a27c2329ba77d
             { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},

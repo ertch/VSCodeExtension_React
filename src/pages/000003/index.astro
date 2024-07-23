@@ -16,9 +16,9 @@ import NextPageBtn from "@/components/WeiterButton.astro";
 import FinishBtn from "@components/FinishButton.astro";
 ---
                 <!-- Grunddaten -->
-<Layout     
-    campaignTitle="STE_WEL"
+<Layout     .:
     campaignNr="000003"
+    campaignTitle="ste-wel"
     jsFiles={["tteditor-config.js", "query_lib.js"]}
     header_imgs={["skon.png", "stadtenergie.svg"]}
     header_title="Stadtenergie Welcome Call"
@@ -103,6 +103,7 @@ import FinishBtn from "@components/FinishButton.astro";
                             "ja",
                             "nein",
                         ]}
+                        
                         actions={[
                             [`ja`, 'openOnly', "datenerfassung_product"],
                             [`ja`, 'trigger', "PAtxt1"],
@@ -111,6 +112,7 @@ import FinishBtn from "@components/FinishButton.astro";
                             ["nein", "trigger", "NAtxt1"],
                             ["default", "close", "all{grp1}"]
                         ]}
+
                         type="txt"
                         validate="txt"
                         gatekeeper
@@ -155,9 +157,11 @@ import FinishBtn from "@components/FinishButton.astro";
                         <Gatekeeper
                             id="datenerfassung_lead"
                             label="Lead"
+
                             firstOption={
                                 ["keinLead", "Kein Lead"]
                             }
+                            
                             options={[
                                 ["strom", "Strom"],
                                 ["gas", "Gas"],
@@ -185,7 +189,9 @@ import FinishBtn from "@components/FinishButton.astro";
                                     label="Vertragsende aktueller Anbieter - tt.mm.jjjj"
                                     type="text"
                                     validate="date"
+
                                     blur='showWeiterBtn("gk_grp1")'
+
                                     required
                                 >
                                 </Input>
@@ -307,4 +313,4 @@ import FinishBtn from "@components/FinishButton.astro";
         </TabPage>          <!-- Ende tab_zusammenfassung -->         
         <NextPageBtn></NextPageBtn> 
     </TabWrapper>                 <!-- Ende main -->
- </CampaignLayout>
+ </Layout>

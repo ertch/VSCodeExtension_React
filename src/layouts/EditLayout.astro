@@ -43,6 +43,7 @@ import "../styles/main.scss";
 					const newFontUrl = '../include/fonts/otherfont.woff2';
 					document.documentElement.style.setProperty('--font-url', newFontUrl);
 				}
+				createLocalStorage();
 			}
 			// HotKey event
 			let timer = 0;
@@ -99,6 +100,7 @@ import "../styles/main.scss";
 					}
 				}catch(e){};
 			});
+
 		</script>
 	</body>
 </html>

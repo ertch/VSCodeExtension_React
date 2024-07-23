@@ -93,9 +93,15 @@ let Global = {
 
     function providerPattern() {
         let CustomerData = [
+<<<<<<< HEAD
             { label: '!red:Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '!yel:Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '!gre:Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+=======
+            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+>>>>>>> a4a06c121771d9166c09e94a7d1a27c2329ba77d
             { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
@@ -253,6 +259,7 @@ let Global = {
                         let value = CustomerData[i].value;
                         let standAlone = CustomerData[i].standAlone;
                         let createCell = CustomerData[i].createCell;
+<<<<<<< HEAD
                         let marker = "";
 
                         if (createCell) {
@@ -278,6 +285,10 @@ let Global = {
                                 skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
                             }
 
+=======
+
+                        if (createCell) {
+>>>>>>> a4a06c121771d9166c09e94a7d1a27c2329ba77d
                             // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
                             standAlone ? undefined : (chache = value);
                             // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
@@ -422,6 +433,7 @@ let Global = {
     });
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 /**
 *                                                                   ___      _       _                             
 *                                                                  / _ \__ _| |_ ___| | _____  ___ _ __   ___ _ __ 
@@ -430,6 +442,9 @@ let Global = {
 *                                                                \____/\__,_|\__\___|_|\_\___|\___| .__/ \___|_|   
 *                                                                                                 |_|              
 */
+=======
+// ################################################################################### GATEKEEPER #############################################################################################
+>>>>>>> a4a06c121771d9166c09e94a7d1a27c2329ba77d
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     function gatekeeper(incomming) {
