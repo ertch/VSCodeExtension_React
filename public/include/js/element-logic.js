@@ -43,7 +43,7 @@ function createCustomerData() {
                 // Prüfe ob Index von Customerdata in SqlField vorhanden und > -1 ist.
                 // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerData 
                 if (Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
-                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]] 
+                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
                 } else {  
                     CustomerData[index].value = "-";
                 };
@@ -53,39 +53,66 @@ function createCustomerData() {
             let chache = ""; // Zwischenspeicher für zu übertragende Werte
             try {
                 for (let i = 0; i < CustomerData.length; i++) {
-                    let label = CustomerData[i].label; 
+                    let label = CustomerData[i].label;
                     let id = CustomerData[i].match;
                     let value = CustomerData[i].value;
                     let standAlone = CustomerData[i].standAlone;
                     let createCell = CustomerData[i].createCell;
+                    let marker = "";
                     
-                    if(createCell) {
-                        // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
-                        standAlone ? undefined : chache = value;
-                        // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
-                        if (standAlone && chache !== "") value = `${chache} ${value}`, chache = ""; 
+                    Customer[id] = `${value}`;
 
-                        if (standAlone) { // Füge die Cell oder Separator in das HTML ein wenn standAlone true
-                            if (id != "separator") { 
-                                cardHolder.innerHTML = ` 
-                                    ${cardHolder.innerHTML}  
+                    if (createCell) {
+                        if (label.includes("!")) {
+                            let skipThis = false;
+                            switch (label.split('!')[0]){
+
+                                case "red":
+                                    marker = 'mark--red';
+                                    break;
+                                
+                                case "grn":
+                                    marker = 'mark--green';
+                                    break;
+
+                                case "yel":
+                                    break;
+
+                                default:
+                                    skipThis = true;
+                            }
+                            label = label.split("!")[1];
+                            skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
+                        }
+
+                        // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
+                        standAlone ? undefined : (chache = value);
+                        // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
+                        if (standAlone && chache !== "")
+                            (value = `${chache} ${value}`), (chache = "");
+
+                        if (standAlone) {
+                            // Füge die Cell oder Separator in das HTML ein wenn standAlone true
+                            if (id != "separator") {
+                                cardHolder.innerHTML += ` 
                                     <div class="cell">
                                         <div class="cell__head">${label}</div>
                                         <div class="data_value cell__data" id=${id}>${value}</div>
                                     </div>
                                 `;
+                                
                             } else {
-                                cardHolder.innerHTML = ` 
-                                    ${cardHolder.innerHTML}
+                                cardHolder.innerHTML += ` 
                                     <div class='separator'></div>
                                 `;
                             }
-                        };
-                    }  
-                };
+                        }
+                    }
+                }
                 logCCD += "<span class='txt--orange'>CustomerData</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
-            } catch(error) {
-                logCCD += "<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
+            } catch (error) {
+                logCCD +=
+                    "<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
             }
         }; 
                
@@ -171,8 +198,8 @@ function loadProviderPreset() {
     }
 }
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** PopUp & debugMode - Loader / watchdog                                                                                          Funktion geprüft am: 22.05.24 von Erik
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** PopUp & debugMode - Loader / watchdog                                                                                                   Funktion geprüft am: 22.05.24 von Erik
  * 
  *      Eventlistener für Popup-Modale      
  */
@@ -198,7 +225,7 @@ function loadProviderPreset() {
     });
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ################################################################################### GATEKEEPER #############################################################################################
+// ################################################################################### GATEKEEPER ##############################################################################
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
 /** Gatekeeper - Select options to action                                                                                      Funktion geprüft am: 22.05.24 von Erik
 *  
@@ -407,34 +434,23 @@ function triggerDatalist(id, gatekeeperCall) {
 /** readTrigger                                                                                                             Funktion geprüft am: 22.05.24 von Erik
 * 
 *      Mit dem Aufruf von readTrigger werden alle bis dahin, in der TriggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
-*      Diese Funktion ist dafür vorgesehen die Zusammenfassung, in Bezug auf die ausgewählten Optionen zusammen zu stellen.
-*      Es können auch Variablennamen genutzt werden, dessen Inhalt dann genutzt wird. 
+*      Diese Funktion ist dafür vorgesehen während des BuildUp die geladenen Daten und definierten Texte, in die vorgesehenen Elemente einzufügen.
 */
-function readTrigger() {
-    let insert = "";
-    let cache = new Set();
-    TriggerData.forEach((list) => {
-            // durchlaufe TriggerData 
-        if(list.active === true) {    
-            try { // Falls list.value eine Variable ist, nutzte deren Wert
-                    insert = eval(list.value);
-            } catch (error) {
-                    insert = list.value;
-            };
-            // cache prüft, ob das Element schon aufgerufen wurde und löscht den Inhalt einmalig falls nicht.
-            // wenn Element bekannt, dann füge neuen Text, zum Vorhandenen hinzu.
-            if (!cache.has(list.target_id)) {
-                cache.add(list.target_id);
-                document.getElementById(list.target_id).innerHTML = "";
+    function readTrigger() {
+        let insert = "";
+        let cache = new Set();
+        TriggerData.forEach((list) => {
+                // durchlaufe TriggerData 
+            if(list.active === true) {    
+                try { // Falls list.value eine Variable ist, nutzte deren Wert
+                        insert = eval(list.value);
+                } catch (error) {
+                        insert = list.value;
+                };
+                document.getElementById(list.target_id).innerHTML += `${insert}`;
             }
-            document.getElementById(list.target_id).innerHTML += `${insert}`;
-            // Alle ungenutzten Elemente zurücksetzten
-        } else if (cache.has(list.target_id)) {}else {
-                document.getElementById(list.target_id).innerHTML = "";
-                cache.add(list.target_id);
-        }   
-    })
-};
+        })
+    };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
 * 
@@ -443,7 +459,8 @@ function readTrigger() {
 * 
 * @param {*} id - ID des zu schaltenden Eintrags
 */
-function setTrigger(id) {
+let triggerFlag = false;
+function setTrigger(id, operation) {
     // Setze mitgebene id in TriggerData active = true
     // Setzte alle id der selben Gruppe auf active = false
     for (const trigger of TriggerData) {
@@ -455,6 +472,16 @@ function setTrigger(id) {
                 }
             });
             trigger.active = true;
+            try { // Falls list.value eine Variable ist, nutzte deren Wert
+                insert = eval(trigger.value);
+            } catch (error) {
+                    insert = trigger.value;
+            };
+            if (operation==='add') {
+                document.getElementById(trigger.target_id).innerHTML += `${insert}`;
+            } else {
+                document.getElementById(trigger.target_id).innerHTML = `${insert}`;
+            }
             break;
         }
     }        
@@ -509,9 +536,11 @@ function getTrigger(callerId, validate){
 
             if(lockedBool === true){
 
-                if (newTabName === lastTab) {  
-                    ifTheDivs(lastTab);
-                    createEndcard();
+                if (newTabName === lastTab || triggerFlag === true) { 
+                    if (newTabName === lastTab){ 
+                        ifTheDivs(lastTab);
+                        createEndcard();
+                    }
                 } 
 
                 // Aktuellen Tabnamen aktualisieren
@@ -601,8 +630,7 @@ function getTrigger(callerId, validate){
 
     function createEndcard() {
 
-        document.getElementById('weiterBtn').className = "d-none";
-        readTrigger();
+        document.getElementById('weiterBtn').className = "d-none"; 
         
         // TODO: hier API-abfrage nach Aufnahmestatus
         let RecState = 2;

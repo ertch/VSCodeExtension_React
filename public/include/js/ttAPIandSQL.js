@@ -35,8 +35,6 @@ function executeSql(sql) {
                 // Parse the JSON response
 
                 // TODO Hier abfangen incomming Array mit include new Data(yyyy,mm,tt)
-
-                console.log(xhr.responseText)
                 result = JSON.parse(xhr.responseText);
                 sqlReturnArray = result;
             } else {
@@ -227,16 +225,13 @@ function ttErrorLog(caller, msg) {
             } catch(e){}
 
             let query = `UPDATE ${tableName} SET`;
-            console.log(`Data for table ${tableName}:`);
             groupedData[tableName].forEach((part, index) => {
                 query += part;
                 index<groupedData[tableName].length-1? query+=`,`:undefined;
             });
             query += ` WHERE ${tableName}.id = ${tableId} LIMIT 1`;
-            console.log(query)
             if (Global.debugMode){
                 logIntoDebug("pushData - DebugMode", `${query} `)
-                console.log(query);
             } else {
                 let serverStatus = executeSql("show status");
                 if (serverStatus.length <= 0 || serverStatus === null) {

@@ -5,10 +5,18 @@
 //                                                         \__|\__|_____\__,_|_|\__\___/|_|     \____\___/|_| |_|_| |_|\__, |
 //                                                                                                                      |___/ 
 
+
+/** TODO:
+ * 
+ *      Record_BTN-component
+ * 
+ * 
+ */
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
        
 let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
+let Customer = {};
 let agentId;                    // ID des Agenten
 let clientIP;                   
 
@@ -24,7 +32,7 @@ let keyPressStartTime;
 let btnLock = false;
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
-let TriggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
+let TriggerData;                        // initialisierung TriggerData      (TriDa)
 let CostumerData;                       // Erstellung global CustomerData   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
 let SendBack = [];                      // Erstellung global SendBackfilter (SenBa)
@@ -61,12 +69,14 @@ let Global ={
     startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
     onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
-    debugMode:             true   , // Wenn true, dann wird mit SQL-Fakeconnector verbunden
-    showDebug:             true    , // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
-    LogIntottDB:           false    , // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
-    logGK:                 true     , // Gatekeeper in Log anzeigen
-    logSQL:                true     , // SQL-Statemants in Log anzeigen
-    showStats:             false    , // wenn true, lade AbschlussStatistik (in DebugLog)
+    debugMode:             true   ,     // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    debugdataTableId:      79880808,    // ID für Debug Datenbank CalldataTable
+
+    showDebug:             true    ,    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
+    LogIntottDB:           false    ,   // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+    logGK:                 true     ,   // Gatekeeper in Log anzeigen
+    logSQL:                true     ,   // SQL-Statemants in Log anzeigen
+    showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
 
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
     calldatatableId:       '9826'                      ,  // ID des Kampagnien-CallTable (aus DB)
@@ -87,7 +97,6 @@ let Global ={
 
     posSale:               false  , // Indikator für positiven Verkauf
 }
-
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
 function specialNames(varName){
     let giveBack = '';      // Soll eine Variable in der RecordFileName einen besonderem Ausdruck entsprechen, kann dies hier
@@ -158,9 +167,9 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerData = [
-            { label: 'Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'red!Vorname',     match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'grn!Nachname',    match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            { label: 'yel!Geb.-Datum',  match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
@@ -205,6 +214,8 @@ function gettime() { // Uhrzeit
 
     function triggerPattern() {
         let TriggerData = [
+            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${Customer.firstname}</p> <p> Nachname: ${Customer.surname}</p> `     },
+            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${Customer.city}</p>`},
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value: "<p>Keine nutzbaren Daten gefunden</p>"},

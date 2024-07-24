@@ -1,4 +1,9 @@
-/**                                                                   QUERY LIBRARY
+/**                                                         ___                          _     _ _                          
+*                                                          / _ \ _   _  ___ _ __ _   _  | |   (_) |__  _ __ __ _ _ __ _   _ 
+*                                                         | | | | | | |/ _ \ '__| | | | | |   | | '_ \| '__/ _` | '__| | | |
+*                                                         | |_| | |_| |  __/ |  | |_| | | |___| | |_) | | | (_| | |  | |_| |
+*                                                          \__\_\\__,_|\___|_|   \__, | |_____|_|_.__/|_|  \__,_|_|   \__, |
+*                                                                                |___/                                |___/ 
 * 
 *       Die query-lib sellt die verschiedenen querys für die Kampagnen zur Verfügung. Diese werden mit der "Costumer-cells"-Component ausgewählt
 *       und über das JS in die CustomerInfo geladen. Hierbei ist es wichtig immer die Key === match zu nutzen, damit die Funktion greift.

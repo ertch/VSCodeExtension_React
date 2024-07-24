@@ -134,10 +134,6 @@ td {
     padding-bottom: 2em;
 }
 
-.d-none {
-    display: none;
-}
-
 /* all declarations regarding the glyphs */
 
 .glyph {
@@ -302,19 +298,20 @@ dialog {
 .recordDisplay{
     display: flex;
     justify-content: start;
-    padding: 0 3em;
-    width: fit-content;
-    height: fit-content;
+    padding: 2px;
+    margin-top: 0;
 
         &__info {
+            align-items: center;                                                                    
             display: flex;
-            padding: 2em 2em 2em 0;
             color: #fd3d3d;
             text-shadow: 0 .5px 1.5px black;
+            margin: 1.5em 1.5em 1.5em 0;
         }
 
-        &__Btn {
-            padding-left: 1.6em;
+        &--centered {
+            @extend .recordDisplay;
+            justify-content: center;
         }
 }
 
@@ -326,7 +323,7 @@ dialog {
 .absenden {
     
     width: 100%;
-    margin: 25px 0 20px 0;
+    margin: 25px 0 -35px 0;
 	text-align: center;
 	min-height: 50px;
 
@@ -406,6 +403,15 @@ dialog {
     }
 }
 
+.mark--red{
+    background: #ff6e6ecb;
+    color: rgb(2, 0, 19);
+}
+
+.mark--green {
+    background: #2adb2ac5;
+}
+
 #loader {
     width: 120px;
     height: 120px;
@@ -453,4 +459,8 @@ datalist {
     font-size: .75em;
     font-weight: bold;
     text-shadow: #000;
+}
+
+.d-none {
+    display: none;
 }
