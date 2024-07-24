@@ -108,7 +108,6 @@ if (import.meta.env.DEV) {
 			};
 			document.onkeydown = function(event) {
 				event = event || window.event;
-				console.log("btn down")
 				if (event.keyCode === 13 && Global.btnLock) {
 					event.preventDefault();  
 				// } else if (event.keyCode === 20) { 

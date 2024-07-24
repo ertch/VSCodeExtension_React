@@ -18,7 +18,6 @@ function bootUpAPI() {
                 } else {
                     buildUp();
                     call_initialize();
-                    //TODO: recordAutoStart()
                     logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
                 }               
             },
@@ -58,9 +57,10 @@ function buildUp() {
         if(clientIP === null || Global.calldatatableId === null || msisdn === null || indicator === null) {
             buildupFail = true;
         }
+        
     } catch(error){
         if (Global.debugMode) {  // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
-            Global.calldatatableId = 81880279;
+            Global.calldatatableId = Global.debugdataTableId;
             msisdn = "01768655885";
             telKontakt = "0190123123";
             agentId = "2008";
@@ -121,6 +121,8 @@ function buildUp() {
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
+    TriggerData = triggerPattern();
+    readTrigger();
     buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
 }
 //#############################################################################################################################################################################
@@ -207,6 +209,19 @@ function buildUp() {
 //---------------------------------------------------------------------------- Recordings -------------------------------------------------------------------------------------
 //#############################################################################################################################################################################
 
+    function recordBtn(state, int, target) {
+        const intConverted = parseInt(int, 10);
+
+        if (isNaN(intConverted)) {
+            logIntoDebug(`recordBtn ${target.id}`,`Fehler: ${int} ist kein gültiger CallState.`);
+            Global.debugMode&&alert(`Fehler bei RecordBtn: ${int} ist kein gültiger CallState.`)
+            return;
+        } else {
+            record(state, int);
+            target.classList.add('d-none');
+        }
+    }
+
 /** record() - Sprachaufnahmesteuerung
  * 
  *      Sammelfunktion für alle recordings-states.
@@ -256,7 +271,8 @@ function buildUp() {
 
             default: //Error_msg
                 logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, Global.LogIntottDB);
-        }   
+        }  
+        Global.debugMode&&alert(`Aufnahme wurde gestartet in state: ${recState}`) 
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

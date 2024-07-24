@@ -14,6 +14,7 @@ import TabWrapper from "@components/TabWrapper.astro";
 import IfDiv from "@components/IfDiv.astro";
 import NextPageBtn from "@/components/WeiterButton.astro";
 import FinishBtn from "@components/FinishButton.astro";
+import RecordBtn from "@components/Button_Record.astro";
 ---
                 <!-- Grunddaten -->
 <Layout     .:
@@ -48,6 +49,15 @@ import FinishBtn from "@components/FinishButton.astro";
                     klasse="dis-p grid-col_center"
                 >
                 </Field>
+    
+                <Field
+                    id="customertxt"
+                    legend="Zusätzliche Informationen"
+                    klasse="dis-p grid-col_center"
+                >
+                <span id="customerstartinfos"></span>
+                </Field>
+                <RecordBtn id="testrecbtn" callState="2" showInfo txt_info="Der Kunde" txt_btn="ist Sauer"></RecordBtn>
             </section>
         </TabPage>          <!--  Ende tab_start -->
         
@@ -272,28 +282,7 @@ import FinishBtn from "@components/FinishButton.astro";
                         legend="Aufnahme" 
                         klasse="grid-col_center field__bg"
                     >
-                        <div
-                            id="recorddisplay" 
-                            class="input_form recordDisplay"
-                        >
-                            <div class="recordDisplay__info">
-                                <i class="glyph glyph-record"></i> 
-                                Aufnahme läuft nur für Sie
-                            </div>
-
-                            <div 
-                                class="go recordDisplay__Btn" 
-                                id="recordDisplay_Btn"
-                            >
-                                <button
-                                    id="go_record"
-                                    type="button"
-                                >
-                                    <i class="glyph glyph-circle"></i>
-                                    Kunden aufnehmen
-                                </button>
-                            </div>
-                        </div>
+                        <RecordBtn id="endCardRec" showInfo></RecordBtn>
                     </Field>
                 </IfDiv>
             </Gate>
@@ -308,8 +297,9 @@ import FinishBtn from "@components/FinishButton.astro";
                     ["or", "datenerfassung_telefon"]
                 ]}
             >
-            </IfDiv>
             <FinishBtn auto></FinishBtn>
+            </IfDiv>
+            
         </TabPage>          <!-- Ende tab_zusammenfassung -->         
         <NextPageBtn></NextPageBtn> 
     </TabWrapper>                 <!-- Ende main -->
