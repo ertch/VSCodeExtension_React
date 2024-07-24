@@ -16,7 +16,6 @@
 
        
 let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
-let Customer = {};
 let agentId;                    // ID des Agenten
 let clientIP;                   
 
@@ -59,7 +58,6 @@ let resultIdApne6h =    8922;
 let resultIdApne8h =    8923;
 let resultIdApne20h =   8924;
 
-
 let Global ={
     currentTabName:       `${firstTab}`,
     
@@ -70,8 +68,7 @@ let Global ={
     onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
     debugMode:             true   ,     // Wenn true, dann wird mit SQL-Fakeconnector verbunden
-    debugdataTableId:      79880808,    // ID für Debug Datenbank CalldataTable
-
+    
     showDebug:             true    ,    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
     LogIntottDB:           false    ,   // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
     logGK:                 true     ,   // Gatekeeper in Log anzeigen
@@ -85,6 +82,8 @@ let Global ={
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
 
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
+    debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable
+
     
     recordingPrefix:       '\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\'  ,// Path zur Ablage der Audiodatei auf dem Fileserver
     FileNamePattern:       ["date", "time", "agentId", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
@@ -92,11 +91,12 @@ let Global ={
     recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
     terminationCode:       ''                                                              ,
 
-    wiedervorlage:         false               ,  // wenn true, lade WiedervorlageDaten 
-    wievorElement:         'html-Element.id'   ,  // Lade WiedervorlageDaten in dieses Element
+    wiedervorlage:         true               ,  // wenn true, lade WiedervorlageDaten 
+    wievorElement:         'wievorDatabox'   ,  // Lade WiedervorlageDaten in dieses Element
 
     posSale:               false  , // Indikator für positiven Verkauf
 }
+
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
 function specialNames(varName){
     let giveBack = '';      // Soll eine Variable in der RecordFileName einen besonderem Ausdruck entsprechen, kann dies hier

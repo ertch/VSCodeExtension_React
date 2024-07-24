@@ -59,7 +59,7 @@
         if (Global.debugMode) {
             query += `FROM ${Global.addressdatatable} join calldatatable on calldatatable.addressdata_id=${Global.addressdatatable}.id where calldatatable.id=${Global.calldatatableId} LIMIT 1`;
         } else {
-            query += `FROM ${Global.addressdatatable} WHERE ${Global.addressdatatable}.id = ${Global.calldatatableId} LIMIT 1 FOR JSON PATH`;
+            query += `FROM ${Global.addressdatatable} WHERE ${Global.addressdatatable}.id = ${Global.calldatatableId} LIMIT 1`;
         } 
         return query;
     }
@@ -76,6 +76,7 @@
     function pullSQL (promtName) {
         try {
             switch (promtName) {
+
                 case "result_id":
                     query = `SELECT result_id FROM calldatatable where id=${Global.calldatatableId} LIMIT 1`;
                     break;
@@ -85,9 +86,7 @@
                     break;
                 
                 case "wiedervorlageCount":
-                    query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
-                            ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
-                            AND is_wv=1 AND wv_date>NOW()`;
+                    query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' AND is_wv=1 AND wv_date>NOW()`;
                     break;
 
                 case "wiedervorlageData":

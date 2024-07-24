@@ -6,29 +6,22 @@
  */
 function bootUpAPI() {
     try {
-    logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
         // Initialisierung des Inhalts-Interfaces
         this.parent.contentInterface.initialize(window,
             function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
                 
-                ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
-
-                if(Global.debugMode === true){
-                    logIntoDebug("<span class='txt--bigGreen'>:API-Verbindung positiv getestet</span>", "" , false);
-                } else {
-                    buildUp();
-                    call_initialize();
-                    logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
-                }               
+                ttWeb = contentInterface;               // ttWeb auf das Content-Interface setze
+                buildUp();
+                call_initialize();
+                return;              
             },
         );
     } catch(error) {
-        logIntoDebug("bootUpAPI", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${error}` , false);
+       console.log(error);
     };
     if (Global.debugMode) {
-        logIntoDebug("bootUp", "debugMode: <span class='txt--blue'>true</span> => Initialisierung für debugMode gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
         buildUp();
-    };
+    }
 };
    
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -36,6 +29,7 @@ function bootUpAPI() {
  * 
  */
 function buildUp() {
+
     blnFinishPositive = false; // Variable zur Überprüfung, ob der Anruf positiv abgeschlossen wurde
         // Abruf der notwendigen Daten aus der API
     try {
@@ -54,7 +48,7 @@ function buildUp() {
         festnetz = ttWeb.getCalltableField('BUSINESS');
         agentId = ttWeb.getUser().Login;
 
-        if(clientIP === null || Global.calldatatableId === null || msisdn === null || indicator === null) {
+        if(clientIP === null || Global.calldatatableId === null || msisdn === null || indicator === null )  {
             buildupFail = true;
         }
         
@@ -70,54 +64,49 @@ function buildUp() {
     }
     // Wenn Global.debugModeging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
     if (buildupFail){
-        abschlussStatus = pullSQL("result_id");
-        if (!Global.debugMode && abschlussStatus.length > 0) {
-        let callResultId = abschlussStatus.fields.result_id;
-
-            if (callResultId == resultIdPositiv) {
-                logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
-                ttWeb.clearRecording();
-                ttWeb.terminateCall('100');
-
-            } else if (callResultId == resultIdNegativ) {
-                logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
-                ttWeb.clearRecording();
-                ttWeb.terminateCall('200');
-            }
-        };
-
-        let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-        document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
-        // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
-        document.getElementById('wiedervorlage_Text').value = "";
-        document.getElementById('apne_delay').value = "";
-        document.getElementById('apne_notiz').value = "";
-
-        if (Global.wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
-            let wievorCount = pullSQL("wiedervorlageCount");
-            if (wievorCount[0].rows[0].fields.length > 0) {
-                wievorData = pullSQL("wiedervorlageData")[0].rows;
-                let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
-                for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
-                document.getElementById(Global.wievorElement).innerHTML = wvtext;
-            }
-        };
-
-        if (Global.showStats) { // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
-            stats = pullSQL("statistik");
-            if (stats[0].rows.length > 0) {
-                stats = stats[0].fields;
-
-                quote = stats.UMWANDLUNGSQUOTE;
-                nettos = stats.NETTOKONTAKTE;
-                if (nettos > 0) {
-                    $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
-                    $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
-                }
-                logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, Global.LogIntottDB);
-            }
-        };
+        corruptedDB = executeSql(`SELECT COUNT(*) From ${Global.calldatatableId} WHERE ${Global.calldatatableId}.id = ${Global.calldatatableId} LIMIT 1`);
+        if (corruptedDB < 1 ) {
+            logIntoDebug("buildUp", "Es wurde ein fehlerhafter Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+            ttWeb.clearRecording();
+            ttWeb.terminateCall('200');
+        
+        } 
     }
+
+    let abschlussStatus = pullSQL("result_id");
+    if (abschlussStatus.length > 0) {
+        let termCode;
+        switch (abschlussStatus[0].rows[0].fields.result_id) {
+
+            case resultIdPositiv:
+                logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                termCode = '100';
+                break;
+
+            case resultIdNegativ:
+                logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                termCode = '200';
+                break;
+            
+            default:
+                termCode = '0'
+        }
+        if (termCode != 0 && !Global.debugMode) {
+            ttWeb.clearRecording();
+            ttWeb.terminateCall(termCode);
+        } 
+    }
+        
+    if (Global.wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
+         let wievorData = pullSQL("wiedervorlageData");
+            wievorData = wievorData[0].rows;
+         if (wievorData.length > 0) {
+            let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
+            for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
+            document.getElementById(Global.wievorElement).innerHTML += wvtext;
+        }
+    };
+ 
     createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein

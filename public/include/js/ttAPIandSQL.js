@@ -32,9 +32,6 @@ function executeSql(sql) {
             xhr.send();
 
             if (xhr.status === 200) {
-                // Parse the JSON response
-
-                // TODO Hier abfangen incomming Array mit include new Data(yyyy,mm,tt)
                 result = JSON.parse(xhr.responseText);
                 sqlReturnArray = result;
             } else {
@@ -43,7 +40,7 @@ function executeSql(sql) {
             }
         } catch (error) {
             console.error('SQL Request error:', error);
-           logIntoDebug("executeSQL",'Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + error.message, false);
+            logIntoDebug("executeSQL",'Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + error.message, false);
         }
     }
     return sqlReturnArray;

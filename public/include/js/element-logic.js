@@ -5,6 +5,7 @@
  *          Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
  *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
  */ 
+let Customer = {};
 function createCustomerData() {
     let logCCD="";
     try {
@@ -83,8 +84,7 @@ function createCustomerData() {
                             }
                             label = label.split("!")[1];
                             skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
-                        }
-
+                        } 
                         // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
                         standAlone ? undefined : (chache = value);
                         // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
@@ -111,11 +111,9 @@ function createCustomerData() {
                 }
                 logCCD += "<span class='txt--orange'>CustomerData</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
             } catch (error) {
-                logCCD +=
-                    "<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
+                logCCD +="<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
             }
-        }; 
-               
+        };         
     } catch (error) {
         logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
         Global.debugMode && console.log(error.stack);
@@ -135,7 +133,7 @@ function createCustomerData() {
         historyBox.innerHTML = kundenhistorie;
         logCCD += "Kundenhistorie erfolgreich geladen.";  
     } else {
-       historyBox.innerHTML = "Keine Historie verfügbar";
+       historyBox.innerHTML += "Keine Historie verfügbar";
        logCCD += "<span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
     };
     logIntoDebug("createCustomerData", logCCD, false);
