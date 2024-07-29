@@ -1183,77 +1183,77 @@ function autoResize(textarea) {
             }
         }
         // Wenn Global.debugModeging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
-        if (buildupFail) {
-            abschlussStatus = pullSQL("result_id");
-            if (!Global.debugMode && abschlussStatus.length > 0) {
-                let callResultId = abschlussStatus.fields.result_id;
+        // if (buildupFail) {
+        //     abschlussStatus = pullSQL("result_id");
+        //     if (!Global.debugMode && abschlussStatus.length > 0) {
+        //         let callResultId = abschlussStatus.fields.result_id;
 
-                if (callResultId == resultIdPositiv) {
-                    logIntoDebug(
-                        "buildUp",
-                        "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.",
-                        Global.LogIntottDB,
-                    );
-                    ttWeb.clearRecording();
-                    ttWeb.terminateCall("100");
-                } else if (callResultId == resultIdNegativ) {
-                    logIntoDebug(
-                        "buildUp",
-                        "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.",
-                        Global.LogIntottDB,
-                    );
-                    ttWeb.clearRecording();
-                    ttWeb.terminateCall("200");
-                }
-            }
+        //         if (callResultId == resultIdPositiv) {
+        //             logIntoDebug(
+        //                 "buildUp",
+        //                 "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.",
+        //                 Global.LogIntottDB,
+        //             );
+        //             ttWeb.clearRecording();
+        //             ttWeb.terminateCall("100");
+        //         } else if (callResultId == resultIdNegativ) {
+        //             logIntoDebug(
+        //                 "buildUp",
+        //                 "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.",
+        //                 Global.LogIntottDB,
+        //             );
+        //             ttWeb.clearRecording();
+        //             ttWeb.terminateCall("200");
+        //         }
+        //     }
 
-            let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-            document.getElementById("wiedervorlage_Date").value =
-                currDate.getDate() +
-                "." +
-                (currDate.getMonth() + 1) +
-                "." +
-                currDate.getFullYear();
-            // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
-            document.getElementById("wiedervorlage_Text").value = "";
-            document.getElementById("apne_delay").value = "";
-            document.getElementById("apne_notiz").value = "";
+        //     let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
+        //     document.getElementById("wiedervorlage_Date").value =
+        //         currDate.getDate() +
+        //         "." +
+        //         (currDate.getMonth() + 1) +
+        //         "." +
+        //         currDate.getFullYear();
+        //     // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
+        //     document.getElementById("wiedervorlage_Text").value = "";
+        //     document.getElementById("apne_delay").value = "";
+        //     document.getElementById("apne_notiz").value = "";
 
-            if (Global.wiedervorlage) {
-                // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
-                let wievorCount = pullSQL("wiedervorlageCount");
-                if (wievorCount[0].rows[0].fields.length > 0) {
-                    wievorData = pullSQL("wiedervorlageData")[0].rows;
-                    let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
-                    for (let i = 0; i < wievorData.length; i++)
-                        wvtext =
-                            wvtext +
-                            `<div class="data" >${wievorData[i].fields.message}</div>`;
-                    document.getElementById(Global.wievorElement).innerHTML =
-                        wvtext;
-                }
-            }
+        //     if (Global.wiedervorlage) {
+        //         // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
+        //         let wievorCount = pullSQL("wiedervorlageCount");
+        //         if (wievorCount[0].rows[0].fields.length > 0) {
+        //             wievorData = pullSQL("wiedervorlageData")[0].rows;
+        //             let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
+        //             for (let i = 0; i < wievorData.length; i++)
+        //                 wvtext =
+        //                     wvtext +
+        //                     `<div class="data" >${wievorData[i].fields.message}</div>`;
+        //             document.getElementById(Global.wievorElement).innerHTML =
+        //                 wvtext;
+        //         }
+        //     }
 
-            if (Global.showStats) {
-                // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
-                stats = pullSQL("statistik");
-                if (stats[0].rows.length > 0) {
-                    stats = stats[0].fields;
+        //     if (Global.showStats) {
+        //         // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
+        //         stats = pullSQL("statistik");
+        //         if (stats[0].rows.length > 0) {
+        //             stats = stats[0].fields;
 
-                    quote = stats.UMWANDLUNGSQUOTE;
-                    nettos = stats.NETTOKONTAKTE;
-                    if (nettos > 0) {
-                        $("stats_positive").width = Math.round(
-                            (stats.POSITIV / nettos) * 200,
-                        );
-                        $("stats_unfilled").width =
-                            200 - Math.round((stats.POSITIV / nettos) * 200);
-                    }
-                    logIntoDebug(
-                        "Aktuelle Quote",
-                        `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `,
-                        Global.LogIntottDB,
-                    );
+        //             quote = stats.UMWANDLUNGSQUOTE;
+        //             nettos = stats.NETTOKONTAKTE;
+        //             if (nettos > 0) {
+        //                 $("stats_positive").width = Math.round(
+        //                     (stats.POSITIV / nettos) * 200,
+        //                 );
+        //                 $("stats_unfilled").width =
+        //                     200 - Math.round((stats.POSITIV / nettos) * 200);
+        //             }
+        //             logIntoDebug(
+        //                 "Aktuelle Quote",
+        //                 `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `,
+        //                 Global.LogIntottDB,
+        //             );
                 }
             }
         }

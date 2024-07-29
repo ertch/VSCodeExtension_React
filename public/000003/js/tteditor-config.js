@@ -43,22 +43,49 @@ let lastTab = "tab_zusammenfassung";
 
 let campaignId = 679;
 
-let resultIdPositiv =   8911;
-let resultIdNegativ =   8912;
-let resultIdWv =        8913;
-let resultIdAbfax =     8915;
+let Result = {
+    positive:           8911,
+    pos_termination:    100,
 
-let resultIdApne0h =    8916;              
-let resultIdApne1h =    8917;
-let resultIdApne2h =    8918;
-let resultIdApne3h =    8919;
-let resultIdApne4h =    8920;
-let resultIdApne5h =    8921;
-let resultIdApne6h =    8922;
-let resultIdApne8h =    8923;
-let resultIdApne20h =   8924;
+    negative:           8912,
+    neg_termination:    200,
+
+    wiedervorlage:      8913,
+    wievor_termination: 300,
+
+    abfax:              8915,
+    abfax_termination:  400,
+
+    apne0h:             8916,
+    apne0_termination:  500,
+
+    apne1h:             8917,
+    apne1_termination:  501,
+    
+    apne2h:             8918,
+    apne2_termination:  502,
+    
+    apne3h:             8919,
+    apne3_termination:  503,
+    
+    apne4h:             8920,
+    apne4_termination:  504,
+    
+    apne5h:             8921,
+    apne5_termination:  505,
+    
+    apne6h:             8922,
+    apne6_termination:  506,
+    
+    apne8h:             8923,
+    apne8_termination:  508,
+    
+    apne20h:            8924,
+    apne20_termination: 520,
+}
 
 let Global ={
+    campaignId:                  '679' ,
     currentTabName:       `${firstTab}`,
     
     directionState:        0        , // Aktueller Call state

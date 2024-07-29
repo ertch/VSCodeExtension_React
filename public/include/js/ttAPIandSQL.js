@@ -230,17 +230,19 @@ function ttErrorLog(caller, msg) {
             if (Global.debugMode){
                 logIntoDebug("pushData - DebugMode", `${query} `)
             } else {
-                let serverStatus = executeSql("show status");
-                if (serverStatus.length <= 0 || serverStatus === null) {
-                    saveLocaly(query);
-                } else {
-                    let awnser = executeSql(query);
-                    fail = awnser.length>0?false:true;
-                    Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
-                    // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
-                    query = '';
-                };
-            }
+                // let serverStatus = executeSql("show status");
+                // if (serverStatus.length <= 0 || serverStatus === null) {
+                //     saveLocaly(query);
+                // } else {
+                //     let awnser = 
+                    executeSql(query);
+                    console.log(query)
+                    // fail = awnser.length>0?false:true;
+                    // Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
+                    // // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
+                    // query = '';
+                //  };
+             }
         });      
     }
 

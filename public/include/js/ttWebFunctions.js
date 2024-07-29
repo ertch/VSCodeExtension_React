@@ -1,28 +1,28 @@
 //################################################################################### BUILD / BOOT ######################################################################
-
 /** bootUpAPI - Verbindung zur API aufbauen
  * 
- *      Wir nach dem Aufbau der Seite automatisch aufgerufen
+ *      Wir nach dem Aufbau der Seite automatisch aufgerufen ()
  */
-function bootUpAPI() {
-    try {
-        // Initialisierung des Inhalts-Interfaces
-        this.parent.contentInterface.initialize(window,
-            function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
-                
-                ttWeb = contentInterface;               // ttWeb auf das Content-Interface setze
-                buildUp();
-                call_initialize();
-                return;              
-            },
-        );
-    } catch(error) {
-       console.log(error);
+
+    function bootUpAPI() {
+        if (Global.debugMode) {
+            buildUp();
+        } else {
+            try { // Initialisierung des Inhalts-Interfaces 
+                // Bei stehender Verbindung wird "ttWeb" ein API-Objekt/Interface
+                this.parent.contentInterface.initialize(window,
+                    function onInitialized(contentInterface) {  
+                        ttWeb = contentInterface;          
+                        buildUp();
+                        call_initialize();
+                        return;              
+                    },
+                );
+            } catch(error) {
+                console.log(error);
+            };
+        }
     };
-    if (Global.debugMode) {
-        buildUp();
-    }
-};
    
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** buildUp -  Laden und anzeigen aller Daten.
@@ -74,16 +74,16 @@ function buildUp() {
     }
 
     let abschlussStatus = pullSQL("result_id");
-    if (abschlussStatus.length > 0) {
+    if (abschlussStatus[0].rows.length > 0) {
         let termCode;
         switch (abschlussStatus[0].rows[0].fields.result_id) {
 
-            case resultIdPositiv:
+            case Result.postive:
                 logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
                 termCode = '100';
                 break;
 
-            case resultIdNegativ:
+            case Result.negative:
                 logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
                 termCode = '200';
                 break;
@@ -125,7 +125,7 @@ function buildUp() {
     function call_initialize() {
         try{
             ttWeb.setRecordingState(0);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
-            // direction = ttWeb.getCallDirection();    // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
+            // direction = ttWeb.getCallDirection();         // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
             calldatatableId = ttWeb.getCalltableField('ID'); // Bestimme die ID des Anrufdatensatzes in der Datenbank
             msisdn = ttWeb.getCalltableField('HOME');        // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
             indicator = ttWeb.getIndicator();                // Bestimme den Indikator für die Art des Anrufs (1-9)

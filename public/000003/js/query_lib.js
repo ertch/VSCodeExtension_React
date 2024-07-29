@@ -116,7 +116,7 @@
             Global.logSQL? logsqlIntodebug(promtName, query, send): undefined;
             return awnser;
         } catch(error) {
-            logIntoDebug("pullSQL", `query ${promtName} konnte nicht geladen werden.`);
+            // logIntoDebug("pullSQL", `query ${promtName} konnte nicht geladen werden.`);
             return [];
         }
     }
@@ -128,9 +128,13 @@
  * 
  *      @param {string} promtName 
  */
-    function pushSQL (promtName) {
+    function pushSQL (promtName, toId) {
         
         switch(promtName){
+
+            case 'finish':
+                query = `UPDATE calldatatable SET result_id = '${toId}', calldate = now(), agent_id = '${Global.agentId}' WHERE id = '${Global.calldatatableId}' and campaign_id = '${Global.campaignId}' LIMIT 1`;
+                break;
 
             case "update_rec_info": // Speichere Verweis für aktuellen VoiceFiles in der DB (Global.addressdatatable) ab.
                 teile = splitRecName();
@@ -150,6 +154,6 @@
                 break;
             
             default:
-                logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
+                // logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
         }
     };

@@ -11,7 +11,7 @@ import Select from "@components/SimpleSelect.astro";
       <button id="freedial_closeBtn" type="button" class="closedialog" data-id="freedial"><i class="glyph glyph-close"></i></button>
   </div>
   <div class="dialog--body">
-      <form action="#" method="POST" id="finish_NEG_freedial">
+      <form action="#" method="POST" id="finish_freedial">
         <Input 
             type="tel"
             id="freedial_number"
@@ -22,7 +22,7 @@ import Select from "@components/SimpleSelect.astro";
             class="absenden__Btn minifyed"
             id="freedial_callBtn"
             type="button"
-            onclick="callFreedial()"  
+            onclick="finish('freedial')"  
             ><i class="glyph glyph-telephone"></i>
             Anrufen
         </button>
@@ -72,7 +72,7 @@ import Select from "@components/SimpleSelect.astro";
           class="absenden__Btn minifyed"
           type="submit"
           id="recallBtn"
-          onclick="wiedervorlageBtn()"
+          onclick="finish('wievor')"
           ><i class="glyph glyph-save"> Speichern</i>
       </button>
     </form>
@@ -93,28 +93,29 @@ import Select from "@components/SimpleSelect.astro";
            id="apne_delay"
            label="Zeitintervall"
            options={[
-              ["1", "eine Stunde"],
-              ["2", "zwei Stunden"],
-              ["3", "drei Stunden"],
-              ["4", "vier Stunden"],
-              ["5", "fünf Stunden"],
-              ["6", "sechs Stunden"],
-              ["7", "sieben Stunden"],
-              ["8", "acht Stunden"],
-              ["20", "am nächten Tag"],
+              ["apne1h", "eine Stunde"],
+              ["apne2h", "zwei Stunden"],
+              ["apne3h", "drei Stunden"],
+              ["apne4h", "vier Stunden"],
+              ["apne5h", "fünf Stunden"],
+              ["apne6h", "sechs Stunden"],
+              ["apne7h", "sieben Stunden"],
+              ["apne8h", "acht Stunden"],
+              ["apne20h", "am nächten Tag"],
             ]}
         ></Select>
-        <Input 
-            label="Notiz"
-            type="text"
-            id="apne_notiz"
-            validate="txt"
-        ></Input>
+        <TxtArea 
+          klasse="textarea-expend"
+          label="Notiz"
+          col="1"
+          row="1"
+          id="apne_notiz"
+      ></TxtArea>
         <button
             class="absenden__Btn minifyed"
             id="apneBtn"
             type="submit"
-            onclick="apneBtn()"  
+            onclick="finish('apne')"  
             ><i class="glyph glyph-save">Speichern</i>
         </button>
             

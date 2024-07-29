@@ -645,40 +645,89 @@ function getTrigger(callerId, validate){
         }
     }
 
-    function finish(method) { ///// ##################### ACHTUNG HIER IST DIE FUNKTION, DIE DEN CALL BEENDET !##################### \\\\\\\\\\\\\\\\\
+    function finish(method) { 
+        let newData;
+        let resultId;
 
-        if (method === "queryLib") {
+        //Validation die 2.?
 
-        } else {
-            setRecordName();
-            setTerminationCode();
-            SendBack = convertFormToQuery("tabsForm");
+        switch (method) {
 
-            console.log("Auswertung case: " + Global.calldatatableId );
-            console.log("recordName: " + Global.recordFileName);
-            console.log("termCode: " + Global.terminationCode);
-            
-            if (Global.debugMode){
-                alert("Anruf abgeschlossen. Daten werden übertragen. Call terminiert")
-                logIntoDebug("finish", `Call terminiert <br> Submit:<br>${SendBack}`, false)
-            
-            } else {
-                let submitFailed = pushMainData(); // Speichern der Daten
-                if (submitFailed === true){
-                    console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
+            case 'freedial':
+                newData = ['freedial_number',];
+                pushSQL('finish', Result.freedial);
+                convertFormToQuery('finish_freedial');
+                ttWeb.saveRecording(Global.recordFileName);
+                terminateCall(JSON.stringify(Result.neg_termination));
+                break;
 
-                    ttWeb.saveRecording(Global.recordFileName);
-                    
-                    ttWeb.terminateCall(Global.terminationCode);        
-                    
-                    // TODO refresh();
+            case 'wievor':
+                newData = ['wiedervorlage_Date','wiedervorlage_Time','wiedervorlage_Text'];
+                convertFormToQuery('finish_wiedervorlage');
+                pushSQL('finish', Result.wiedervorlage);
+                terminateCall(JSON.stringify(Result.wievor_termination));
+                break;
 
-                } else { // Wenn Speichern fehlgeschlagen
-                    // Achtung Achtung Notfall !! Wiiiuuu Wiiiiuuu
-                    // igrendwie Daten speichern oder sowas
-                    console.log("SendBack " + SendBack  + " is Fail " + submitFailed)
-                } ;  
-            }
+            case 'apne':
+                newData = ['apne_delay','apne_notiz']
+                resultId = eval(`Result.${document.getElementById('apne_delay').value}`);
+                pushSQL('finish', resultId);
+                convertFormToQuery('finish_apne');
+
+                ttWeb.clearRecording();
+                let terminationCode = eval(`Result.${document.getElementById('apne_delay').value}`);
+                terminateCall(JSON.stringify(terminationCode));
+                break;
+
+            case 'abfax':
+                newData = [''];
+                pushSQL('finish', Result.abfax);
+
+                ttWeb.clearRecording();
+                terminateCall(JSON.stringify(Result.abfax_termination));
+                break;
+
+            case 'auto':
+                convertFormToQuery('tabsForm');
+                resultId = Global.posSale? Result.positive : Result.negative;
+                pushSQL('finish', resultId);
+                Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
+                break;
+
+            case 'queryLib':
+                //Eigene Anweisung in query_lib
+                
+                resultId = Global.posSale? Result.positive : Result.negative;
+                pushSQL('finish', resultId);
+                Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
+                break;
+
+            case 'cancel':
+                resultId = Result.negative;
+                record(`${Global.}`);
+                terminateCall(JSON.stringify(Result.neg_termination));
+                break;
+
+            default:
+
+        }
+    }
+
+    function terminateCall(terminationCode){
+        setTerminationCode();
+        if(!Global.debugMode) {
+            ttWeb.terminateCall(terminationCode);
+        } else { 
+            alert("Call terminiert mit Code: " + terminationCode)
+        }
+    }
+
+    function saveRecording(recordFileName) {
+        setRecordName();
+        if(!Global.debugMode) {
+            ttWeb.saveRecording(recordFileName);
+        } else { 
+            alert("Save Audiofile: " + recordFileName)
         }
     }
 
@@ -705,8 +754,8 @@ function getTrigger(callerId, validate){
         // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
         if (keyCode1Pressed && keyCode2Pressed) {
             // Ändere die Sichtbarkeit des debug-Logs
-            beep(220,55,65); // Frohe Ostern
-            setTimeout(() => {beep(200,35,65)},290);
+            beep(220,55,45); // Frohe Ostern
+            setTimeout(() => {beep(200,35,45)},290);
             document.getElementById("debugLog").classList.toggle("d-none");
             Global.debugMode && console.log("debuglog geöffnet!");
         }
