@@ -68,7 +68,7 @@ import "../styles/main.scss";
 			};
 			
 			// boot JS
-			document.addEventListener('DOMContentLoaded', bootUpAPI());
+			document.addEventListener('DOMContentLoaded', bootUpAPI);
 			document.addEventListener("DOMContentLoaded", function() {
 
 				const dialogList    = document.getElementsByTagName("dialog");
@@ -78,6 +78,7 @@ import "../styles/main.scss";
 				// "Show the dialog" button opens the dialog modal
 				for(let x = 0; x < showButtonList.length; x++) {
 					showButtonList[x].addEventListener("click", () => {
+						refreshModals()
 						dialogList[x].showModal();
 						logIntoDebug(`FootBtn - ${showButtonList[x].id}`, `Modal: "<span class='txt--blue'>${dialogList[x].id}</span>" geöffnet`, false);
 					});

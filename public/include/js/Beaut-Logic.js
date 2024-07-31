@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-let CustomerData;   // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
+let CustomerPattern;   // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;        // ID des Agenten
 let clientIP;
 
@@ -24,7 +24,7 @@ let btnLock = false;
 let pageLock = false;                   // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
 let TriggerData = triggerPattern();     // initialisierung TriggerData      (TriDa)
-let CostumerData;                       // Erstellung global CustomerData   (CusDa)
+let CostumerData;                       // Erstellung global CustomerPattern   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa)
 let SendBack = [];                      // Erstellung global SendBackfilter (SenBa)
 
@@ -68,7 +68,7 @@ let Global = {
 	showStats: false,                       // wenn true, lade AbschlussStatistik (in DebugLog)
 
 	addressdatatable: "ste_wel_addressdata",    // SQL adresstable
-	calldatatableId: "9826",                    // ID des Kampagnien-CallTable (aus DB)
+	key2: "9826",                    // ID des Kampagnien-CallTable (aus DB)
 	salesdatatable: "ste_wel_addressdata",      // SQL datatable
 	fieldname_firstname: "firstname",           // SQL column-Bezeichner
 	fieldname_lastname: "surname",              // SQL column-Bezeichner
@@ -77,7 +77,7 @@ let Global = {
 
 	recordingPrefix:
 		"\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\",     // Path zur Ablage der Audiodatei auf dem Fileserver
-	FileNamePattern: ["date", "time", "agentId", "customerid", "ste_wel"],  // nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
+	FileNamePattern: ["date", "time", "agentId", "customerid", "ste_wel"],  // nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerPattern (key match)
 	recordingNameSuffix: ".mp3",                                            // Suffix der Audiodatei
 	recordFileName: "",                                                     // Bsp. [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
 	terminationCode: "",
@@ -92,7 +92,7 @@ let Global = {
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     function providerPattern() {
-        let CustomerData = [
+        let CustomerPattern = [
             { label: '!red:Vorname',         match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '!yel:Nachname',        match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: '!gre:Geb.-Datum',      match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
@@ -113,7 +113,7 @@ let Global = {
             { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
-        return CustomerData;
+        return CustomerPattern;
     } // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ let Global = {
         return TriggerData;
     }
 
-// TODO Manipulation der CustomerData-Value, um die Werte anzupassen
+// TODO Manipulation der CustomerPattern-Value, um die Werte anzupassen
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Anpassungen des RecordFileNames ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -193,9 +193,9 @@ let Global = {
 /**createCusomerCells
  *
  *          Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
- *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
+ *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerPattern, bevor sie in die Cells via HTML eingefügt werden.
  */
-    function createCustomerData() {
+    function createCustomerPattern() {
         let logCCD = "";
         try {
             // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
@@ -206,9 +206,9 @@ let Global = {
             // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
             if (cardHolder.getAttribute("data-provider") != null) {
                 let execute = cardHolder.getAttribute("data-provider");
-                CustomerData = executeFunctionFromString(execute);
+                CustomerPattern = executeFunctionFromString(execute);
             } else {
-                CustomerData = providerDefault();
+                CustomerPattern = providerDefault();
             }
 
             // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
@@ -228,31 +228,31 @@ let Global = {
                 logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>";
             } else {
                 error_msg.className = "errormessage--db_error"? (error_msg.className = "errormessage--db_error d-none") : undefined;
-                // Durchlaufe jedes Element in CustomerData
-                for (const [index] of Object.entries(CustomerData)) {
-                    // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerData übereinstimmt
-                    matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
+                // Durchlaufe jedes Element in CustomerPattern
+                for (const [index] of Object.entries(CustomerPattern)) {
+                    // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerPattern übereinstimmt
+                    matchingKey = Object.keys(SqlField).indexOf(CustomerPattern[index].match);
 
-                    // Prüfe ob Index von Customerdata in SqlField vorhanden und > -1 ist.
-                    // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerData
+                    // Prüfe ob Index von CustomerPattern in SqlField vorhanden und > -1 ist.
+                    // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerPattern
                     if (
-                        Object.keys(SqlField).indexOf(CustomerData[index].match) > -1
+                        Object.keys(SqlField).indexOf(CustomerPattern[index].match) > -1
                     ) {
-                        CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
+                        CustomerPattern[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
                     } else {
-                        CustomerData[index].value = "-";
+                        CustomerPattern[index].value = "-";
                     }
                 }
 
-                // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerData-Werten
+                // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerPattern-Werten
                 let chache = ""; // Zwischenspeicher für zu übertragende Werte
                 try {
-                    for (let i = 0; i < CustomerData.length; i++) {
-                        let label = CustomerData[i].label;
-                        let id = CustomerData[i].match;
-                        let value = CustomerData[i].value;
-                        let standAlone = CustomerData[i].standAlone;
-                        let createCell = CustomerData[i].createCell;
+                    for (let i = 0; i < CustomerPattern.length; i++) {
+                        let label = CustomerPattern[i].label;
+                        let id = CustomerPattern[i].match;
+                        let value = CustomerPattern[i].value;
+                        let standAlone = CustomerPattern[i].standAlone;
+                        let createCell = CustomerPattern[i].createCell;
                         let marker = "";
 
                         if (createCell) {
@@ -302,7 +302,7 @@ let Global = {
                         }
                     }
                     logCCD +=
-                        "<span class='txt--orange'>CustomerData</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
+                        "<span class='txt--orange'>CustomerPattern</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
                 } catch (error) {
                     logCCD +=
                         "<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
@@ -332,14 +332,14 @@ let Global = {
             logCCD +=
                 "<span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden.";
         }
-        logIntoDebug("createCustomerData", logCCD, false);
+        logIntoDebug("createCustomerPattern", logCCD, false);
     }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** loadProviderPreset() - AutoFill Vorgaben vom Provider
  *
  *      Wird im buildUp aufgerufen und Befüllt alle Inputs, oder selects, die das Attribute data-preset bestitzten.
- *      Der im Attribute abgelegte String besteht aus der id (CustomerData[match]) und einem optionalen "disabled"
+ *      Der im Attribute abgelegte String besteht aus der id (CustomerPattern[match]) und einem optionalen "disabled"
  *      data-preset = "preS1,disabled" füt also den Wert von perS1 hinzu un disabled das Element
  */
     function loadProviderPreset() {
@@ -362,8 +362,8 @@ let Global = {
                 }
 
                 try {
-                    // Suche in CustomerData
-                    CustomerData.some((entry) => {
+                    // Suche in CustomerPattern
+                    CustomerPattern.some((entry) => {
                         // wenn passender Eintrag vorhanden, erstelle neue Option
                         if (entry.match === presetId) {
                             //Unterscheide zwischen Input und select
@@ -1145,7 +1145,7 @@ function autoResize(textarea) {
         // Abruf der notwendigen Daten aus der API
         try {
             clientIP = ttWeb.getClientIP();
-            Global.calldatatableId = ttWeb.getCalltableField("ID");
+            Global.key2 = ttWeb.getCalltableField("ID");
             msisdn = ttWeb.getCalltableField("HOME");
             indicator = ttWeb.getIndicator();
             // Telefonkontakt basierend auf dem Indikator festlegen
@@ -1161,7 +1161,7 @@ function autoResize(textarea) {
 
             if (
                 clientIP === null ||
-                Global.calldatatableId === null ||
+                Global.key2 === null ||
                 msisdn === null ||
                 indicator === null
             ) {
@@ -1170,7 +1170,7 @@ function autoResize(textarea) {
         } catch (error) {
             if (Global.debugMode) {
                 // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
-                Global.calldatatableId = 79880808;
+                Global.key2 = 79880808;
                 msisdn = "01768655885";
                 telKontakt = "0190123123";
                 agentId = "2008";
@@ -1183,81 +1183,81 @@ function autoResize(textarea) {
             }
         }
         // Wenn Global.debugModeging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
-        if (buildupFail) {
-            abschlussStatus = pullSQL("result_id");
-            if (!Global.debugMode && abschlussStatus.length > 0) {
-                let callResultId = abschlussStatus.fields.result_id;
+        // if (buildupFail) {
+        //     abschlussStatus = pullSQL("result_id");
+        //     if (!Global.debugMode && abschlussStatus.length > 0) {
+        //         let callResultId = abschlussStatus.fields.result_id;
 
-                if (callResultId == resultIdPositiv) {
-                    logIntoDebug(
-                        "buildUp",
-                        "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.",
-                        Global.LogIntottDB,
-                    );
-                    ttWeb.clearRecording();
-                    ttWeb.terminateCall("100");
-                } else if (callResultId == resultIdNegativ) {
-                    logIntoDebug(
-                        "buildUp",
-                        "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.",
-                        Global.LogIntottDB,
-                    );
-                    ttWeb.clearRecording();
-                    ttWeb.terminateCall("200");
-                }
-            }
+        //         if (callResultId == resultIdPositiv) {
+        //             logIntoDebug(
+        //                 "buildUp",
+        //                 "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.",
+        //                 Global.LogIntottDB,
+        //             );
+        //             ttWeb.clearRecording();
+        //             ttWeb.terminateCall("100");
+        //         } else if (callResultId == resultIdNegativ) {
+        //             logIntoDebug(
+        //                 "buildUp",
+        //                 "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.",
+        //                 Global.LogIntottDB,
+        //             );
+        //             ttWeb.clearRecording();
+        //             ttWeb.terminateCall("200");
+        //         }
+        //     }
 
-            let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-            document.getElementById("wiedervorlage_Date").value =
-                currDate.getDate() +
-                "." +
-                (currDate.getMonth() + 1) +
-                "." +
-                currDate.getFullYear();
-            // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
-            document.getElementById("wiedervorlage_Text").value = "";
-            document.getElementById("apne_delay").value = "";
-            document.getElementById("apne_notiz").value = "";
+        //     let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
+        //     document.getElementById("wiedervorlage_Date").value =
+        //         currDate.getDate() +
+        //         "." +
+        //         (currDate.getMonth() + 1) +
+        //         "." +
+        //         currDate.getFullYear();
+        //     // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
+        //     document.getElementById("wiedervorlage_Text").value = "";
+        //     document.getElementById("apne_delay").value = "";
+        //     document.getElementById("apne_notiz").value = "";
 
-            if (Global.wiedervorlage) {
-                // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
-                let wievorCount = pullSQL("wiedervorlageCount");
-                if (wievorCount[0].rows[0].fields.length > 0) {
-                    wievorData = pullSQL("wiedervorlageData")[0].rows;
-                    let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
-                    for (let i = 0; i < wievorData.length; i++)
-                        wvtext =
-                            wvtext +
-                            `<div class="data" >${wievorData[i].fields.message}</div>`;
-                    document.getElementById(Global.wievorElement).innerHTML =
-                        wvtext;
-                }
-            }
+        //     if (Global.wiedervorlage) {
+        //         // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
+        //         let wievorCount = pullSQL("wiedervorlageCount");
+        //         if (wievorCount[0].rows[0].fields.length > 0) {
+        //             wievorData = pullSQL("wiedervorlageData")[0].rows;
+        //             let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
+        //             for (let i = 0; i < wievorData.length; i++)
+        //                 wvtext =
+        //                     wvtext +
+        //                     `<div class="data" >${wievorData[i].fields.message}</div>`;
+        //             document.getElementById(Global.wievorElement).innerHTML =
+        //                 wvtext;
+        //         }
+        //     }
 
-            if (Global.showStats) {
-                // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
-                stats = pullSQL("statistik");
-                if (stats[0].rows.length > 0) {
-                    stats = stats[0].fields;
+        //     if (Global.showStats) {
+        //         // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
+        //         stats = pullSQL("statistik");
+        //         if (stats[0].rows.length > 0) {
+        //             stats = stats[0].fields;
 
-                    quote = stats.UMWANDLUNGSQUOTE;
-                    nettos = stats.NETTOKONTAKTE;
-                    if (nettos > 0) {
-                        $("stats_positive").width = Math.round(
-                            (stats.POSITIV / nettos) * 200,
-                        );
-                        $("stats_unfilled").width =
-                            200 - Math.round((stats.POSITIV / nettos) * 200);
-                    }
-                    logIntoDebug(
-                        "Aktuelle Quote",
-                        `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `,
-                        Global.LogIntottDB,
-                    );
+        //             quote = stats.UMWANDLUNGSQUOTE;
+        //             nettos = stats.NETTOKONTAKTE;
+        //             if (nettos > 0) {
+        //                 $("stats_positive").width = Math.round(
+        //                     (stats.POSITIV / nettos) * 200,
+        //                 );
+        //                 $("stats_unfilled").width =
+        //                     200 - Math.round((stats.POSITIV / nettos) * 200);
+        //             }
+        //             logIntoDebug(
+        //                 "Aktuelle Quote",
+        //                 `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `,
+        //                 Global.LogIntottDB,
+        //             );
                 }
             }
         }
-        createCustomerData(); // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser
+        createCustomerPattern(); // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser
         autoInject_selects(); // Fülle alle SQLinjectionSelects
         loadProviderPreset(); // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
         buildupFail
@@ -1286,7 +1286,7 @@ function autoResize(textarea) {
             setTerminationCode();
             SendBack = convertFormToQuery("tabsForm");
 
-            console.log("Auswertung case: " + Global.calldatatableId);
+            console.log("Auswertung case: " + Global.key2);
             console.log("recordName: " + Global.recordFileName);
             console.log("termCode: " + Global.terminationCode);
 
@@ -1335,7 +1335,7 @@ function autoResize(textarea) {
         try {
             ttWeb.setRecordingState(0); // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
             // direction = ttWeb.getCallDirection();    // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
-            calldatatableId = ttWeb.getCalltableField("ID"); // Bestimme die ID des Anrufdatensatzes in der Datenbank
+            key2 = ttWeb.getCalltableField("ID"); // Bestimme die ID des Anrufdatensatzes in der Datenbank
             msisdn = ttWeb.getCalltableField("HOME"); // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
             indicator = ttWeb.getIndicator(); // Bestimme den Indikator für die Art des Anrufs (1-9)
 
@@ -1555,8 +1555,8 @@ function autoResize(textarea) {
             FileNamePattern.forEach((getInfo, index) => {
                 let matchfound = false;
                 try {
-                    // Suche in CustomerData
-                    CustomerData.some((entry) => {
+                    // Suche in CustomerPattern
+                    CustomerPattern.some((entry) => {
                         if (entry.match === getInfo) {
                             recordName += entry.value;
                             matchfound = true;
@@ -1583,7 +1583,7 @@ function autoResize(textarea) {
             let thisIsjustStupid = inThisdumbttFrame * cryptoIsNotaFunction;
 
             recordName = `agent${agentId}_${gettime()}_to${
-                Global.calldatatableId
+                Global.key2
             }_${thisIsjustStupid}${Global.recordingNameSuffix}`;
         }
         Global.recordFileName = recordName;

@@ -1,6 +1,7 @@
 ---
 interface Props {
   id: string;
+  call?: string;
   label: string;
   type?: string;
   klasse?: string;
@@ -15,7 +16,7 @@ interface Props {
   validate: string; // txt, email, tel, handy, plz, call
 }
 
-const { id, label, klasse, type, required, maxlength, pattern, preset, value, disabled, blur, submitTo, validate} = Astro.props; 
+const {call, id, label, klasse, type, required, maxlength, pattern, preset, value, disabled, blur, submitTo, validate} = Astro.props; 
 
 
 let errorname = `${id}_errorMsg`;
@@ -42,4 +43,5 @@ klasse>""? KlassenListe += ` ${klasse}`: undefined;
   onblur={blur}
   data-vali = {validate}
   data-submit={submitTo} 
+  data-call={call}
 />

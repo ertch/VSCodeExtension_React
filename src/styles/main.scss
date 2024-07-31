@@ -286,13 +286,20 @@ dialog {
     padding: 0 10px 10px 10px;
     position: absolute;
     width: 99.7vw;
+
+    &--full {
+        @extend .debug-window;
+        height: 90%;
+    }
 }
 
 .debugLog--header {
+    display: flex;
+    justify-content: space-between;
     background-color: rgb(212, 167, 107);
     border-bottom: 1px solid black;
     margin: 1px -9px;
-    padding: 3px;
+    padding: 4px;
 }
 
 .recordDisplay{

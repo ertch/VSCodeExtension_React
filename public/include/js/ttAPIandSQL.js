@@ -32,9 +32,6 @@ function executeSql(sql) {
             xhr.send();
 
             if (xhr.status === 200) {
-                // Parse the JSON response
-
-                // TODO Hier abfangen incomming Array mit include new Data(yyyy,mm,tt)
                 result = JSON.parse(xhr.responseText);
                 sqlReturnArray = result;
             } else {
@@ -43,7 +40,7 @@ function executeSql(sql) {
             }
         } catch (error) {
             console.error('SQL Request error:', error);
-           logIntoDebug("executeSQL",'Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + error.message, false);
+            logIntoDebug("executeSQL",'Kann mich nicht mit dem Debug-SQL-Connector verbinden: ' + sql + '\nError: ' + error.message, false);
         }
     }
     return sqlReturnArray;
@@ -72,7 +69,7 @@ function ttErrorLog(caller, msg) {
             log_message,
             client_ip
         ) VALUES (
-            ${Global.calldatatableId},
+            ${Global.key2},
             ${campaignId},
             ${agentId},
             'error',
@@ -86,34 +83,6 @@ function ttErrorLog(caller, msg) {
     };
 };
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-SQL-001
- * 
- *          SQL String Manipulation - escapeStrings()
- *          Alle Vorkommen des Zeichens ' durch \\'  ersetzen.
- */
-
-    function escapeString(s) {
-        try {   
-            return s.replace(/'/g,"\\'");
-        } catch (ex){
-            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", Global.LogIntottDB)
-        }
-    };
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-SQL-002
- * 
- *          SQL String Manipulation - removeSlashes()
- *          Alle Vorkommen von Backslash durch Slash ersetzen.
- */
-
-    function removeSlashes(s){
-        try { 
-            return s.replace(/\\/g,"/");
-        } catch (ex){
-            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", Global.LogIntottDB)
-        }
-    };
 
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     /** autoInject_selects - Fülle die SQLinjektionSelects
@@ -233,17 +202,19 @@ function ttErrorLog(caller, msg) {
             if (Global.debugMode){
                 logIntoDebug("pushData - DebugMode", `${query} `)
             } else {
-                let serverStatus = executeSql("show status");
-                if (serverStatus.length <= 0 || serverStatus === null) {
-                    saveLocaly(query);
-                } else {
-                    let awnser = executeSql(query);
-                    fail = awnser.length>0?false:true;
-                    Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
-                    // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
-                    query = '';
-                };
-            }
+                // let serverStatus = executeSql("show status");
+                // if (serverStatus.length <= 0 || serverStatus === null) {
+                //     saveLocaly(query);
+                // } else {
+                //     let awnser = 
+                    executeSql(query);
+                    console.log(query)
+                    // fail = awnser.length>0?false:true;
+                    // Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
+                    // // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
+                    // query = '';
+                //  };
+             }
         });      
     }
 

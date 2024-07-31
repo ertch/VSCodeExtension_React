@@ -15,8 +15,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
        
-let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
-let Customer = {};
+let CustomerPattern;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
 let clientIP;                   
 
@@ -33,7 +32,7 @@ let btnLock = false;
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
 let TriggerData;                        // initialisierung TriggerData      (TriDa)
-let CostumerData;                       // Erstellung global CustomerData   (CusDa)
+let CostumerData;                       // Erstellung global CustomerPattern   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
 let SendBack = [];                      // Erstellung global SendBackfilter (SenBa)
 
@@ -44,23 +43,49 @@ let lastTab = "tab_zusammenfassung";
 
 let campaignId = 679;
 
-let resultIdPositiv =   8911;
-let resultIdNegativ =   8912;
-let resultIdWv =        8913;
-let resultIdAbfax =     8915;
+let Result = {
+    positive:           8911,
+    pos_termination:    100,
 
-let resultIdApne0h =    8916;              
-let resultIdApne1h =    8917;
-let resultIdApne2h =    8918;
-let resultIdApne3h =    8919;
-let resultIdApne4h =    8920;
-let resultIdApne5h =    8921;
-let resultIdApne6h =    8922;
-let resultIdApne8h =    8923;
-let resultIdApne20h =   8924;
+    negative:           8912,
+    neg_termination:    200,
 
+    wiedervorlage:      8913,
+    wievor_termination: 300,
+
+    abfax:              8915,
+    abfax_termination:  400,
+
+    apne0h:             8916,
+    apne0_termination:  500,
+
+    apne1h:             8917,
+    apne1_termination:  501,
+    
+    apne2h:             8918,
+    apne2_termination:  502,
+    
+    apne3h:             8919,
+    apne3_termination:  503,
+    
+    apne4h:             8920,
+    apne4_termination:  504,
+    
+    apne5h:             8921,
+    apne5_termination:  505,
+    
+    apne6h:             8922,
+    apne6_termination:  506,
+    
+    apne8h:             8923,
+    apne8_termination:  508,
+    
+    apne20h:            8924,
+    apne20_termination: 520,
+}
 
 let Global ={
+    campaignId:                  '679' ,
     currentTabName:       `${firstTab}`,
     
     directionState:        0        , // Aktueller Call state
@@ -70,33 +95,39 @@ let Global ={
     onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
     debugMode:             true   ,     // Wenn true, dann wird mit SQL-Fakeconnector verbunden
-    debugdataTableId:      79880808,    // ID für Debug Datenbank CalldataTable
-
+    
     showDebug:             true    ,    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
     LogIntottDB:           false    ,   // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
     logGK:                 true     ,   // Gatekeeper in Log anzeigen
     logSQL:                true     ,   // SQL-Statemants in Log anzeigen
     showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
 
-    addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
-    calldatatableId:       '9826'                      ,  // ID des Kampagnien-CallTable (aus DB)
+    addressdatatable:      'ste_wel_addressdata'   ,  // SQL addresstable
+    key1:                  'addessdataid'          ,  // Coloumnname der addresstable.id
+    calldatatable:         ''                      ,
+    key2:                  '9826'                  ,  // ID des Kampagnien-CallTable (aus DB)
     salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable
+    key3:                  ''                      ,
+    
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
 
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
-    
+    debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable
+
     recordingPrefix:       '\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\'  ,// Path zur Ablage der Audiodatei auf dem Fileserver
-    FileNamePattern:       ["date", "time", "agentId", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
+    FileNamePattern:       ["date", "time", "agentId", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerPattern (key match)
     recordingNameSuffix:   '.mp3'                                                          ,// Suffix der Audiodatei
     recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
     terminationCode:       ''                                                              ,
 
-    wiedervorlage:         false               ,  // wenn true, lade WiedervorlageDaten 
-    wievorElement:         'html-Element.id'   ,  // Lade WiedervorlageDaten in dieses Element
+    wiedervorlage:         true               ,  // wenn true, lade WiedervorlageDaten 
+    wievorElement:         'wievorDatabox'   ,  // Lade WiedervorlageDaten in dieses Element
 
     posSale:               false  , // Indikator für positiven Verkauf
+    showCDObuild:          true   , // Zeige den kompletten Aufbau der CustomerData an (in DevLog)
 }
+
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
 function specialNames(varName){
     let giveBack = '';      // Soll eine Variable in der RecordFileName einen besonderem Ausdruck entsprechen, kann dies hier
@@ -166,7 +197,7 @@ function gettime() { // Uhrzeit
  *                      </div>
  */
     function providerPattern() { 
-        let CustomerData = [
+        let CustomerPattern = [
             { label: 'red!Vorname',     match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'grn!Nachname',    match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'yel!Geb.-Datum',  match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
@@ -187,7 +218,7 @@ function gettime() { // Uhrzeit
             { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
-        return CustomerData
+        return CustomerPattern
     };
     // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn 
 
@@ -214,8 +245,8 @@ function gettime() { // Uhrzeit
 
     function triggerPattern() {
         let TriggerData = [
-            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${Customer.firstname}</p> <p> Nachname: ${Customer.surname}</p> `     },
-            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${Customer.city}</p>`},
+            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${CustomerData.Vorname.value}</p> <p> Nachname: ${CustomerData.Nachname.value}</p> `     },
+            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${CustomerData.Ort.value}</p>`},
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value: "<p>Keine nutzbaren Daten gefunden</p>"},
@@ -226,4 +257,4 @@ function gettime() { // Uhrzeit
     }
  
 
-    // TODO Manipulation der CustomerData-Value, um die Werte anzupassen 
+    // TODO Manipulation der CustomerPattern-Value, um die Werte anzupassen     

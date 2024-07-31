@@ -41,6 +41,7 @@ if (import.meta.env.DEV) {
 		<script type="text/javascript" 	  src="../include/js/valididator.js"></script>
 		<script type="text/javascript" 	  src="../include/js/ttAPIandSQL.js"></script>
 		<script type="text/javascript" 	  src="../include/js/ttWebFunctions.js"></script>
+		<script type="text/javascript" 	  src="../include/js/helper.js"></script>
 		<script type="text/javascript" 	  src="../include/js/beep.js"></script>
 	</head>
 
@@ -94,7 +95,6 @@ if (import.meta.env.DEV) {
 					document.documentElement.style.setProperty('--font-url', newFontUrl);
 					prod = true;
 				}
-				createLocalStorage();
 			}
 			// HotKey event
 			let timer = 0;
@@ -119,6 +119,7 @@ if (import.meta.env.DEV) {
 			};
 			
 			// boot JS
+		
 			document.addEventListener('load', bootUpAPI());
 			document.addEventListener("laod", function() {
 
@@ -129,6 +130,7 @@ if (import.meta.env.DEV) {
 				// "Show the dialog" button opens the dialog modal
 				for(let x = 0; x < showButtonList.length; x++) {
 					showButtonList[x].addEventListener("click", () => {
+						refreshModals()
 						dialogList[x].showModal();
 						logIntoDebug(`FootBtn - ${showButtonList[x].id}`, `Modal: "<span class='txt--blue'>${dialogList[x].id}</span>" geöffnet`, false);
 					});

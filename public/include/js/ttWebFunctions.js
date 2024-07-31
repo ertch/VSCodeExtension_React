@@ -1,46 +1,40 @@
 //################################################################################### BUILD / BOOT ######################################################################
-
 /** bootUpAPI - Verbindung zur API aufbauen
  * 
- *      Wir nach dem Aufbau der Seite automatisch aufgerufen
+ *      Wir nach dem Aufbau der Seite automatisch aufgerufen ()
  */
-function bootUpAPI() {
-    try {
-    logIntoDebug("bootUpAPI", "Starte initialisierung ttWeb" , false);
-        // Initialisierung des Inhalts-Interfaces
-        this.parent.contentInterface.initialize(window,
-            function onInitialized(contentInterface) {  // Erfolgreiche Initialisierung
-                
-                ttWeb = contentInterface;               // ttWeb auf das Content-Interface setzen
 
-                if(Global.debugMode === true){
-                    logIntoDebug("<span class='txt--bigGreen'>:API-Verbindung positiv getestet</span>", "" , false);
-                } else {
-                    buildUp();
-                    call_initialize();
-                    logIntoDebug("<span class='txt--bigGreen'>:Initialisierung erfolgreich</span>", "" , false);
-                }               
-            },
-        );
-    } catch(error) {
-        logIntoDebug("bootUpAPI", `<span class='txt--bigRed'>Error:</span> Initialisierung fehlgeschlagen:<br>=${error}` , false);
+    function bootUpAPI() {
+        if (Global.debugMode) {
+            buildUp();
+        } else {
+            try { // Initialisierung des Inhalts-Interfaces 
+                // Bei stehender Verbindung wird "ttWeb" ein API-Objekt/Interface
+                this.parent.contentInterface.initialize(window,
+                    function onInitialized(contentInterface) {  
+                        ttWeb = contentInterface;          
+                        buildUp();
+                        call_initialize();
+                        return;              
+                    },
+                );
+            } catch(error) {
+                console.log(error);
+            };
+        }
     };
-    if (Global.debugMode) {
-        logIntoDebug("bootUp", "debugMode: <span class='txt--blue'>true</span> => Initialisierung für debugMode gestartet<br> <span class='txt--red'>Überspringe</span> recordAutoStart()<br> <span class='txt--red'>Überspringe</span> call_initialize()<br>Verbinde zu <span class='txt--blue'>http://admin/outbound.dbconnector/index.php</span>" , false);
-        buildUp();
-    };
-};
    
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** buildUp -  Laden und anzeigen aller Daten.
  * 
  */
 function buildUp() {
+
     blnFinishPositive = false; // Variable zur Überprüfung, ob der Anruf positiv abgeschlossen wurde
         // Abruf der notwendigen Daten aus der API
     try {
         clientIP = ttWeb.getClientIP();
-        Global.calldatatableId = ttWeb.getCalltableField('ID');
+        Global.key2 = ttWeb.getCalltableField('ID');
         msisdn = ttWeb.getCalltableField('HOME');
         indicator = ttWeb.getIndicator();
         // Telefonkontakt basierend auf dem Indikator festlegen
@@ -54,13 +48,13 @@ function buildUp() {
         festnetz = ttWeb.getCalltableField('BUSINESS');
         agentId = ttWeb.getUser().Login;
 
-        if(clientIP === null || Global.calldatatableId === null || msisdn === null || indicator === null) {
+        if(clientIP === null || Global.key2 === null || msisdn === null || indicator === null )  {
             buildupFail = true;
         }
         
     } catch(error){
         if (Global.debugMode) {  // Wenn Global.debugModeging aktiviert ist, werden Dummy-Daten gesetzt
-            Global.calldatatableId = Global.debugdataTableId;
+            Global.key2 = Global.debugdataTableId;
             msisdn = "01768655885";
             telKontakt = "0190123123";
             agentId = "2008";
@@ -70,64 +64,87 @@ function buildUp() {
     }
     // Wenn Global.debugModeging deaktiviert ist und ein Ergebnis vorhanden ist, wird callResultId aktualisiert
     if (buildupFail){
-        abschlussStatus = pullSQL("result_id");
-        if (!Global.debugMode && abschlussStatus.length > 0) {
-        let callResultId = abschlussStatus.fields.result_id;
+        corruptedDB = executeSql(`SELECT COUNT(*) From ${Global.key2} WHERE ${Global.key2}.id = ${Global.key2} LIMIT 1`);
+        if (corruptedDB < 1 ) {
+            logIntoDebug("buildUp", "Es wurde ein fehlerhafter Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+            ttWeb.clearRecording();
+            ttWeb.terminateCall('200');
+        
+        } 
+    }
 
-            if (callResultId == resultIdPositiv) {
-                logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
-                ttWeb.clearRecording();
-                ttWeb.terminateCall('100');
-
-            } else if (callResultId == resultIdNegativ) {
-                logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
-                ttWeb.clearRecording();
-                ttWeb.terminateCall('200');
+    let abschlussStatus = pullSQL("result_id");
+        try {
+            if (abschlussStatus[0].rows.length > 0) {
+                let termCode;
+                switch (abschlussStatus[0].rows[0].fields.result_id) {
+        
+                    case Result.postive:
+                        logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                        termCode = '100';
+                        break;
+        
+                    case Result.negative:
+                        logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                        termCode = '200';
+                        break;
+                    
+                    default:
+                        termCode = '0'
+                }
+                if (termCode != 0 && !Global.debugMode) {
+                    ttWeb.clearRecording();
+                    ttWeb.terminateCall(termCode);
+                } 
             }
-        };
-
-        let currDate = new Date(); // Wiedervorlagendatum und -zeit auf Standardwerte zurücksetzen
-        document.getElementById('wiedervorlage_Date').value = currDate.getDate() + "." + (currDate.getMonth() + 1) + "." + currDate.getFullYear();
-        // document.getElementById('wiedervorlage_Time').value = (currDate.getHours() + 1) + ":00";
-        document.getElementById('wiedervorlage_Text').value = "";
-        document.getElementById('apne_delay').value = "";
-        document.getElementById('apne_notiz').value = "";
-
-        if (Global.wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
-            let wievorCount = pullSQL("wiedervorlageCount");
-            if (wievorCount[0].rows[0].fields.length > 0) {
-                wievorData = pullSQL("wiedervorlageData")[0].rows;
+        } catch (error) {
+        
+        }
+    let wievofail = false; 
+    if (Global.wiedervorlage) { // Wiedervorlagedaten aus DB laden (abschaltbar über tteditor-config)
+        try {
+            let wievorData = pullSQL("wiedervorlageData");
+            wievorData = wievorData[0].rows;
+            if (wievorData.length > 0) {
                 let wvtext = `Kommende Wiedervorlagen<br />für <b>Agent ${agentId} </b>:<br /><br />`;
                 for (let i = 0; i < wievorData.length; i++) wvtext = wvtext + `<div class="data" >${wievorData[i].fields.message}</div>`;
-                document.getElementById(Global.wievorElement).innerHTML = wvtext;
+                document.getElementById(Global.wievorElement).innerHTML += wvtext;
             }
-        };
-
-        if (Global.showStats) { // Statistikdaten für die Kampagne abrufen und anzeigen (abschaltbar über tteditor-config)
-            stats = pullSQL("statistik");
-            if (stats[0].rows.length > 0) {
-                stats = stats[0].fields;
-
-                quote = stats.UMWANDLUNGSQUOTE;
-                nettos = stats.NETTOKONTAKTE;
-                if (nettos > 0) {
-                    $('stats_positive').width = Math.round((stats.POSITIV / nettos) * 200);
-                    $('stats_unfilled').width = 200 - Math.round((stats.POSITIV / (nettos)) * 200);
-                }
-                logIntoDebug('Aktuelle Quote', `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `, Global.LogIntottDB);
-            }
-        };
-    }
-    createCustomerData();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
+        } catch (error) {
+           wievofail = true;
+        }
+    };
+ 
+    createCustomerPattern();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
     TriggerData = triggerPattern();
     readTrigger();
-    buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false); 
+
+    buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false);
+    wievofail?  logIntoDebug('buildUp Error', 'Wiedervorlagedaten konnten nicht geladen werden <br> Ladevorhgng wird übersprungen', false): undefined;
 }
 //#############################################################################################################################################################################
 //---------------------------------------------------------------------------- Anrufe / Calls -------------------------------------------------------------------------------------
 //#############################################################################################################################################################################
+
+function terminateCall(terminationCode){
+    setTerminationCode();
+    if(!Global.debugMode) {
+        ttWeb.terminateCall(terminationCode);
+    } else { 
+        alert("Call terminiert mit Code: " + terminationCode)
+    }
+}
+
+function saveRecording(recordFileName) {
+    setRecordName();
+    if(!Global.debugMode) {
+        ttWeb.saveRecording(recordFileName);
+    } else { 
+        alert("Save Audiofile: " + recordFileName)
+    }
+}
 
 /** call_initialize - refresh my phone
   *     
@@ -135,25 +152,11 @@ function buildUp() {
   */
     function call_initialize() {
         try{
-            ttWeb.setRecordingState(0);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
-            // direction = ttWeb.getCallDirection();    // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
-            calldatatableId = ttWeb.getCalltableField('ID'); // Bestimme die ID des Anrufdatensatzes in der Datenbank
-            msisdn = ttWeb.getCalltableField('HOME');        // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
-            indicator = ttWeb.getIndicator();                // Bestimme den Indikator für die Art des Anrufs (1-9)
+            ttWeb.setRecordingState(Global.startCallwithState);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
+            direction = ttWeb.getCallDirection();         // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
+           
 
-            // Bestimme die Telefonnummer des Kontakts basierend auf dem Indikator
-            if (indicator == 1) {
-                telKontakt = ttWeb.getCalltableField('HOME');       // Privatnummer
-            } else if (indicator == 2) {
-                telKontakt = ttWeb.getCalltableField('BUSINESS');   // Geschäftsnummer
-            } else {
-                telKontakt = ttWeb.getCalltableField('OTHER');      // Andere Nummer
-            };
-
-            festnetz = ttWeb.getCalltableField('BUSINESS'); // Festnetznummer wird immer als Geschäftsnummer beschrieben?
-            agentId = ttWeb.getUser().Login; // Bestimme die Agenten-ID des Benutzers
-
-            logIntoDebug("call_initialize()", "<span class='txt--orange'>Calltable</span> erfolgreich refreshed", false);
+            logIntoDebug("call_initialize()", `<span class='txt--orange'>Recording</span> gerstartet in State ${Global.startCallwithState}` , false);
         }catch(error) {
             logIntoDebug("call_initialize()", `<span class='txt--bigRed'>Error:</span> <span class='txt--orange'>Calltable</span> konnte nicht refreshed werden<br>=> ${error.stack}`, false);
         }
@@ -186,7 +189,7 @@ function buildUp() {
                 alert("here comes the end");
                 Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
                 alert("das wars schon");
-                
+
                 ttWeb.clearRecording();
 			    ttWeb.makeCustomerCall(newNumber.value);
 
@@ -295,8 +298,8 @@ function buildUp() {
         if(style === "pattern") {
             FileNamePattern.forEach((getInfo, index) => {
                 let matchfound = false;
-                try { // Suche in CustomerData 
-                    CustomerData.some((entry) => {
+                try { // Suche in CustomerPattern 
+                    CustomerPattern.some((entry) => {
                         if (entry.match === getInfo) {
                             recordName += entry.value;
                             matchfound = true;
@@ -317,12 +320,8 @@ function buildUp() {
             recordName += `${useName}${recordingNameSuffix}`;
 
         } else { // Generiere einen Namen mit hashwert (weil UUID nicht in ttFrame funktioniert)
-            
-            let cryptoIsNotaFunction = Math.floor(Math.random() * 50) + 1;
-            let inThisdumbttFrame = Math.floor(Math.random() * 50000) + 1 ;
-            let thisIsjustStupid = inThisdumbttFrame * cryptoIsNotaFunction;
-          
-            recordName = `agent${agentId}_${gettime()}_to${Global.calldatatableId}_${thisIsjustStupid}${Global.recordingNameSuffix}`;
+            let UUID = generateUUID();
+            recordName = `agent${agentId}_${gettime()}_to${Global.key2}_${UUID}${Global.recordingNameSuffix}`;
         }
         Global.recordFileName = recordName;
         logIntoDebug("setRecordingName", `RecordFileName = ${Global.recordFileName}`, false);    
