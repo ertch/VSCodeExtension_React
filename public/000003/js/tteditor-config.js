@@ -102,8 +102,8 @@ let Global ={
     logSQL:                true     ,   // SQL-Statemants in Log anzeigen
     showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
 
-    addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
-    key1:                  'addessdataid'          ,
+    addressdatatable:      'ste_wel_addressdata'   ,  // SQL addresstable
+    key1:                  'addessdataid'          ,  // Coloumnname der addresstable.id
     calldatatable:         ''                      ,
     key2:                  '9826'                  ,  // ID des Kampagnien-CallTable (aus DB)
     salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable

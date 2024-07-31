@@ -211,7 +211,8 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
                         extResult = window[specVali](target);  
                         console.log(extResult);      // prüfe mit ext. Vali
-                        boolErr = extResult; 
+                        boolErr = extResult[0]; 
+                        errTxt  = extResult[1]; 
                     }   
                 } else {
                     // prüfe Input.value gegen RegEx

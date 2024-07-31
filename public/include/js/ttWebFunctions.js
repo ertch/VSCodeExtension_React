@@ -152,25 +152,11 @@ function saveRecording(recordFileName) {
   */
     function call_initialize() {
         try{
-            ttWeb.setRecordingState(0);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
-            // direction = ttWeb.getCallDirection();         // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
-            Global.key2 = ttWeb.getCalltableField('ID');            // Bestimme die ID des Anrufdatensatzes in der Datenbank
-            msisdn = ttWeb.getCalltableField('HOME');        // Bestimme die MSISDN (Mobilfunknummer) des Anrufers oder Angerufenen
-            indicator = ttWeb.getIndicator();                // Bestimme den Indikator für die Art des Anrufs (1-9)
+            ttWeb.setRecordingState(Global.startCallwithState);                      // Setze den Aufzeichnungsstatus auf 0 (deaktiviert)
+            direction = ttWeb.getCallDirection();         // TODO Bestimme die Richtung des Anrufs (eingehend, ausgehend oder intern)
+           
 
-            // Bestimme die Telefonnummer des Kontakts basierend auf dem Indikator
-            if (indicator == 1) {
-                telKontakt = ttWeb.getCalltableField('HOME');       // Privatnummer
-            } else if (indicator == 2) {
-                telKontakt = ttWeb.getCalltableField('BUSINESS');   // Geschäftsnummer
-            } else {
-                telKontakt = ttWeb.getCalltableField('OTHER');      // Andere Nummer
-            };
-
-            festnetz = ttWeb.getCalltableField('BUSINESS'); // Festnetznummer wird immer als Geschäftsnummer beschrieben?
-            agentId = ttWeb.getUser().Login; // Bestimme die Agenten-ID des Benutzers
-
-            logIntoDebug("call_initialize()", "<span class='txt--orange'>Calltable</span> erfolgreich refreshed", false);
+            logIntoDebug("call_initialize()", `<span class='txt--orange'>Recording</span> gerstartet in State ${Global.startCallwithState}` , false);
         }catch(error) {
             logIntoDebug("call_initialize()", `<span class='txt--bigRed'>Error:</span> <span class='txt--orange'>Calltable</span> konnte nicht refreshed werden<br>=> ${error.stack}`, false);
         }

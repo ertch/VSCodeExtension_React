@@ -866,9 +866,10 @@ function getTrigger(callerId, validate){
     }
 
     function textMyAss(value) {
-        let awnser = false;
+        let answer = false;
+        let errorMsg = "Dat is Falsch!";
         if(value === "erik.tchorz@skon.de"){
-            awnser = true;
+            answer = true;
         }
-        return awnser;
+        return [answer, errorMsg];
     }
