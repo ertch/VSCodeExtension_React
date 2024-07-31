@@ -99,7 +99,7 @@ let isValidating = 0;
                             }
                         }
                     } else {
-                        validateInput = false;
+                        validateBundle = false;
                         let errTxtId = `${select.id}_errorMsg`;
                         document.getElementById(errTxtId).innerHTML = "Fehler: Feld muss ausgefüllt sein";
                         validateResults += `Validierung <span class='txt--red'>false</span>  |  ${select.id} = "${select.value}"  <br>`
@@ -111,7 +111,7 @@ let isValidating = 0;
             for (let valiTyp in inputsTypeArr) {  
                 let idArr = inputsTypeArr[valiTyp];
                 if (idArr.length > 0){
-                    if (validateInput(valiTyp, idArr, true) === false) {
+                    if (validateBundle(valiTyp, idArr, true) === false) {
                         successBool = false;
                     };
                 }
@@ -126,7 +126,7 @@ let isValidating = 0;
 
 //--------------------------------------------------------------------- Vaidierung der Bundles -----------------------------------------------------------------
 
-/**validateInput - Validierung von Eingabefeldern aus Bundle-Array.
+/**validateBundle - Validierung von Eingabefeldern aus Bundle-Array.
 * 
 *      Achtung! Die Arrays müssen Typenrein übergeben werden, weil nur gegen ein Regex geprüft wird!
 * 
@@ -134,7 +134,7 @@ let isValidating = 0;
 *      @param {Array} idArr - Ein Array von IDs, die den Eingabefeldern zugeordnet sind, die validiert werden sollen.
 *      @param {boolean} giveAnswer - Ein boolischer Wert, der angibt, ob das Ergebnis zurückgegeben werden soll oder nicht.
 */
-function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
+function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
     
     let regX;                   //  Das übergebene Array enthält die IDs jener Inputs, die einem ValiTyp
     let errTxt;                 //  zugewiesen sind. 
@@ -197,7 +197,7 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
             errTxt = "Ungültige Eingabe";
     }; 
     
-    try {
+    // try {
         
         if (idArr != 0) {
             typeof idArr==="string"? idArr=[idArr]:undefined;
@@ -205,14 +205,18 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
             idArr.forEach(id => { // ArrayEinträge Iterieren -> Input.value auslesen
                 let target = document.getElementById(id).value;
                 let errTxtId = `${id}_errorMsg`;
-                regX.test(target) ? undefined : boolErr = false; // prüfe Input.value gegen RegEx
 
                 if (extVali === true) { // data-call.value -> 'String to function' 
                     let specVali = document.getElementById(id).getAttribute("data-call"); // TODO ist das noch das richtige Attribut?
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
-                        window[specVali]() ? undefined : boolErr = false; // prüfe mit ext. Vali
+                        extResult = window[specVali](target);  
+                        console.log(extResult);      // prüfe mit ext. Vali
+                        boolErr = extResult; 
                     }   
-                };  
+                } else {
+                    // prüfe Input.value gegen RegEx
+                    regX.test(target) ? undefined : boolErr = false; 
+                }  
 
                 if (boolErr) {
                     document.querySelector(`#${errTxtId}`).innerHTML = "";
@@ -225,14 +229,14 @@ function validateInput(type, idArr, giveAnswer) { // String, Array, Boolean
                 
                 logValidation += ` Validierung: ${boolErr}  |  ${idArr} = "${target}"  <br>` ;   
             });
-            logIntoDebug(`validateInput "${type}"`, logValidation, false);
+            logIntoDebug(`validateBundle "${type}"`, logValidation, false);
             return giveAnswer ? successBool : undefined;
         }    
         
-    }catch (error) { //  Error Nachrichten und return
-        logIntoDebug( "validateInput:" ,`Error at array: ${idArr} with ${id}`, Global.LogIntottDB);
-        return giveAnswer ? false : undefined;
-    }
+    // }catch (error) { //  Error Nachrichten und return
+    //     logIntoDebug( "validateBundle:" ,`Error at array: ${idArr} with ${id}`, Global.LogIntottDB);
+    //     return giveAnswer ? false : undefined;
+    // }
 }
 
 // ######################################################################################  "EXTERN" VALIDATORS #############################################################################################

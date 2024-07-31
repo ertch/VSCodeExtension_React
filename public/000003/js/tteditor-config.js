@@ -15,7 +15,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
        
-let CustomerData;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
+let CustomerPattern;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
 let clientIP;                   
 
@@ -32,7 +32,7 @@ let btnLock = false;
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
 let TriggerData;                        // initialisierung TriggerData      (TriDa)
-let CostumerData;                       // Erstellung global CustomerData   (CusDa)
+let CostumerData;                       // Erstellung global CustomerPattern   (CusDa)
 let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
 let SendBack = [];                      // Erstellung global SendBackfilter (SenBa)
 
@@ -103,17 +103,20 @@ let Global ={
     showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
 
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL adresstable
-    calldatatableId:       '9826'                      ,  // ID des Kampagnien-CallTable (aus DB)
+    key1:                  'addessdataid'          ,
+    calldatatable:         ''                      ,
+    key2:                  '9826'                  ,  // ID des Kampagnien-CallTable (aus DB)
     salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable
+    key3:                  ''                      ,
+    
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
 
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
     debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable
 
-    
     recordingPrefix:       '\\\\192.168.11.14\\Voicefiles_Phoenix\\VF_Diverse\\ste_wel\\'  ,// Path zur Ablage der Audiodatei auf dem Fileserver
-    FileNamePattern:       ["date", "time", "agentId", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerData (key match)
+    FileNamePattern:       ["date", "time", "agentId", "customerid", "ste_wel" ]           ,// nutzbar sind strings, date, time, alle globalen Variablen und alle Values in CustomerPattern (key match)
     recordingNameSuffix:   '.mp3'                                                          ,// Suffix der Audiodatei
     recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
     terminationCode:       ''                                                              ,
@@ -122,6 +125,7 @@ let Global ={
     wievorElement:         'wievorDatabox'   ,  // Lade WiedervorlageDaten in dieses Element
 
     posSale:               false  , // Indikator für positiven Verkauf
+    showCDObuild:          true   , // Zeige den kompletten Aufbau der CustomerData an (in DevLog)
 }
 
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
@@ -193,7 +197,7 @@ function gettime() { // Uhrzeit
  *                      </div>
  */
     function providerPattern() { 
-        let CustomerData = [
+        let CustomerPattern = [
             { label: 'red!Vorname',     match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'grn!Nachname',    match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'yel!Geb.-Datum',  match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
@@ -214,7 +218,7 @@ function gettime() { // Uhrzeit
             { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
-        return CustomerData
+        return CustomerPattern
     };
     // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn 
 
@@ -241,8 +245,8 @@ function gettime() { // Uhrzeit
 
     function triggerPattern() {
         let TriggerData = [
-            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${Customer.firstname}</p> <p> Nachname: ${Customer.surname}</p> `     },
-            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${Customer.city}</p>`},
+            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${CustomerData.Vorname.value}</p> <p> Nachname: ${CustomerData.Nachname.value}</p> `     },
+            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${CustomerData.Ort.value}</p>`},
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value: "<p>Keine nutzbaren Daten gefunden</p>"},
@@ -253,4 +257,4 @@ function gettime() { // Uhrzeit
     }
  
 
-    // TODO Manipulation der CustomerData-Value, um die Werte anzupassen 
+    // TODO Manipulation der CustomerPattern-Value, um die Werte anzupassen     

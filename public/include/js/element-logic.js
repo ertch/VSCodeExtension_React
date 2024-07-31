@@ -3,11 +3,12 @@
 /**createCusomerCells
  * 
  *          Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
- *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerData, bevor sie in die Cells via HTML eingefügt werden.
+ *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerPattern, bevor sie in die Cells via HTML eingefügt werden.
  */ 
-let Customer = {};
-function createCustomerData() {
+let CustomerData = {};
+function createCustomerPattern() {
     let logCCD="";
+    let logCDO="";
     try {
         // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
         let cardHolder = document.getElementById("customerCells");
@@ -17,9 +18,9 @@ function createCustomerData() {
         // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
         if (cardHolder.getAttribute("data-provider") != null){
             let execute = cardHolder.getAttribute("data-provider");
-            CustomerData = executeFunctionFromString(execute);
+            CustomerPattern = executeFunctionFromString(execute);
         } else {
-            CustomerData = providerDefault();
+            CustomerPattern = providerDefault();
         };
 
         // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
@@ -34,57 +35,68 @@ function createCustomerData() {
             error_msg.innerHTML =  "Datensatz fehlerhaft";
             error_msg.className = "errormessage--db_error";
             logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
+            !Global.debugMode? ttWeb.terminateCall(`${Result.neg_termination}`): alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
         } else {
             error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
-            // Durchlaufe jedes Element in CustomerData
-            for (const [index] of Object.entries(CustomerData)) {
-                // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerData übereinstimmt
-                matchingKey = Object.keys(SqlField).indexOf(CustomerData[index].match);
-                                
-                // Prüfe ob Index von Customerdata in SqlField vorhanden und > -1 ist.
-                // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerData 
-                if (Object.keys(SqlField).indexOf(CustomerData[index].match) > -1) {
-                    CustomerData[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
+            // Durchlaufe jedes Element in CustomerPattern
+      
+            CustomerPattern.push({ label: `${Global.key1}`, match: `${Global.key1}`, value: "", standAlone: true, createCell: false, dbType: "VARCHAR"})
+          
+            for (const [index] of Object.entries(CustomerPattern)) {
+                // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerPattern übereinstimmt
+                matchingKey = Object.keys(SqlField).indexOf(CustomerPattern[index].match);         
+                // Prüfe ob Index von CustomerPattern in SqlField vorhanden und > -1 ist.
+                // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerPattern 
+                if (Object.keys(SqlField).indexOf(CustomerPattern[index].match) > -1) {
+                    CustomerPattern[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
                 } else {  
-                    CustomerData[index].value = "-";
-                };
+                    CustomerPattern[index].value = "-";
+                };  
             };
-            
-            // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerData-Werten
+    
+            // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerPattern-Werten
             let chache = ""; // Zwischenspeicher für zu übertragende Werte
             try {
-                for (let i = 0; i < CustomerData.length; i++) {
-                    let label = CustomerData[i].label;
-                    let id = CustomerData[i].match;
-                    let value = CustomerData[i].value;
-                    let standAlone = CustomerData[i].standAlone;
-                    let createCell = CustomerData[i].createCell;
-                    let marker = "";
+                for (let i = 0; i < CustomerPattern.length; i++) {
                     
-                    Customer[id] = `${value}`;
+                    let label = CustomerPattern[i].label;
+                    let id = CustomerPattern[i].match;
+                    let value = CustomerPattern[i].value;
+                    let standAlone = CustomerPattern[i].standAlone;
+                    let createCell = CustomerPattern[i].createCell;
+                    let marker = "";
 
-                    if (createCell) {
-                        if (label.includes("!")) {
-                            let skipThis = false;
-                            switch (label.split('!')[0]){
+                    if (label.includes("!")) {
+                        let skipThis = false;
+                        switch (label.split('!')[0]){
 
-                                case "red":
-                                    marker = 'mark--red';
-                                    break;
-                                
-                                case "grn":
-                                    marker = 'mark--green';
-                                    break;
+                            case "red":
+                                marker = 'mark--red';
+                                break;
+                            
+                            case "grn":
+                                marker = 'mark--green';
+                                break;
 
-                                case "yel":
-                                    break;
+                            case "yel":
+                                break;
 
-                                default:
-                                    skipThis = true;
-                            }
-                            label = label.split("!")[1];
-                            skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
-                        } 
+                            default:
+                                skipThis = true;
+                        }
+                        label = label.split("!")[1];
+                        skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
+                    }         
+                    if (label != "") {
+                        console.log(i + " / " + CustomerPattern.length + " = " + CustomerPattern[i].value)
+                        CustomerData[label] = {};
+                        CustomerData[label].index = i;
+                        CustomerData[label].value = CustomerPattern[i].value;
+                        CustomerData[label].match = id;
+                        logCDO += `CustomerData.${label} / .index = ${i} / .value = ${CustomerPattern[i].value} / .match = ${id} <br>`;
+                    }
+                    if (createCell) {            
+                    
                         // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
                         standAlone ? undefined : (chache = value);
                         // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
@@ -93,6 +105,7 @@ function createCustomerData() {
 
                         if (standAlone) {
                             // Füge die Cell oder Separator in das HTML ein wenn standAlone true
+                            
                             if (id != "separator") {
                                 cardHolder.innerHTML += ` 
                                     <div class="cell">
@@ -109,7 +122,7 @@ function createCustomerData() {
                         }
                     }
                 }
-                logCCD += "<span class='txt--orange'>CustomerData</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
+                logCCD += "<span class='txt--orange'>CustomerPattern</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
             } catch (error) {
                 logCCD +="<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
             }
@@ -134,15 +147,17 @@ function createCustomerData() {
         logCCD += "Kundenhistorie erfolgreich geladen.";  
     } else {
        historyBox.innerHTML += "Keine Historie verfügbar";
-       logCCD += "<span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
+       logCCD += "<br><span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
     };
-    logIntoDebug("createCustomerData", logCCD, false);
+
+    Global.showCDObuild &&  logIntoDebug("Build CustomerData", logCDO, false);
+    logIntoDebug("createCustomerPattern", logCCD, false);
 };
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** loadProviderPreset() - AutoFill Vorgaben vom Provider
  * 
  *      Wird im buildUp aufgerufen und Befüllt alle Inputs, oder selects, die das Attribute data-preset bestitzten.
- *      Der im Attribute abgelegte String besteht aus der id (CustomerData[match]) und einem optionalen "disabled"
+ *      Der im Attribute abgelegte String besteht aus der id (CustomerPattern[match]) und einem optionalen "disabled"
  *      data-preset = "preS1,disabled" füt also den Wert von perS1 hinzu un disabled das Element 
  */
 function loadProviderPreset() {
@@ -162,8 +177,8 @@ function loadProviderPreset() {
                 presetId = presetData;
             }
     
-            try { // Suche in CustomerData 
-                CustomerData.some((entry) => {
+            try { // Suche in CustomerPattern 
+                CustomerPattern.some((entry) => {
                     // wenn passender Eintrag vorhanden, erstelle neue Option
                     if (entry.match === presetId) {
                         //Unterscheide zwischen Input und select
@@ -193,6 +208,9 @@ function loadProviderPreset() {
         logIntoDebug("loadProviderPreset", logInserts, false);
     } else {
         logIntoDebug("loadProviderPreset", "Keine Presets gefunden.", false);
+    };
+    if (CustomerData.length > 0) {
+        logIntoDebug("CustomerData object initialized:", logCDO, false);
     }
 }
 
@@ -210,7 +228,9 @@ function loadProviderPreset() {
         // "Show the dialog" button opens the dialog modal
         for(let x = 0; x < showButtonList.length; x++) {
             showButtonList[x].addEventListener("click", () => {
+                refreshModals()
                 dialogList[x].showModal();
+                freezcalender();
             });
         }
 
@@ -704,7 +724,7 @@ function getTrigger(callerId, validate){
 
             case 'cancel':
                 resultId = Result.negative;
-                record(`${Global.}`);
+                // record(`${Global.}`);
                 terminateCall(JSON.stringify(Result.neg_termination));
                 break;
 
@@ -713,24 +733,7 @@ function getTrigger(callerId, validate){
         }
     }
 
-    function terminateCall(terminationCode){
-        setTerminationCode();
-        if(!Global.debugMode) {
-            ttWeb.terminateCall(terminationCode);
-        } else { 
-            alert("Call terminiert mit Code: " + terminationCode)
-        }
-    }
-
-    function saveRecording(recordFileName) {
-        setRecordName();
-        if(!Global.debugMode) {
-            ttWeb.saveRecording(recordFileName);
-        } else { 
-            alert("Save Audiofile: " + recordFileName)
-        }
-    }
-
+   
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** HotKeys
  * 
@@ -802,23 +805,7 @@ function getTrigger(callerId, validate){
         }
         return giveBack;
     };
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-002
- * 
- *      Submit Form
- *      @param {string} form_id absenden
- */
-    function submitForm(form_id) {
-        document.getElementById(form_id).submit();
-    };
 
-
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-003
- * 
- *          createAddressDataArray
- *      Array aus Dataobjekt erzeugen
- */
     function createAddressDataArray(queryResult) {
         try {
             // Das Ergebnis wird angenommen und in ein Array von Adressdaten umgewandelt
@@ -840,16 +827,9 @@ function getTrigger(callerId, validate){
             logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", Global.LogIntottDB);
             return []; 
         }
-    };
+    }; 
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-004                                                                                                             Funktion geprüft am: 22.05.24 von Erik                                                                                                            
- * 
- *          logIntoDebug
- *      Eintragen von Logs in das togglebare Logfenster für Livebetrieb
- *      @param {string} caller - Name de Funktion die den Fehler wirft und evt. Kurzbeschreibung
- *      @param {string} msg - Error beschreibung oder SQL-Prompt
- *      @param {string} deExport - Bool: True = an ttWeb.DB weitergeben
- */
 
     function logIntoDebug(caller, msg, dbExport) {
         if (Global.showDebug) { // Global.showdebug=> ttEditor-config.js
@@ -863,6 +843,7 @@ function getTrigger(callerId, validate){
             ttErrorLog(caller, msg);
         }
     }
+
     function debugWindowClear() { // Log löschen
         document.getElementById("debugLog").innerHTML = `<div class="debugLog--header"><i class="glyph glyph-code"> &nbsp; debugLog &nbsp;</i> <button type="button" onclick="debugWindowClear()"> clear </button></div>`;
 
@@ -883,41 +864,11 @@ function getTrigger(callerId, validate){
             window.innerHTML = log;
         };
     }
-    
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-005                                                                                                             Funktion geprüft am: 22.05.24 von Erik
- * 
- */
 
-function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-   
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-006
- * 
- *          lockTab() - disable alle Inputs auf einem Tab
- * 
- *          @param {string} ID des Tabs  
- *          @param {bool} true = disable / false = enable
- */
-    function lockTab(tab_id, bool) {
-        let allInputs = tab_id.querySelectorAll(':scope > input');
-        allInputs.forEach(input => {
-            input.disabled = bool ? true:false;
-        });
-    };
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-function autoResize(textarea) {
-    textarea.style.height = 'auto';
-    textarea.scrollHeight>40? textarea.style.height = (textarea.scrollHeight) + 'px' : textarea.style = ""; // Setzt die Höhe auf die Scroll-, oder Min-Höhe 
-}
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ################################################################################# Endcard Trigger #############################################################################################
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
- 
+    function textMyAss(value) {
+        let awnser = false;
+        if(value === "erik.tchorz@skon.de"){
+            awnser = true;
+        }
+        return awnser;
+    }

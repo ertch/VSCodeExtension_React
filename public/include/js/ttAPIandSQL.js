@@ -69,7 +69,7 @@ function ttErrorLog(caller, msg) {
             log_message,
             client_ip
         ) VALUES (
-            ${Global.calldatatableId},
+            ${Global.key2},
             ${campaignId},
             ${agentId},
             'error',
@@ -83,34 +83,6 @@ function ttErrorLog(caller, msg) {
     };
 };
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-SQL-001
- * 
- *          SQL String Manipulation - escapeStrings()
- *          Alle Vorkommen des Zeichens ' durch \\'  ersetzen.
- */
-
-    function escapeString(s) {
-        try {   
-            return s.replace(/'/g,"\\'");
-        } catch (ex){
-            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", Global.LogIntottDB)
-        }
-    };
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-SQL-002
- * 
- *          SQL String Manipulation - removeSlashes()
- *          Alle Vorkommen von Backslash durch Slash ersetzen.
- */
-
-    function removeSlashes(s){
-        try { 
-            return s.replace(/\\/g,"/");
-        } catch (ex){
-            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", Global.LogIntottDB)
-        }
-    };
 
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     /** autoInject_selects - Fülle die SQLinjektionSelects

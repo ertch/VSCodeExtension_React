@@ -5,7 +5,7 @@ import Select from "@components/SimpleSelect.astro";
 ---
 
 <!-- -------------------------------- Freedial ------------------------------------- -->
-<dialog id="freedial">
+<dialog id="freedial" data-saved="0">
   <div class="dialog--header">
       <span class="dialog--headertxt">Freedial</span>
       <button id="freedial_closeBtn" type="button" class="closedialog" data-id="freedial"><i class="glyph glyph-close"></i></button>
@@ -32,7 +32,7 @@ import Select from "@components/SimpleSelect.astro";
 </dialog>
 
 <!-- -------------------------------- Wiedervorlage ------------------------------------- -->
-<dialog id="recall">
+<dialog id="recall" data-saved="0">
   <div class="dialog--header">
       <span class="dialog--headertxt">Wiedervorlage</span>
       <button id="recall_closeBtn" type="button" class="closedialog" data-id="recall"><i class="glyph glyph-close"></i></button>
@@ -46,18 +46,17 @@ import Select from "@components/SimpleSelect.astro";
                   klasse="shortend__input"
                   label="Datum"
                   type="date"
-                  id="wiedervorlage_Date"
+                  id="wiedervorlage_date"
                   validate="date"
               ></Input>
           </div>
-          <!-- hier würde der KalenderBtn sein... wenn ich einen hätte -->
           <div>
               <Input
                   klasse="shortend__input"
                   label="Uhrzeit"
                   type="time"
-                  id="wiedervorlage_Date"
-                  validate="date"
+                  id="wiedervorlage_time"
+                  validate="time"
               ></Input>
           </div>
       </div>
@@ -81,7 +80,7 @@ import Select from "@components/SimpleSelect.astro";
 
 <!-- -------------------------------- APNE ------------------------------------- -->
 
-<dialog id="apne">
+<dialog id="apne" data-saved="0">
   <div class="dialog--header">
       <span class="dialog--headertxt">Anrufpartner nicht erreicht</span>
       <button id="apne_closeBtn" type="button" class="closedialog" data-id="apne"><i class="glyph glyph-close"></i></button>
