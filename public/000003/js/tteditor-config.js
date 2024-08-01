@@ -112,6 +112,18 @@ let Global ={
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
 
+    freedial:   {   freedial_number: 'tragetID'  
+    },
+
+    wievor:     {   wiedervorlage_date: 'tragetID', 
+                    wiedervorlage_time: 'tragetID', 
+                    wiedervorlage_Text: 'tragetID'
+    },
+
+    apne:       {   apne_delay: 'tragetID', 
+                    apne_notiz: 'tragetID' 
+    },
+
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
     debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable
 
@@ -218,7 +230,7 @@ function gettime() { // Uhrzeit
             { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
-        return CustomerPattern
+        return CustomerPattern;
     };
     // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn 
 
