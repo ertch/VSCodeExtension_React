@@ -245,7 +245,7 @@ function saveRecording(recordFileName) {
 
             // Wenn der Zustand 'stop' ist, wird die Aufnahme gestoppt (und die Sprachaufzeichnung wird ggf. gespeichert?) 
             case 'stop':
-                setRecordName(pattern);
+                setRecordName('pattern');
                 if (Global.recordFileName != "") {
                     pushSQL(update_rec_info);
                     pushSQL(save_rec_path);
@@ -257,7 +257,7 @@ function saveRecording(recordFileName) {
 
             // Wenn der Zustand 'save' ist, wird die Aufnahme gespeichert und eine Fehlermeldung wird protokolliert, wenn kein Dateiname angegeben wurde.
             case 'save':
-                setRecordName(pattern);
+                setRecordName('pattern');
                 if (Global.recordFileName != "") {
                     Global.debugMode? undefined : ttWeb.saveRecording(Global.recordFileName);
                     logIntoDebug("record(save)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${Global.recordFileName}</span>`, false);

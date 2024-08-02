@@ -82,7 +82,7 @@
                     break;
 
                 case "cancellation_reasons":
-                    query = `SELECT id, label FROM cancellation_reasons WHERE campaign_id=${campaignId} AND active=1 ORDER BY label DESC`;
+                    query = `SELECT id, label FROM cancellation_reasons WHERE campaign_id=${Global.campaignId} AND active=1 ORDER BY label DESC`;
                     break;
                 
                 case "wiedervorlageCount":
@@ -92,7 +92,7 @@
                 case "wiedervorlageData":
                     query = `SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ', ${Global.fieldname_firstname},' ', ${Global.fieldname_lastname},' : 
                             ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
-                            ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
+                            ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${Global.campaignId} AND contact_history.agent_id='${agentId}' 
                             AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5`;
                     break;
 
@@ -106,13 +106,14 @@
                     break;
                 
                 case "statistik":
-                    query = `SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=${campaignId} LIMIT 1`;
+                    query = `SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=${Global.campaignId} LIMIT 1`;
                     break;
 
                 default:
             };
             let awnser = executeSql(query);
             let send = awnser.length>0?true:false;
+            console.log(awnser)
             Global.logSQL? logsqlIntodebug(promtName, query, send): undefined;
             return awnser;
         } catch(error) {

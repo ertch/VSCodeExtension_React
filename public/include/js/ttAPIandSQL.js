@@ -93,10 +93,12 @@ function ttErrorLog(caller, msg) {
 
     function autoInject_selects() {
         let selelects = document.querySelectorAll('[data-injection]');
-        selelects.forEach((sel) => {
-            let injection = sel.getAttribute('data-injection');
-            sqlInject_select(sel.id, 0, injection);
-        })
+        if (selelects.length>0){
+            selelects.forEach((sel) => {
+                let injection = sel.getAttribute('data-injection');
+                sqlInject_select(sel.id, 0, injection);
+            })
+        }   
     };
 
     function sqlInject_select(target_id, selectValue, injection) {

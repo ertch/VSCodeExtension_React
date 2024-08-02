@@ -666,37 +666,55 @@ function getTrigger(callerId, validate){
     }
 
     function finish(method) { 
-        let newData;
         let resultId;
-
-        //Validation die 2.?
-
+   
         switch (method) {
 
             case 'freedial':
-                newData = ['freedial_number',];
+                newNumber = document.getElementById('freedial_number').value;
+
+
                 pushSQL('finish', Result.freedial);
-                convertFormToQuery('finish_freedial');
+                
                 ttWeb.saveRecording(Global.recordFileName);
                 terminateCall(JSON.stringify(Result.neg_termination));
                 break;
 
             case 'wievor':
-                newData = ['wiedervorlage_Date','wiedervorlage_Time','wiedervorlage_Text'];
-                convertFormToQuery('finish_wiedervorlage');
-                pushSQL('finish', Result.wiedervorlage);
-                terminateCall(JSON.stringify(Result.wievor_termination));
+                let setDate = document.getElementById('wiedervorlage_date').value;
+                let sysDate = document.getElementById('wiedervorlage_date').getAttribute('min');
+                let setTime = document.getElementById('wiedervorlage_time').value;
+                let sysTime = document.getElementById('wiedervorlage_time').getAttribute('min');
+                let validTime = true;
+                if (setDate === sysDate) {
+                    let splitSetTime = setTime.split(':');
+                    let splitSysTime = sysTime.split(':');
+                    splitSetTime[0]<splitSysTime[0]?validTime=false:undefined;
+                }
+                //TODO: Global.wievor erstellen und SubmitTo Methode anpassen für den Aufruf mit var
+
+                
+                if (validTime===true){
+                    record("save");
+                    setNote = document.getElementById('wiedervorlage_Text').value;
+                    pushSQL('finish', Result.wiedervorlage);
+                    terminateCall(JSON.stringify(Result.wievor_termination),appointmentDate,0,0);
+
+                }
+
                 break;
 
             case 'apne':
-                newData = ['apne_delay','apne_notiz']
+                setTime = document.getElementById('apne_delay').value;
+                steNote = document.getElementById('apne_notiz').value;
+
                 resultId = eval(`Result.${document.getElementById('apne_delay').value}`);
                 pushSQL('finish', resultId);
                 convertFormToQuery('finish_apne');
 
                 ttWeb.clearRecording();
                 let terminationCode = eval(`Result.${document.getElementById('apne_delay').value}`);
-                terminateCall(JSON.stringify(terminationCode));
+                terminateCall(JSON.stringify(terminationCode),appointmentDate,0,0);
                 break;
 
             case 'abfax':
@@ -844,11 +862,6 @@ function getTrigger(callerId, validate){
         }
     }
 
-    function debugWindowClear() { // Log löschen
-        document.getElementById("debugLog").innerHTML = `<div class="debugLog--header"><i class="glyph glyph-code"> &nbsp; debugLog &nbsp;</i> <button type="button" onclick="debugWindowClear()"> clear </button></div>`;
-
-    };
-
     function logsqlIntodebug(caller, query, awnser) {
         if (Global.showDebug) { // Global.showdebug => ttEditor-config.js
             let window = document.getElementById("debugLog");
@@ -863,13 +876,4 @@ function getTrigger(callerId, validate){
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + query + "<br>" + awnserTxt;
             window.innerHTML = log;
         };
-    }
-
-    function textMyAss(value) {
-        let answer = false;
-        let errorMsg = "Dat is Falsch!";
-        if(value === "erik.tchorz@skon.de"){
-            answer = true;
-        }
-        return [answer, errorMsg];
     }
