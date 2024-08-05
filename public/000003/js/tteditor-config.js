@@ -13,7 +13,6 @@
  * 
  */
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
        
 let CustomerPattern;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
@@ -40,8 +39,6 @@ let firstTab = "tab_start";
 let lastTab = "tab_zusammenfassung";
     
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-let campaignId = 679;
 
 let Result = {
     positive:           8911,
@@ -111,18 +108,6 @@ let Global ={
     
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
-
-    freedial:   {   freedial_number: 'tragetID'  
-    },
-
-    wievor:     {   wiedervorlage_date: 'tragetID', 
-                    wiedervorlage_time: 'tragetID', 
-                    wiedervorlage_Text: 'tragetID'
-    },
-
-    apne:       {   apne_delay: 'tragetID', 
-                    apne_notiz: 'tragetID' 
-    },
 
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
     debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable

@@ -93,10 +93,12 @@ function ttErrorLog(caller, msg) {
 
     function autoInject_selects() {
         let selelects = document.querySelectorAll('[data-injection]');
-        selelects.forEach((sel) => {
-            let injection = sel.getAttribute('data-injection');
-            sqlInject_select(sel.id, 0, injection);
-        })
+        if (selelects.length>0){
+            selelects.forEach((sel) => {
+                let injection = sel.getAttribute('data-injection');
+                sqlInject_select(sel.id, 0, injection);
+            })
+        }   
     };
 
     function sqlInject_select(target_id, selectValue, injection) {
@@ -149,26 +151,54 @@ function ttErrorLog(caller, msg) {
         
         let targetTables = {};
         let tableCache = '';
-        let form = document.getElementById(formId);
-        if (!form || form.nodeName !== "FORM") {
-            console.error("Invalid form ID");
+        let worktable = [];
+        let data;
+        let form;
+
+        try {
+            form = document.getElementById(formId);
+        } catch (noformError) {
+            logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
             return;
         }
+        
+        if (!form) {
+            // Wenn formId kein Element ist, prüfen, ob es ein Array ist
+            if (Array.isArray(formId)) {
+                console.log("isArray = true");
+                formId.forEach(item => worktable.push(item));
+            } else {
+                logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
+                return;
+            }
+        } else if (form.nodeName !== "FORM") {
+            logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
+            return;
+        } else {
+            
+            worktable.push(form.querySelectorAll('[data-submit]'));
+        
+        }
+        console.log("worktable = " + worktable);
         // Auswertung der Form, betrachte nur Elemente mit data-Submit Attibut
-        form = form.querySelectorAll('[data-submit]');
-        let data = Array.from(form).map(element => {
-            // Mappe ein Objekt, das jeweils als columnName, tableName, tableId, element.value besteht
-            const [columnName, tableName, tableId] = element.getAttribute('data-submit').split(',');
-            if (tableCache !== tableName){ // schreibe IDs für Table mit
-                targetTables[tableName.trim()] = tableId.trim();
-                tableCache = tableName.trim();
-            }   
-            return {
-                columnName: columnName.trim(),
-                tableName: tableName.trim(),
-                value: element.value.trim(),
-              };
+        worktable.forEach(entry => {
+            data = Array.from(entry).map(element => {
+
+                // Mappe ein Objekt, das jeweils als columnName, tableName, tableId, element.value besteht
+                [columnName, tableName, tableId] = element.getAttribute('data-submit').split(',');
+
+                if (tableCache !== tableName){ // schreibe IDs für Table mit
+                    targetTables[tableName.trim()] = tableId.trim();
+                    tableCache = tableName.trim();
+                }   
+                return {
+                    columnName: columnName.trim(),
+                    tableName: tableName.trim(),
+                    value: element.value.trim(),
+                  };
+            })
         })
+        
         // sortiere die Einträge des Objektes nach Table und Table.id
         data.sort((a, b) => {
             if (a.tableName < b.tableName){ 
@@ -200,14 +230,16 @@ function ttErrorLog(caller, msg) {
             });
             query += ` WHERE ${tableName}.id = ${tableId} LIMIT 1`;
             if (Global.debugMode){
-                logIntoDebug("pushData - DebugMode", `${query} `)
+                logIntoDebug("pushData - DebugMode", `${query} `,false)
             } else {
                 // let serverStatus = executeSql("show status");
                 // if (serverStatus.length <= 0 || serverStatus === null) {
                 //     saveLocaly(query);
                 // } else {
                 //     let awnser = 
-                    executeSql(query);
+
+                    // executeSql(query);
+                    
                     console.log(query)
                     // fail = awnser.length>0?false:true;
                     // Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
