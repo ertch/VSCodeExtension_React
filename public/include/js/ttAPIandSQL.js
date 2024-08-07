@@ -96,7 +96,11 @@ function ttErrorLog(caller, msg) {
         if (selelects.length>0){
             selelects.forEach((sel) => {
                 let injection = sel.getAttribute('data-injection');
-                sqlInject_select(sel.id, 0, injection);
+                if(sel.nodeName==="INPUT"){
+                    sqlInject_select(`${sel.id}List`, 'datalist', injection);
+                } else {
+                    sqlInject_select(sel.id, 0, injection);
+                }
             })
         }   
     };
@@ -107,36 +111,40 @@ function ttErrorLog(caller, msg) {
         let newOptions = [];
 
         // itteriere durch das DataObj von der DB und erstelle Array aus id(value) und label[Anzeigetext] 
-        for (let i = 0; i < dataObj[0].rows.length; i++) {
-            newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
-        };
-
-        let arraySize = newOptions.length;
-        if(selectBox != null) {
-            // Falls das Select schon Einträge besitzt, entferne diese
-            while(selectBox.hasChildNodes()) {
-                selectBox.removeChild(selectBox.lastChild);
+        if (dataObj.length>0){
+            for (let i = 0; i < dataObj[0].rows.length; i++) {
+                newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
+            };
+    
+            let arraySize = newOptions.length;
+            if(selectBox != null) {
+                // Falls das Select schon Einträge besitzt, entferne diese
+                while(selectBox.hasChildNodes()) {
+                    selectBox.removeChild(selectBox.lastChild);
+                }
             }
-        }
-        if((arraySize > 0) || (arraySize == -1)) {
-            // Füge ein Bitte auswählen ein
-            injectOpt=document.createElement('option');
-            injectOpt.text="[Bitte auswählen]";
-            injectOpt.value=0;
-            selectBox.appendChild(injectOpt);
-        
-            newOptions.forEach((item) => {
-                // Erstelle die Einträge
-                if(item[0] > 0) {
+            if((arraySize > 0) || (arraySize == -1)) {
+                // Füge ein Bitte auswählen ein
+                if(selectValue!=="datalist"){
                     injectOpt=document.createElement('option');
-                    injectOpt.text= item[1];
-                    injectOpt.value= item[0];
+                    injectOpt.text="[Bitte auswählen]";
+                    injectOpt.value=0;
                     selectBox.appendChild(injectOpt);
                 }
-            })
+            
+                newOptions.forEach((item) => {
+                    // Erstelle die Einträge
+                    if(item[0] > 0) {
+                        injectOpt=document.createElement('option');
+                        injectOpt.text= item[1];
+                        injectOpt.value= item[0];
+                        selectBox.appendChild(injectOpt);
+                    }
+                })
+            }
+            // Einträge in Select schieben
+            selectBox.value= selectBox.nodeName==="SELECT"? selectValue: undefined;
         }
-        // Einträge in Select schieben
-        selectBox.value=selectValue;
     };
 
 /** convertFormToQuery() - Alle Daten in query verpacken und an Datenback senden. 
@@ -165,7 +173,6 @@ function ttErrorLog(caller, msg) {
         if (!form) {
             // Wenn formId kein Element ist, prüfen, ob es ein Array ist
             if (Array.isArray(formId)) {
-                console.log("isArray = true");
                 formId.forEach(item => worktable.push(item));
             } else {
                 logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
@@ -179,7 +186,6 @@ function ttErrorLog(caller, msg) {
             worktable.push(form.querySelectorAll('[data-submit]'));
         
         }
-        console.log("worktable = " + worktable);
         // Auswertung der Form, betrachte nur Elemente mit data-Submit Attibut
         worktable.forEach(entry => {
             data = Array.from(entry).map(element => {
@@ -240,7 +246,7 @@ function ttErrorLog(caller, msg) {
 
                     // executeSql(query);
                     
-                    console.log(query)
+             
                     // fail = awnser.length>0?false:true;
                     // Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
                     // // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein

@@ -386,7 +386,7 @@ function getCampaignData(campaignId, agentId, addressdataId, addressdatatable, k
         kundenhistorie = kundenhistorie + "</fieldset>";
 
         document.getElementById('kundenhistorie').innerHTML = kundenhistorie;
-        //console.log(kundenhistorie)
+   
     }
 /*
     result = executeSql("SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=" + campaignId + " LIMIT 1");
@@ -700,6 +700,6 @@ function dateConversion(date) {
     const formattedMonth = month < 10 ? `0${month}` : month;
 
     const formattedDate = `${formattedDay}.${formattedMonth}.${year}`;
-    // console.log(formattedDate)
+
     return formattedDate
 }

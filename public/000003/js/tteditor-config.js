@@ -8,9 +8,11 @@
 
 /** TODO:
  * 
- *      Record_BTN-component
- * 
- * 
+ *      TriggerPattern prüfe auf Input, wenn true schreibe value statt innerHTML /A
+ *      CustomerData - muss etweas anderes als Label nutzen nuztze Match 
+ *      SuggesenstionInput + SQLInjection  /A
+ *      validate "options" = prüfe gegen die eigenen options /A
+ *      Durchlauf ohne CustomerData /P
  */
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
        
@@ -82,8 +84,8 @@ let Result = {
 }
 
 let Global ={
-    campaignId:                  '679' ,
-    currentTabName:       `${firstTab}`,
+    campaignId:                     '679' ,
+    sperrzeit: {von: "22:00", bis:"06:00"},
     
     directionState:        0        , // Aktueller Call state
     startCallwithState:    2        , // Call state bei Beginn des Anrufes
@@ -108,6 +110,7 @@ let Global ={
     
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
+    currentTabName:       `${firstTab}`            ,
 
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
     debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable
@@ -123,6 +126,7 @@ let Global ={
 
     posSale:               false  , // Indikator für positiven Verkauf
     showCDObuild:          true   , // Zeige den kompletten Aufbau der CustomerData an (in DevLog)
+    noCustomerData:        true,
 }
 
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
@@ -195,25 +199,25 @@ function gettime() { // Uhrzeit
  */
     function providerPattern() { 
         let CustomerPattern = [
-            { label: 'red!Vorname',     match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'grn!Nachname',    match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'yel!Geb.-Datum',  match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
-            { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
-            { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
-            { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'red!Vorname',     match: 'firstname',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'grn!Nachname',    match: 'surname',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'yel!Geb.-Datum',  match: 'dateofbirth',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'E-Mail',          match: 'emailprivate',          value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Kundennummer',    match: 'customerid',            value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Vertragsnummer',  match: 'vertrag',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Zählernummer',    match: 'counternumber',         value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Vorwahl',         match: 'phonehomeareacode',     value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
+            // { label: 'Festnetz',        match: 'phonehome',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Mobilvorwahl',    match: 'phonemobileareacode',   value: "",   standAlone: false,    createCell: true , dbType: "VARCHAR"},
+            // { label: 'Mobil',           match: 'phonemobile',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: '',                match: 'separator',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Strasse',         match: 'street',                value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Hausnummer',      match: 'housenumber',           value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'PLZ',             match: 'zip',                   value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Ort',             match: 'city',                  value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
+            // { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
         return CustomerPattern;
     };
@@ -242,13 +246,13 @@ function gettime() { // Uhrzeit
 
     function triggerPattern() {
         let TriggerData = [
-            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${CustomerData.Vorname.value}</p> <p> Nachname: ${CustomerData.Nachname.value}</p> `     },
-            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${CustomerData.Ort.value}</p>`},
+            
             { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value: "<p>Keine nutzbaren Daten gefunden</p>"},
             { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
             { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
+            { id: 'TelTest',  grp:'c',    target_id: 'datenerfassung_telefon',  active: true,        value: "Hallo ich bin ein Test-Text."     },
         ];
         return TriggerData;
     }

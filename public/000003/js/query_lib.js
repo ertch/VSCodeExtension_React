@@ -113,7 +113,6 @@
             };
             let awnser = executeSql(query);
             let send = awnser.length>0?true:false;
-            console.log(awnser)
             Global.logSQL? logsqlIntodebug(promtName, query, send): undefined;
             return awnser;
         } catch(error) {

@@ -36,19 +36,19 @@ function buildUp() {
         clientIP = ttWeb.getClientIP();
         Global.key2 = ttWeb.getCalltableField('ID');
         msisdn = ttWeb.getCalltableField('HOME');
-        indicator = ttWeb.getIndicator();
-        // Telefonkontakt basierend auf dem Indikator festlegen
-        if (indicator == 1) {
-            telKontakt = ttWeb.getCalltableField('HOME');
-        } else if (indicator == 2) {
-            telKontakt = ttWeb.getCalltableField('BUSINESS');
-        } else {
-            telKontakt = ttWeb.getCalltableField('OTHER');
-        }
+        // indicator = ttWeb.getIndicator(); // TODO
+        // // Telefonkontakt basierend auf dem Indikator festlegen
+        // if (indicator == 1) {
+        //     telKontakt = ttWeb.getCalltableField('HOME');
+        // } else if (indicator == 2) {
+        //     telKontakt = ttWeb.getCalltableField('BUSINESS');
+        // } else {
+        //     telKontakt = ttWeb.getCalltableField('OTHER');
+        // }
         festnetz = ttWeb.getCalltableField('BUSINESS');
         agentId = ttWeb.getUser().Login;
 
-        if(clientIP === null || Global.key2 === null || msisdn === null || indicator === null )  {
+        if(clientIP === null || Global.key2 === null || msisdn === null)  {
             buildupFail = true;
         }
         

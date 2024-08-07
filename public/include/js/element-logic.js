@@ -18,9 +18,9 @@ function createCustomerPattern() {
         // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
         if (cardHolder.getAttribute("data-provider") != null){
             let execute = cardHolder.getAttribute("data-provider");
-            CustomerPattern = executeFunctionFromString(execute);
+            CustomerPattern = Global.noCustomerData? "" : executeFunctionFromString(execute);
         } else {
-            CustomerPattern = providerDefault();
+            CustomerPattern = Global.noCustomerData? "" : providerDefault();
         };
 
         // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
@@ -32,10 +32,12 @@ function createCustomerPattern() {
         };
         // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
         if (typeof SqlField.keys === 'function' && SqlField.keys("createCell")) { 
-            error_msg.innerHTML =  "Datensatz fehlerhaft";
+            error_msg.innerHTML =  Global.noCustomerData? "":"Datensatz fehlerhaft";
             error_msg.className = "errormessage--db_error";
-            logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
-            !Global.debugMode? ttWeb.terminateCall(`${Result.neg_termination}`): alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
+            logCCD =  Global.noCustomerData? "<span class='txt--bigRed'>CustomerData abgeschaltet:</span> <br> kein Datensatz gefunden <br>":"<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
+            if (!Global.noCustomerData) {
+                !Global.debugMode? ttWeb.terminateCall(`${Result.neg_termination}`): alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
+            }
         } else {
             error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
             // Durchlaufe jedes Element in CustomerPattern
@@ -87,13 +89,12 @@ function createCustomerPattern() {
                         label = label.split("!")[1];
                         skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
                     }         
-                    if (label != "") {
-                        console.log(i + " / " + CustomerPattern.length + " = " + CustomerPattern[i].value)
-                        CustomerData[label] = {};
-                        CustomerData[label].index = i;
-                        CustomerData[label].value = CustomerPattern[i].value;
-                        CustomerData[label].match = id;
-                        logCDO += `CustomerData.${label} / .index = ${i} / .value = ${CustomerPattern[i].value} / .match = ${id} <br>`;
+                    if (id != "seperator") {
+                        CustomerData[id] = {};
+                        CustomerData[id].index = i;
+                        CustomerData[id].value = CustomerPattern[i].value;
+                        CustomerData[id].lable = label;
+                        logCDO += `CustomerData.${id} / .index = ${i} / .value = ${CustomerPattern[i].value} / .lable = ${label} <br>`;
                     }
                     if (createCell) {            
                     
@@ -456,7 +457,7 @@ function triggerDatalist(id, gatekeeperCall) {
 */
     function readTrigger() {
         let insert = "";
-        let cache = new Set();
+        let selectValue;
         TriggerData.forEach((list) => {
                 // durchlaufe TriggerData 
             if(list.active === true) {    
@@ -465,7 +466,16 @@ function triggerDatalist(id, gatekeeperCall) {
                 } catch (error) {
                         insert = list.value;
                 };
-                document.getElementById(list.target_id).innerHTML += `${insert}`;
+                let targetElement = document.getElementById(list.target_id);
+                switch(targetElement.nodeName){
+                    case "INPUT":
+                        targetElement.value += `${insert}`;
+                        break;
+
+                    default:
+                        targetElement.innerHTML += `${insert}`;
+                }
+                
             }
         })
     };
@@ -478,6 +488,7 @@ function triggerDatalist(id, gatekeeperCall) {
 * @param {*} id - ID des zu schaltenden Eintrags
 */
 let triggerFlag = false;
+
 function setTrigger(id, operation) {
     // Setze mitgebene id in TriggerData active = true
     // Setzte alle id der selben Gruppe auf active = false
@@ -681,28 +692,65 @@ function getTrigger(callerId, validate){
                 break;
 
             case 'wievor':
-                let setDate = document.getElementById('wiedervorlage_date').value;
-                let sysDate = document.getElementById('wiedervorlage_date').getAttribute('min');
-                let setTime = document.getElementById('wiedervorlage_time').value;
-                let sysTime = document.getElementById('wiedervorlage_time').getAttribute('min');
-                let validTime = true;
-                if (setDate === sysDate) {
-                    let splitSetTime = setTime.split(':');
-                    let splitSysTime = sysTime.split(':');
-                    splitSetTime[0]<splitSysTime[0]?validTime=false:undefined;
-                }
-                //TODO: Global.wievor erstellen und SubmitTo Methode anpassen für den Aufruf mit var
-
+                let dateInput = document.getElementById('wiedervorlage_date');
+                let dateError = document.getElementById('wiedervorlage_date_error');
+                let timeInput = document.getElementById('wiedervorlage_time');
+                let timeError = document.getElementById('wiedervorlage_time_error');
                 
-                if (validTime===true){
-                    record("save");
-                    setNote = document.getElementById('wiedervorlage_Text').value;
-                    pushSQL('finish', Result.wiedervorlage);
-                    terminateCall(JSON.stringify(Result.wievor_termination),appointmentDate,0,0);
-
+                // Errors zürücksetzen
+                dateError.innerHTML = "";
+                timeError.innerHTML = "";
+                dateInput.classList.remove('errorborder');
+                timeInput.classList.remove('errorborder');
+            
+                // Datum Eingabe überprüfen
+                if (dateInput.value === "") {
+                    dateError.innerHTML = "Bitte Datum eingeben";
+                    dateInput.classList.add('errorborder');
+                    return;
                 }
+            
+                let setDate = dateInput.value;
+                            
+                // Zeit EIngabe Überprüfen
+                if (timeInput.value === "") {
+                    timeError.innerHTML = "Bitte Zeitraum eintragen";
+                    timeInput.classList.add('errorborder');
+                    return;
+                }
+                
+                let sysDate = dateInput.getAttribute('min'); 
+                let setTime = timeInput.value;
+                let sysTime = getSysTime(0);
+                
+                
+                // Prüfe ob Angegebene Zeit außerhalb der Speerzeit liegt
+                
 
-                break;
+                // wenn Datum = Heute, dann prüfe ob die Uhrzeit in der Vergangenheit liegt 
+                if (setDate === sysDate) {
+                    let fullSetT = setTime.replace(/:/g, '');
+                    let fullSysT = sysTime.replace(/:/g, '');
+                    if (Number(fullSetT) < Number(fullSysT) + 1) {
+                        timeError.innerHTML = "Zeit muss in der Zukunft liegen";
+                        timeInput.classList.add('errorborder');
+                        productionTime()
+                        return;
+                    }
+                }
+                
+                if (timeInput.classList.contains("check_time")) {
+                    timeError.innerHTML = "Zeit nicht in Arbeitszeitraum";
+                    timeInput.classList.add('errorborder');
+                    return;
+                }
+              
+                record("save");
+                let appointmentDate = new Date(setDate);
+                pushSQL('finish', Result.wiedervorlage);
+                terminateCall(JSON.stringify(Result.wievor_termination), appointmentDate, 0, 0);
+                
+            break; 
 
             case 'apne':
                 setTime = document.getElementById('apne_delay').value;
@@ -747,8 +795,8 @@ function getTrigger(callerId, validate){
                 break;
 
             default:
-
         }
+        
     }
 
    
@@ -876,4 +924,30 @@ function getTrigger(callerId, validate){
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + query + "<br>" + awnserTxt;
             window.innerHTML = log;
         };
+    }
+
+    function productionTime() {
+        // Zeigt im Modal Wiedervorlage im Uhrzeit-Imput einen grünen Haken an, wenn die eingegebene Zeit nicht in der 
+        // Global.sperrzeit liegt. Gedacht als visuelle Unterstützung des Useres
+        const target = document.getElementById("wiedervorlage_time");
+        const sysTime = Number(getSysTime(0).replace(/:/g, ''));
+        const setTime = Number(target.value.replace(/:/g, ''));
+        const workBeginn = Number(Global.sperrzeit.bis.replace(/:/g, ''));
+        const workEnding = Number(Global.sperrzeit.von.replace(/:/g, ''));
+        const dateInput = document.getElementById('wiedervorlage_date');
+        const sameday = dateInput.getAttribute("min") === dateInput.value;
+        let validTime = true;
+    
+        if (sameday===true) {
+            setTime > sysTime? undefined : validTime = false;
+        }
+        setTime < workEnding && setTime > workBeginn? undefined : validTime = false;
+        
+        if (validTime) {
+            target.classList.remove('check_time', 'errorborder');
+            document.getElementById("wiedervorlage_time_error").innerHTML = "";
+            return true;
+        } else {
+            target.classList.add('check_time');
+            }
     }

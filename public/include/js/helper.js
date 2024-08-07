@@ -96,9 +96,8 @@
  *                      Berechnet eine neue Höhe für die Textareas, um den neuen Text voll anzuzeigen (max. 200px)
  *///_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     function autoResize(textarea) {
-        textarea.style.height = 'auto';
-        textarea.scrollHeight>40? textarea.style.height = (textarea.scrollHeight) + 'px' : textarea.style = ""; 
-    }
+        textarea.style.height = textarea.value===""? '40px' :'200px';
+    } 
 //_____________________________________________________________________________________________________________________________________________
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**
@@ -115,7 +114,7 @@
         if (funcName && typeof window[funcName] === 'function') {
         giveBack = window[funcName](...args); // Aufruf
         } else {
-            logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
+            logIntoDebug( "executeFunctionFromString():",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
         }
         return giveBack;
     };
@@ -152,18 +151,28 @@
 //_____________________________________________________________________________________________________________________________________________
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**
+ *  5 - getSysTime(int) 
+ *                      Nutzer: Wiedervorlage-Modal (save_Btn)
+ *                      zurückgeben der aktuellen System-Uhrzeit
+ *///_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ function getSysTime(add) {
+    let now = new Date()
+    let hours = String(now.getHours()).padStart(2, '0');
+    let minutes = String(now.getMinutes() + add).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+//_____________________________________________________________________________________________________________________________________________
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/**
  *  5 - freezcalender() 
  *                      Nutzer: Wiedervorlage-Modal (onload)
  *                      Verhindern,dass Zeit oder Datum vor der localen Systemzeit im input angewählt werden können 
  *///_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     function freezcalender() {
-        let now = new Date();
-        let hours = String(now.getHours()).padStart(2, '0');
-        let minutes = String(now.getMinutes()).padStart(2, '0');
-        let currentTime = `${hours}:${minutes}`;
         let today = new Date().toISOString().split('T')[0];
-        document.getElementById('wiedervorlage_time').setAttribute('min', currentTime);
         document.getElementById('wiedervorlage_date').setAttribute('min', today);
+        document.getElementById('wiedervorlage_date').value = today;
+        document.getElementById('wiedervorlage_time').value = getSysTime(2);
     }
 //_____________________________________________________________________________________________________________________________________________
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

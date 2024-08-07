@@ -15,11 +15,12 @@ interface Props {
     required?: boolean;
     submitTo?: string;
     type?: string;
+    inject?: string;
     validate?: string;
     value?: any; 
 }
 
-const { actions, disabled, gate, gatekeeper, hidden, id, klasse, label, maxlength, options, pattern, preset, required, submitTo, type, validate, value} = Astro.props; 
+const { actions, disabled, gate, gatekeeper, hidden, id, klasse, label, maxlength, options, pattern, preset, required, submitTo, type, inject, validate, value} = Astro.props; 
 
 let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
@@ -42,7 +43,6 @@ if(gatekeeper===true) {
 };
 ---
 
-
 <label for=`${id}`>{label}</label>
 <span class="errormessage" id={errorname}></span>
 
@@ -52,6 +52,7 @@ if(gatekeeper===true) {
     data-submit={submitTo}
     data-preset = {preset}
     data-vali = {validate}
+    data-injection = {inject}
     {disabled}
     data-gate   = {gate}
     id=`${id}`

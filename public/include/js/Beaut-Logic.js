@@ -1286,10 +1286,6 @@ function autoResize(textarea) {
             setTerminationCode();
             SendBack = convertFormToQuery("tabsForm");
 
-            console.log("Auswertung case: " + Global.key2);
-            console.log("recordName: " + Global.recordFileName);
-            console.log("termCode: " + Global.terminationCode);
-
             if (Global.debugMode) {
                 alert(
                     "Anruf abgeschlossen. Daten werden übertragen. Call terminiert",
