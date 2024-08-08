@@ -36,15 +36,6 @@ function buildUp() {
         clientIP = ttWeb.getClientIP();
         Global.key2 = ttWeb.getCalltableField('ID');
         msisdn = ttWeb.getCalltableField('HOME');
-        // indicator = ttWeb.getIndicator(); // TODO
-        // // Telefonkontakt basierend auf dem Indikator festlegen
-        // if (indicator == 1) {
-        //     telKontakt = ttWeb.getCalltableField('HOME');
-        // } else if (indicator == 2) {
-        //     telKontakt = ttWeb.getCalltableField('BUSINESS');
-        // } else {
-        //     telKontakt = ttWeb.getCalltableField('OTHER');
-        // }
         festnetz = ttWeb.getCalltableField('BUSINESS');
         agentId = ttWeb.getUser().Login;
 
@@ -120,6 +111,7 @@ function buildUp() {
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
     TriggerData = triggerPattern();
     readTrigger();
+    Global.debugMode? undefined : ttWeb.setRecordingState(Global.startCallwithState);
 
     buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false);
     wievofail?  logIntoDebug('buildUp Error', 'Wiedervorlagedaten konnten nicht geladen werden <br> Ladevorhgng wird übersprungen', false): undefined;
@@ -325,13 +317,4 @@ function saveRecording(recordFileName) {
         }
         Global.recordFileName = recordName;
         logIntoDebug("setRecordingName", `RecordFileName = ${Global.recordFileName}`, false);    
-    };
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-SQL-003
- * 
- *      Teilen des Pfades an den Backslashes
- */
-    function splitRecName() {
-        let voicefileName = setRecordName();
-        return teile = voicefileName.split("\\");
     };

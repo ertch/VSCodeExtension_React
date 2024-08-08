@@ -95,18 +95,10 @@
                             ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${Global.campaignId} AND contact_history.agent_id='${agentId}' 
                             AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5`;
                     break;
-
-                case "historyCount":
-                    query = `SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id=${Global.key2}`;
-                    break;
-                
+                    
                 case "historyData":
                     query = `SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message 
                             FROM contact_history WHERE calldatatable_id=${Global.key2} ORDER BY called_at DESC`; 
-                    break;
-                
-                case "statistik":
-                    query = `SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=${Global.campaignId} LIMIT 1`;
                     break;
 
                 default:

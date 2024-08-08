@@ -457,25 +457,32 @@ function triggerDatalist(id, gatekeeperCall) {
 */
     function readTrigger() {
         let insert = "";
-        let selectValue;
-        TriggerData.forEach((list) => {
+        TriggerData.forEach((entry) => {
                 // durchlaufe TriggerData 
-            if(list.active === true) {    
-                try { // Falls list.value eine Variable ist, nutzte deren Wert
-                        insert = eval(list.value);
+            if(entry.active === true) {    
+                try { // Falls entry.value eine Variable ist, nutzte deren Wert
+                        insert = eval(entry.value);
                 } catch (error) {
-                        insert = list.value;
+                        insert = entry.value;
                 };
-                let targetElement = document.getElementById(list.target_id);
+
+                let killGrp = entry.grp;
+                TriggerData.forEach((grpMember) => {
+                    if (grpMember.grp === killGrp) { 
+                        grpMember.id===entry.id? undefined : undoTrigger(grpMember.target_id, grpMember.value);
+                    }
+                });
+
+                let targetElement = document.getElementById(entry.target_id);
+                let mode = entry.mode;
                 switch(targetElement.nodeName){
                     case "INPUT":
-                        targetElement.value += `${insert}`;
+                        mode==="add"? targetElement.value += `${insert}` : targetElement.value = `${insert}` ;
                         break;
 
                     default:
-                        targetElement.innerHTML += `${insert}`;
+                        mode==="add"? targetElement.innerHTML += `${insert}` : targetElement.innerHTML = `${insert}`;
                 }
-                
             }
         })
     };
@@ -534,6 +541,28 @@ function getTrigger(callerId, validate){
         showWeiterBtn(validate);
     };
 };
+
+function undoTrigger(target, value) {   
+    const parentElement = document.getElementById(target);
+    if (parentElement) {
+        // Wenn value HTML ist, trimme es und vergleiche es mit dem innerHTML der Kinder
+        if (value.trim().startsWith('<') && value.trim().endsWith('>')) {
+            const children = Array.from(parentElement.children);
+            children.forEach(child => {
+                // wenn das innerHTML gleich ist, lösche Child
+                if (child.outerHTML.trim() === value.trim()) {
+                    child.remove();
+                }
+            });
+        } else {
+            // Andernfalls suche nach Text
+            const textNodes = Array.from(parentElement.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() === value.trim());
+            textNodes.forEach(node => {
+                node.remove();
+            });
+        }
+    }
+}
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // ################################################################################# SwitchTab #############################################################################################
