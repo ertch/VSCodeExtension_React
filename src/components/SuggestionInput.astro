@@ -26,6 +26,7 @@ let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
 let gatekeeperCall="";
 let setClass = hidden===true? klasse + " d-none" : `${klasse}`;
+
 if(gatekeeper===true) {
     gatekeeperCall = 'GK';
     gatewayArr = JSON.stringify(actions);
@@ -45,7 +46,6 @@ if(gatekeeper===true) {
 
 <label for=`${id}`>{label}</label>
 <span class="errormessage" id={errorname}></span>
-
 <input
     class=`input-text suggest ${setClass}`
     data-array={gatewayArr}

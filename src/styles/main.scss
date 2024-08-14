@@ -261,16 +261,16 @@ dialog {
     height: var(--textarea-height, 40px);
     transition: height .5s ease-out;
     margin-bottom:  1.5em;
-    max-height: 200px;
+    max-height: 100px;
     resize: none;
 
     &:focus {
-    height: 200px;
+    height: 100px;
     }
 }
 
 .h-200{
-    height: 200px;
+    height: 100px;
 }
 
 .closedialog {

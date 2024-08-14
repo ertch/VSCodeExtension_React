@@ -87,7 +87,8 @@ let Result = {
 
 let Global ={
     campaignId:                     '679' ,
-    sperrzeit: {von: "22:00", bis:"06:00"},
+    sperrzeit: {von: "22:00", bis:"08:00"},
+    loadTrigger: "everytime"              , // Zuständer sind 
     
     directionState:        0        , // Aktueller Call state
     startCallwithState:    2        , // Call state bei Beginn des Anrufes
@@ -106,7 +107,7 @@ let Global ={
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL addresstable
     key1:                  'addessdataid'          ,  // Coloumnname der addresstable.id
     calldatatable:         ''                      ,
-    key2:                  '9826'                  ,  // ID des Kampagnien-CallTable (aus DB)
+    key2:                  ''                      ,  // ID des Kampagnien-CallTable (aus DB)
     salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable
     key3:                  ''                      ,
     
@@ -168,7 +169,16 @@ function gettime() { // Uhrzeit
     return `${time}uhr`; // hh_mm_uhr
 }
 
-
+function finishCall() {
+    // Hier wird der Code eingetragen, der bei einer händischen überprüfung des positiven Abschlusses ausgeführt werden soll
+    let resultId = Global.posSale? Result.positive : Result.negative;
+    pushSQL('finish', resultId);
+    if (Global.debugMode === false) {
+        Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
+    } else {
+        alert(`Call terminiert mit ${resultId}`)
+    }
+}
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -259,5 +269,5 @@ function gettime() { // Uhrzeit
         return TriggerData;
     }
  
-
+    const providerDefault = "";
     // TODO Manipulation der CustomerPattern-Value, um die Werte anzupassen     

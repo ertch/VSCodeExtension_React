@@ -34,10 +34,15 @@ function buildUp() {
         // Abruf der notwendigen Daten aus der API
     try {
         clientIP = ttWeb.getClientIP();
+        let calltableData = ttWeb.getCalltable();
         Global.key2 = ttWeb.getCalltableField('ID');
-        msisdn = ttWeb.getCalltableField('HOME');
-        festnetz = ttWeb.getCalltableField('BUSINESS');
-        agentId = ttWeb.getUser().Login;
+        msisdn = calltableData.HOME;
+        inicator = calltableData.INDICATOR;
+        
+
+        Global.agentId = ttWeb.getUser().Login;
+		calljob = ttWeb.getActiveCallJob();
+		calledNumber = calljob.TargetAddress;
 
         if(clientIP === null || Global.key2 === null || msisdn === null)  {
             buildupFail = true;
@@ -58,8 +63,8 @@ function buildUp() {
         corruptedDB = executeSql(`SELECT COUNT(*) From ${Global.key2} WHERE ${Global.key2}.id = ${Global.key2} LIMIT 1`);
         if (corruptedDB < 1 ) {
             logIntoDebug("buildUp", "Es wurde ein fehlerhafter Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
-            ttWeb.clearRecording();
-            ttWeb.terminateCall('200');
+            record('clear');
+            // ttWeb.terminateCall('200');
         
         } 
     }
@@ -84,8 +89,9 @@ function buildUp() {
                         termCode = '0'
                 }
                 if (termCode != 0 && !Global.debugMode) {
-                    ttWeb.clearRecording();
-                    ttWeb.terminateCall(termCode);
+                    record('clear');
+                    alert("resultid 0");
+                    // ttWeb.terminateCall(termCode);
                 } 
             }
         } catch (error) {
@@ -106,7 +112,7 @@ function buildUp() {
         }
     };
  
-    createCustomerPattern();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
+    createCustomerCells();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
     TriggerData = triggerPattern();
@@ -120,8 +126,8 @@ function buildUp() {
 //---------------------------------------------------------------------------- Anrufe / Calls -------------------------------------------------------------------------------------
 //#############################################################################################################################################################################
 
+
 function terminateCall(terminationCode){
-    setTerminationCode();
     if(!Global.debugMode) {
         ttWeb.terminateCall(terminationCode);
     } else { 
@@ -182,7 +188,7 @@ function saveRecording(recordFileName) {
                 Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
                 alert("das wars schon");
 
-                ttWeb.clearRecording();
+                record('clear');
 			    ttWeb.makeCustomerCall(newNumber.value);
 
                 logIntoDebug( "callFreedial",`Neue Nummer: <span class="txt--gray">${newNumber.value}</span> gespeichert`,false);
@@ -260,14 +266,13 @@ function saveRecording(recordFileName) {
 
             // Wenn der Zustand 'clear' ist, wird die Aufnahme gelöscht.
             case 'clear':   
-                Global.debugMode? undefined : ttWeb.clearRecording();
+                Global.debugMode? console.log("Aufnahme verworfen") : ttWeb.clearRecording();
                 logIntoDebug("record(clear)", "Aufnahme wurde verworfen", false);
                 break;
 
             default: //Error_msg
                 logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, Global.LogIntottDB);
         }  
-        Global.debugMode&&alert(`Aufnahme wurde gestartet in state: ${recState}`) 
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -112,7 +112,7 @@ function ttErrorLog(caller, msg) {
 
         // itteriere durch das DataObj von der DB und erstelle Array aus id(value) und label[Anzeigetext] 
         if (dataObj.length>0){
-            console.log(dataObj)
+           
             for (let i = 0; i < dataObj[0].rows.length; i++) {
                 newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
             };
@@ -245,17 +245,17 @@ function ttErrorLog(caller, msg) {
                     let serverStatus = executeSql("SELECT 1");
                     if (serverStatus.length <= 0 || serverStatus === null) {
                         //saveLocaly(query);  TODO:
-                        Global.logSQL? logsqlIntodebug("keine Antwort von DB", query, fail): undefined;
+                        Global.logSQL? logsqlIntodebug("keine Antwort von DB", query, false): undefined;
                     } else {     
                         executeSql(query);
-                        Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
+                        Global.logSQL? logsqlIntodebug("pushData", query, false): undefined;
                         // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
                         query = '';
                     }
 
                  } catch (error) {
                     executeSql(query);
-                    Global.logSQL? logsqlIntodebug("Blind SQL", query, fail): undefined;
+                    Global.logSQL? logsqlIntodebug("Blind SQL", query, false): undefined;
                  }
              }
         });      

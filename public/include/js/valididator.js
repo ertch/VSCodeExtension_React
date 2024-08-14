@@ -216,7 +216,6 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                     let specVali = document.getElementById(id).getAttribute("data-call"); // TODO ist das noch das richtige Attribut?
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
                         extResult = window[specVali](target);  
-                        console.log(extResult);      // prüfe mit ext. Vali
                         boolErr = extResult[0]; 
                         errTxt  = extResult[1]; 
                     }   
@@ -233,7 +232,6 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                        }
                     }
                     found? undefined: successBool = false;
-                    console.log(successBool)
                 } else {
                     // prüfe Input.value gegen RegEx
                     regX.test(target) ? undefined : boolErr = false; 
@@ -505,6 +503,7 @@ function ifTheDivs(tabPage) {
     calledDivs.forEach(ifDiv => { // Hole Vorgaben aus Elementen
         let validationBool = true;
         let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
+        let posSale = ifDiv.getAttribute("data-ps");
         let lastStatus = "";
         let lastBool = true;
 
@@ -561,9 +560,14 @@ function ifTheDivs(tabPage) {
             lastBool = currentBool;
             lastStatus = checkstatus;
         }); // schalte Element sichtbar / hidden
+        if (validationBool) {
+            posSale==="true"? Global.posSale = true : undefined;
+        } else {
+            posSale==="true"? Global.posSale = false : undefined;
+        }
         if (validationBool && ifDiv.classList.contains("d-none")) {
             ifDiv.classList.remove("d-none");
-        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {
+        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {    
             ifDiv.classList.add("d-none");
         }
     });

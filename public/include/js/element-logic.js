@@ -1,159 +1,196 @@
 // const { preview } = require("astro");
-//################################################################################### BUILD / BOOT ######################################################################
-/**createCusomerCells
- * 
- *          Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
- *          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerPattern, bevor sie in die Cells via HTML eingefügt werden.
- */ 
 let CustomerData = {};
-function createCustomerPattern() {
-    let logCCD="";
-    let logCDO="";
-    try {
-        // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
-        let cardHolder = document.getElementById("customerCells");
-        let error_msg = document.getElementById("customerCells_errorMsg");
-        let SqlField;
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/**                                                                 ____          _                            ____        _           ___      ____     _ _     
+*                                                                  / ___|   _ ___| |_ ___  _ __ ___   ___ _ __|  _ \  __ _| |_ __ _   ( _ )    / ___|___| | |___ 
+*                                                                 | |  | | | / __| __/ _ \| '_ ` _ \ / _ \ '__| | | |/ _` | __/ _` |  / _ \/\ | |   / _ \ | / __|
+*                                                                 | |__| |_| \__ \ || (_) | | | | | |  __/ |  | |_| | (_| | || (_| | | (_>  < | |__|  __/ | \__ \
+*                                                                  \____\__,_|___/\__\___/|_| |_| |_|\___|_|  |____/ \__,_|\__\__,_|  \___/\/  \____\___|_|_|___/
 
-        // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
-        if (cardHolder.getAttribute("data-provider") != null){
-            let execute = cardHolder.getAttribute("data-provider");
-            CustomerPattern = Global.noCustomerData? "" : executeFunctionFromString(execute);
-        } else {
-            CustomerPattern = Global.noCustomerData? "" : providerDefault();
-        };
+*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*   createCusomerCells
+* 
+*          Diese Funktion erstellt CustomerCells basierend auf den angegebenen Daten.
+*          Sie durchläuft die Daten der DB und füllt die entsprechenden Werte in die CustomerPattern, bevor sie in die Cells via HTML eingefügt werden.
+*/ 
 
-        // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
-        if (cardHolder.getAttribute("data-query") != null){
-            let execute = cardHolder.getAttribute("data-query");
-            SqlField = executeFunctionFromString(execute.toString());
-        } else {
-            SqlField = queryDefault();
-        };
-        // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
-        if (typeof SqlField.keys === 'function' && SqlField.keys("createCell")) { 
-            error_msg.innerHTML =  Global.noCustomerData? "":"Datensatz fehlerhaft";
-            error_msg.className = "errormessage--db_error";
-            logCCD =  Global.noCustomerData? "<span class='txt--bigRed'>CustomerData abgeschaltet:</span> <br> kein Datensatz gefunden <br>":"<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
-            if (!Global.noCustomerData) {
-                !Global.debugMode? ttWeb.terminateCall(`${Result.neg_termination}`): alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
-            }
-        } else {
-            error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
-            // Durchlaufe jedes Element in CustomerPattern
-      
-            CustomerPattern.push({ label: `${Global.key1}`, match: `${Global.key1}`, value: "", standAlone: true, createCell: false, dbType: "VARCHAR"})
-          
-            for (const [index] of Object.entries(CustomerPattern)) {
-                // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerPattern übereinstimmt
-                matchingKey = Object.keys(SqlField).indexOf(CustomerPattern[index].match);         
-                // Prüfe ob Index von CustomerPattern in SqlField vorhanden und > -1 ist.
-                // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerPattern 
-                if (Object.keys(SqlField).indexOf(CustomerPattern[index].match) > -1) {
-                    CustomerPattern[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
-                } else {  
-                    CustomerPattern[index].value = "-";
-                };  
+    function createCustomerCells() {
+        let logCCD="";
+        let logCDO="";
+        try {
+            // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
+            let cardHolder = document.getElementById("customerCells");
+            let error_msg = document.getElementById("customerCells_errorMsg");
+            let SqlField;
+
+            // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
+            if (cardHolder.getAttribute("data-provider") != null){
+                let execute = cardHolder.getAttribute("data-provider");
+                CustomerPattern = Global.noCustomerData? "" : executeFunctionFromString(execute);
+            } else {
+                CustomerPattern = Global.noCustomerData? "" : providerDefault();
             };
-    
-            // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerPattern-Werten
-            let chache = ""; // Zwischenspeicher für zu übertragende Werte
-            try {
-                for (let i = 0; i < CustomerPattern.length; i++) {
-                    
-                    let label = CustomerPattern[i].label;
-                    let id = CustomerPattern[i].match;
-                    let value = CustomerPattern[i].value;
-                    let standAlone = CustomerPattern[i].standAlone;
-                    let createCell = CustomerPattern[i].createCell;
-                    let marker = "";
 
-                    if (label.includes("!")) {
-                        let skipThis = false;
-                        switch (label.split('!')[0]){
+            // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
+            if (cardHolder.getAttribute("data-query") != null){
+                let execute = cardHolder.getAttribute("data-query");
+                SqlField = executeFunctionFromString(execute.toString());
+            } else {
+                SqlField = queryDefault();
+            };
+            // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
+            if (typeof SqlField.keys === 'function' && SqlField.keys("createCell")) { 
+                error_msg.innerHTML =  Global.noCustomerData? "":"Datensatz fehlerhaft";
+                error_msg.className = "errormessage--db_error";
+                logCCD =  Global.noCustomerData? "<span class='txt--bigRed'>CustomerData abgeschaltet:</span> <br> kein Datensatz gefunden <br>":"<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
+                if (!Global.noCustomerData) {
+                     !Global.debugMode
+                     ? undefined //ttWeb.terminateCall(`${Result.neg_termination}`)
+                     : alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
+                }
+            } else {
+                error_msg.className = "errormessage--db_error" ? error_msg.className = "errormessage--db_error d-none" : undefined;
+                // Durchlaufe jedes Element in CustomerPattern
+        
+                CustomerPattern.push({ label: `${Global.key1}`, match: `${Global.key1}`, value: "", standAlone: true, createCell: false, dbType: "VARCHAR"})
+            
+                for (const [index] of Object.entries(CustomerPattern)) {
+                    // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerPattern übereinstimmt
+                    matchingKey = Object.keys(SqlField).indexOf(CustomerPattern[index].match);         
+                    // Prüfe ob Index von CustomerPattern in SqlField vorhanden und > -1 ist.
+                    // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerPattern 
+                    if (Object.keys(SqlField).indexOf(CustomerPattern[index].match) > -1) {
+                        CustomerPattern[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
+                    } else {  
+                        CustomerPattern[index].value = "-";
+                    };  
+                };
+        
+                // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerPattern-Werten
+                let chache = ""; // Zwischenspeicher für zu übertragende Werte
+                try {
+                    for (let i = 0; i < CustomerPattern.length; i++) {
+                        
+                        let label = CustomerPattern[i].label;
+                        let id = CustomerPattern[i].match;
+                        let value = CustomerPattern[i].value;
+                        let standAlone = CustomerPattern[i].standAlone;
+                        let createCell = CustomerPattern[i].createCell;
+                        let marker = "";
 
-                            case "red":
-                                marker = 'mark--red';
-                                break;
-                            
-                            case "grn":
-                                marker = 'mark--green';
-                                break;
+                        if (label.includes("!")) {
+                            let skipThis = false;
+                            switch (label.split('!')[0]){
 
-                            case "yel":
-                                break;
-
-                            default:
-                                skipThis = true;
-                        }
-                        label = label.split("!")[1];
-                        skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
-                    }         
-                    if (id != "seperator") {
-                        CustomerData[id] = {};
-                        CustomerData[id].index = i;
-                        CustomerData[id].value = CustomerPattern[i].value;
-                        CustomerData[id].lable = label;
-                        logCDO += `CustomerData.${id} / .index = ${i} / .value = ${CustomerPattern[i].value} / .lable = ${label} <br>`;
-                    }
-                    if (createCell) {            
-                    
-                        // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
-                        standAlone ? undefined : (chache = value);
-                        // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
-                        if (standAlone && chache !== "")
-                            (value = `${chache} ${value}`), (chache = "");
-
-                        if (standAlone) {
-                            // Füge die Cell oder Separator in das HTML ein wenn standAlone true
-                            
-                            if (id != "separator") {
-                                cardHolder.innerHTML += ` 
-                                    <div class="cell">
-                                        <div class="cell__head">${label}</div>
-                                        <div class="data_value cell__data" id=${id}>${value}</div>
-                                    </div>
-                                `;
+                                case "red":
+                                    marker = 'mark--red';
+                                    break;
                                 
-                            } else {
-                                cardHolder.innerHTML += ` 
-                                    <div class='separator'></div>
-                                `;
+                                case "grn":
+                                    marker = 'mark--green';
+                                    break;
+
+                                case "yel":
+                                    break;
+
+                                default:
+                                    skipThis = true;
+                            }
+                            label = label.split("!")[1];
+                            skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
+                        }         
+                        if (id != "seperator") {
+                            CustomerData[id] = {};
+                            CustomerData[id].index = i;
+                            CustomerData[id].value = CustomerPattern[i].value;
+                            CustomerData[id].lable = label;
+                            logCDO += `CustomerData.${id} / .index = ${i} / .value = ${CustomerPattern[i].value} / .lable = ${label} <br>`;
+                        }
+                        if (createCell) {            
+                        
+                            // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
+                            standAlone ? undefined : (chache = value);
+                            // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
+                            if (standAlone && chache !== "")
+                                (value = `${chache} ${value}`), (chache = "");
+
+                            if (standAlone) {
+                                // Füge die Cell oder Separator in das HTML ein wenn standAlone true
+                                
+                                if (id != "separator") {
+                                    cardHolder.innerHTML += ` 
+                                        <div class="cell">
+                                            <div class="cell__head">${label}</div>
+                                            <div class="data_value cell__data" id=${id}>${value}</div>
+                                        </div>
+                                    `;
+                                    
+                                } else {
+                                    cardHolder.innerHTML += ` 
+                                        <div class='separator'></div>
+                                    `;
+                                }
                             }
                         }
                     }
+                    logCCD += "<span class='txt--orange'>CustomerPattern</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
+                } catch (error) {
+                    logCCD +="<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
                 }
-                logCCD += "<span class='txt--orange'>CustomerPattern</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
-            } catch (error) {
-                logCCD +="<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
-            }
-        };         
-    } catch (error) {
-        logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
-        Global.debugMode && console.log(error.stack);
-    } 
+            };         
+        } catch (error) {
+            logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
+            Global.debugMode && console.log(error.stack);
+        } 
 
-    // Kundenhistorie laden und anzeigen
-    let historyCount =  pullSQL("historyCount");
-    let historyBox = document.getElementById('kundenhistorie');
-    if (historyCount[0].rows[0].fields.anzahl > 0) {
-        let historyData = pullSQL("historyData");   
-        historyData = historyData[0];
-    
-        let kundenhistorie = historyBox.innerHTML;
-        for (let i = 0; i < historyData.rows.length; i++) {
-            kundenhistorie += `<p class="history">${historyData.rows[i].fields.message}</p>`;
-        }
-        historyBox.innerHTML = kundenhistorie;
-        logCCD += "Kundenhistorie erfolgreich geladen.";  
-    } else {
-       historyBox.innerHTML += "Keine Historie verfügbar";
-       logCCD += "<br><span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
+        // Kundenhistorie laden und anzeigen
+        logCCD += loadCustomerHistory(); 
+
+        Global.showCDObuild &&  logIntoDebug("Build CustomerData", logCDO, false);
+        logIntoDebug("createCustomerPattern", logCCD, false);
     };
 
-    Global.showCDObuild &&  logIntoDebug("Build CustomerData", logCDO, false);
-    logIntoDebug("createCustomerPattern", logCCD, false);
-};
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/** loadCustomerHistory() - Laden der Kontakthistorie
+ * 
+ *      Wenn Historie > 0 lade sie in das vorgesehene Element id="historyData"
+ */
+    function loadCustomerHistory() {
+        let logCCD;
+        let historyData =  pullSQL("historyData");
+        console.log(pullSQL("historyData"));
+        console.log("Objektauswertung")
+        console.log('historyData[0].rows ' + historyData[0].rows)
+        console.log('historyData[0].rows[0]?.fields ' + historyData[0].rows[0]?.fields)
+        console.log('historyData[0].rows[0]?.fields?.message ' + historyData[0].rows[0]?.fields?.message)
+        console.log('verarbeitung')
+        console.log('historyData.length = ' + historyData.length)
+        console.log("historyData.length > 0 = " + historyData.length > 0)
+        console.log("historyData[0].rows.length = " + historyData[0].rows.length)
+
+        let historyBox = document.getElementById('kundenhistorie');
+        if (historyData.length > 0) {
+            console.log('historyData[0].rows[0]?.fields?.message !== undefined ' + historyData[0].rows[0]?.fields?.message !== undefined)
+            if (historyData[0].rows[0]?.fields?.message !== undefined) {
+                let kundenhistorie = historyBox.innerHTML;
+                for (let i = 0; i < historyData[0].rows.length; i++) {
+                    kundenhistorie += `<p class="history">${historyData[0].rows[i].fields.message}</p>`;
+                    console.log("Eintrag " + i + " = " + historyData[0].rows[i].fields.message)
+                }
+                historyBox.innerHTML = kundenhistorie;
+                logCCD += "Kundenhistorie erfolgreich geladen.";  
+            } else {
+                historyBox.innerHTML += "Keine Historie verfügbar";
+                logCCD += "<br><span class='txt--bigRed'>Error:</span> Kundenhistorie konnte nicht geladen werden."; 
+            }
+            
+        } else {
+            historyBox.innerHTML += "Keine Historie verfügbar";
+            logCCD += "<br><span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
+        };
+        console.log(logCCD)
+        return logCCD;
+    }
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** loadProviderPreset() - AutoFill Vorgaben vom Provider
  * 
@@ -215,38 +252,15 @@ function loadProviderPreset() {
     }
 }
 
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** PopUp & debugMode - Loader / watchdog                                                                                                   Funktion geprüft am: 22.05.24 von Erik
- * 
- *      Eventlistener für Popup-Modale      
- */
-    document.addEventListener("DOMContentLoaded", function() {
-
-        const dialogList    = document.getElementsByTagName("dialog");
-        const showButtonList = document.getElementsByClassName("calldialog");
-        const closeButtonList = document.getElementsByClassName("closedialog");
-        
-        // "Show the dialog" button opens the dialog modal
-        for(let x = 0; x < showButtonList.length; x++) {
-            showButtonList[x].addEventListener("click", () => {
-                refreshModals()
-                dialogList[x].showModal();
-                freezcalender();
-            });
-        }
-
-        // "Close" button closes the dialog
-        for(let x = 0; x < closeButtonList.length; x++) {
-            closeButtonList[x].addEventListener("click", () => {
-                dialogList[x].close();
-            });
-        }
-    });
-
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ################################################################################### GATEKEEPER ##############################################################################
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-/** Gatekeeper - Select options to action                                                                                      Funktion geprüft am: 22.05.24 von Erik
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/**                                                                                           ____       _       _                             
+*                                                                                            / ___| __ _| |_ ___| | _____  ___ _ __   ___ _ __ 
+*                                                                                           | |  _ / _` | __/ _ \ |/ / _ \/ _ \ '_ \ / _ \ '__|
+*                                                                                           | |_| | (_| | ||  __/   <  __/  __/ |_) |  __/ |   
+*                                                                                            \____|\__,_|\__\___|_|\_\___|\___| .__/ \___|_|   
+*                                                                                                                             |_|              
+*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   
+*   Gatekeeper - Select options to action                                                                                      
 *  
 *   Eine der wichtigsten Logiken ist das Öffnen und Schließen von Modalen oder Elementen. Hier soll der Gatekeeper Abhilfe schaffen. 
 *   An die Funktion wird entweder ein Array (Aufbau siehe Beispiel) oder die ID des aufrufenden Gatekeeper-Selects übergeben. (siehe Components / Gatekeeper-Select)    
@@ -403,16 +417,15 @@ function loadProviderPreset() {
                                 });
                             break;
 
-                            case "true": // setzte Trigger für übergebene id auf true 
+                            case "setTrue": // setzte Trigger für übergebene id auf true 
                                 (Array.isArray(target) ? target : [target]).forEach(targetVar => {
-                                    Global.posSale = true;
-                                    // TODO mache das targetVar auch das Ziel ist
+                                    Global[targetVar] = true;                                  
                                 });
                             break;
 
-                            case "false": // setzte Trigger für übergebene id auf true 
+                            case "setFalse": // setzte Trigger für übergebene id auf true 
                                 (Array.isArray(target) ? target : [target]).forEach(targetVar => {
-                                    Global.posSale = false;
+                                    Global[targetVar] = false;
                                 });
                             break;
                         
@@ -439,21 +452,32 @@ function loadProviderPreset() {
         });
         Global.logGK? logIntoDebug(`GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,logOperations, Global.LogIntottDB) : undefined;
     };
-// optionaler Gatekeeperaufruf für SuggestionInputs
-function triggerDatalist(id, gatekeeperCall) {
-    if(gatekeeperCall>""){
-        gatekeeper(document.getElementById(id));
-    }
-};
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ################################################################################# Text Trigger #############################################################################################
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // optionaler Gatekeeperaufruf für SuggestionInputs
+    function triggerDatalist(id, gatekeeperCall) {
+        if(gatekeeperCall>""){
+            gatekeeper(document.getElementById(id));
+        }
+    };
 
-/** readTrigger                                                                                                             Funktion geprüft am: 22.05.24 von Erik
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/**                                                                      _____     _                          ___     ____       _   _                  
+*                                                                       |_   _| __(_) __ _  __ _  ___ _ __   ( _ )   |  _ \ __ _| |_| |_ ___ _ __ _ __  
+*                                                                         | || '__| |/ _` |/ _` |/ _ \ '__|  / _ \/\ | |_) / _` | __| __/ _ \ '__| '_ \ 
+*                                                                         | || |  | | (_| | (_| |  __/ |    | (_>  < |  __/ (_| | |_| ||  __/ |  | | | |
+*                                                                         |_||_|  |_|\__, |\__, |\___|_|     \___/\/ |_|   \__,_|\__|\__\___|_|  |_| |_|
+*                                                                                    |___/ |___/                                                        
+*/
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+let triggerFlag = false;
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/**     readTrigger                                                                                                             
 * 
-*      Mit dem Aufruf von readTrigger werden alle bis dahin, in der TriggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
-*      Diese Funktion ist dafür vorgesehen während des BuildUp die geladenen Daten und definierten Texte, in die vorgesehenen Elemente einzufügen.
+*       Mit dem Aufruf von readTrigger werden alle bis dahin, in der TriggerData, aktiv geschalteten Einträge in ihre jeweiligen Elemente geladen.
+*       Diese Funktion ist dafür vorgesehen während des BuildUp die geladenen Daten und definierten Texte, in die vorgesehenen Elemente einzufügen.
 */
     function readTrigger() {
         let insert = "";
@@ -487,6 +511,7 @@ function triggerDatalist(id, gatekeeperCall) {
         })
     };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /** setTrigger                                                                                                              Funktion geprüft am: 22.05.24 von Erik
 * 
 *      setTrigger ist die Zusatzfunktion vom Gatekeeper-Select. Mit dem Befehl 'trigger' kann eine id auf active = true gesetzt werden.
@@ -494,87 +519,92 @@ function triggerDatalist(id, gatekeeperCall) {
 * 
 * @param {*} id - ID des zu schaltenden Eintrags
 */
-let triggerFlag = false;
 
-function setTrigger(id, operation) {
-    // Setze mitgebene id in TriggerData active = true
-    // Setzte alle id der selben Gruppe auf active = false
-    for (const trigger of TriggerData) {
-        if (trigger.id === id) {
-            let killGrp = trigger.grp;
-            TriggerData.forEach((grpMember) => {
-                if (grpMember.grp === killGrp) {
-                    grpMember.active = false;
+    function setTrigger(id, operation) {
+        // Setze mitgebene id in TriggerData active = true
+        // Setzte alle id der selben Gruppe auf active = false
+        for (const trigger of TriggerData) {
+            if (trigger.id === id) {
+                let killGrp = trigger.grp;
+                TriggerData.forEach((grpMember) => {
+                    if (grpMember.grp === killGrp) {
+                        grpMember.active = false;
+                    }
+                });
+                trigger.active = true;
+                try { // Falls list.value eine Variable ist, nutzte deren Wert
+                    insert = eval(trigger.value);
+                } catch (error) {
+                        insert = trigger.value;
+                };
+                if (operation==='add') {
+                    document.getElementById(trigger.target_id).innerHTML += `${insert}`;
+                } else {
+                    document.getElementById(trigger.target_id).innerHTML = `${insert}`;
                 }
-            });
-            trigger.active = true;
-            try { // Falls list.value eine Variable ist, nutzte deren Wert
-                insert = eval(trigger.value);
-            } catch (error) {
-                    insert = trigger.value;
-            };
-            if (operation==='add') {
-                document.getElementById(trigger.target_id).innerHTML += `${insert}`;
-            } else {
-                document.getElementById(trigger.target_id).innerHTML = `${insert}`;
+                break;
             }
-            break;
-        }
-    }        
-};
+        }        
+    };
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/** getTrigger - hole triggerListe aus Element
+ * 
+ */
+    function getTrigger(callerId, validate){
+        let caller = document.getElementById(callerId);
+        triggerArr = stringToArray(caller.getAttribute("data-trigger"));
+        triggerArr.forEach(operation => {
+            let [value, target] = operation; 
+            if(value === caller.value){
+                setTrigger(target);
+            };
+        });
+        if(validate > "") {
+            showWeiterBtn(validate);
+        };
+    };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** getTrigger - hole triggerListe aus Element
  * 
- * @param {*} callerId 
- * @param {*} validate 
  */
-function getTrigger(callerId, validate){
-    let caller = document.getElementById(callerId);
-    triggerArr = stringToArray(caller.getAttribute("data-trigger"));
-    triggerArr.forEach(operation => {
-        let [value, target] = operation; 
-        if(value === caller.value){
-            setTrigger(target);
-        };
-    });
-    if(validate > "") {
-        showWeiterBtn(validate);
-    };
-};
-
-function undoTrigger(target, value) {   
-    const parentElement = document.getElementById(target);
-    if (parentElement) {
-        // Wenn value HTML ist, trimme es und vergleiche es mit dem innerHTML der Kinder
-        if (value.trim().startsWith('<') && value.trim().endsWith('>')) {
-            const children = Array.from(parentElement.children);
-            children.forEach(child => {
-                // wenn das innerHTML gleich ist, lösche Child
-                if (child.outerHTML.trim() === value.trim()) {
-                    child.remove();
-                }
-            });
-        } else {
-            // Andernfalls suche nach Text
-            const textNodes = Array.from(parentElement.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() === value.trim());
-            textNodes.forEach(node => {
-                node.remove();
-            });
+    function undoTrigger(target, value) {   
+        const parentElement = document.getElementById(target);
+        if (parentElement) {
+            // Wenn value HTML ist, trimme es und vergleiche es mit dem innerHTML der Kinder
+            if (value.trim().startsWith('<') && value.trim().endsWith('>')) {
+                const children = Array.from(parentElement.children);
+                children.forEach(child => {
+                    // wenn das innerHTML gleich ist, lösche Child
+                    if (child.outerHTML.trim() === value.trim()) {
+                        child.remove();
+                    }
+                });
+            } else {
+                // Andernfalls suche nach Text
+                const textNodes = Array.from(parentElement.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() === value.trim());
+                textNodes.forEach(node => {
+                    node.remove();
+                });
+            }
         }
     }
-}
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ################################################################################# SwitchTab #############################################################################################
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-/** switchTab - Umschalten der Navigations-Tabs und öffnen der Register                                                         Funktion gerüft am 24.05.24 von Erik
- * 
- *      Bildet die Grundlegende Naviagtion zwischen den Reigstern. Diese wir sowohl über die Tab (Reiter) als auch über die 
- *      "Verabschiedungs"- und "Weiter"-Buttons aufgerufen. Mitgegeben wird die ID des Registers der audgerufen werden soll.  
- * 
- *      @param {*} newTabName 
- */
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/**                                                                                    ____          _ _       _   _____     _     
+*                                                                                     / ___|_      _(_) |_ ___| |_|_   _|_ _| |__  
+*                                                                                     \___ \ \ /\ / / | __/ __| '_ \| |/ _` | '_ \ 
+*                                                                                      ___) \ V  V /| | || (__| | | | | (_| | |_) |
+*                                                                                     |____/ \_/\_/ |_|\__\___|_| |_|_|\__,_|_.__/ 
+*
+*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*   switchTab - Umschalten der Navigations-Tabs und öffnen der Register                                                        
+* 
+*      Bildet die Grundlegende Naviagtion zwischen den Reigstern. Diese wir sowohl über die Tab (Reiter) als auch über die 
+*      "Verabschiedungs"- und "Weiter"-Buttons aufgerufen. Mitgegeben wird die ID des Registers der audgerufen werden soll.  
+* 
+*      @param {*} newTabName 
+*/
     function switchTab(newTabName) { 
     let currentTabName = Global.currentTabName;
     // Überprüfen, ob der neue Tab gültig ist
@@ -640,16 +670,155 @@ function undoTrigger(target, value) {
                 }
             } else {
                 return;
+            }
         }
-    }
-};
+    };
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Buttons & Weiterleitungen +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/**                                                                                           _____ _       _     _     
+*                                                                                            |  ___(_)_ __ (_)___| |__  
+*                                                                                            | |_  | | '_ \| / __| '_ \ 
+*                                                                                            |  _| | | | | | \__ \ | | |
+*                                                                                            |_|   |_|_| |_|_|___/_| |_|
+*
+*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*   finish - Absender der Form und schließen des momentanen Falles                                                     
+* 
+*      Wie auch immer der Fall abgeschlossen wird, zum speichern der Daten und beenden der Maske wird immer die Finish-Funktion genutzt.
+*      Die "method" beschriebt hier bei wie der Fall abgehandlet werden soll.
+* 
+*      @param {*} newTabName 
+*/   
+    function finish(method) { 
+        let resultId;
+        let setTime;
+        let sysTime;
+        let setDate;
+        let sysDate;
+        let appointmentDate;
 
-// Validierung der Seite aufrufen und wenn bestanden Button einfügen 
+        switch (method) {
 
+            case 'freedial':
+                let recall_number = document.getElementById('freedial_number').value;
+                pushSQL('finish', Result.freedial);
+                !Global.debugMode? ttWeb.makeCustomerCall(recall_number): alert(`ttWeb.makeCustomerCall(${recall_number})`);
+                // ttWeb.saveRecording(Global.recordFileName);
+                // terminateCall(Result.neg_termination);
+                break;
+
+            case 'wievor':
+                let dateInput = document.getElementById('wiedervorlage_date');
+                let dateError = document.getElementById('wiedervorlage_date_error');
+                let timeInput = document.getElementById('wiedervorlage_time');
+                let timeError = document.getElementById('wiedervorlage_time_error');
+                // Errors zürücksetzen
+                dateError.innerHTML = "";
+                timeError.innerHTML = "";
+                dateInput.classList.remove('errorborder');
+                timeInput.classList.remove('errorborder');
+            
+                // Datum Eingabe überprüfen
+                if (dateInput.value === "") {
+                    dateError.innerHTML = "Bitte Datum eingeben";
+                    dateInput.classList.add('errorborder');
+                    return;
+                }
+            
+                setDate = dateInput.value;
+                            
+                // Zeit EIngabe Überprüfen
+                if (timeInput.value === "") {
+                    timeError.innerHTML = "Bitte Zeitraum eintragen";
+                    timeInput.classList.add('errorborder');
+                    return;
+                }
+                
+                sysDate = dateInput.getAttribute('min'); 
+                setTime = timeInput.value;
+                sysTime = getSysTime(0);
+               
+                // wenn Datum = Heute, dann prüfe ob die Uhrzeit in der Vergangenheit liegt 
+                if (setDate === sysDate) {
+                    let fullSetT = setTime.replace(/:/g, '');
+                    let fullSysT = sysTime.replace(/:/g, '');
+                    if (Number(fullSetT) < Number(fullSysT) + 1) {
+                        timeError.innerHTML = "Zeit muss in der Zukunft liegen";
+                        timeInput.classList.add('errorborder');
+                        productionTime()
+                        return;
+                    }
+                }
+                
+                if (timeInput.classList.contains("check_time")) {
+                    timeError.innerHTML = "Zeit nicht in Arbeitszeitraum";
+                    timeInput.classList.add('errorborder');
+                    return;
+                }
+            
+                record("save");
+                appointmentDate = new Date(`${setDate} ${setTime}:00`);
+
+                pushSQL('update_history_wievor', appointmentDate);
+                pushSQL('finish', Result.wiedervorlage);
+                                
+                !Global.debugMode? terminateCall(JSON.stringify(Result.wievor_termination), formatDateForDB(appointmentDate), 0, 0) : alert(`Wiedervorlage für ${formatDateForDB(appointmentDate)}`);
+                
+            break; 
+
+            case 'apne':
+                setTime = document.getElementById('apne_delay').value;
+
+                let terminationCode = eval(`Result.${setTime}`);
+                pushSQL('finish', resultId);
+                convertFormToQuery('finish_apne');
+
+                let appointment = new Date();
+                let hoursToAdd = Number(setTime.replace(/\D/g, ''));
+                appointment.setHours(appointment.getHours() + hoursToAdd);                    
+
+                record('clear');
+                !Global.debugMode? terminateCall(JSON.stringify(terminationCode),formatDateForDB(appointment),0,0) : alert(`apne mit delay ${formatDateForDB(appointment)}`);
+                break;
+
+            case 'abfax':
+                
+                pushSQL('finish', Result.abfax);
+                record('clear');
+                !Global.debugMode? terminateCall(JSON.stringify(Result.abfax_termination)): alert(`abfax | code: ${Result.abfax}`);
+                break;
+
+            case 'auto':
+                convertFormToQuery('tabsForm');
+                resultId = Global.posSale? Result.positive : Result.negative;
+                pushSQL('finish', resultId);
+                Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
+                break;
+
+            case 'queryLib':                
+                finishCall()
+                break;
+
+            case 'cancel':
+                record(`clear`);
+                !Global.debugMode? terminateCall(Result.neg_termination) : alert(`terminateCall(${Result.neg_termination})`);
+                break;
+
+            default:
+        }    
+    };    
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/**                                                                                     ____        _   _                  
+*                                                                                      | __ ) _   _| |_| |_ ___  _ __  ___ 
+*                                                                                      |  _ \| | | | __| __/ _ \| '_ \/ __|
+*                                                                                      | |_) | |_| | |_| || (_) | | | \__ \
+*                                                                                      |____/ \__,_|\__|\__\___/|_| |_|___/
+*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*
+* Validierung der Seite aufrufen und wenn bestanden Button einfügen 
+*/
 
     function showWeiterBtn(page_id) {
         let showWeiterBtn = document.querySelector('.nextpage--btn');
@@ -686,297 +855,5 @@ function undoTrigger(target, value) {
         }
     };
 
-    function createEndcard() {
-
-        document.getElementById('weiterBtn').className = "d-none"; 
-        
-        // TODO: hier API-abfrage nach Aufnahmestatus
-        let RecState = 2;
-        // Austauschen sobald verfügbar
-
-        if(RecState === 2){
-
-        }
-    };
-
-    function setTerminationCode() {
-        if (Global.terminationCode == null) {
-            Global.posSale? Global.terminationCode = 100 : Global.terminationCode = 200;
-        }
-    }
-
-    function finish(method) { 
-        let resultId;
-   
-        switch (method) {
-
-            case 'freedial':
-                newNumber = document.getElementById('freedial_number').value;
-
-
-                pushSQL('finish', Result.freedial);
-                
-                ttWeb.saveRecording(Global.recordFileName);
-                terminateCall(JSON.stringify(Result.neg_termination));
-                break;
-
-            case 'wievor':
-                let dateInput = document.getElementById('wiedervorlage_date');
-                let dateError = document.getElementById('wiedervorlage_date_error');
-                let timeInput = document.getElementById('wiedervorlage_time');
-                let timeError = document.getElementById('wiedervorlage_time_error');
-                
-                // Errors zürücksetzen
-                dateError.innerHTML = "";
-                timeError.innerHTML = "";
-                dateInput.classList.remove('errorborder');
-                timeInput.classList.remove('errorborder');
-            
-                // Datum Eingabe überprüfen
-                if (dateInput.value === "") {
-                    dateError.innerHTML = "Bitte Datum eingeben";
-                    dateInput.classList.add('errorborder');
-                    return;
-                }
-            
-                let setDate = dateInput.value;
-                            
-                // Zeit EIngabe Überprüfen
-                if (timeInput.value === "") {
-                    timeError.innerHTML = "Bitte Zeitraum eintragen";
-                    timeInput.classList.add('errorborder');
-                    return;
-                }
-                
-                let sysDate = dateInput.getAttribute('min'); 
-                let setTime = timeInput.value;
-                let sysTime = getSysTime(0);
-                
-                
-                // Prüfe ob Angegebene Zeit außerhalb der Speerzeit liegt
-                
-
-                // wenn Datum = Heute, dann prüfe ob die Uhrzeit in der Vergangenheit liegt 
-                if (setDate === sysDate) {
-                    let fullSetT = setTime.replace(/:/g, '');
-                    let fullSysT = sysTime.replace(/:/g, '');
-                    if (Number(fullSetT) < Number(fullSysT) + 1) {
-                        timeError.innerHTML = "Zeit muss in der Zukunft liegen";
-                        timeInput.classList.add('errorborder');
-                        productionTime()
-                        return;
-                    }
-                }
-                
-                if (timeInput.classList.contains("check_time")) {
-                    timeError.innerHTML = "Zeit nicht in Arbeitszeitraum";
-                    timeInput.classList.add('errorborder');
-                    return;
-                }
-              
-                record("save");
-                let appointmentDate = new Date(setDate);
-                pushSQL('finish', Result.wiedervorlage);
-                terminateCall(JSON.stringify(Result.wievor_termination), appointmentDate, 0, 0);
-                
-            break; 
-
-            case 'apne':
-                setTime = document.getElementById('apne_delay').value;
-                steNote = document.getElementById('apne_notiz').value;
-
-                resultId = eval(`Result.${document.getElementById('apne_delay').value}`);
-                pushSQL('finish', resultId);
-                convertFormToQuery('finish_apne');
-
-                ttWeb.clearRecording();
-                let terminationCode = eval(`Result.${document.getElementById('apne_delay').value}`);
-                terminateCall(JSON.stringify(terminationCode),appointmentDate,0,0);
-                break;
-
-            case 'abfax':
-                newData = [''];
-                pushSQL('finish', Result.abfax);
-
-                ttWeb.clearRecording();
-                terminateCall(JSON.stringify(Result.abfax_termination));
-                break;
-
-            case 'auto':
-                convertFormToQuery('tabsForm');
-                resultId = Global.posSale? Result.positive : Result.negative;
-                pushSQL('finish', resultId);
-                Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
-                break;
-
-            case 'queryLib':
-                //Eigene Anweisung in query_lib
-                
-                resultId = Global.posSale? Result.positive : Result.negative;
-                pushSQL('finish', resultId);
-                Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
-                break;
-
-            case 'cancel':
-                resultId = Result.negative;
-                // record(`${Global.}`);
-                terminateCall(JSON.stringify(Result.neg_termination));
-                break;
-
-            default:
-        }
-        
-    }
-
-   
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** HotKeys
- * 
- *       Anhand des übergebenen KeyCodes -Führe aus...
- *       @param {*} KeyCode 
- */
-    function keyDown (event) {
-        // Wenn die Taste [D] gedrückt wird
-        if (event === 68) { 
-            keyCode1Pressed = true; // Setze den Status der ersten Taste auf true
-        } 
-        // Wenn die Taste [Tab] gedrückt wird
-        else if (event === 9) { 
-            keyCode2Pressed = true; // Setze den Status der zweiten Taste auf true
-        }  
-        // Wenn die Taste [C] gedrückt wird
-        else if (event === 67) { 
-            keyCode3Pressed = true; // Setze den Status der dritten Taste auf true
-        }
-
-        // Überprüfe, ob beide Tasten gleichzeitig gedrückt wurden
-        if (keyCode1Pressed && keyCode2Pressed) {
-            // Ändere die Sichtbarkeit des debug-Logs
-            beep(220,55,45); // Frohe Ostern
-            setTimeout(() => {beep(200,35,45)},290);
-            document.getElementById("debugLog").classList.toggle("d-none");
-            Global.debugMode && console.log("debuglog geöffnet!");
-        }
-        // Überprüfe, ob die zweite und dritte Taste gleichzeitig gedrückt wurden
-        if (keyCode2Pressed && keyCode3Pressed) {
-            // Setze den Inhalt des debug-Logs zurück
-            debugWindowClear()        
-        } 
-    };
-    function keyUp (event) {
-        // Wenn die Taste [Zirkumflex] losgelassen wird
-        if (event === 68) { 
-            keyCode1Pressed = false; // Setze den Status der ersten Taste auf false
-        } 
-        // Wenn die Taste [Tab] losgelassen wird
-        else if (event === 9) { 
-            keyCode2Pressed = false; // Setze den Status der zweiten Taste auf false
-        } 
-        // Wenn die Taste [C] losgelassen wird
-        else if (event === 67) { 
-            keyCode3Pressed = false; // Setze den Status der dritten Taste auf false
-        }
-    };
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ HELPER +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-001                                                                                                             Funktion geprüft am: 22.05.24 von Erik
- * 
- *      Führt eine Funktion aus, die als Zeichenkette übergeben wird.
- *      @param {string} funcString - Die Zeichenkette, die den Funktionsaufruf enthält.
- */
-    function executeFunctionFromString(funcString) {
-        let funcName = funcString.match(/^(\w+)\(/)?.[1]; // Extrahiert den Namen der Funktion aus der Zeichenkette
-        let argsMatch = funcString.match(/\(([^)]+)\)/)?.[1];  // Extrahiert die Argumente der Funktion aus der Zeichenkette
-        let args = argsMatch ? argsMatch.split(',').map(arg => arg.trim()) : []; // Zerlegt die Argumente in ein Array
-        let giveBack;
-
-        // Prüft, ob die extrahierte Funktion existiert und eine Funktion ist
-        if (funcName && typeof window[funcName] === 'function') {
-        giveBack = window[funcName](...args); // Aufruf
-        } else {
-            logIntoDebug( "executeFunctionFromString:",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
-        }
-        return giveBack;
-    };
-
-    function createAddressDataArray(queryResult) {
-        try {
-            // Das Ergebnis wird angenommen und in ein Array von Adressdaten umgewandelt
-            const addressDataArray = queryResult[0].rows.map(row => {
-                // Jede Zeile des Ergebnisses wird durchlaufen, um die Daten zu extrahieren
-                const rowData = {};
-                row.columns.forEach((value, index ) => {
-                    // Die Werte werden bearbeitet und in das Objekt rowData eingefügt
-                    // Eventuelle Leerraumzeichen werden entfernt, falls vorhanden, sonst wird '-' verwendet
-                    rowData[index] = value.trim() ?? '-';
-                });
-                // Die bearbeitete Zeile wird zurückgegeben und zum Array hinzugefügt
-                return rowData;
-            });
-            // Das fertige Array mit Adressdaten wird zurückgegeben
-            return addressDataArray;
-        } catch (error) {
-            // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
-            logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", Global.LogIntottDB);
-            return []; 
-        }
-    }; 
-
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    function logIntoDebug(caller, msg, dbExport) {
-        if (Global.showDebug) { // Global.showdebug=> ttEditor-config.js
-            let window = document.getElementById("debugLog");
-            let log = window.innerHTML
-            log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + msg;
-            window.innerHTML = log;
-        } 
-        if (dbExport && Global.LogIntottDB) { // Global.LogIntottDB => ttEditor-config.js
-            // Erstelle und sende Log an Datenbank
-            ttErrorLog(caller, msg);
-        }
-    }
-
-    function logsqlIntodebug(caller, query, awnser) {
-        if (Global.showDebug) { // Global.showdebug => ttEditor-config.js
-            let window = document.getElementById("debugLog");
-            let log = window.innerHTML
-            let awnserTxt = "";  
-            if (awnser === false) {
-                awnserTxt = "<I class='txt--red'>Keine Daten in der DB gefunden</I>"
-                buildupFail = true;
-            } else {
-                awnserTxt ="<I class='txt--green'>Daten aus DB empfangen</I>"
-            };
-            log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + query + "<br>" + awnserTxt;
-            window.innerHTML = log;
-        };
-    }
-
-    function productionTime() {
-        // Zeigt im Modal Wiedervorlage im Uhrzeit-Imput einen grünen Haken an, wenn die eingegebene Zeit nicht in der 
-        // Global.sperrzeit liegt. Gedacht als visuelle Unterstützung des Useres
-        const target = document.getElementById("wiedervorlage_time");
-        const sysTime = Number(getSysTime(0).replace(/:/g, ''));
-        const setTime = Number(target.value.replace(/:/g, ''));
-        const workBeginn = Number(Global.sperrzeit.bis.replace(/:/g, ''));
-        const workEnding = Number(Global.sperrzeit.von.replace(/:/g, ''));
-        const dateInput = document.getElementById('wiedervorlage_date');
-        const sameday = dateInput.getAttribute("min") === dateInput.value;
-        let validTime = true;
     
-        if (sameday===true) {
-            setTime > sysTime? undefined : validTime = false;
-        }
-        setTime < workEnding && setTime > workBeginn? undefined : validTime = false;
-        
-        if (validTime) {
-            target.classList.remove('check_time', 'errorborder');
-            document.getElementById("wiedervorlage_time_error").innerHTML = "";
-            return true;
-        } else {
-            target.classList.add('check_time');
-            }
-    }
+   
