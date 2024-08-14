@@ -58,6 +58,7 @@ let isValidating = 0;
                 date: [],
                 time: [],
                 dateandtime: [],
+                options: [],
                 default: []
             };
             let validateSpecial = [];
@@ -138,6 +139,7 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
     
     let regX;                   //  Das übergebene Array enthält die IDs jener Inputs, die einem ValiTyp
     let errTxt;                 //  zugewiesen sind. 
+    let optVali;
     let boolErr = true;         //
     let extVali = false;
     let successBool = true; 
@@ -183,10 +185,14 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
             regX = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}\s(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9])(:([0-5][0-9]))?$/;
             errTxt = "Ungültige Zeitformat!"; 
             break;
-    
+
+        case 'options':
+            optVali = true;
+            break;
+
         case 'call': // Input-spezifische Validation wird aufgerufen
-            extVali = true; 
-        
+            extVali = true;
+                    
         case 'empty':    // durchwinken wenn 'call' oder Null-Prüfung (Null-Prüfung => value > null)
             regX = /[\s\S]+/;   // value = "" zulassen: /[\s\S]*/ 
             errTxt = "Keine Validierung möglich!";
@@ -205,15 +211,27 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
             idArr.forEach(id => { // ArrayEinträge Iterieren -> Input.value auslesen
                 let target = document.getElementById(id).value;
                 let errTxtId = `${id}_errorMsg`;
-
+                
                 if (extVali === true) { // data-call.value -> 'String to function' 
                     let specVali = document.getElementById(id).getAttribute("data-call"); // TODO ist das noch das richtige Attribut?
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
                         extResult = window[specVali](target);  
-                        console.log(extResult);      // prüfe mit ext. Vali
                         boolErr = extResult[0]; 
                         errTxt  = extResult[1]; 
                     }   
+                } else if (optVali === true) {
+                    // Hole <option>.value auch dem Element und prüfe ob target.value darin vorhanden
+                    let opts = document.getElementById(id).nodeName==="INPUT"? `${id}List` : id;
+                    opts = Array.from(document.getElementById(opts).children);
+                    let found = false;
+                    let targetValue = document.getElementById(id).value;
+                    for (i=0;i<opts.length;i++) {
+                       if (opts[i].value===targetValue){
+                            found = true;
+                            break;
+                       }
+                    }
+                    found? undefined: successBool = false;
                 } else {
                     // prüfe Input.value gegen RegEx
                     regX.test(target) ? undefined : boolErr = false; 
@@ -485,6 +503,7 @@ function ifTheDivs(tabPage) {
     calledDivs.forEach(ifDiv => { // Hole Vorgaben aus Elementen
         let validationBool = true;
         let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
+        let posSale = ifDiv.getAttribute("data-ps");
         let lastStatus = "";
         let lastBool = true;
 
@@ -541,9 +560,14 @@ function ifTheDivs(tabPage) {
             lastBool = currentBool;
             lastStatus = checkstatus;
         }); // schalte Element sichtbar / hidden
+        if (validationBool) {
+            posSale==="true"? Global.posSale = true : undefined;
+        } else {
+            posSale==="true"? Global.posSale = false : undefined;
+        }
         if (validationBool && ifDiv.classList.contains("d-none")) {
             ifDiv.classList.remove("d-none");
-        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {
+        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {    
             ifDiv.classList.add("d-none");
         }
     });

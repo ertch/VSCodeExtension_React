@@ -43,33 +43,38 @@ import Select from "@components/SimpleSelect.astro";
       <div class="flex">
           <div>
               <Input
-                  klasse="shortend__input"
+                  klasse="shortend__input mb_0"
                   label="Datum"
                   type="date"
                   id="wiedervorlage_date"
                   validate="date"
               ></Input>
+              <span class="errormessage" id="wiedervorlage_date_error"></span>
           </div>
           <div>
               <Input
-                  klasse="shortend__input"
+                  klasse="shortend__input mb_0"
                   label="Uhrzeit"
                   type="time"
                   id="wiedervorlage_time"
                   validate="time"
+                  oc="productionTime()"
               ></Input>
+              <span class="errormessage" id="wiedervorlage_time_error"></span>
           </div>
       </div>
-      <TxtArea 
-          klasse="textarea-expend"
-          label="Notiz"
-          col="1"
-          row="1"
-          id="wiedervorlage_Text"
-      ></TxtArea>
+      <div class="mt_1half">
+          <TxtArea
+              klasse="textarea-expend"
+              label="Notiz"
+              col="1"
+              row="1"
+              id="wiedervorlage_Text"
+          ></TxtArea>
+      </div>
       <button
           class="absenden__Btn minifyed"
-          type="submit"
+          type="button"
           id="recallBtn"
           onclick="finish('wievor')"
           ><i class="glyph glyph-save"> Speichern</i>
@@ -113,7 +118,7 @@ import Select from "@components/SimpleSelect.astro";
         <button
             class="absenden__Btn minifyed"
             id="apneBtn"
-            type="submit"
+            type="button"
             onclick="finish('apne')"  
             ><i class="glyph glyph-save">Speichern</i>
         </button>

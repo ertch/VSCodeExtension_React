@@ -6,18 +6,21 @@ interface Props {
   klasse?: string;
   required?:boolean;
   hidden?:boolean
+  setPosSale?: boolean;
 }
 
-const { id, If, group, klasse, hidden, required } = Astro.props;
+const {setPosSale, id, If, group, klasse, hidden, required } = Astro.props;
 let ifArr = JSON.stringify(If);
 let setClass = {hidden}? klasse + " d-none" : klasse;
+let posSale = setPosSale? "true" : "false";
 ---
 <div 
+    {required}
     id={id} 
     class=`ifDiv ${setClass}` 
     data-grp={group} 
     data-if={ifArr}
-    {required}
+    data-ps={posSale}  
 >
     <slot>
     

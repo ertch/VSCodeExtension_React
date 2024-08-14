@@ -34,21 +34,17 @@ function buildUp() {
         // Abruf der notwendigen Daten aus der API
     try {
         clientIP = ttWeb.getClientIP();
+        let calltableData = ttWeb.getCalltable();
         Global.key2 = ttWeb.getCalltableField('ID');
-        msisdn = ttWeb.getCalltableField('HOME');
-        indicator = ttWeb.getIndicator();
-        // Telefonkontakt basierend auf dem Indikator festlegen
-        if (indicator == 1) {
-            telKontakt = ttWeb.getCalltableField('HOME');
-        } else if (indicator == 2) {
-            telKontakt = ttWeb.getCalltableField('BUSINESS');
-        } else {
-            telKontakt = ttWeb.getCalltableField('OTHER');
-        }
-        festnetz = ttWeb.getCalltableField('BUSINESS');
-        agentId = ttWeb.getUser().Login;
+        msisdn = calltableData.HOME;
+        inicator = calltableData.INDICATOR;
+        
 
-        if(clientIP === null || Global.key2 === null || msisdn === null || indicator === null )  {
+        Global.agentId = ttWeb.getUser().Login;
+		calljob = ttWeb.getActiveCallJob();
+		calledNumber = calljob.TargetAddress;
+
+        if(clientIP === null || Global.key2 === null || msisdn === null)  {
             buildupFail = true;
         }
         
@@ -67,8 +63,8 @@ function buildUp() {
         corruptedDB = executeSql(`SELECT COUNT(*) From ${Global.key2} WHERE ${Global.key2}.id = ${Global.key2} LIMIT 1`);
         if (corruptedDB < 1 ) {
             logIntoDebug("buildUp", "Es wurde ein fehlerhafter Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
-            ttWeb.clearRecording();
-            ttWeb.terminateCall('200');
+            record('clear');
+            // ttWeb.terminateCall('200');
         
         } 
     }
@@ -93,8 +89,9 @@ function buildUp() {
                         termCode = '0'
                 }
                 if (termCode != 0 && !Global.debugMode) {
-                    ttWeb.clearRecording();
-                    ttWeb.terminateCall(termCode);
+                    record('clear');
+                    alert("resultid 0");
+                    // ttWeb.terminateCall(termCode);
                 } 
             }
         } catch (error) {
@@ -115,11 +112,12 @@ function buildUp() {
         }
     };
  
-    createCustomerPattern();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
+    createCustomerCells();  // Laden der Kundendaten und Erstellung der Cards, zur Anzeige dieser 
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
     TriggerData = triggerPattern();
     readTrigger();
+    Global.debugMode? undefined : ttWeb.setRecordingState(Global.startCallwithState);
 
     buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false);
     wievofail?  logIntoDebug('buildUp Error', 'Wiedervorlagedaten konnten nicht geladen werden <br> Ladevorhgng wird übersprungen', false): undefined;
@@ -128,8 +126,8 @@ function buildUp() {
 //---------------------------------------------------------------------------- Anrufe / Calls -------------------------------------------------------------------------------------
 //#############################################################################################################################################################################
 
+
 function terminateCall(terminationCode){
-    setTerminationCode();
     if(!Global.debugMode) {
         ttWeb.terminateCall(terminationCode);
     } else { 
@@ -190,7 +188,7 @@ function saveRecording(recordFileName) {
                 Global.debugMode? undefined : ttWeb.terminateCall('RR', null, null, 1); // Anruf terminieren oder ander nummer anrufen.
                 alert("das wars schon");
 
-                ttWeb.clearRecording();
+                record('clear');
 			    ttWeb.makeCustomerCall(newNumber.value);
 
                 logIntoDebug( "callFreedial",`Neue Nummer: <span class="txt--gray">${newNumber.value}</span> gespeichert`,false);
@@ -245,7 +243,7 @@ function saveRecording(recordFileName) {
 
             // Wenn der Zustand 'stop' ist, wird die Aufnahme gestoppt (und die Sprachaufzeichnung wird ggf. gespeichert?) 
             case 'stop':
-                setRecordName(pattern);
+                setRecordName('pattern');
                 if (Global.recordFileName != "") {
                     pushSQL(update_rec_info);
                     pushSQL(save_rec_path);
@@ -257,7 +255,7 @@ function saveRecording(recordFileName) {
 
             // Wenn der Zustand 'save' ist, wird die Aufnahme gespeichert und eine Fehlermeldung wird protokolliert, wenn kein Dateiname angegeben wurde.
             case 'save':
-                setRecordName(pattern);
+                setRecordName('pattern');
                 if (Global.recordFileName != "") {
                     Global.debugMode? undefined : ttWeb.saveRecording(Global.recordFileName);
                     logIntoDebug("record(save)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${Global.recordFileName}</span>`, false);
@@ -268,14 +266,13 @@ function saveRecording(recordFileName) {
 
             // Wenn der Zustand 'clear' ist, wird die Aufnahme gelöscht.
             case 'clear':   
-                Global.debugMode? undefined : ttWeb.clearRecording();
+                Global.debugMode? console.log("Aufnahme verworfen") : ttWeb.clearRecording();
                 logIntoDebug("record(clear)", "Aufnahme wurde verworfen", false);
                 break;
 
             default: //Error_msg
                 logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, Global.LogIntottDB);
         }  
-        Global.debugMode&&alert(`Aufnahme wurde gestartet in state: ${recState}`) 
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -325,13 +322,4 @@ function saveRecording(recordFileName) {
         }
         Global.recordFileName = recordName;
         logIntoDebug("setRecordingName", `RecordFileName = ${Global.recordFileName}`, false);    
-    };
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/** Helper H-SQL-003
- * 
- *      Teilen des Pfades an den Backslashes
- */
-    function splitRecName() {
-        let voicefileName = setRecordName();
-        return teile = voicefileName.split("\\");
     };

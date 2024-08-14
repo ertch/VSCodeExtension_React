@@ -8,12 +8,15 @@
 
 /** TODO:
  * 
- *      Record_BTN-component
- * 
- * 
+ *      TriggerPattern prüfe auf Input, wenn true schreibe value statt innerHTML /PAP
+ *      TriggerPatter erhält "add" und replace für bessere Kontrolle /PAP
+ *      CustomerData - muss etwas anderes als Label nutzen nuztze Match /PAP
+ *      SuggesenstionInput + SQLInjection  /PAP
+ *      validate "options" = prüfe gegen die eigenen options /PAP
+ *      Durchlauf ohne CustomerData /PAP
+ *      Zeitangaben bei wiedervorlage validieren / PAP
  */
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
        
 let CustomerPattern;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
@@ -40,8 +43,6 @@ let firstTab = "tab_start";
 let lastTab = "tab_zusammenfassung";
     
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Campaign Var ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-let campaignId = 679;
 
 let Result = {
     positive:           8911,
@@ -85,8 +86,9 @@ let Result = {
 }
 
 let Global ={
-    campaignId:                  '679' ,
-    currentTabName:       `${firstTab}`,
+    campaignId:                     '679' ,
+    sperrzeit: {von: "22:00", bis:"08:00"},
+    loadTrigger: "everytime"              , // Zuständer sind 
     
     directionState:        0        , // Aktueller Call state
     startCallwithState:    2        , // Call state bei Beginn des Anrufes
@@ -105,12 +107,13 @@ let Global ={
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL addresstable
     key1:                  'addessdataid'          ,  // Coloumnname der addresstable.id
     calldatatable:         ''                      ,
-    key2:                  '9826'                  ,  // ID des Kampagnien-CallTable (aus DB)
+    key2:                  ''                      ,  // ID des Kampagnien-CallTable (aus DB)
     salesdatatable:        'ste_wel_addressdata'   ,  // SQL datatable
     key3:                  ''                      ,
     
     fieldname_firstname:   'firstname'             ,  // SQL column-Bezeichner
     fieldname_lastname:    'surname'               ,  // SQL column-Bezeichner
+    currentTabName:       `${firstTab}`            ,
 
     nestor:                'http://admin/outbound.dbconnector/index.php?sql='              ,// URL des Debog-Connector
     debugdataTableId:      79880808,                                                        // ID für Debug Datenbank CalldataTable
@@ -126,6 +129,7 @@ let Global ={
 
     posSale:               false  , // Indikator für positiven Verkauf
     showCDObuild:          true   , // Zeige den kompletten Aufbau der CustomerData an (in DevLog)
+    noCustomerData:        false,
 }
 
 //--------------------------------------------------------------- Anpassungen des RecordFileNames ---------------------------------------------------------------------------
@@ -165,7 +169,16 @@ function gettime() { // Uhrzeit
     return `${time}uhr`; // hh_mm_uhr
 }
 
-
+function finishCall() {
+    // Hier wird der Code eingetragen, der bei einer händischen überprüfung des positiven Abschlusses ausgeführt werden soll
+    let resultId = Global.posSale? Result.positive : Result.negative;
+    pushSQL('finish', resultId);
+    if (Global.debugMode === false) {
+        Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
+    } else {
+        alert(`Call terminiert mit ${resultId}`)
+    }
+}
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ProviderPattern ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -218,7 +231,7 @@ function gettime() { // Uhrzeit
             { label: 'Produkt',         match: 'product',               value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
             { label: 'Startdatum',      match: 'startdate',             value: "",   standAlone: true,     createCell: true , dbType: "VARCHAR"},
         ];
-        return CustomerPattern
+        return CustomerPattern;
     };
     // TODO mache das auch Variablen eingetragen werden könne, dafür erste testten ob eine Vaiable hinter dem String sitzt und wenn 
 
@@ -245,16 +258,16 @@ function gettime() { // Uhrzeit
 
     function triggerPattern() {
         let TriggerData = [
-            { id: 'Cuda1',    grp:'c',    target_id: 'customerstartinfos',      active: true,        value: `<p> Name: ${CustomerData.Vorname.value}</p> <p> Nachname: ${CustomerData.Nachname.value}</p> `     },
-            { id: 'CuDa2',    grp:'c',    target_id: 'customerstartinfos',      active: false,       value: `<p> Stadt: ${CustomerData.Ort.value}</p>`},
-            { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Hier könnte ihre Werbung stehen.</p>" },
-            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,       value: ""    },
-            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,        value: "<p>Keine nutzbaren Daten gefunden</p>"},
-            { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
-            { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,       value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
+            
+            { id: 'PAtxt1',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "replace",    value: "<p>Hier könnte ihre Werbung stehen.</p>" },
+            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: ""    },
+            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,   mode: "add",        value: `<p>Keine nutzbaren Daten gefunden ${CustomerData.firstname.value}</p>`},
+            { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
+            { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
+            { id: 'TelTest',  grp:'c',    target_id: 'datenerfassung_telefon',  active: true,   mode: "add",        value: "Hallo ich bin ein Test-Text."     },
         ];
         return TriggerData;
     }
  
-
+    const providerDefault = "";
     // TODO Manipulation der CustomerPattern-Value, um die Werte anzupassen     

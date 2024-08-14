@@ -118,15 +118,17 @@ import RecordBtn from "@components/Button_Record.astro";
                         actions={[
                             [`ja`, 'openOnly', "datenerfassung_product"],
                             [`ja`, 'trigger', "PAtxt1"],
+                            ["ja", "setTrue", "Global.posSale"],
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
                             ["nein", "enable", "datenerfassung_ablehnungsgrund"],
                             ["nein", "trigger", "NAtxt1"],
-                            ["default", "close", "all{grp1}"]
+                            ["nein", "setFalse", "Global.posSale"],
                         ]}
 
                         type="txt"
-                        validate="txt"
+                        validate="options"
                         gatekeeper
+                        
                         gate="gk_grp1"
                         submitTo="surname, ste_wel_adressdata, Global.key2"
                         >
@@ -182,7 +184,9 @@ import RecordBtn from "@components/Button_Record.astro";
                                 ["strom","openOnly","vertragsende_datagrp"],
                                 ["strom","trigger","VEs01"],
                                 ["gas","openOnly","vertragsende_datagrp"],
-                                ["gas","trigger","VEg01"]
+                                ["gas","trigger","VEg01"],
+                                ["keinLead","trigger","PAtxt1"],
+                                ["keinLead","close","vertragsende_datagrp"],
                             ]}
                             required
                             gate="gk_gate2"
@@ -279,6 +283,7 @@ import RecordBtn from "@components/Button_Record.astro";
                     If={[
                         ["hasValue{015204817689}", "datenerfassung_telefon"]
                     ]} 
+                    setPosSale
                 >
                     <Field 
                         legend="Aufnahme" 

@@ -18,6 +18,16 @@ input:hover {
   box-shadow: 0 0 0 1px $lightgrey;
 }
 
+.check_time {
+    &:hover {
+      border: 1px solid red;
+    }
+    
+    &::before{  
+      display: none;
+    }
+}
+
 input.errorborder:hover {
   border: 1px solid rgb(248, 77, 77);
 }

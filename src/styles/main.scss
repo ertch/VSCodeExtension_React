@@ -261,12 +261,16 @@ dialog {
     height: var(--textarea-height, 40px);
     transition: height .5s ease-out;
     margin-bottom:  1.5em;
-    max-height: 200px;
+    max-height: 100px;
     resize: none;
 
     &:focus {
-    height: 200px;
+    height: 100px;
     }
+}
+
+.h-200{
+    height: 100px;
 }
 
 .closedialog {
@@ -466,6 +470,42 @@ datalist {
     font-size: .75em;
     font-weight: bold;
     text-shadow: #000;
+}
+
+.mb_0 {
+    margin-bottom: 0;
+}
+
+.mt_1half{
+    margin: 1.7em 0 0;
+}
+
+input{ 
+    &[type=date]{
+        padding-left: 2em;
+        font-size: 1.1em
+    }
+
+    &[type=time]{ 
+        text-align: center;
+        font-size: 1.2em;
+
+        &::-webkit-calendar-picker-indicator {
+            display: none;
+        }
+
+        &::before{
+            content: "\E826";
+            color: #1fd41f;
+            position: absolute;
+            font-family: "salesfontor";
+            font-size: 18px;
+            height: 18px;
+            width: 18px;
+            top: 132px;
+            right: 33px;
+        }
+    }
 }
 
 .d-none {

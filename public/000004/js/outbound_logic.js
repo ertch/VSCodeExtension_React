@@ -617,7 +617,7 @@ function showVertraege(contractselect) {
 	
 	let contract = document.getElementById(contractselect).value;
 	let contractNr = contractselect.replace("datenerfassung_produkt_anzahl_tarif_", "");
-	console.log(contract)
+
 	// showprodukt();
 
 		if (contract == "ja") {

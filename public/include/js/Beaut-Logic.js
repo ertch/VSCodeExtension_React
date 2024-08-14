@@ -197,143 +197,145 @@ let Global = {
  */
     function createCustomerPattern() {
         let logCCD = "";
+        let logCDO = "";
         try {
-            // Hole das Element "customerCells", in dem die Kundeninfo angezeigt werden sollen
-            let cardHolder = document.getElementById("customerCells");
-            let error_msg = document.getElementById("customerCells_errorMsg");
-            let SqlField;
+            const cardHolder = document.getElementById("customerCells");
+            const error_msg = document.getElementById("customerCells_errorMsg");
 
-            // Überprüfe, ob ein benutzerdefiniertes Pattern angegeben ist, andernfalls verwende das Standardpattern (provider_libs.js)
-            if (cardHolder.getAttribute("data-provider") != null) {
-                let execute = cardHolder.getAttribute("data-provider");
-                CustomerPattern = executeFunctionFromString(execute);
+            // Abrufen des CustomerPattern und SqlField
+            let CustomerPattern = getAttribute(cardHolder, "data-provider", providerDefault);
+            let SqlField = getAttribute(cardHolder, "data-query", queryDefault);
+
+            // Überprüfen, ob die Datensätze vertauscht sind
+            if (typeof SqlField.keys === 'function' && SqlField.keys("createCell")) {
+                handleDataError(error_msg, logCCD);
             } else {
-                CustomerPattern = providerDefault();
-            }
+                error_msg.classList.add("d-none");
 
-            // Überprüfe, ob eine benutzerdefinierte SQL_Statement angegeben ist, andernfalls verwende die Standardabfrage (query_lib.js)
-            if (cardHolder.getAttribute("data-query") != null) {
-                let execute = cardHolder.getAttribute("data-query");
-                SqlField = executeFunctionFromString(execute.toString());
-            } else {
-                SqlField = queryDefault();
-            }
-            // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
-            if (
-                typeof SqlField.keys === "function" &&
-                SqlField.keys("createCell")
-            ) {
-                error_msg.innerHTML = "Datensatz fehlerhaft";
-                error_msg.className = "errormessage--db_error";
-                logCCD = "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>";
-            } else {
-                error_msg.className = "errormessage--db_error"? (error_msg.className = "errormessage--db_error d-none") : undefined;
-                // Durchlaufe jedes Element in CustomerPattern
-                for (const [index] of Object.entries(CustomerPattern)) {
-                    // Finde den passenden Index in SqlField, der mit dem Schlüsselwort aus CustomerPattern übereinstimmt
-                    matchingKey = Object.keys(SqlField).indexOf(CustomerPattern[index].match);
+                // Update CustomerPattern mit Werten aus SqlField
+                CustomerPattern.push({ label: `${Global.key1}`, match: `${Global.key1}`, value: "", standAlone: true, createCell: false, dbType: "VARCHAR" });
+                updateCustomerPatternWithSqlField(CustomerPattern, SqlField);
 
-                    // Prüfe ob Index von CustomerPattern in SqlField vorhanden und > -1 ist.
-                    // Dann schreibe den Value des Keys, zu dem der Index gehört, in CustomerPattern
-                    if (
-                        Object.keys(SqlField).indexOf(CustomerPattern[index].match) > -1
-                    ) {
-                        CustomerPattern[index].value = SqlField[Object.keys(SqlField)[matchingKey]];
-                    } else {
-                        CustomerPattern[index].value = "-";
-                    }
-                }
+                // Erstellen der HTML-Elemente für die Kundenzellen
+                createCustomerCells(cardHolder, CustomerPattern, logCDO);
 
-                // Erstelle HTML-Elemente für die Kundenzellen basierend auf den CustomerPattern-Werten
-                let chache = ""; // Zwischenspeicher für zu übertragende Werte
-                try {
-                    for (let i = 0; i < CustomerPattern.length; i++) {
-                        let label = CustomerPattern[i].label;
-                        let id = CustomerPattern[i].match;
-                        let value = CustomerPattern[i].value;
-                        let standAlone = CustomerPattern[i].standAlone;
-                        let createCell = CustomerPattern[i].createCell;
-                        let marker = "";
-
-                        if (createCell) {
-                            if (label.includes("!")) {
-                                let skipThis = false;
-                                switch (label.split('!')[0]){
-
-                                    case "red":
-                                        marker = 'mark--red';
-                                        break;
-                                    
-                                    case "grn":
-                                        marker = 'mark--green';
-                                        break;
-
-                                    case "yel":
-                                        break;
-
-                                    default:
-                                        skipThis = true;
-                                }
-                                label = label.split("!")[1];
-                                skipThis? undefined : value = `<mark class=${marker}>${value}</mark>`;
-                            }
-
-                            // Füge den Wert dem Zwischenspeicher hinzu, wenn er nicht standAlone ist
-                            standAlone ? undefined : (chache = value);
-                            // Füge den Zwischenspeicherwert dem aktuellen Wert hinzu, wenn dieser standAlone true ist.
-                            if (standAlone && chache !== "")
-                                (value = `${chache} ${value}`), (chache = "");
-
-                            if (standAlone) {
-                                // Füge die Cell oder Separator in das HTML ein wenn standAlone true
-                                if (id != "separator") {
-                                    cardHolder.innerHTML += ` 
-                                        <div class="cell">
-                                            <div class="cell__head">${label}</div>
-                                            <div class="data_value cell__data" id=${id}>${value}</div>
-                                        </div>
-                                    `;
-                                } else {
-                                    cardHolder.innerHTML += ` 
-                                        <div class='separator'></div>
-                                    `;
-                                }
-                            }
-                        }
-                    }
-                    logCCD +=
-                        "<span class='txt--orange'>CustomerPattern</span> erflogreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
-                } catch (error) {
-                    logCCD +=
-                        "<br><span class='txt--bigRed'>Error:</span> CustomerCards Erstellung fehlgeschlagen";
-                }
+                logCCD += "<span class='txt--orange'>CustomerPattern</span> erfolgreich geladen <br><span class='txt--orange'>CustomerCards</span> erfolgreich erstellt <br>";
             }
         } catch (error) {
-            logCCD +=
-                "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
-            Global.debugMode && console.log(error.stack);
+            logCCD += "<span class='txt--bigRed'>Error:</span> SQL-Ergebnisse konnten nicht in Cells geladen werden";
+            if (Global.debugMode) console.log(error.stack);
         }
 
-        // Kundenhistorie laden und anzeigen
-        let historyCount = pullSQL("historyCount");
-        let historyBox = document.getElementById("kundenhistorie");
-        if (historyCount[0].rows[0].fields.anzahl > 0) {
-            let historyData = pullSQL("historyData");
-            historyData = historyData[0];
+        // Laden und Anzeigen der Kundenhistorie
+        loadCustomerHistory(logCCD);
 
-            let kundenhistorie = historyBox.innerHTML;
-            for (let i = 0; i < historyData.rows.length; i++) {
-                kundenhistorie += `<p class="history">${historyData.rows[i].fields.message}</p>`;
-            }
-            historyBox.innerHTML = kundenhistorie;
-            logCCD += "Kundenhistorie erfolgreich geladen.";
-        } else {
-            historyBox.innerHTML = "Keine Historie verfügbar";
-            logCCD +=
-                "<span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden.";
-        }
+        Global.showCDObuild && logIntoDebug("Build CustomerData", logCDO, false);
         logIntoDebug("createCustomerPattern", logCCD, false);
     }
+
+    // Helper-Funktion zum Abrufen von Attributen und Standardwerten
+    function getAttribute(element, attribute, defaultFunction) {
+        const execute = element.getAttribute(attribute);
+        return Global.noCustomerData ? [] : (execute ? executeFunctionFromString(execute) : defaultFunction());
+    }
+
+    // Fehlerbehandlung bei vertauschten Datensätzen
+    function handleDataError(error_msg, logCCD) {
+        error_msg.innerHTML = Global.noCustomerData ? "" : "Datensatz fehlerhaft";
+        error_msg.className = "errormessage--db_error";
+        logCCD += Global.noCustomerData ? 
+            "<span class='txt--bigRed'>CustomerData abgeschaltet:</span> <br> kein Datensatz gefunden <br>" : 
+            "<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>";
+
+        if (!Global.noCustomerData) {
+            if (!Global.debugMode) {
+                ttWeb.terminateCall(`${Result.neg_termination}`);
+            } else {
+                alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
+            }
+        }
+    }
+
+    // Aktualisieren des CustomerPattern mit Werten aus SqlField
+    function updateCustomerPatternWithSqlField(CustomerPattern, SqlField) {
+        CustomerPattern.forEach((item, index) => {
+            const matchingKeyIndex = Object.keys(SqlField).indexOf(item.match);
+            item.value = matchingKeyIndex > -1 ? SqlField[Object.keys(SqlField)[matchingKeyIndex]] : "-";
+        });
+    }
+
+    // Erstellen der HTML-Elemente für die Kundenzellen
+    function createCustomerCells(cardHolder, CustomerPattern, logCDO) {
+        let cache = ""; // Zwischenspeicher für zu übertragende Werte
+
+        CustomerPattern.forEach((item, i) => {
+            let { label, match: id, value, standAlone, createCell } = item;
+            let marker = "";
+
+            if (label.includes("!")) {
+                const [prefix, labelText] = label.split('!');
+                label = labelText;
+                switch (prefix) {
+                    case "red":
+                        marker = 'mark--red';
+                        break;
+                    case "grn":
+                        marker = 'mark--green';
+                        break;
+                    case "yel":
+                        marker = 'mark--yellow';
+                        break;
+                    default:
+                        return; // Wenn ein unbekannter Marker gefunden wird, wird der Eintrag übersprungen
+                }
+                value = `<mark class=${marker}>${value}</mark>`;
+            }
+
+            if (id !== "separator") {
+                CustomerData[id] = { index: i, value, label };
+                logCDO += `CustomerData.${id} / .index = ${i} / .value = ${value} / .label = ${label} <br>`;
+            }
+
+            if (createCell) {
+                if (!standAlone) {
+                    cache = value;
+                } else {
+                    if (cache) value = `${cache} ${value}`;
+                    cache = ""; // Zwischenspeicher zurücksetzen
+
+                    const html = id !== "separator" ? `
+                        <div class="cell">
+                            <div class="cell__head">${label}</div>
+                            <div class="data_value cell__data" id=${id}>${value}</div>
+                        </div>
+                    ` : `<div class='separator'></div>`;
+
+                    cardHolder.innerHTML += html;
+                }
+            }
+        });
+    }
+
+// Laden und Anzeigen der Kundenhistorie
+function loadCustomerHistory(logCCD) {
+    const historyCount = pullSQL("historyCount");
+    const historyBox = document.getElementById('kundenhistorie');
+
+    if (historyCount[0].length > 0) {
+        let historyData = pullSQL("historyData")[0];
+        let kundenhistorie = historyBox.innerHTML;
+
+        historyData.rows.forEach(row => {
+            kundenhistorie += `<p class="history">${row.fields.message}</p>`;
+        });
+
+        historyBox.innerHTML = kundenhistorie;
+        logCCD += "Kundenhistorie erfolgreich geladen.";
+    } else {
+        historyBox.innerHTML += "Keine Historie verfügbar";
+        logCCD += "<br><span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden.";
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /** loadProviderPreset() - AutoFill Vorgaben vom Provider
@@ -1285,10 +1287,6 @@ function autoResize(textarea) {
             setRecordName();
             setTerminationCode();
             SendBack = convertFormToQuery("tabsForm");
-
-            console.log("Auswertung case: " + Global.key2);
-            console.log("recordName: " + Global.recordFileName);
-            console.log("termCode: " + Global.terminationCode);
 
             if (Global.debugMode) {
                 alert(

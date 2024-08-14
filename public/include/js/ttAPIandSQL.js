@@ -93,10 +93,16 @@ function ttErrorLog(caller, msg) {
 
     function autoInject_selects() {
         let selelects = document.querySelectorAll('[data-injection]');
-        selelects.forEach((sel) => {
-            let injection = sel.getAttribute('data-injection');
-            sqlInject_select(sel.id, 0, injection);
-        })
+        if (selelects.length>0){
+            selelects.forEach((sel) => {
+                let injection = sel.getAttribute('data-injection');
+                if(sel.nodeName==="INPUT"){
+                    sqlInject_select(`${sel.id}List`, 'datalist', injection);
+                } else {
+                    sqlInject_select(sel.id, 0, injection);
+                }
+            })
+        }   
     };
 
     function sqlInject_select(target_id, selectValue, injection) {
@@ -105,36 +111,41 @@ function ttErrorLog(caller, msg) {
         let newOptions = [];
 
         // itteriere durch das DataObj von der DB und erstelle Array aus id(value) und label[Anzeigetext] 
-        for (let i = 0; i < dataObj[0].rows.length; i++) {
-            newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
-        };
-
-        let arraySize = newOptions.length;
-        if(selectBox != null) {
-            // Falls das Select schon Einträge besitzt, entferne diese
-            while(selectBox.hasChildNodes()) {
-                selectBox.removeChild(selectBox.lastChild);
+        if (dataObj.length>0){
+           
+            for (let i = 0; i < dataObj[0].rows.length; i++) {
+                newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
+            };
+    
+            let arraySize = newOptions.length;
+            if(selectBox != null) {
+                // Falls das Select schon Einträge besitzt, entferne diese
+                while(selectBox.hasChildNodes()) {
+                    selectBox.removeChild(selectBox.lastChild);
+                }
             }
-        }
-        if((arraySize > 0) || (arraySize == -1)) {
-            // Füge ein Bitte auswählen ein
-            injectOpt=document.createElement('option');
-            injectOpt.text="[Bitte auswählen]";
-            injectOpt.value=0;
-            selectBox.appendChild(injectOpt);
-        
-            newOptions.forEach((item) => {
-                // Erstelle die Einträge
-                if(item[0] > 0) {
+            if((arraySize > 0) || (arraySize == -1)) {
+                // Füge ein Bitte auswählen ein
+                if(selectValue!=="datalist"){
                     injectOpt=document.createElement('option');
-                    injectOpt.text= item[1];
-                    injectOpt.value= item[0];
+                    injectOpt.text="[Bitte auswählen]";
+                    injectOpt.value=0;
                     selectBox.appendChild(injectOpt);
                 }
-            })
+            
+                newOptions.forEach((item) => {
+                    // Erstelle die Einträge
+                    if(item[0] > 0) {
+                        injectOpt=document.createElement('option');
+                        injectOpt.text= item[1];
+                        injectOpt.value= item[0];
+                        selectBox.appendChild(injectOpt);
+                    }
+                })
+            }
+            // Einträge in Select schieben
+            selectBox.value= selectBox.nodeName==="SELECT"? selectValue: undefined;
         }
-        // Einträge in Select schieben
-        selectBox.value=selectValue;
     };
 
 /** convertFormToQuery() - Alle Daten in query verpacken und an Datenback senden. 
@@ -149,26 +160,52 @@ function ttErrorLog(caller, msg) {
         
         let targetTables = {};
         let tableCache = '';
-        let form = document.getElementById(formId);
-        if (!form || form.nodeName !== "FORM") {
-            console.error("Invalid form ID");
+        let worktable = [];
+        let data;
+        let form;
+
+        try {
+            form = document.getElementById(formId);
+        } catch (noformError) {
+            logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
             return;
         }
+        
+        if (!form) {
+            // Wenn formId kein Element ist, prüfen, ob es ein Array ist
+            if (Array.isArray(formId)) {
+                formId.forEach(item => worktable.push(item));
+            } else {
+                logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
+                return;
+            }
+        } else if (form.nodeName !== "FORM") {
+            logIntoDebug("convertFormToQuery", `${formId} is invalid to use`, false);
+            return;
+        } else {
+            
+            worktable.push(form.querySelectorAll('[data-submit]'));
+        
+        }
         // Auswertung der Form, betrachte nur Elemente mit data-Submit Attibut
-        form = form.querySelectorAll('[data-submit]');
-        let data = Array.from(form).map(element => {
-            // Mappe ein Objekt, das jeweils als columnName, tableName, tableId, element.value besteht
-            const [columnName, tableName, tableId] = element.getAttribute('data-submit').split(',');
-            if (tableCache !== tableName){ // schreibe IDs für Table mit
-                targetTables[tableName.trim()] = tableId.trim();
-                tableCache = tableName.trim();
-            }   
-            return {
-                columnName: columnName.trim(),
-                tableName: tableName.trim(),
-                value: element.value.trim(),
-              };
+        worktable.forEach(entry => {
+            data = Array.from(entry).map(element => {
+
+                // Mappe ein Objekt, das jeweils als columnName, tableName, tableId, element.value besteht
+                [columnName, tableName, tableId] = element.getAttribute('data-submit').split(',');
+
+                if (tableCache !== tableName){ // schreibe IDs für Table mit
+                    targetTables[tableName.trim()] = tableId.trim();
+                    tableCache = tableName.trim();
+                }   
+                return {
+                    columnName: columnName.trim(),
+                    tableName: tableName.trim(),
+                    value: element.value.trim(),
+                  };
+            })
         })
+        
         // sortiere die Einträge des Objektes nach Table und Table.id
         data.sort((a, b) => {
             if (a.tableName < b.tableName){ 
@@ -198,22 +235,28 @@ function ttErrorLog(caller, msg) {
                 query += part;
                 index<groupedData[tableName].length-1? query+=`,`:undefined;
             });
+
             query += ` WHERE ${tableName}.id = ${tableId} LIMIT 1`;
             if (Global.debugMode){
-                logIntoDebug("pushData - DebugMode", `${query} `)
+                logIntoDebug("pushData - DebugMode", `${query} `,false)
+
             } else {
-                // let serverStatus = executeSql("show status");
-                // if (serverStatus.length <= 0 || serverStatus === null) {
-                //     saveLocaly(query);
-                // } else {
-                //     let awnser = 
+                try {
+                    let serverStatus = executeSql("SELECT 1");
+                    if (serverStatus.length <= 0 || serverStatus === null) {
+                        //saveLocaly(query);  TODO:
+                        Global.logSQL? logsqlIntodebug("keine Antwort von DB", query, false): undefined;
+                    } else {     
+                        executeSql(query);
+                        Global.logSQL? logsqlIntodebug("pushData", query, false): undefined;
+                        // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
+                        query = '';
+                    }
+
+                 } catch (error) {
                     executeSql(query);
-                    console.log(query)
-                    // fail = awnser.length>0?false:true;
-                    // Global.logSQL? logsqlIntodebug("pushData", query, fail): undefined;
-                    // // TODO: Hier könnte auch eine Abfrage für erfolgreiches Pushen sein
-                    // query = '';
-                //  };
+                    Global.logSQL? logsqlIntodebug("Blind SQL", query, false): undefined;
+                 }
              }
         });      
     }

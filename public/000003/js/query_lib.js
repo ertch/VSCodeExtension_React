@@ -82,31 +82,23 @@
                     break;
 
                 case "cancellation_reasons":
-                    query = `SELECT id, label FROM cancellation_reasons WHERE campaign_id=${campaignId} AND active=1 ORDER BY label DESC`;
+                    query = `SELECT id, label FROM cancellation_reasons WHERE campaign_id=${Global.campaignId} AND active=1 ORDER BY label DESC`;
                     break;
                 
-                case "wiedervorlageCount":
-                    query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' AND is_wv=1 AND wv_date>NOW()`;
-                    break;
+                // case "wiedervorlageCount":
+                //     query = `SELECT count(*) as anzahl FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' AND is_wv=1 AND wv_date>NOW()`;
+                //     break;
 
-                case "wiedervorlageData":
-                    query = `SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ', ${Global.fieldname_firstname},' ', ${Global.fieldname_lastname},' : 
-                            ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
-                            ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${campaignId} AND contact_history.agent_id='${agentId}' 
-                            AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5`;
-                    break;
-
-                case "historyCount":
-                    query = `SELECT count(*) as anzahl FROM contact_history WHERE calldatatable_id=${Global.key2}`;
-                    break;
-                
+                // case "wiedervorlageData":
+                //     query = `SELECT CAST(concat('<b>',DATE_FORMAT(wv_date,'%d.%m. %H:%i'),':</b> ', ${Global.fieldname_firstname},' ', ${Global.fieldname_lastname},' : 
+                //             ',message) AS CHAR) as message FROM contact_history JOIN calldatatable ON contact_history.calldatatable_id=calldatatable.id JOIN ${Global.addressdatatable} 
+                //             ON ${Global.addressdatatable}.id=calldatatable.addressdata_id WHERE contact_history.campaign_id=${Global.campaignId} AND contact_history.agent_id='${agentId}' 
+                //             AND is_wv=1 AND wv_date>NOW() ORDER BY wv_date LIMIT 5`;
+                //     break;
+                    
                 case "historyData":
                     query = `SELECT cast(concat(DATE_FORMAT(called_at,'%d.%m.%Y, %H:%i'),' (', agent_id ,') ',message) as char CHARACTER SET latin1) as message 
                             FROM contact_history WHERE calldatatable_id=${Global.key2} ORDER BY called_at DESC`; 
-                    break;
-                
-                case "statistik":
-                    query = `SELECT POSITIV, NEGATIV, UMWANDLUNGSQUOTE, NETTOKONTAKTE FROM livestat_dwh WHERE kampagnen_id=${campaignId} LIMIT 1`;
                     break;
 
                 default:
@@ -128,34 +120,42 @@
  * 
  *      @param {string} promtName 
  */
-    function pushSQL (promtName, toId) {
+    function pushSQL (promtName, withResult) {
         try {
             switch(promtName){
 
                 case 'finish':
-                    query = `UPDATE calldatatable SET result_id = '${toId}', calldate = now(), agent_id = '${Global.agentId}' WHERE id = '${Global.key2}' and campaign_id = '${Global.campaignId}' LIMIT 1`;
+                    query = `UPDATE calldatatable SET result_id = '${withResult}', calldate = now(), agent_id = '${agentId}' WHERE id = ${Global.key2} and campaign_id = ${Global.campaignId} LIMIT 1`;
                     break;
 
                 case "update_rec_info": // Speichere Verweis für aktuellen VoiceFiles in der DB (Global.addressdatatable) ab.
                     teile = splitRecName();
-                    query =    `UPDATE ${Global.addressdatatable} set voice_id = '${teile[teile.length - 1]}' WHERE id = '${Global.addressdatatableId}' LIMIT 1`;
+                    query =    `UPDATE ${Global.addressdatatable} SET voice_id = '${teile[teile.length - 1]}' WHERE id = '${Global.addressdatatableId}' LIMIT 1`;
                     break;
                 
                 case "save_rec_path": // Speichere den Pfad des aktuellen VoiceFiles in der DB (calldatatable) ab.
-                    teile = splitRecName();
-                    query =    `insert into voicefiles (calldatatable_id, campaign_id , voicefile, calldate, location) 
-                                values ('
-                                    ${Global.key2},    
-                                    ${campaignId},
-                                    ${teile[teile.length - 3]} / ${teile[teile.length - 2]} / ${teile[teile.length - 1]},
-                                    now(),
-                                    ${removeSlashes(Global.recordingPrefix)}
+                    
+                    query =    `INSERT INTO voicefiles (calldatatable_id, campaign_id , voicefile, calldate, location) 
+                                VALUES ('${Global.key2}', '${campaignId}', '${Global.recordFileName}', NOW(), ${removeSlashes(Global.recordingPrefix)}
                                 ');`;
                     break;
                 
+                case "update_history_apne":
+                    query = `INSERT INTO contact_history (calldatatable_id, campaign_id, message, creationdate, agent_id, called_at, is_wv ) 
+                             VALUES ('${calldatatableId}', '${campaignId}', 'APNE ${document.getElementById("apne_delay").value} h: ${escapeString(document.getElementById(apne_notiz).value)}', NOW(), '${agentId}', NOW(), 0);`
+                    break;
+
+                case "update_history_wievor":
+                    query = `INSERT INTO contact_history (calldatatable_id, campaign_id, message, creationdate, agent_id, called_at, is_wv, wv_date) 
+                             VALUES ('${calldatatableId}', '${campaignId}', '${escapeString(document.getElementById("wiedervorlage_Text").value)}', '${agentId}', NOW(), '${withResult}');`
+
                 default:
                     // logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
             }
-            executeSql(query);
+            console.log(query)
+            alert(query)
+            // executeSql(query);
         }catch(error){}
     };
+
+    const queryDefault = "";
