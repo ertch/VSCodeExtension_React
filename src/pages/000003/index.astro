@@ -11,7 +11,7 @@ import Suggestion from "@components/SuggestionInput.astro";
 import NavTabs from "@components/NavTabs.astro";
 import TabPage from "@/components/TabPage.astro";
 import TabWrapper from "@components/TabWrapper.astro";
-import IfDiv from "@components/IfDiv.astro";
+import ConBlock from "@/components/ConBlock.astro";
 import NextPageBtn from "@/components/WeiterButton.astro";
 import FinishBtn from "@components/FinishButton.astro";
 import RecordBtn from "@components/Button_Record.astro";
@@ -87,12 +87,12 @@ import RecordBtn from "@components/Button_Record.astro";
                             [`ja`, 'open', "kauf"],
                             [`ja`, "setValue{ja}", "datenerfassung_input"],
                             [`ja`, 'trigger', "PAtxt1"],
-                            ['ja', 'true', 'Global.posSale'],
+                            ['ja', 'setTrue', 'Global.posSale'],
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
                             [`nein`, 'close', "kauf"],
                             ["nein", "trigger", "NAtxt1"],
                             ["nein", ["setValue{7000},disable"], "datenerfassung_ablehnungsgrund"],
-                            ['nein', 'false', 'Global.posSale'],
+                            ['nein', 'setFalse', 'Global.posSale'],
                         ]}
                        
                         gate="gk_grp1"
@@ -154,9 +154,9 @@ import RecordBtn from "@components/Button_Record.astro";
                             id="datenerfassung_email"
                             label="E-Mail-Adresse"
                             type="email"
-                            validate="call"
-                            call="textMyAss"
+                            validate="email"
                             blur='showWeiterBtn("gk_grp1")'
+                            preset="emailprivate"
                             required
                         >
                         </Input>
@@ -166,6 +166,7 @@ import RecordBtn from "@components/Button_Record.astro";
                             type="text"
                             validate="tel"
                             blur='showWeiterBtn("gk_grp1")'
+                            required
                         >
                         </Input>
                         <Gatekeeper
@@ -276,7 +277,7 @@ import RecordBtn from "@components/Button_Record.astro";
                     </Field>
                 </GateGroup>
             
-                <IfDiv
+                <ConBlock
                     id="recording"
                     klasse="input_form grid-col_center d-none"
                     group="endCard"
@@ -291,21 +292,28 @@ import RecordBtn from "@components/Button_Record.astro";
                     >
                         <RecordBtn id="endCardRec" showInfo></RecordBtn>
                     </Field>
-                </IfDiv>
+                </ConBlock>
             </Gate>
 
-            <IfDiv
+            <ConBlock
                 id="abschliessen"
                 klasse="input_form oneColumn"
                 If={[
+                    ["block1"],
                     ["active","datenerfassung_produkt"],
                     ["and","datenerfassung_product"],
+
                     ["filled", "datenerfassung_email"],
-                    ["or", "datenerfassung_telefon"]
+                    ["or", "datenerfassung_telefon"],
+
+                    ["block2"],
+                    ["active","datenerfassung_ablehnungsgrund"],
+
+                    ["End"],
                 ]}
             >
             <FinishBtn auto></FinishBtn>
-            </IfDiv>
+            </ConBlock>
             
         </TabPage>          <!-- Ende tab_zusammenfassung -->         
         <NextPageBtn></NextPageBtn> 

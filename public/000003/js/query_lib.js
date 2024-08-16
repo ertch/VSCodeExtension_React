@@ -150,11 +150,10 @@
                              VALUES ('${calldatatableId}', '${campaignId}', '${escapeString(document.getElementById("wiedervorlage_Text").value)}', '${agentId}', NOW(), '${withResult}');`
 
                 default:
-                    // logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
+                    logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
             }
             console.log(query)
-            alert(query)
-            // executeSql(query);
+            executeSql(query);
         }catch(error){}
     };
 

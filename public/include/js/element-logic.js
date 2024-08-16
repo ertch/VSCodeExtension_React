@@ -156,29 +156,19 @@ let CustomerData = {};
  *      Wenn Historie > 0 lade sie in das vorgesehene Element id="historyData"
  */
     function loadCustomerHistory() {
-        let logCCD;
-        let historyData =  pullSQL("historyData");
-        console.log(pullSQL("historyData"));
-        console.log("Objektauswertung")
-        console.log('historyData[0].rows ' + historyData[0].rows)
-        console.log('historyData[0].rows[0]?.fields ' + historyData[0].rows[0]?.fields)
-        console.log('historyData[0].rows[0]?.fields?.message ' + historyData[0].rows[0]?.fields?.message)
-        console.log('verarbeitung')
-        console.log('historyData.length = ' + historyData.length)
-        console.log("historyData.length > 0 = " + historyData.length > 0)
-        console.log("historyData[0].rows.length = " + historyData[0].rows.length)
-
+        let logCCD = "";
+        let historyData = pullSQL("historyData");
         let historyBox = document.getElementById('kundenhistorie');
         if (historyData.length > 0) {
-            console.log('historyData[0].rows[0]?.fields?.message !== undefined ' + historyData[0].rows[0]?.fields?.message !== undefined)
+           
             if (historyData[0].rows[0]?.fields?.message !== undefined) {
                 let kundenhistorie = historyBox.innerHTML;
                 for (let i = 0; i < historyData[0].rows.length; i++) {
                     kundenhistorie += `<p class="history">${historyData[0].rows[i].fields.message}</p>`;
-                    console.log("Eintrag " + i + " = " + historyData[0].rows[i].fields.message)
                 }
                 historyBox.innerHTML = kundenhistorie;
-                logCCD += "Kundenhistorie erfolgreich geladen.";  
+                logCCD += "Kundenhistorie erfolgreich geladen.";
+
             } else {
                 historyBox.innerHTML += "Keine Historie verfügbar";
                 logCCD += "<br><span class='txt--bigRed'>Error:</span> Kundenhistorie konnte nicht geladen werden."; 
@@ -188,7 +178,6 @@ let CustomerData = {};
             historyBox.innerHTML += "Keine Historie verfügbar";
             logCCD += "<br><span class='txt--bigRed'>Error:</span> Keine Kundenhistorie gefunden."; 
         };
-        console.log(logCCD)
         return logCCD;
     }
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -227,7 +216,7 @@ function loadProviderPreset() {
                             target.appendChild(injectPreset);
                         }
                         target.value= entry.value;
-                        logInserts += `Preset <span class"txt--blue">${presetId}</span> in <span class="txt--orange">${target.id}</span> geladen`;
+                        logInserts += `Preset <span class="txt--blue">${presetId}</span> in <span class="txt--orange">${target.id}</span> geladen`;
                         // Wenn disable-Befehl übergeben target = disabled
                         if(presetState == "disabled"){
                             target.setAttribute('disabled','');
@@ -626,18 +615,19 @@ let triggerFlag = false;
 
                 if (newTabName === lastTab || triggerFlag === true) { 
                     if (newTabName === lastTab){ 
-                        ifTheDivs(lastTab);
                         createEndcard();
                     }
                 } 
 
                 // Aktuellen Tabnamen aktualisieren
+                
                 let currentPage = document.getElementById(newTabName);
                 let oldPage = document.getElementById(currentTabName);
                 Global.currentTabName = newTabName;
-                
+                ifTheDivs(newTabName);
                 oldPage.className = "page_content d-none";
                 currentPage.className = "page_content";
+                logIntoDebug(`SwitchTab to "${newTabName}"`,"",false);
         
                 // Wenn der neue Tab bereits sichtbar ist, nichts tun
                 if (!document.getElementById(newTabName).classname === ("page_content d-none")) {
@@ -853,6 +843,7 @@ let triggerFlag = false;
         } else {
             switchTab(`${lastTab}`);
         }
+        logIntoDebug(`WeiterButton clicked`,"",false)
     };
 
     

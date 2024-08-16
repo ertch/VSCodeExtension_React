@@ -124,7 +124,7 @@ let Global ={
     recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
     terminationCode:       ''                                                              ,
 
-    wiedervorlage:         true               ,  // wenn true, lade WiedervorlageDaten 
+    wiedervorlage:         false               ,  // wenn true, lade WiedervorlageDaten 
     wievorElement:         'wievorDatabox'   ,  // Lade WiedervorlageDaten in dieses Element
 
     posSale:               false  , // Indikator für positiven Verkauf
@@ -259,7 +259,7 @@ function finishCall() {
     function triggerPattern() {
         let TriggerData = [
             
-            { id: 'PAtxt1',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "replace",    value: "<p>Hier könnte ihre Werbung stehen.</p>" },
+            { id: 'PAtxt1',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",    value: "<p>Hier könnte ihre Werbung stehen.</p>" },
             { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: ""    },
             { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,   mode: "add",        value: `<p>Keine nutzbaren Daten gefunden ${CustomerData.firstname.value}</p>`},
             { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },

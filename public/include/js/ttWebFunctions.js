@@ -119,8 +119,9 @@ function buildUp() {
     readTrigger();
     Global.debugMode? undefined : ttWeb.setRecordingState(Global.startCallwithState);
 
-    buildupFail? logIntoDebug("bulidUp unvollständig", "Fehler im Ladevorgang",false) : logIntoDebug("bulidUp complete", "Alle Daten wurden erfolgreich geladen",false);
-    wievofail?  logIntoDebug('buildUp Error', 'Wiedervorlagedaten konnten nicht geladen werden <br> Ladevorhgng wird übersprungen', false): undefined;
+    let theLine = " <br>-----------------------------------------------------------------------------------------------------------------------------------------------------------------";
+    buildupFail? logIntoDebug("bulidUp unvollständig", `Fehler im Ladevorgang ${theLine}`,false) : logIntoDebug("bulidUp complete", `Alle Daten wurden erfolgreich geladen ${theLine}`,false);
+    wievofail?  logIntoDebug('buildUp Error', `Wiedervorlagedaten konnten nicht geladen werden <br> Ladevorhgng wird übersprungen ${theLine}`, false): undefined;
 }
 //#############################################################################################################################################################################
 //---------------------------------------------------------------------------- Anrufe / Calls -------------------------------------------------------------------------------------

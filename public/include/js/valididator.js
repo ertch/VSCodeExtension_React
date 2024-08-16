@@ -204,15 +204,19 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
     }; 
     
     // try {
-        
+        console.log(idArr)
         if (idArr != 0) {
             typeof idArr==="string"? idArr=[idArr]:undefined;
             let logValidation ="";
             idArr.forEach(id => { // ArrayEinträge Iterieren -> Input.value auslesen
                 let target = document.getElementById(id).value;
                 let errTxtId = `${id}_errorMsg`;
+
+                console.log(id)
+                console.log(errTxtId)
                 
                 if (extVali === true) { // data-call.value -> 'String to function' 
+                    console.log("extVali")
                     let specVali = document.getElementById(id).getAttribute("data-call"); // TODO ist das noch das richtige Attribut?
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
                         extResult = window[specVali](target);  
@@ -220,6 +224,7 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                         errTxt  = extResult[1]; 
                     }   
                 } else if (optVali === true) {
+                    console.log("optvali")
                     // Hole <option>.value auch dem Element und prüfe ob target.value darin vorhanden
                     let opts = document.getElementById(id).nodeName==="INPUT"? `${id}List` : id;
                     opts = Array.from(document.getElementById(opts).children);
@@ -234,6 +239,7 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                     found? undefined: successBool = false;
                 } else {
                     // prüfe Input.value gegen RegEx
+                    console.log("regex " + regX.test(target))
                     regX.test(target) ? undefined : boolErr = false; 
                 }  
 
@@ -249,6 +255,7 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                 logValidation += ` Validierung: ${boolErr}  |  ${idArr} = "${target}"  <br>` ;   
             });
             logIntoDebug(`validateBundle "${type}"`, logValidation, false);
+            console.log("-------------------------------  next   ------------------------------- ")
             return giveAnswer ? successBool : undefined;
         }    
         
@@ -494,81 +501,107 @@ function callGatekeeper(gk){
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /**     Um au der letzten Tab-Page (lastTab = "tab_zusammenfassung") nru jene elemente anzuziegen  die auch gebraucht oder gefordert sind, nutzt man das IfDiv-
  *      dieses hat die jeweilige Bedingung direkt im data-Attribute. So kann bei jeder Validierung die jeweiligen IfDivs der Seite aufgerufen werden oder bei CallEndcard()
- *      können die auf der Endcard hinterlegeten IfDivs geladen werden.
+ *      können die auf der Endcard hinterlegeten IfDivs geladen werden. Alle Bedingungen müssen zutreffen.
  * 
  */
 function ifTheDivs(tabPage) {
     let calledDivs = document.getElementById(tabPage).querySelectorAll('.ifDiv');
-
-    calledDivs.forEach(ifDiv => { // Hole Vorgaben aus Elementen
-        let validationBool = true;
-        let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
-        let posSale = ifDiv.getAttribute("data-ps");
-        let lastStatus = "";
-        let lastBool = true;
-
-        ifcheck.forEach(([status, elementId]) => { //prüfe Vorgaben
-            let currentBool;
-            let hasVal;
-            let checkstatus = (status === "and" || status === "or") ? lastStatus : status;
-            let element = document.getElementById(elementId);
-            // trenne wert aus "hasValue{wert}"
-            if(status.includes("hasValue")) {
-                prefix = status.split('{')[1];
-                hasVal = prefix.replace(/}/,"");
-                checkstatus = status.split('{')[0];
-            }
-
-            switch (checkstatus) { // Prüfung auf...
-                case "active":
-                    currentBool = element.offsetHeight > 0 ;    // wird angezeigt
-                    break;
-                case "hidden":
-                    currentBool = element.offsetHeight === 0;   // wird nicht angezeigt
-                    break;
-                case "filled":
-                    currentBool = element.value.trim() !== "";  // hat Wert > ""
-                    break;
-                case "empty":
-                    currentBool = element.value.trim() == "";   // hat keinen Wert
-                    break;
-                case "hasValue":
-                    let isValue;                                // hat Wert X
-                    try{
-                        isValue = document.getElementById(elementId).value;
-                    } catch(e) {
-                        try{
-                            isValue = eval(elementId); // Wenn Wert X nicht value eines Elementes ist, versuche Variablen
-                        } catch (er) {
-                            logIntoDebug( "ifTheDiv",`<I class='txt--bigRed'>Error:</I> "${elementId}" ist weder Element noch Variable`, false);
-                        }  
+    let log = "";
+  
+    if (calledDivs.length === 0) {
+        log = `Keine ConBlocks auf <span class='txt--orange'>${tabPage}</span>  d gefunden.`;
+    } else {
+        calledDivs.forEach(ifDiv => { // Hole Vorgaben aus Elementen
+            let workBlock = [];
+            let blockWatcher = false; 
+            let validationBool = true;
+            let ifcheck = stringToArray(ifDiv.getAttribute("data-if"));
+            let posSale = ifDiv.getAttribute("data-ps");
+            let lastStatus = "";
+            log += `${ifDiv.id} --> `;
+            let lastBool = true;
+    
+            ifcheck.forEach(([status, elementId]) => { //prüfe Vorgaben
+                let currentBool;
+                if (elementId === undefined && lastStatus !== "") {
+                    workBlock.push(blockWatcher);
+                    blockWatcher = false;
+                    validationBool = true;
+                } else {
+                    let hasVal;
+                    let checkstatus = (status === "and" || status === "or") ? lastStatus : status;
+                    let element = document.getElementById(elementId);
+                    // trenne wert aus "hasValue{wert}"
+                    if(status.includes("hasValue")) {
+                        prefix = status.split('{')[1];
+                        hasVal = prefix.replace(/}/,"");
+                        checkstatus = status.split('{')[0];
                     }
-                    currentBool = hasVal === isValue;
-                    break;
-                default:
-                    currentBool = true;                         
-                    logIntoDebug( "ifTheDiv",`<I class='txt--bigRed'>Error:</I> falscher Status "${checkstatus}"`, false); 
-            }
-            if (status === "and") { // and und or operatoren auswerten mit vorrangegangener Prüfung
-                currentBool && lastBool? undefined : validationBool = false;
-            } else if (status === "or") {
-                currentBool || lastBool? undefined : validationBool = false;
+    
+                    switch (checkstatus) { // Prüfung auf...
+                        case "active":
+                            currentBool = element.offsetHeight > 0 ;    // wird angezeigt
+                            break;
+                        case "hidden":
+                            currentBool = element.offsetHeight === 0;   // wird nicht angezeigt
+                            break;
+                        case "filled":
+                            currentBool = element.value.trim() !== "";  // hat Wert > ""
+                            break;
+                        case "empty":
+                            currentBool = element.value.trim() == "";   // hat keinen Wert
+                            break;
+                        case "hasValue":
+                            let isValue;                                // hat Wert X
+                            try{
+                                isValue = document.getElementById(elementId).value;
+                            } catch(e) {
+                                try{
+                                    isValue = eval(elementId); // Wenn Wert X nicht value eines Elementes ist, versuche Variablen
+                                } catch (er) {
+                                    logIntoDebug( "ConBlock",`<I class='txt--bigRed'>Error:</I> "${elementId}" ist weder Element noch Variable`, false);
+                                }  
+                            }
+                            currentBool = hasVal === isValue;
+                            break;
+    
+                        default:
+                            currentBool = true;                         
+                            lastStatus===""? undefined : logIntoDebug( "ConBlock",`<I class='txt--bigRed'>Error:</I> falscher Status "${checkstatus}"`, false); 
+                    }
+                    if (status === "and") { // and und or operatoren auswerten mit vorrangegangener Prüfung
+                        currentBool && lastBool? undefined : validationBool = false;
+                    } else if (status === "or") {
+                        currentBool || lastBool? undefined : validationBool = false;
+                    } else {
+                        currentBool? undefined : validationBool = false;
+                    }
+                    lastBool = currentBool;
+                    lastStatus = checkstatus;
+                    elementId = undefined;
+                }
+                blockWatcher = validationBool;
+            }); 
+            
+            // schalte Element sichtbar / hidden
+            if (workBlock.length > 0) {
+                log += `${JSON.stringify(workBlock)} <br>`;
+                validationBool = workBlock.includes(true);
             } else {
-                currentBool? undefined : validationBool = false;
+                log += `[${validationBool}] <br>`;
             }
-           
-            lastBool = currentBool;
-            lastStatus = checkstatus;
-        }); // schalte Element sichtbar / hidden
-        if (validationBool) {
-            posSale==="true"? Global.posSale = true : undefined;
-        } else {
-            posSale==="true"? Global.posSale = false : undefined;
-        }
-        if (validationBool && ifDiv.classList.contains("d-none")) {
-            ifDiv.classList.remove("d-none");
-        } else if (!validationBool && !ifDiv.classList.contains("d-none")) {    
-            ifDiv.classList.add("d-none");
-        }
-    });
+            
+            if (validationBool) {
+                posSale==="true"? Global.posSale = true : undefined;
+            } else {
+                posSale==="true"? Global.posSale = false : undefined;
+            }
+            if (validationBool && ifDiv.classList.contains("d-none")) {
+                ifDiv.classList.remove("d-none");
+            } else if (!validationBool && !ifDiv.classList.contains("d-none")) {    
+                ifDiv.classList.add("d-none");
+            }
+        });
+    }
+    logIntoDebug("ConBlock", log, false)
 }
