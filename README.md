@@ -1,71 +1,68 @@
-# vscExtension README
+# VSCreact
 
-This is the README for your extension "vscExtension". After writing up a brief description, we recommend including the following sections.
+## Overview
+VSCreact is a **VS Code extension** that provides a **low-code editing environment** for Astro projects. It allows users to create, configure, and manage Astro components via a GUI instead of manually editing code. The extension uses **React** for the frontend and generates Astro-compatible code dynamically.
 
 ## Features
+- **Component-Based Editing**: Define and configure Astro components via an interactive UI.
+- **Code Generation**: Generates `index.astro` based on the configured components.
+- **Hot Reload Support**: Automatically updates the project on changes.
+- **Attribute-Based Logic**: Components are controlled exclusively via attributes.
+- **Drag-and-Drop Interface**: Easily arrange and modify components.
+- **Unique ID Handling**: Ensures component uniqueness to prevent errors.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## Installation
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/ertch/VSCodeExtension_React
+   ```
+2. Navigate to the directory:
+   ```sh
+   cd VSCreact
+   ```
+3. Install dependencies:
+   ```sh
+   npm install
+   ```
+4. Build the extension:
+   ```sh
+   npm run build
+   ```
+5. Open VS Code and install the extension manually:
+   - Run `vsce package` (if required, install `vsce` via `npm install -g @vscode/vsce`).
+   - Install the generated `.vsix` file in VS Code.
 
-For example if there is an image subfolder under your extension project workspace:
+## Usage
+1. Open a project in **VS Code**.
+2. Activate the **VSCreact** extension.
+3. Use the GUI to add, configure, and manage components.
+4. Click the **Generate** button to create the `index.astro` file.
+5. Check the **Live Preview** to see updates immediately.
 
-\!\[feature X\]\(images/feature-x.png\)
+## Development Workflow
+### Code Generation
+- **Trigger**: The `Generate` button initiates the code generation.
+- **Process**:
+  - The UI-defined components are serialized.
+  - The `index.astro` file is dynamically created.
+  - The project’s hot-reload updates the preview.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### GUI Structure
+- **Component Selector**: Choose components to add.
+- **Property Panel**: Modify attributes of selected components.
+- **Canvas Area**: Arrange components visually.
+- **Code Preview**: View the generated Astro code in real-time.
 
-## Requirements
+## Contribution
+### Prerequisites
+- **Node.js** (LTS version recommended)
+- **VS Code** (latest version)
+- **Astro Framework** (for testing compatibility)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+## Contact
+For issues, feature requests, or contributions, open an issue in the GitHub repository or contact the maintainers.
 
 ---
+**Maintainers:**
+- [etch](https://github.com/etch)
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
