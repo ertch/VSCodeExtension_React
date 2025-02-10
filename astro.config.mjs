@@ -15,4 +15,6 @@ export default defineConfig({
       },
     },
   },
+  integrations: [markdoc({ ignoreIndentation: true })],
+
 })

@@ -27,7 +27,7 @@ let isValidating = 0;
                 }
             })  
         // } catch(error) {
-        //     logIntoDebug("silent (Validation)", `Error: ${page_content.id} konnte nicht vallidiert werden`, Global.LogIntottDB);
+        //     logIntoDebug("silent (Validation)", `Error: ${page_content.id} konnte nicht vallidiert werden`, Global.logIntottDB);
         //     filled = false;
         // };
         return filled;
@@ -203,20 +203,15 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
             errTxt = "Ungültige Eingabe";
     }; 
     
-    // try {
-        console.log(idArr)
+    try {
         if (idArr != 0) {
             typeof idArr==="string"? idArr=[idArr]:undefined;
             let logValidation ="";
             idArr.forEach(id => { // ArrayEinträge Iterieren -> Input.value auslesen
                 let target = document.getElementById(id).value;
                 let errTxtId = `${id}_errorMsg`;
-
-                console.log(id)
-                console.log(errTxtId)
                 
                 if (extVali === true) { // data-call.value -> 'String to function' 
-                    console.log("extVali")
                     let specVali = document.getElementById(id).getAttribute("data-call"); // TODO ist das noch das richtige Attribut?
                     if (typeof window[specVali] === 'function') {   // wenn ext. Vali-function aufrufbar
                         extResult = window[specVali](target);  
@@ -224,7 +219,6 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                         errTxt  = extResult[1]; 
                     }   
                 } else if (optVali === true) {
-                    console.log("optvali")
                     // Hole <option>.value auch dem Element und prüfe ob target.value darin vorhanden
                     let opts = document.getElementById(id).nodeName==="INPUT"? `${id}List` : id;
                     opts = Array.from(document.getElementById(opts).children);
@@ -239,7 +233,6 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                     found? undefined: successBool = false;
                 } else {
                     // prüfe Input.value gegen RegEx
-                    console.log("regex " + regX.test(target))
                     regX.test(target) ? undefined : boolErr = false; 
                 }  
 
@@ -255,14 +248,13 @@ function validateBundle(type, idArr, giveAnswer) { // String, Array, Boolean
                 logValidation += ` Validierung: ${boolErr}  |  ${idArr} = "${target}"  <br>` ;   
             });
             logIntoDebug(`validateBundle "${type}"`, logValidation, false);
-            console.log("-------------------------------  next   ------------------------------- ")
             return giveAnswer ? successBool : undefined;
         }    
         
-    // }catch (error) { //  Error Nachrichten und return
-    //     logIntoDebug( "validateBundle:" ,`Error at array: ${idArr} with ${id}`, Global.LogIntottDB);
-    //     return giveAnswer ? false : undefined;
-    // }
+    }catch (error) { //  Error Nachrichten und return
+         logIntoDebug( "validateBundle:" ,`Error at array: ${idArr} with ${id}`, Global.logIntottDB);
+         return giveAnswer ? false : undefined;
+    }
 }
 
 // ######################################################################################  "EXTERN" VALIDATORS #############################################################################################
@@ -509,7 +501,7 @@ function ifTheDivs(tabPage) {
     let log = "";
   
     if (calledDivs.length === 0) {
-        log = `Keine ConBlocks auf <span class='txt--orange'>${tabPage}</span>  d gefunden.`;
+        log = `Keine ConBlocks auf <span class='txt--orange'>${tabPage}</span>  gefunden.`;
     } else {
         calledDivs.forEach(ifDiv => { // Hole Vorgaben aus Elementen
             let workBlock = [];

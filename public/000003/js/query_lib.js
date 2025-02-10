@@ -102,6 +102,7 @@
                     break;
 
                 default:
+                    query = "";
             };
             let awnser = executeSql(query);
             let send = awnser.length>0?true:false;
@@ -150,9 +151,8 @@
                              VALUES ('${calldatatableId}', '${campaignId}', '${escapeString(document.getElementById("wiedervorlage_Text").value)}', '${agentId}', NOW(), '${withResult}');`
 
                 default:
-                    logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, LogIntottDB)
+                    logIntoDebug("pushSQL", `Error: Der aufgerufene Promt ${promtName} existiert nicht.`, logIntottDB)
             }
-            console.log(query)
             executeSql(query);
         }catch(error){}
     };

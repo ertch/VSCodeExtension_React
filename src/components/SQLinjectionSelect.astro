@@ -4,7 +4,6 @@ interface Props {
   trigger?: Array<Array<any>>;
   id: string;
   label: string;
-  name: string;
   load: String;
   required?: boolean;
   requiredValue?: Array<any>;
@@ -12,15 +11,15 @@ interface Props {
   submitTo?: string;
 }
 
-const { call, trigger, id, label, name, requiredValue, required, preset, load, submitTo } = Astro.props;
+const { call, trigger, id, label, requiredValue, required, preset, load, submitTo } = Astro.props;
 let errorname = `${id}_errorMsg`;
 let valueArr;
 let triggerArr = JSON.stringify(trigger);
 if (requiredValue != null) {
-valueArr = JSON.stringify(requiredValue);
-valueArr = valueArr.replace(/&quot;/g, '')
-                   .replace(/"/g, '')
-                   .replace(/,/g, '.');
+  valueArr = JSON.stringify(requiredValue);
+  valueArr = valueArr.replace(/&quot;/g, '')
+                    .replace(/"/g, '')
+                    .replace(/,/g, '.');
 }
 ---
 
@@ -28,7 +27,7 @@ valueArr = valueArr.replace(/&quot;/g, '')
 <span class="errormessage" id={errorname}></span>
 <select class="dropdown h-drop" 
     id={id} 
-    name={name} 
+    name={id} 
     onchange={call}
     {required} 
     data-injection={load} 

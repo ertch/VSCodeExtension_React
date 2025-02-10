@@ -74,7 +74,7 @@
         try {   
             return s.replace(/'/g,"\\'");
         } catch (ex){
-            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", Global.LogIntottDB)
+            logIntoDebug("escapeStrings()", "Das Einfügen von Escape-Zeichen \' ist fehlgeschlagen", Global.logIntottDB)
         }
     };
 
@@ -89,7 +89,7 @@
         try { 
             return s.replace(/\\/g,"/");
         } catch (ex){
-            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", Global.LogIntottDB)
+            logIntoDebug("removeSlashes()", "Das Entfernen von Backshashes ist fehlgeschlagen", Global.logIntottDB)
         }
     };
 
@@ -120,7 +120,7 @@
         if (funcName && typeof window[funcName] === 'function') {
         giveBack = window[funcName](...args); // Aufruf
         } else {
-            logIntoDebug( "executeFunctionFromString():",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.LogIntottDB); //Error_msg
+            logIntoDebug( "executeFunctionFromString():",`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`, Global.logIntottDB); //Error_msg
         }
         return giveBack;
     };
@@ -322,7 +322,7 @@
             return addressDataArray;
         } catch (error) {
             // Im Falle eines Fehlers wird eine Fehlermeldung ausgegeben und ein leeres Array zurückgegeben
-            logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", Global.LogIntottDB);
+            logIntoDebug( "createAdressDataArray","<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden", Global.logIntottDB);
             return []; 
         }
     }; 
@@ -376,7 +376,7 @@
             log = log + "<br><br>" + "<strong>" + caller + ":</strong>" + "<br>" + msg;
             window.innerHTML = log;
         } 
-        if (dbExport && Global.LogIntottDB) { // Global.LogIntottDB => ttEditor-config.js
+        if (dbExport && Global.logIntottDB) { // Global.logIntottDB => ttEditor-config.js
             // Erstelle und sende Log an Datenbank
             ttErrorLog(caller, msg);
         }
@@ -433,6 +433,7 @@
             // Ändere die Sichtbarkeit des debug-Logs
             beep(220,55,45); // Frohe Ostern
             setTimeout(() => {beep(200,35,45)},290);
+            helpIT === true? closeITguy() : undefined;
             document.getElementById("debugLog").classList.toggle("d-none");
             Global.debugMode && console.log("debuglog geöffnet!");
         }
@@ -477,3 +478,48 @@
     function createEndcard() { // NESSI?
         document.getElementById('weiterBtn').className = "d-none"; 
     };
+
+//_____________________________________________________________________________________________________________________________________________
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/**
+ *  5 - gimmeSomeSpace(var) 
+ *                      Nutzer: 
+ *                      Gibt ein Leerzeichen hinter die Variable / bei Fehler kein Leerzeichen zurück
+ *///_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    function gimmeSomeSpace(incomming) {
+        let someSpace = "";
+        try {
+            let value = eval(incomming);
+            someSpace = value!=="-"? `${value} `: "";
+            
+        } catch(e) {
+            logIntoDebug("gimmeSomeSpace", `Fehler: ${incomming} ist keine Variable`)
+        }
+        return someSpace;
+    }
+
+//_____________________________________________________________________________________________________________________________________________
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/**
+ *  5 - getYourAdmin() 
+ *                      Nutzer: createCustomerData()
+ *                      erzeugt eine Fehlermeldung die den User auffordert sich bei einem Admin zu melden.
+ *///_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    helpIT = false;
+
+    function getYourAdmin() {
+        var dialog = document.getElementById("adminDialog");
+        dialog.showModal();
+        helpIT = true;
+    }
+
+    // function closeITguy(event) {
+    //     if (helpIT === true) {
+    //         if (event.ctrlKey && event.shiftKey && event.key === 'I') {
+    //             var dialog = document.getElementById("adminDialog");
+    //             dialog.close();
+    //             helpIT = false;
+    //         }
+    //     } 
+    // }

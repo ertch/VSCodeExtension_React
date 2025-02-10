@@ -62,7 +62,7 @@ function buildUp() {
     if (buildupFail){
         corruptedDB = executeSql(`SELECT COUNT(*) From ${Global.key2} WHERE ${Global.key2}.id = ${Global.key2} LIMIT 1`);
         if (corruptedDB < 1 ) {
-            logIntoDebug("buildUp", "Es wurde ein fehlerhafter Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+            logIntoDebug("buildUp", "Es wurde ein fehlerhafter Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.logIntottDB);
             record('clear');
             // ttWeb.terminateCall('200');
         
@@ -76,12 +76,12 @@ function buildUp() {
                 switch (abschlussStatus[0].rows[0].fields.result_id) {
         
                     case Result.postive:
-                        logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                        logIntoDebug("buildUp", "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.logIntottDB);
                         termCode = '100';
                         break;
         
                     case Result.negative:
-                        logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.LogIntottDB);
+                        logIntoDebug("buildUp", "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.", Global.logIntottDB);
                         termCode = '200';
                         break;
                     
@@ -116,8 +116,9 @@ function buildUp() {
     autoInject_selects();  // Fülle alle SQLinjectionSelects
     loadProviderPreset();  // Prüfe ob es Elemente gibt, welche ein Preset laden sollen und füge diese ein
     TriggerData = triggerPattern();
-    readTrigger();
-    Global.debugMode? undefined : ttWeb.setRecordingState(Global.startCallwithState);
+    Global.loadTrigger==="everyting"?readTrigger():undefined;
+    Global.debugMode? undefined : ttWeb.setRecordingState(Global.startCallwithState); // Übergabe des gewümschten Startwerts für Recording direction
+    try {beforeStart();}catch(e){}; // freier Funktionsname, um über extra JS an dieser Stelle anzudocken.
 
     let theLine = " <br>-----------------------------------------------------------------------------------------------------------------------------------------------------------------";
     buildupFail? logIntoDebug("bulidUp unvollständig", `Fehler im Ladevorgang ${theLine}`,false) : logIntoDebug("bulidUp complete", `Alle Daten wurden erfolgreich geladen ${theLine}`,false);
@@ -178,7 +179,7 @@ function saveRecording(recordFileName) {
                 logIntoDebug("ttWEB", `setCallState: ${Global.startCallwithState}`, false)
                 Global.debugMode? undefined : ttWeb.setIndicator(Global.startCallwithState);   // Callstate zurücksetzten
 
-                Global.onNegDeleteRec===true? record('clear') : undefined; // Aufnahme löschen wenn gewollt
+                Global.onNegDeleteRec===true? record('clear') : record("save"); // Aufnahme löschen wenn gewollt
 
                 // ---- submit ---- 
                 
@@ -250,7 +251,7 @@ function saveRecording(recordFileName) {
                     pushSQL(save_rec_path);
                     logIntoDebug("record(stop)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${Global.recordFileName}</span>`, false);
                 } else {
-                    logIntoDebug("record(stop)",`<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,Global.LogIntottDB);
+                    logIntoDebug("record(stop)",`<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,Global.logIntottDB);
                 }
                 break;
 
@@ -261,7 +262,7 @@ function saveRecording(recordFileName) {
                     Global.debugMode? undefined : ttWeb.saveRecording(Global.recordFileName);
                     logIntoDebug("record(save)",`Aufnahme wurde gestoppt <br>Gespeichert als: <span class="txt-blue">${Global.recordFileName}</span>`, false);
                 } else {
-                    logIntoDebug("record(save)",`<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,Global.LogIntottDB);
+                    logIntoDebug("record(save)",`<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,Global.logIntottDB);
                 }
                 break;
 
@@ -272,7 +273,7 @@ function saveRecording(recordFileName) {
                 break;
 
             default: //Error_msg
-                logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, Global.LogIntottDB);
+                logIntoDebug(`record(${state})`, `<span class="txt-red">Error:</span> invalider state`, Global.logIntottDB);
         }  
     }
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -315,7 +316,7 @@ function saveRecording(recordFileName) {
             recordName += `${Global.recordingNameSuffix}`;
 
         } else if (style === "use"){ // nutze mitgegebenen Namen
-            recordName += `${useName}${recordingNameSuffix}`;
+            recordName += `${useName}${Global.recordingNameSuffix}`;
 
         } else { // Generiere einen Namen mit hashwert (weil UUID nicht in ttFrame funktioniert)
             let UUID = generateUUID();

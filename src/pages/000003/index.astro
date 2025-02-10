@@ -14,7 +14,7 @@ import TabWrapper from "@components/TabWrapper.astro";
 import ConBlock from "@/components/ConBlock.astro";
 import NextPageBtn from "@/components/WeiterButton.astro";
 import FinishBtn from "@components/FinishButton.astro";
-import RecordBtn from "@components/Button_Record.astro";
+import RecordBtn from "@/components/RecordButton.astro";
 ---
                 <!-- Grunddaten -->
 <Layout     .:
@@ -47,6 +47,7 @@ import RecordBtn from "@components/Button_Record.astro";
                     id="kundenhistorie" 
                     legend="Kundenhistorie" 
                     klasse="dis-p grid-col_center"
+                   
                 >
                 </Field>
     
@@ -122,7 +123,7 @@ import RecordBtn from "@components/Button_Record.astro";
                             ["nein", "openOnly", "datenerfassung_ablehnung"],
                             ["nein", "enable", "datenerfassung_ablehnungsgrund"],
                             ["nein", "trigger", "NAtxt1"],
-                            ["nein", "setFalse", "Global.posSale"],
+                            ["nein", "setFalse", "posSale"],
                         ]}
 
                         type="txt"
@@ -158,6 +159,7 @@ import RecordBtn from "@components/Button_Record.astro";
                             blur='showWeiterBtn("gk_grp1")'
                             preset="emailprivate"
                             required
+                            
                         >
                         </Input>
                         <Input
@@ -248,7 +250,6 @@ import RecordBtn from "@components/Button_Record.astro";
                             <SQL_Select
                                 id="datenerfassung_ablehnungsgrund"
                                 label="Ablehnungsgrund:"
-                                name="datenerfassung_ablehnungsgrund"
                                 call="showWeiterBtn('gk_grp1')"
                                 load="cancellation_reasons"
                                 required

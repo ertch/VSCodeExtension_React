@@ -3,13 +3,15 @@ interface Props {
 	legend: string;
     id?: string;
     klasse?: string;
-    gruppe?: string;
+    group?: string;
+    hidden?: boolean;
 }
 // Preset
-const {legend, klasse, id, gruppe} = Astro.props;
+const {legend, hidden, klasse, id, group} = Astro.props;
+let setClass = hidden ? `${klasse ? klasse : ''} d-none` : klasse;
 ---
 
-<fieldset id={id} class={klasse as 'text'} data-grp={gruppe}>
+<fieldset id={id} class={setClass as 'text'} data-grp={group}>
     <legend>{legend}</legend>
     <slot />
 </fieldset>

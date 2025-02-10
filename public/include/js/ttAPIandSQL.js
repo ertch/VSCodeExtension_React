@@ -79,7 +79,7 @@ function ttErrorLog(caller, msg) {
         )`;
         ttWeb.execDatabase(insertSql);
     } catch(error) { 
-        logIntoDebug(`ttErrorLog(${caller})`, "Error: SQL-INSERT konnte nicht an DB gesendet werden", Global.LogIntottDB);
+        logIntoDebug(`ttErrorLog(${caller})`, "Error: SQL-INSERT konnte nicht an DB gesendet werden", Global.logIntottDB);
     };
 };
 
@@ -90,62 +90,81 @@ function ttErrorLog(caller, msg) {
      *      Wird innerhaelb des buildUps aufgerufen und gibt alle Elemente die
      *      ein data-injection Attribute haben an "sqlInject_select"
      */
-
+    
     function autoInject_selects() {
+        let injectionLog = "";
         let selelects = document.querySelectorAll('[data-injection]');
         if (selelects.length>0){
             selelects.forEach((sel) => {
                 let injection = sel.getAttribute('data-injection');
                 if(sel.nodeName==="INPUT"){
-                    sqlInject_select(`${sel.id}List`, 'datalist', injection);
+                    injectionLog += sqlInject_select(`${sel.id}List`, 'datalist', injection);
                 } else {
-                    sqlInject_select(sel.id, 0, injection);
+                    injectionLog += sqlInject_select(sel.id, 0, injection);
                 }
+                injectionLog += '<br>';
             })
-        }   
+        } else {
+            injectionLog = 'Keine InjectionSelects gefunden';
+        }
+        logIntoDebug('autoInject_selects', injectionLog, false) 
     };
 
     function sqlInject_select(target_id, selectValue, injection) {
         let selectBox = document.getElementById(target_id);
         let dataObj = pullSQL(injection);
         let newOptions = [];
-
+        let activitylog = "";
+        let fail = false;
         // itteriere durch das DataObj von der DB und erstelle Array aus id(value) und label[Anzeigetext] 
-        if (dataObj.length>0){
-           
-            for (let i = 0; i < dataObj[0].rows.length; i++) {
-                newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
-            };
-    
-            let arraySize = newOptions.length;
-            if(selectBox != null) {
-                // Falls das Select schon Einträge besitzt, entferne diese
-                while(selectBox.hasChildNodes()) {
-                    selectBox.removeChild(selectBox.lastChild);
+        if (dataObj[0].rows?.length>0){
+           try {
+                for (let i = 0; i < dataObj[0].rows.length; i++) {
+                    newOptions[i] = [dataObj[0].rows[i].fields.id, dataObj[0].rows[i].fields.label];
+                   
+                };
+        
+                let arraySize = newOptions.length;
+                if(selectBox != null) {
+                    // Falls das Select schon Einträge besitzt, entferne diese
+                    while(selectBox.hasChildNodes()) {
+                        selectBox.removeChild(selectBox.lastChild);
+                    }
                 }
-            }
-            if((arraySize > 0) || (arraySize == -1)) {
-                // Füge ein Bitte auswählen ein
-                if(selectValue!=="datalist"){
-                    injectOpt=document.createElement('option');
-                    injectOpt.text="[Bitte auswählen]";
-                    injectOpt.value=0;
-                    selectBox.appendChild(injectOpt);
-                }
-            
-                newOptions.forEach((item) => {
-                    // Erstelle die Einträge
-                    if(item[0] > 0) {
+                if((arraySize > 0) || (arraySize == -1)) {
+                    // Füge ein Bitte auswählen ein
+                    if(selectValue!=="datalist"){
                         injectOpt=document.createElement('option');
-                        injectOpt.text= item[1];
-                        injectOpt.value= item[0];
+                        injectOpt.text="[Bitte auswählen]";
+                        injectOpt.value=0;
                         selectBox.appendChild(injectOpt);
                     }
-                })
-            }
-            // Einträge in Select schieben
-            selectBox.value= selectBox.nodeName==="SELECT"? selectValue: undefined;
+                
+                    newOptions.forEach((item) => {
+                        // Erstelle die Einträge
+                        if(item[0] > 0) {
+                            injectOpt=document.createElement('option');
+                            injectOpt.text= item[1];
+                            injectOpt.value= item[0];
+                            selectBox.appendChild(injectOpt);
+                        }
+                    })
+                }
+                // Einträge in Select schieben
+                selectBox.value= selectBox.nodeName==="SELECT"? selectValue: undefined;
+                activitylog = `<span class='txt--orange'>${selectBox.id}</span> wurde erfolgreich mit ${newOptions.length} Options beschrieben`;
+            }catch(e) {
+                fail = true;
+                activitylog = `<span class='txt--orange'>${selectBox.id}</span>: Laden des pullSQL('${injection}') ist fehlgeschlagen`;
+            } 
+        } else {
+            fail = true;
+            activitylog = `<span class='txt--orange'>${selectBox.id}</span>: pullSQL('${injection}') enthält keine Daten`;
+        }  
+        if (fail === true) {
+            selectBox.setAttribute('disabled',"");
         }
+        return activitylog;
     };
 
 /** convertFormToQuery() - Alle Daten in query verpacken und an Datenback senden. 

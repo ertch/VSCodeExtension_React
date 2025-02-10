@@ -18,25 +18,21 @@
  */
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Global Var +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
        
-let CustomerPattern;               // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
+let CustomerPattern;            // Array des Kampagnien-Table bzw. Kundendaten  / pattern => provider_lib.js
 let agentId;                    // ID des Agenten
 let clientIP;                   
 
 let ttWeb = new Object();       // Objekt für ttFrame-API
-let recordingName;              // Name des Recordings
 
 let keyCode1Pressed = false;    // Status des ersten Hotkey (Tabulator)
 let keyCode2Pressed = false;    // Status des zweiten Hotkey (D)
 let keyCode3Pressed = false;    // Status des dritten  (C)
 let timer;
-let keyPressStartTime;
 
 let btnLock = false;
 let pageLock = false;           // wenn true, verhindert wechsel der Seite/Page
 let buildupFail = false;
 let TriggerData;                        // initialisierung TriggerData      (TriDa)
-let CostumerData;                       // Erstellung global CustomerPattern   (CusDa)
-let CurrCostumerData = new Object();    // Erstellung global neue CusDa     (CuCDa) 
 let SendBack = [];                      // Erstellung global SendBackfilter (SenBa)
 
 let firstTab = "tab_start";
@@ -88,21 +84,18 @@ let Result = {
 let Global ={
     campaignId:                     '679' ,
     sperrzeit: {von: "22:00", bis:"08:00"},
-    loadTrigger: "everytime"              , // Zuständer sind 
+    loadTrigger: "everytime"              , 
     
-    directionState:        0        , // Aktueller Call state
-    startCallwithState:    2        , // Call state bei Beginn des Anrufes
-    startRecWithBuildUp:   false    , // wenn true, wird die Aufnahme direkt bei öffnen des Dokuments gestartet
-    startRecWithCall:      false    , // wenn true, wird die Aufanhme bei tätigigen des Anrufes gestartet
-    onNegDeleteRec:        true     , // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
+    directionState:        0        ,       // Aktueller Call state
+    startCallwithState:    2        ,       // Call state bei Beginn des Anrufes
+    onNegDeleteRec:        true     ,       // Im Falle eines Negativen Abschlusses wird das Audiofile verworfen.          
     
-    debugMode:             true   ,     // Wenn true, dann wird mit SQL-Fakeconnector verbunden
+    debugMode:             true   ,         // Wenn true, dann wird mit SQL-Fakeconnector verbunden
     
-    showDebug:             true    ,    // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
-    LogIntottDB:           false    ,   // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+    showDebug:             true    ,        // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
+    logIntottDB:           false    ,       // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
     logGK:                 true     ,   // Gatekeeper in Log anzeigen
     logSQL:                true     ,   // SQL-Statemants in Log anzeigen
-    showStats:             false    ,   // wenn true, lade AbschlussStatistik (in DebugLog)
 
     addressdatatable:      'ste_wel_addressdata'   ,  // SQL addresstable
     key1:                  'addessdataid'          ,  // Coloumnname der addresstable.id
@@ -124,11 +117,11 @@ let Global ={
     recordFileName:        ''                                                              ,// [ "", "", "192.169.18.11",  "Voicefiles_Phoenix",  "VF_Diverse",  "Kampagnenname", "filename.Suffix"]
     terminationCode:       ''                                                              ,
 
-    wiedervorlage:         false               ,  // wenn true, lade WiedervorlageDaten 
-    wievorElement:         'wievorDatabox'   ,  // Lade WiedervorlageDaten in dieses Element
+    wiedervorlage:         false                ,     // wenn true, lade WiedervorlageDaten 
+    wievorElement:         'wievorDatabox'      ,      // Lade WiedervorlageDaten in dieses Element
 
-    posSale:               false  , // Indikator für positiven Verkauf
-    showCDObuild:          true   , // Zeige den kompletten Aufbau der CustomerData an (in DevLog)
+    posSale:               false  ,                 // Indikator für positiven Verkauf
+    showCDObuild:          true   ,                 // Zeige den kompletten Aufbau der CustomerData an (in DevLog)
     noCustomerData:        false,
 }
 
@@ -168,12 +161,18 @@ function gettime() { // Uhrzeit
     time = `${cache[0]}${cache[1]}`; // sekunden filtern
     return `${time}uhr`; // hh_mm_uhr
 }
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ finishCall ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//---------------------------------------------------------------------------------------------------------------------------------------------------------
+//  
 
 function finishCall() {
     // Hier wird der Code eingetragen, der bei einer händischen überprüfung des positiven Abschlusses ausgeführt werden soll
     let resultId = Global.posSale? Result.positive : Result.negative;
     pushSQL('finish', resultId);
+
     if (Global.debugMode === false) {
+        // Wenn kein DebugMode aktiv ist terminiere Call entsprechend der Global.posSale
         Global.posSale? terminateCall(JSON.stringify(Result.pos_termination)) : terminateCall(JSON.stringify(Result.neg_termination));
     } else {
         alert(`Call terminiert mit ${resultId}`)
@@ -259,15 +258,15 @@ function finishCall() {
     function triggerPattern() {
         let TriggerData = [
             
-            { id: 'PAtxt1',   grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",    value: "<p>Hier könnte ihre Werbung stehen.</p>" },
-            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: ""    },
-            { id: 'NAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,   mode: "add",        value: `<p>Keine nutzbaren Daten gefunden ${CustomerData.firstname.value}</p>`},
-            { id: 'VEs01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
-            { id: 'VEg01',    grp:'b',    target_id: 'zusammenfassung_text',    active: false,  mode: "add",        value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
-            { id: 'TelTest',  grp:'c',    target_id: 'datenerfassung_telefon',  active: true,   mode: "add",        value: "Hallo ich bin ein Test-Text."     },
+            { id: 'PAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "replace",        value: "<p>Hier könnte ihre Werbung stehen.</p>" },
+            { id: 'PAtxt2',   grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "replace",        value: ""    },
+            { id: 'NAtxt1',   grp:'a',    target_id: 'zusammenfassung_text',    active: true,   mode: "replace",        value: `<p>Keine nutzbaren Daten gefunden ${gimmeSomeSpace('CustomerData.phonemobile.value')}`},
+            { id: 'VEs01',    grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "replace",        value: "<p>Der Kunde hat einen bestehenden Stromvertrag.</p>"   },
+            { id: 'VEg01',    grp:'a',    target_id: 'zusammenfassung_text',    active: false,  mode: "replace",        value: "<p>Der Kunde hat einen bestehenden Gasvertrag.</p>"     },
+            { id: 'TelTest',  grp:'c',    target_id: 'datenerfassung_telefon',  active: true,   mode: "load",           value: "Hallo ich bin ein Test-Text."     },
         ];
         return TriggerData;
     }
  
     const providerDefault = "";
-    // TODO Manipulation der CustomerPattern-Value, um die Werte anzupassen     
+   

@@ -36,7 +36,7 @@ let CustomerData = {};
                 let execute = cardHolder.getAttribute("data-query");
                 SqlField = executeFunctionFromString(execute.toString());
             } else {
-                SqlField = queryDefault();
+                SqlField = main_query();
             };
             // Prüfe ob die Datensätze vertauscht sind, anhand von key("standAlone")
             if (typeof SqlField.keys === 'function' && SqlField.keys("createCell")) { 
@@ -45,7 +45,7 @@ let CustomerData = {};
                 logCCD =  Global.noCustomerData? "<span class='txt--bigRed'>CustomerData abgeschaltet:</span> <br> kein Datensatz gefunden <br>":"<span class='txt--bigRed'>Error:</span> Datensatz fehlerhaft <br>"
                 if (!Global.noCustomerData) {
                      !Global.debugMode
-                     ? undefined //ttWeb.terminateCall(`${Result.neg_termination}`)
+                     ? getYourAdmin()
                      : alert(`CALL TERMINIERT / CODE: ${Result.neg_termination}`);
                 }
             } else {
@@ -145,7 +145,7 @@ let CustomerData = {};
 
         // Kundenhistorie laden und anzeigen
         logCCD += loadCustomerHistory(); 
-
+        try{getMainQuery()}catch(e){};
         Global.showCDObuild &&  logIntoDebug("Build CustomerData", logCDO, false);
         logIntoDebug("createCustomerPattern", logCCD, false);
     };
@@ -351,7 +351,11 @@ function loadProviderPreset() {
                         if(target.includes("all")) {
                             prefix = target.split('{')[1];
                             switchGrp = prefix.replace(/}/,"");
-                            switchGrp = document.querySelectorAll(`[data-grp=${switchGrp}]`),
+                            switchGrp = document.querySelectorAll(`[data-grp=${switchGrp}]`);
+                            if (switchGrp.length === 0) {
+                                // werden keine Elemente mit dem Attribut gefunden nutze gate
+                                switchGrp = document.querySelectorAll(`#${gate}`);
+                            }
                             target = target.split('{')[0];
                         }
 
@@ -439,7 +443,7 @@ function loadProviderPreset() {
                 }; 
             };
         });
-        Global.logGK? logIntoDebug(`GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,logOperations, Global.LogIntottDB) : undefined;
+        Global.logGK? logIntoDebug(`GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,logOperations, Global.logIntottDB) : undefined;
     };
 
     // optionaler Gatekeeperaufruf für SuggestionInputs
@@ -460,6 +464,7 @@ function loadProviderPreset() {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 let triggerFlag = false;
+let firstTrigger = true;
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -470,34 +475,41 @@ let triggerFlag = false;
 */
     function readTrigger() {
         let insert = "";
-        TriggerData.forEach((entry) => {
+        if(triggerChanged === true){
+            TriggerData.forEach((entry) => {
                 // durchlaufe TriggerData 
-            if(entry.active === true) {    
-                try { // Falls entry.value eine Variable ist, nutzte deren Wert
-                        insert = eval(entry.value);
-                } catch (error) {
-                        insert = entry.value;
-                };
+                if(entry.active === true) {    
+                    try { // Falls entry.value eine Variable ist, nutzte deren Wert
+                            insert = eval(entry.value);
+                    } catch (error) {
+                            insert = entry.value;
+                    };
 
-                let killGrp = entry.grp;
-                TriggerData.forEach((grpMember) => {
-                    if (grpMember.grp === killGrp) { 
-                        grpMember.id===entry.id? undefined : undoTrigger(grpMember.target_id, grpMember.value);
+                    let killGrp = entry.grp;
+                    TriggerData.forEach((grpMember) => {
+                        if (grpMember.grp === killGrp) { 
+                            grpMember.id===entry.id? undefined : undoTrigger(grpMember.target_id, grpMember.value);
+                        }
+                    });
+
+                    let targetElement = document.getElementById(entry.target_id);
+                    let mode = entry.mode;
+                    if (mode === 'load' && firstTrigger === false){
+                    } else {
+                        switch(targetElement.nodeName){
+                            case "INPUT":
+                                mode==="add"? targetElement.value += `${insert}` : targetElement.value = `${insert}` ;
+                                break;
+    
+                            default:
+                                mode==="add"? targetElement.innerHTML += `${insert}` : targetElement.innerHTML = `${insert}`;
+                        }
                     }
-                });
-
-                let targetElement = document.getElementById(entry.target_id);
-                let mode = entry.mode;
-                switch(targetElement.nodeName){
-                    case "INPUT":
-                        mode==="add"? targetElement.value += `${insert}` : targetElement.value = `${insert}` ;
-                        break;
-
-                    default:
-                        mode==="add"? targetElement.innerHTML += `${insert}` : targetElement.innerHTML = `${insert}`;
                 }
-            }
-        })
+            })
+        }
+        firstTrigger = false;
+        triggerChanged = false;
     };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -508,32 +520,26 @@ let triggerFlag = false;
 * 
 * @param {*} id - ID des zu schaltenden Eintrags
 */
+    let triggerChanged = true;
 
     function setTrigger(id, operation) {
         // Setze mitgebene id in TriggerData active = true
         // Setzte alle id der selben Gruppe auf active = false
         for (const trigger of TriggerData) {
             if (trigger.id === id) {
-                let killGrp = trigger.grp;
-                TriggerData.forEach((grpMember) => {
-                    if (grpMember.grp === killGrp) {
-                        grpMember.active = false;
-                    }
-                });
-                trigger.active = true;
-                try { // Falls list.value eine Variable ist, nutzte deren Wert
-                    insert = eval(trigger.value);
-                } catch (error) {
-                        insert = trigger.value;
-                };
-                if (operation==='add') {
-                    document.getElementById(trigger.target_id).innerHTML += `${insert}`;
-                } else {
-                    document.getElementById(trigger.target_id).innerHTML = `${insert}`;
-                }
-                break;
+                if (trigger.active === false){
+                    let killGrp = trigger.grp;
+                    TriggerData.forEach((grpMember) => {
+                        if (grpMember.grp === killGrp) {
+                            grpMember.active = false;
+                        }
+                    });
+                    trigger.active = true;
+                    triggerChanged = true;
+                    break;
+                } 
             }
-        }        
+        }      
     };
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -549,7 +555,7 @@ let triggerFlag = false;
                 setTrigger(target);
             };
         });
-        if(validate > "") {
+        if(validate !== false) {
             showWeiterBtn(validate);
         };
     };
@@ -557,21 +563,22 @@ let triggerFlag = false;
 /** getTrigger - hole triggerListe aus Element
  * 
  */
-    function undoTrigger(target, value) {   
+    function undoTrigger(target, searchvalue) {   
         const parentElement = document.getElementById(target);
+
         if (parentElement) {
             // Wenn value HTML ist, trimme es und vergleiche es mit dem innerHTML der Kinder
-            if (value.trim().startsWith('<') && value.trim().endsWith('>')) {
+            if (searchvalue.trim().startsWith('<') && searchvalue.trim().endsWith('>')) {
                 const children = Array.from(parentElement.children);
                 children.forEach(child => {
                     // wenn das innerHTML gleich ist, lösche Child
-                    if (child.outerHTML.trim() === value.trim()) {
+                    if (child.outerHTML.trim() === searchvalue.trim()) {
                         child.remove();
                     }
                 });
             } else {
                 // Andernfalls suche nach Text
-                const textNodes = Array.from(parentElement.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() === value.trim());
+                const textNodes = Array.from(parentElement.childNodes).filter(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() === searchvalue.trim());
                 textNodes.forEach(node => {
                     node.remove();
                 });
@@ -616,6 +623,7 @@ let triggerFlag = false;
                 if (newTabName === lastTab || triggerFlag === true) { 
                     if (newTabName === lastTab){ 
                         createEndcard();
+                        Global.loadTrigger==="end"?readTrigger():undefined;
                     }
                 } 
 
@@ -627,6 +635,9 @@ let triggerFlag = false;
                 ifTheDivs(newTabName);
                 oldPage.className = "page_content d-none";
                 currentPage.className = "page_content";
+                if (Global.loadTrigger==="pages" ||  Global.loadTrigger==="everytime") {
+                    readTrigger()
+                } 
                 logIntoDebug(`SwitchTab to "${newTabName}"`,"",false);
         
                 // Wenn der neue Tab bereits sichtbar ist, nichts tun
@@ -819,7 +830,7 @@ let triggerFlag = false;
             showWeiterBtn.innerHTML = '<i class="glyph glyph-abschluss"></i> Abschluss';
         }
             
-        if (silent(document.getElementById(page_id)) == true) {
+        if (silent(document.getElementById(page_id)) == true && page_id !== Global.lastTab) {
             document.getElementById('weiterBtn').classList.remove("d-none");
         } else {
             document.getElementById('weiterBtn').classList.add("d-none");
@@ -838,12 +849,14 @@ let triggerFlag = false;
 
             // Wenn der Button existiert, das onclick-Event auslösen
             if (newTabButton) {
+                logIntoDebug(`WeiterButton clicked: => ${newTabButton.innerHTML}`,"",false)
                 newTabButton.click();
             } 
         } else {
+            logIntoDebug(`AbschlussButton clicked:`,"",false)
             switchTab(`${lastTab}`);
         }
-        logIntoDebug(`WeiterButton clicked`,"",false)
+       
     };
 
     

@@ -3,7 +3,7 @@ import { callGetStaticPaths } from 'node_modules/astro/dist/core/render/route-ca
 
 interface Props {
   pattern: string;
-  queryId: String;
+  query: String;
 }
 
 /**   Zur Erzeugung der CustomerCells / -cards muss festgelegt werden, welche und in welcher Reihenfolge diese generiert werden sollen.
@@ -18,14 +18,14 @@ interface Props {
  * 
  */
 
-const { queryId, pattern } = Astro.props;
+const { query, pattern } = Astro.props;
 
 let errorname = `customerCells_errorMsg`;
 ---
 <aside class="left_block">
     <div id="customerCells" 
         data-provider={pattern} 
-        data-query={queryId}>
+        data-query={query}>
         <span class="errormessage--db_error d-none" id={errorname}></span>
     </div>
 </aside>

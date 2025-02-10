@@ -25,7 +25,7 @@ const { actions, disabled, gate, gatekeeper, hidden, id, klasse, label, maxlengt
 let errorname = `${id}_errorMsg`;
 let gatewayArr = "";
 let gatekeeperCall="";
-let setClass = hidden===true? klasse + " d-none" : `${klasse}`;
+let setClass = hidden ? `${klasse ? klasse : ''} d-none` : klasse;
 
 if(gatekeeper===true) {
     gatekeeperCall = 'GK';

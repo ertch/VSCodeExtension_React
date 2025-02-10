@@ -10,19 +10,25 @@ interface Props {
   maxlength?: string;
   submitTo?: string;
   klasse?: string;
+  hidden?: boolean;
+  validate?: string;
 }
 
-const { id, label, klasse, row, col, required, maxlength, call, value, submitTo } = Astro.props;
+const { id, label, klasse, row, col, required, maxlength, call, value, submitTo, validate, hidden} = Astro.props;
 let errorname = `${id}_errorMsg`;
+let KlassenListe = "";
+klasse>""? KlassenListe += ` ${klasse}`: undefined;
+let hide = hidden ? ` d-none` : "";
+let setClass = `${KlassenListe}${hide}`;
 ---
 
-<div>
+<div id=`${id}_label` class={hide}>
   <label for={id}>{label}</label>
   <span class="errormessage" id={errorname}></span>
 </div>
 
 <textarea
-  class={klasse}
+  class={setClass}
   id={id}
   rows={row}
   cols={col}
@@ -30,7 +36,8 @@ let errorname = `${id}_errorMsg`;
   {required}
   onblur=`autoResize(${id})`
   maxlength={maxlength}
-  onchange={call}
+  data-call={call}
+  data-vali = {validate}
   data-required = 'false'
   data-submit = {submitTo}
 >

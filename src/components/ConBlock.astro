@@ -11,7 +11,7 @@ interface Props {
 
 const {setPosSale, id, If, group, klasse, hidden, required } = Astro.props;
 let ifArr = JSON.stringify(If);
-let setClass = {hidden}? klasse + " d-none" : klasse;
+let setClass = hidden ? `${klasse ? klasse : ''} d-none` : klasse;
 let posSale = setPosSale? "true" : "false";
 ---
 <div 

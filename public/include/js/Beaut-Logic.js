@@ -62,7 +62,7 @@ let Global = {
 
 	debugMode: true,                        // Wenn true, dann wird mit SQL-Fakeconnector verbunden
 	showDebug: true,                        // Wenn true, kann der Log auf der Seite eingeblendet werden (HotKey = [Tab] + [D])
-	LogIntottDB: false,                     // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
+	logIntottDB: false,                     // Wenn true, werden Errormsg an die ttFrameDB geschickt (ausschließlich SQL-querys)
 	logGK: true,                            // Gatekeeper in Log anzeigen
 	logSQL: true,                           // SQL-Statemants in Log anzeigen
 	showStats: false,                       // wenn true, lade AbschlussStatistik (in DebugLog)
@@ -610,7 +610,7 @@ function loadCustomerHistory(logCCD) {
             ? logIntoDebug(
                     `GK <span class="txt--bigOrange">${callingElement.id}</span> = <I class="txt--gray">"${callingElement.value}"</I> `,
                     logOperations,
-                    Global.LogIntottDB,
+                    Global.logIntottDB,
                 )
             : undefined;
     }
@@ -699,8 +699,12 @@ function loadCustomerHistory(logCCD) {
                 setTrigger(target);
             }
         });
-        if (validate > "") {
-            showWeiterBtn(validate);
+        if (validate !== "") {
+            try {
+                showWeiterBtn(validate);
+            } catch (e) {
+                logIntoDebug("getTrigger", `Fehler: '${validate}' konnte nicht von showWeiterBtn() verarbeitet werden.`,false)
+            }
         }
     }
 
@@ -801,7 +805,7 @@ function loadCustomerHistory(logCCD) {
                 '<i class="glyph glyph-abschluss"></i> Abschluss';
         }
 
-        if (silent(document.getElementById(page_id)) == true) {
+        if (silent(document.getElementById(page_id)) == true && page_id !== Global.lastTab) {
             document.getElementById("weiterBtn").classList.remove("d-none");
         } else {
             document.getElementById("weiterBtn").classList.add("d-none");
@@ -920,7 +924,7 @@ function executeFunctionFromString(funcString) {
 		logIntoDebug(
 			"executeFunctionFromString:",
 			`<I class='txt--bigRed'>Error:</I> Aufgerufene Funktion ${funcName} existiert nicht.`,
-			Global.LogIntottDB,
+			Global.logIntottDB,
 		); //Error_msg
 	}
 	return giveBack;
@@ -962,7 +966,7 @@ function createAddressDataArray(queryResult) {
 		logIntoDebug(
 			"createAdressDataArray",
 			"<I class='txt--bigRed'>Error:</I> SQL-Ergebnisse konnten nicht in Array geladen werden",
-			Global.LogIntottDB,
+			Global.logIntottDB,
 		);
 		return [];
 	}
@@ -992,8 +996,8 @@ function logIntoDebug(caller, msg, dbExport) {
 			msg;
 		window.innerHTML = log;
 	}
-	if (dbExport && Global.LogIntottDB) {
-		// Global.LogIntottDB => ttEditor-config.js
+	if (dbExport && Global.logIntottDB) {
+		// Global.logIntottDB => ttEditor-config.js
 		// Erstelle und sende Log an Datenbank
 		ttErrorLog(caller, msg);
 	}
@@ -1194,7 +1198,7 @@ function autoResize(textarea) {
         //             logIntoDebug(
         //                 "buildUp",
         //                 "Es wurde ein bereits positiver Datensatz erneut angerufen. Call wurde automatisch termininiert.",
-        //                 Global.LogIntottDB,
+        //                 Global.logIntottDB,
         //             );
         //             ttWeb.clearRecording();
         //             ttWeb.terminateCall("100");
@@ -1202,7 +1206,7 @@ function autoResize(textarea) {
         //             logIntoDebug(
         //                 "buildUp",
         //                 "Es wurde ein bereits negativer Datensatz erneut angerufen. Call wurde automatisch termininiert.",
-        //                 Global.LogIntottDB,
+        //                 Global.logIntottDB,
         //             );
         //             ttWeb.clearRecording();
         //             ttWeb.terminateCall("200");
@@ -1254,7 +1258,7 @@ function autoResize(textarea) {
         //             logIntoDebug(
         //                 "Aktuelle Quote",
         //                 `${stats.POSITIV} Abschlüsse bei ${nettos} Anrufen = ${quote}% `,
-        //                 Global.LogIntottDB,
+        //                 Global.logIntottDB,
         //             );
                 }
             }
@@ -1393,7 +1397,7 @@ function autoResize(textarea) {
                     ? undefined
                     : ttWeb.setIndicator(Global.startCallwithState); // Callstate zurücksetzten
 
-                Global.onNegDeleteRec === true ? record("clear") : undefined; // Aufnahme löschen wenn gewollt
+                Global.onNegDeleteRec === true ? record("clear") : record("save"); // Aufnahme löschen wenn gewollt
 
                 // ---- submit ----
 
@@ -1491,7 +1495,7 @@ function autoResize(textarea) {
                     logIntoDebug(
                         "record(stop)",
                         `<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,
-                        Global.LogIntottDB,
+                        Global.logIntottDB,
                     );
                 }
                 break;
@@ -1512,7 +1516,7 @@ function autoResize(textarea) {
                     logIntoDebug(
                         "record(save)",
                         `<span class="txt-red">Error:</span> Kein Global.recordFileName angegeben.`,
-                        Global.LogIntottDB,
+                        Global.logIntottDB,
                     );
                 }
                 break;
@@ -1527,7 +1531,7 @@ function autoResize(textarea) {
                 logIntoDebug(
                     `record(${state})`,
                     `<span class="txt-red">Error:</span> invalider state`,
-                    Global.LogIntottDB,
+                    Global.logIntottDB,
                 );
         }
     }

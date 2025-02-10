@@ -7,8 +7,9 @@ interface Props {
   klasse?: string;
   value?: any;
   required?: boolean;
+  hidden?: boolean;
   maxlength?: string;
-  pattern?: string;
+  regex?: string;
   preset?: string;
   disabled?: boolean;
   blur?: string;
@@ -19,15 +20,17 @@ interface Props {
   oc?: string
 }
 
-const {call, id, label, klasse, type, required, maxlength, pattern, preset, value, disabled, blur, submitTo, validate, min, max, oc} = Astro.props; 
+const {call, id, label, klasse, type, required, hidden, maxlength, regex, preset, value, disabled, blur, submitTo, validate, min, max, oc} = Astro.props; 
 
 
 let errorname = `${id}_errorMsg`;
 let KlassenListe = `input-text`;
 klasse>""? KlassenListe += ` ${klasse}`: undefined;
+let hide = hidden ? ` d-none` : "";
+let setClass = `${KlassenListe}${hide}`;
 ---
 
-<div>
+<div id=`${id}_label` class={hide}>
   <label for={id}>{label}</label>
   <span class="errormessage" id={errorname}></span>
 </div>
@@ -35,13 +38,13 @@ klasse>""? KlassenListe += ` ${klasse}`: undefined;
 <input
   id={id}
   type={type as "text"}
-  class= {KlassenListe}
+  class= {setClass}
   value={value}
   {required}
   {disabled}
   name={id}
   maxlength={maxlength}
-  pattern={pattern}
+  pattern={regex}
   data-preset = {preset}
   onchange={oc}
   onblur={blur}

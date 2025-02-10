@@ -7,6 +7,7 @@ interface Props {
   firstOption?: Array<any>;
   klasse?: string;
   required?: boolean;
+  hidden?:boolean;
   requiredValue?: Array<any>;
   disabled?: boolean;
   preset?: string;
@@ -14,11 +15,13 @@ interface Props {
   submitTo?: string;
 }
 
-const {actions, id, label, firstOption, required, requiredValue, disabled, call, preset, submitTo, klasse } = Astro.props;
+const {actions, id, label, firstOption, required, hidden, requiredValue, disabled, call, preset, submitTo, klasse } = Astro.props;
 const { options } = Astro.props as Props;
 
 let errorname = `${id}_errorMsg`;
 let valueArr;
+let hide = hidden ? ` d-none` : "";
+let setClass = `${klasse}${hide}`;
 let triggerArr = JSON.stringify(actions);
 if (requiredValue != null) {
 valueArr = JSON.stringify(requiredValue);
@@ -29,10 +32,10 @@ valueArr = valueArr.replace(/&quot;/g, '')
 ---
 
 
-<label for={id}>{label}</label>
+<label for={id} class={hide}>{label}</label>
 <span class="errormessage" id={errorname}></span>
 <select
-  class=`dropdown h-drop ${klasse}`
+  class=`dropdown h-drop ${setClass}`
   id={id}
   name={id}
   {required}

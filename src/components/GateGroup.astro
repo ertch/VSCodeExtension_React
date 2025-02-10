@@ -3,13 +3,13 @@ interface Props {
   id?: string;
   group: string;
   klasse?: string;
-
+  hidden?: boolean;
 }
 
-const { id, group, klasse } = Astro.props;
-
+const { id, group, hidden, klasse } = Astro.props;
+let setClass = hidden ? `${klasse ? klasse : ''} d-none` : klasse;
 ---
-<div id={id} class={klasse} data-grp={group}>
+<div id={id} class={setClass} data-grp={group}>
   <slot>
     
   </slot>

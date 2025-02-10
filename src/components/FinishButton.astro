@@ -2,15 +2,18 @@
 interface Props {
   auto?: boolean;
   queryLib?: boolean;
+  hidden?: boolean;
 }
-const { auto, queryLib} = Astro.props;
+const { auto, queryLib, hidden} = Astro.props;
 let sql = "auto";
 if (queryLib===true) {
     sql = "queryLib";
 }
+let klasse = `absenden`;
+let setClass = hidden ? `${klasse ? klasse : ''} d-none` : klasse;
 ---
 <div 
-    class="absenden" 
+    class={setClass}
     id="div_publish"
 >
     <button

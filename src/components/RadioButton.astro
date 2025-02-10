@@ -1,17 +1,20 @@
 ---
 interface Props {
   id: string;
-  name: string;
+  name?: string;
   required?: boolean;
   value: string;
   label: string;
   submitTo?: string;
+  hidden?: boolean;
 }
 
-const { id, name, required, value, label, submitTo } = Astro.props;
+const { id, name, required, value, label, submitTo, hidden } = Astro.props;
+let klasse = "radio-option";
+let setClass = hidden ? `${klasse ? klasse : ''} d-none` : klasse;
 ---
 
-<div class="radio-option">
+<div class={setClass}>
   <input class="radio-option__input" type="radio" id={id} name={name} value={value} {required} data-required = 'false' data-submit={submitTo}/>
   <label class="radio-option__label" for={id}>{label}</label>
 </div>
