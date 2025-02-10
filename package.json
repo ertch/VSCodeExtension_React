@@ -1,18 +1,52 @@
 {
-  "name": "orbital-orbit",
-  "type": "module",
+  "name": "vscextension",
+  "displayName": "vscExtension",
+  "description": "vscExtension with react",
   "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.96.0"
   },
-  "dependencies": {
-    "sass": "^1.69.5"
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:vscExtension.showWebview"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscExtension.showWebview",
+        "title": "Open vscExtension Panel"
+      }
+    ],
+    "menus": {
+      "activityBar": [
+        {
+          "command": "vscExtension.showWebview",
+          "when": "true",
+          "group": "navigation",
+          "icon": {
+            "light": "media/icon.png",
+            "dark": "media/icon.png"
+          }
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc && node esbuild.js",
+    "watch": "tsc --watch",
+    "pretest": "npm run compile",
+    "test": "vscode-test",
+    "build": "npm run compile && cd src/ui && npm run build && cd ../.."
   },
   "devDependencies": {
-    "astro": "^4.12.2"
+    "@types/node": "^22.13.1",
+    "@types/vscode": "^1.96.0",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.3",
+    "vscode-test": "^1.5.0"
   }
 }

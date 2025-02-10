@@ -1,16 +1,13 @@
 {
-  "extends": "astro/tsconfigs/base",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["src/components/*"],
-      "@layouts/*": ["src/layouts/*"],
-    }
-  },
-  "include": [
-    "src/**/*.d.ts",
-    "src/**/*.ts",
-    "src/**/*.astro",
-  ]
-}
+	"compilerOptions": {
+      "jsx": "react",
+	  "target": "ES6",
+	  "lib": ["ES2018", "DOM"],
+	  "module": "CommonJS",
+	  "outDir": "./dist",
+	  "rootDir": "./src",
+	  "strict": true
+	},
+	"exclude": ["node_modules", ".vscode-test"]
+  }
+  
