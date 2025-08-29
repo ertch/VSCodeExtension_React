@@ -89,44 +89,35 @@ class SidebarWebviewProvider implements vscode.WebviewViewProvider {
         const folder = vscode.workspace.workspaceFolders?.[0];
         if (!folder) return;
         
-        const srcPagesPath = path.join(folder.uri.fsPath, 'src', 'pages');
-        if (!fs.existsSync(srcPagesPath)) return;
+        const srcPages = path.join(folder.uri.fsPath, 'src', 'pages');
+        if (!fs.existsSync(srcPages)) return;
         
-        for (const entry of fs.readdirSync(srcPagesPath, { withFileTypes: true })) {
-            if (entry.isDirectory()) {
-                const indexPath = path.join(srcPagesPath, entry.name, 'index.astro');
-                if (fs.existsSync(indexPath)) {
-                    this.astroContent = fs.readFileSync(indexPath, 'utf-8');
-                    this.generateFromAstro();
-                    return;
-                }
-            }
+        const indexPath = fs.readdirSync(srcPages, { withFileTypes: true })
+            .find(entry => entry.isDirectory() && fs.existsSync(path.join(srcPages, entry.name, 'index.astro')));
+            
+        if (indexPath) {
+            this.astroContent = fs.readFileSync(path.join(srcPages, indexPath.name, 'index.astro'), 'utf-8');
+            this.generateFromAstro();
         }
     }
 
     private generateFromAstro() {
         if (!this.astroContent) return;
-        
         vscode.commands.executeCommand('vscExtension.showWebview');
         
         setTimeout(() => {
             mainPanel?.webview.postMessage({ command: 'insertSnippet', tool: 'StaticConfig', content: staticConfigBlock });
-            
-            AstroParser.findComponents(this.astroContent).forEach((component, index) => {
+            AstroParser.findComponents(this.astroContent).forEach((component, index) => 
                 setTimeout(() => mainPanel?.webview.postMessage({
-                    command: 'insertSnippet',
-                    tool: component,
-                    content: this.generateSnippet(component)
-                }), (index + 1) * 200);
-            });
+                    command: 'insertSnippet', tool: component, content: this.generateSnippet(component)
+                }), (index + 1) * 200));
         }, 100);
     }
 
     private generateSnippet(componentName: string): string {
-        if (!this.astroContent) return `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
-        
-        const values = AstroParser.extractComponentAttributes(componentName, this.astroContent);
-        return AstroParser.generateSnippet(componentName, values);
+        return this.astroContent 
+            ? AstroParser.generateSnippet(componentName, AstroParser.extractComponentAttributes(componentName, this.astroContent))
+            : `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
     }
 
     private getHtmlForWebview(): string {

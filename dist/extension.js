@@ -41136,94 +41136,59 @@ var import_whatwg_mimetype = __toESM(require_mime_type(), 1);
 
 // src/astroParser.ts
 var AstroParser = class {
-  /**
-   * Parse Astro file content and find components
-   */
   static findComponents(astroContent) {
     const $2 = load(astroContent, { xmlMode: true });
-    const foundComponents = [];
-    Object.keys(snippetDefinitions).forEach((componentName) => {
-      if ($2(componentName).length > 0) {
-        foundComponents.push(componentName);
-      }
-    });
-    return foundComponents;
+    return Object.keys(snippetDefinitions).filter((name) => $2(name).length > 0);
   }
-  /**
-   * Extract attributes from a specific component in Astro content
-   */
   static extractComponentAttributes(componentName, astroContent) {
     const definition = snippetDefinitions[componentName];
     if (!definition) return {};
-    const componentRegex = new RegExp(`<${componentName}([\\s\\S]*?)>`, "gs");
-    const match = componentRegex.exec(astroContent);
-    if (!match || !match[1]) return {};
-    const attributeString = match[1];
+    const match = new RegExp(`<${componentName}([\\s\\S]*?)>`).exec(astroContent);
+    if (!match?.[1]) return {};
+    const attrs = match[1];
     const values = {};
+    Object.keys(definition.attributes).forEach((attr2) => values[attr2] = "");
+    [...attrs.matchAll(/(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g)].forEach(([, key, , value]) => key in values && (values[key] = value));
     Object.keys(definition.attributes).forEach((attr2) => {
-      values[attr2] = "";
+      if (values[attr2]) return;
+      const funcMatch = new RegExp(`${attr2}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`).exec(attrs);
+      const braceMatch = new RegExp(`${attr2}\\s*=\\s*\\{`).exec(attrs);
+      if (funcMatch) {
+        const content = this.extractBrackets(attrs, funcMatch.index + funcMatch[0].length - 1, "(", ")");
+        if (content) values[attr2] = attrs.substring(funcMatch.index + attr2.length + 1, funcMatch.index + funcMatch[0].length + content.length);
+      } else if (braceMatch) {
+        const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, "{", "}");
+        if (content) values[attr2] = content.replace(/\s+/g, " ").trim();
+      }
     });
-    const stringAttrRegex = /(\w+)=["']([^"']*?)["']/g;
-    let stringMatch;
-    while ((stringMatch = stringAttrRegex.exec(attributeString)) !== null) {
-      const [, key, value] = stringMatch;
-      if (key in values) {
-        values[key] = value;
-      }
-    }
-    for (const attr2 of Object.keys(definition.attributes)) {
-      const attrRegex = new RegExp(`${attr2}\\s*=\\s*\\{([\\s\\S]*?)`, "g");
-      const attrMatch = attrRegex.exec(attributeString);
-      if (attrMatch) {
-        let startPos = attrMatch.index + attrMatch[0].length - 1;
-        let braceCount = 0;
-        let endPos = -1;
-        for (let i = startPos; i < attributeString.length; i++) {
-          if (attributeString[i] === "{") braceCount++;
-          if (attributeString[i] === "}") {
-            braceCount--;
-            if (braceCount === 0) {
-              endPos = i;
-              break;
-            }
-          }
-        }
-        if (endPos !== -1) {
-          const jsContent = attributeString.substring(startPos + 1, endPos);
-          values[attr2] = jsContent.replace(/\s+/g, " ").trim();
-        }
-      }
-    }
-    const boolAttrRegex = /\s+(\w+)(?=\s|$|>)/g;
-    let boolMatch;
-    while ((boolMatch = boolAttrRegex.exec(attributeString)) !== null) {
-      const attr2 = boolMatch[1];
-      if (attr2 in values && values[attr2] === "") {
-        values[attr2] = "true";
-      }
-    }
+    [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)].forEach(([, attr2]) => attr2 in values && !values[attr2] && (values[attr2] = "true"));
     return values;
   }
-  /**
-   * Generate HTML snippet with values script for a component
-   */
+  static extractBrackets(text3, startPos, open, close) {
+    let count = 0, endPos = -1;
+    for (let i = startPos; i < text3.length; i++) {
+      if (text3[i] === open) count++;
+      if (text3[i] === close && --count === 0) {
+        endPos = i;
+        break;
+      }
+    }
+    return endPos !== -1 ? text3.substring(startPos + 1, endPos) : null;
+  }
   static generateSnippet(componentName, values) {
-    const valuesScript = JSON.stringify(values, null, 2);
     const displayValues = Object.entries(values).map(([key, val2]) => {
       if (!val2) return `<div><strong>${key}:</strong> <em>N/A</em></div>`;
-      if (val2.startsWith("[") || val2.startsWith("{")) {
-        return `<div><strong>${key}:</strong> <code style="font-size: 11px; background: #e9ecef; padding: 2px 4px; border-radius: 3px;">${val2}</code></div>`;
-      }
+      if (val2.match(/^[\[{]/)) return `<div><strong>${key}:</strong> <code style="font-size:11px;background:#e9ecef;padding:2px 4px;border-radius:3px">${val2}</code></div>`;
       return `<div><strong>${key}:</strong> ${val2}</div>`;
     }).join("");
-    return `<div style="border: 2px solid #007acc; padding: 16px; margin: 10px 0; border-radius: 8px; background: #f8f9fa;">
-            <h3 style="margin-top: 0; color: #007acc;">\u{1F9E9} ${componentName}</h3>
-            ${displayValues}
-        </div>
-        <script>
-        let values = ${valuesScript};
-        console.log('${componentName} values:', values);
-        </script>`;
+    return `<div style="border:2px solid #007acc;padding:16px;margin:10px 0;border-radius:8px;background:#f8f9fa">
+    <h3 style="margin-top:0;color:#007acc">\u{1F9E9} ${componentName}</h3>
+    ${displayValues}
+</div>
+<script>
+let values = ${JSON.stringify(values, null, 2)};
+console.log('${componentName} values:', values);
+</script>`;
   }
 };
 
@@ -41365,17 +41330,12 @@ var SidebarWebviewProvider = class {
   readAstroFile() {
     const folder = vscode.workspace.workspaceFolders?.[0];
     if (!folder) return;
-    const srcPagesPath = path.join(folder.uri.fsPath, "src", "pages");
-    if (!fs.existsSync(srcPagesPath)) return;
-    for (const entry of fs.readdirSync(srcPagesPath, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        const indexPath = path.join(srcPagesPath, entry.name, "index.astro");
-        if (fs.existsSync(indexPath)) {
-          this.astroContent = fs.readFileSync(indexPath, "utf-8");
-          this.generateFromAstro();
-          return;
-        }
-      }
+    const srcPages = path.join(folder.uri.fsPath, "src", "pages");
+    if (!fs.existsSync(srcPages)) return;
+    const indexPath = fs.readdirSync(srcPages, { withFileTypes: true }).find((entry) => entry.isDirectory() && fs.existsSync(path.join(srcPages, entry.name, "index.astro")));
+    if (indexPath) {
+      this.astroContent = fs.readFileSync(path.join(srcPages, indexPath.name, "index.astro"), "utf-8");
+      this.generateFromAstro();
     }
   }
   generateFromAstro() {
@@ -41383,19 +41343,15 @@ var SidebarWebviewProvider = class {
     vscode.commands.executeCommand("vscExtension.showWebview");
     setTimeout(() => {
       mainPanel?.webview.postMessage({ command: "insertSnippet", tool: "StaticConfig", content: staticConfigBlock });
-      AstroParser.findComponents(this.astroContent).forEach((component, index2) => {
-        setTimeout(() => mainPanel?.webview.postMessage({
-          command: "insertSnippet",
-          tool: component,
-          content: this.generateSnippet(component)
-        }), (index2 + 1) * 200);
-      });
+      AstroParser.findComponents(this.astroContent).forEach((component, index2) => setTimeout(() => mainPanel?.webview.postMessage({
+        command: "insertSnippet",
+        tool: component,
+        content: this.generateSnippet(component)
+      }), (index2 + 1) * 200));
     }, 100);
   }
   generateSnippet(componentName) {
-    if (!this.astroContent) return `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
-    const values = AstroParser.extractComponentAttributes(componentName, this.astroContent);
-    return AstroParser.generateSnippet(componentName, values);
+    return this.astroContent ? AstroParser.generateSnippet(componentName, AstroParser.extractComponentAttributes(componentName, this.astroContent)) : `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
   }
   getHtmlForWebview() {
     return sidebarHtml;
