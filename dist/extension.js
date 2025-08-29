@@ -37,9 +37,14 @@ module.exports = __toCommonJS(extension_exports);
 var vscode = __toESM(require("vscode"));
 var path = __toESM(require("path"));
 var fs = __toESM(require("fs"));
+var mainPanel;
 function activate(context) {
   let disposable = vscode.commands.registerCommand("vscExtension.showWebview", () => {
-    const panel = vscode.window.createWebviewPanel(
+    if (mainPanel) {
+      mainPanel.reveal(vscode.ViewColumn.One);
+      return;
+    }
+    mainPanel = vscode.window.createWebviewPanel(
       "extensionWebview",
       "VSC-ExtensionName",
       vscode.ViewColumn.One,
@@ -50,11 +55,14 @@ function activate(context) {
         // Behalte die Webview aktiv, wenn sie versteckt wird
       }
     );
+    mainPanel.onDidDispose(() => {
+      mainPanel = void 0;
+    });
     const indexPath = vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist", "index.html"));
     let html = fs.readFileSync(indexPath.fsPath, "utf-8");
-    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.js")));
-    const styleUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.css")));
-    const cspSource = panel.webview.cspSource;
+    const scriptUri = mainPanel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.js")));
+    const styleUri = mainPanel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.css")));
+    const cspSource = mainPanel.webview.cspSource;
     const cspMetaTag = `
             <meta http-equiv="Content-Security-Policy" content="
                 default-src 'self' ${cspSource}; 
@@ -66,7 +74,7 @@ function activate(context) {
             <link rel="stylesheet" href="${styleUri}">
             <script type="module" src="${scriptUri}" defer></script>
         `);
-    panel.webview.html = html;
+    mainPanel.webview.html = html;
   });
   const sidebarProvider = new SidebarWebviewProvider(context);
   context.subscriptions.push(vscode.window.registerWebviewViewProvider("vscExtension.quickAccess", sidebarProvider));
@@ -94,11 +102,32 @@ var SidebarWebviewProvider = class {
           case "alert":
             vscode.window.showInformationMessage(message.text);
             break;
+          case "insertSnippet":
+            this.handleSnippetInsertion(message.tool);
+            break;
         }
       },
       void 0,
       this.context.subscriptions
     );
+  }
+  handleSnippetInsertion(tool) {
+    vscode.commands.executeCommand("vscExtension.showWebview");
+    const snippetPath = path.join(this.context.extensionPath, "src", "snippets", `${tool}-snippet.html`);
+    try {
+      const snippetContent = fs.readFileSync(snippetPath, "utf-8");
+      setTimeout(() => {
+        if (mainPanel) {
+          mainPanel.webview.postMessage({
+            command: "insertSnippet",
+            tool,
+            content: snippetContent
+          });
+        }
+      }, 100);
+    } catch (error) {
+      vscode.window.showErrorMessage(`Could not load snippet for ${tool}: ${error}`);
+    }
   }
   getHtmlForWebview(webview) {
     const cspSource = webview.cspSource;
@@ -167,12 +196,12 @@ var SidebarWebviewProvider = class {
             </div>
             
             <div class="section">
-                <div class="section-title">Tools</div>
-                <button class="button" onclick="showAlert('Tool 1 activated!')">
-                    \u{1F527} Tool 1
+                <div class="section-title">Code Snippet Tools</div>
+                <button class="button" onclick="insertSnippet('tool1')">
+                    \u{1F527} Tool 1 - Basic Component
                 </button>
-                <button class="button" onclick="showAlert('Tool 2 activated!')">
-                    \u{1F528} Tool 2
+                <button class="button" onclick="insertSnippet('tool2')">
+                    \u{1F528} Tool 2 - Advanced Component
                 </button>
             </div>
             
@@ -196,6 +225,13 @@ var SidebarWebviewProvider = class {
                     vscode.postMessage({
                         command: 'alert',
                         text: text
+                    });
+                }
+
+                function insertSnippet(tool) {
+                    vscode.postMessage({
+                        command: 'insertSnippet',
+                        tool: tool
                     });
                 }
             </script>

@@ -2,13 +2,14 @@
 
 ## Architecture Overview
 
-This VS Code extension integrates a React-based user interface within VS Code webviews, providing both a command palette action and an interactive sidebar webview with buttons and controls for quick access to extension functionality.
+This VS Code extension is a **Code Snippet Generator** that integrates a React-based user interface with an interactive sidebar, providing a low-code development experience. Users can generate HTML components by clicking sidebar buttons, which are then injected and rendered in real-time within the React application.
 
 ### Key Components
 
 - **Extension Host**: TypeScript-based VS Code extension (`src/extension.ts`)
-- **Main React UI**: Vite-powered React application (`src/ui/`) for full-panel webviews
-- **Sidebar Webview**: Interactive HTML interface with buttons and VS Code theme integration
+- **Code Snippet Generator**: React application (`src/ui/`) that receives and renders HTML snippets
+- **Interactive Sidebar**: HTML interface with snippet generation tools
+- **Snippet Library**: Modular HTML files (`src/snippets/`) for different component types
 - **Build System**: ESBuild for extension bundling, Vite for React UI
 
 ## Dependencies
@@ -51,9 +52,12 @@ VSCodeExtension_React/
 │   ├── components/           # Extension components
 │   ├── generator/           # Code generation utilities
 │   ├── main.ts             # Additional main logic
+│   ├── snippets/            # HTML snippet library
+│   │   ├── tool1-snippet.html  # Basic component snippet
+│   │   └── tool2-snippet.html  # Advanced component snippet
 │   └── ui/                 # React UI application
 │       ├── src/
-│       │   ├── components/  # React components
+│       │   ├── components/  # React components (Card.tsx)
 │       │   ├── css/        # Stylesheets
 │       │   └── main.jsx    # React app entry point
 │       ├── index.html      # HTML template
@@ -65,19 +69,22 @@ VSCodeExtension_React/
 
 ### Key Features
 
-1. **Dual Webview System**: Creates both full-panel React webviews and sidebar webview interfaces
-2. **Interactive Sidebar**: Custom HTML webview with buttons, sections, and VS Code theme integration
-3. **Activity Bar Integration**: Extension icon in activity bar opens interactive sidebar
-4. **Command Registration**: Registers `vscExtension.showWebview` command for main panel
-5. **Message Communication**: Bidirectional messaging between sidebar webview and extension host
-6. **CSP Security**: Implements Content Security Policy for both webview types
-7. **Theme Integration**: Sidebar automatically adapts to VS Code light/dark themes
-8. **Asset Loading**: Handles React build assets (JS/CSS) in main webview context
+1. **Code Snippet Generation**: Click sidebar buttons to generate HTML components
+2. **Real-time DOM Injection**: Snippets are instantly rendered in the React application
+3. **Modular Snippet System**: HTML snippets stored as separate files for easy customization
+4. **Interactive React Canvas**: Live preview area where generated components appear
+5. **Snippet Management**: Individual removal, clear all functionality, and visual organization
+6. **Low-Code Development**: Build UI components without writing code manually
+7. **Dual Webview Architecture**: Separate sidebar controls and main React display
+8. **Message Communication**: Real-time communication between sidebar and React app
+9. **Theme Integration**: Components automatically adapt to VS Code themes
+10. **Extensible Architecture**: Easy to add new snippet types and generation tools
 
 ### Build Configuration
 
 - **Extension**: ESBuild bundles TypeScript to `dist/extension.js`
 - **React UI**: Vite builds React app to `src/ui/dist/`
+- **Snippet Files**: Raw HTML files loaded dynamically by extension
 - **TypeScript**: Configured for ES6 target with CommonJS modules
 
 ## Getting Started
@@ -126,10 +133,11 @@ VSCodeExtension_React/
    - Open project in VS Code
    - Press `F5` to launch Extension Development Host
    - Click on the extension icon in the Activity Bar to open the interactive sidebar
-   - Use the sidebar buttons to:
-     - Open the main React panel
-     - Test VS Code integration features
-     - Access quick tools and settings
+   - Use the code snippet generation tools:
+     - Click "Tool 1 - Basic Component" to generate a blue-themed input component
+     - Click "Tool 2 - Advanced Component" to generate a green-themed component with dropdown
+     - Open the main React panel to see generated components
+     - Use snippet management features (individual removal, clear all)
 
 ### Available Scripts
 
@@ -149,10 +157,11 @@ VSCodeExtension_React/
 
 - Extension requires VS Code ^1.96.0
 - React UI builds to `src/ui/dist/` which extension loads for main panels
+- HTML snippets are stored as separate files in `src/snippets/` for easy modification
 - CSP headers are configured for both sidebar and main webview security
 - Extension supports both command palette and activity bar access
-- Sidebar contains interactive webview with buttons and VS Code theme integration
-- Main React panel opens in separate editor tab when requested from sidebar
+- Generated components use `dangerouslySetInnerHTML` for dynamic HTML rendering
+- Snippet generation works in real-time without requiring page refresh
 
 ## Current Implementation Details
 
@@ -167,37 +176,99 @@ VSCodeExtension_React/
 - **Message Handling**: Processes messages from sidebar buttons to execute commands
 - **Theme Integration**: Automatically matches VS Code's current theme (light/dark)
 
-### Sidebar Features
+### Code Snippet Generation Features
 - **Quick Actions Section**: 
   - 📋 Open Extension Panel (launches main React UI)
   - 💬 Show Alert (demonstrates VS Code integration)  
   - ⚙️ Settings (placeholder for future features)
-- **Tools Section**: Customizable tool buttons for extension functionality
-- **Info Display**: Shows extension version and status information
+- **Code Snippet Tools Section**: 
+  - 🔧 Tool 1 - Basic Component (generates blue-themed input field)
+  - 🔨 Tool 2 - Advanced Component (generates green-themed form with dropdown)
+- **Info Display**: Shows extension version and ready status
 
-### Message Communication
+### React Application Features
+- **Snippet Canvas**: Main area where generated components are rendered
+- **Real-time Updates**: Components appear instantly when generated from sidebar
+- **Snippet Management**:
+  - Individual snippet removal with ✕ button
+  - "Clear All Snippets" button to remove all components
+  - Visual headers showing which tool generated each snippet
+- **Responsive Layout**: Components stack vertically with proper spacing
+- **Empty State**: Helpful message when no snippets are present
+
+### Message Communication Flow
+
+#### 1. Sidebar to Extension Host
 ```typescript
-// Sidebar to Extension Host
+// Generate snippet command
+webview.postMessage({
+    command: 'insertSnippet',
+    tool: 'tool1' | 'tool2'
+});
+
+// Other commands
 webview.postMessage({
     command: 'openMainPanel' | 'alert',
     text?: string
 });
+```
 
-// Extension Host handles messages
+#### 2. Extension Host Processing
+```typescript
 switch (message.command) {
+    case 'insertSnippet':
+        this.handleSnippetInsertion(message.tool);
+        break;
     case 'openMainPanel':
         vscode.commands.executeCommand('vscExtension.showWebview');
-        break;
-    case 'alert':
-        vscode.window.showInformationMessage(message.text);
         break;
 }
 ```
 
-### Extensibility
-The sidebar webview slot can be easily extended with:
-- Additional button sections
-- Form inputs and controls
-- Real-time status displays
-- Integration with external APIs
-- Custom styling and themes
+#### 3. Extension Host to React App
+```typescript
+// Send loaded snippet to React
+mainPanel.webview.postMessage({
+    command: 'insertSnippet',
+    tool: tool,
+    content: snippetContent  // HTML from snippet file
+});
+```
+
+#### 4. React App Processing
+```typescript
+// React receives and renders snippet
+const handleMessage = (event: MessageEvent) => {
+    if (event.data.command === 'insertSnippet') {
+        const newSnippet = {
+            id: Date.now().toString(),
+            content: event.data.content,
+            tool: event.data.tool
+        };
+        setSnippets(prev => [...prev, newSnippet]);
+    }
+};
+```
+
+## Snippet System Architecture
+
+### Adding New Snippets
+1. **Create HTML File**: Add new snippet in `src/snippets/toolX-snippet.html`
+2. **Update Sidebar**: Add button with `onclick="insertSnippet('toolX')"`
+3. **Test**: Snippets are loaded dynamically - no code changes needed
+
+### Current Snippet Templates
+- **tool1-snippet.html**: Blue-themed basic component with text input
+- **tool2-snippet.html**: Green-themed advanced component with input and dropdown
+
+### Extensibility Options
+1. **More Snippet Types**: Forms, buttons, cards, navigation components
+2. **Interactive Components**: Add JavaScript functionality to snippets  
+3. **Template Variables**: Dynamic content replacement in snippets
+4. **Snippet Categories**: Organize tools into themed sections
+5. **Export Functionality**: Save generated components as HTML/React files
+6. **Custom Styling**: User-configurable themes and colors
+7. **Component Library**: Build reusable component collections
+8. **Integration APIs**: Connect with design systems and component libraries
+
+This foundation provides a **low-code development environment** where users can visually build UI components through simple button clicks, making it an excellent base for more advanced code generation tools.
