@@ -41153,19 +41153,55 @@ var AstroParser = class {
    * Extract attributes from a specific component in Astro content
    */
   static extractComponentAttributes(componentName, astroContent) {
-    const $2 = load(astroContent, { xmlMode: true });
-    const element = $2(componentName).first();
-    if (element.length === 0) {
-      return {};
-    }
     const definition = snippetDefinitions[componentName];
-    if (!definition) {
-      return {};
-    }
+    if (!definition) return {};
+    const componentRegex = new RegExp(`<${componentName}([\\s\\S]*?)>`, "gs");
+    const match = componentRegex.exec(astroContent);
+    if (!match || !match[1]) return {};
+    const attributeString = match[1];
     const values = {};
     Object.keys(definition.attributes).forEach((attr2) => {
-      values[attr2] = element.attr(attr2) || "";
+      values[attr2] = "";
     });
+    const stringAttrRegex = /(\w+)=["']([^"']*?)["']/g;
+    let stringMatch;
+    while ((stringMatch = stringAttrRegex.exec(attributeString)) !== null) {
+      const [, key, value] = stringMatch;
+      if (key in values) {
+        values[key] = value;
+      }
+    }
+    for (const attr2 of Object.keys(definition.attributes)) {
+      const attrRegex = new RegExp(`${attr2}\\s*=\\s*\\{([\\s\\S]*?)`, "g");
+      const attrMatch = attrRegex.exec(attributeString);
+      if (attrMatch) {
+        let startPos = attrMatch.index + attrMatch[0].length - 1;
+        let braceCount = 0;
+        let endPos = -1;
+        for (let i = startPos; i < attributeString.length; i++) {
+          if (attributeString[i] === "{") braceCount++;
+          if (attributeString[i] === "}") {
+            braceCount--;
+            if (braceCount === 0) {
+              endPos = i;
+              break;
+            }
+          }
+        }
+        if (endPos !== -1) {
+          const jsContent = attributeString.substring(startPos + 1, endPos);
+          values[attr2] = jsContent.replace(/\s+/g, " ").trim();
+        }
+      }
+    }
+    const boolAttrRegex = /\s+(\w+)(?=\s|$|>)/g;
+    let boolMatch;
+    while ((boolMatch = boolAttrRegex.exec(attributeString)) !== null) {
+      const attr2 = boolMatch[1];
+      if (attr2 in values && values[attr2] === "") {
+        values[attr2] = "true";
+      }
+    }
     return values;
   }
   /**
@@ -41173,12 +41209,20 @@ var AstroParser = class {
    */
   static generateSnippet(componentName, values) {
     const valuesScript = JSON.stringify(values, null, 2);
+    const displayValues = Object.entries(values).map(([key, val2]) => {
+      if (!val2) return `<div><strong>${key}:</strong> <em>N/A</em></div>`;
+      if (val2.startsWith("[") || val2.startsWith("{")) {
+        return `<div><strong>${key}:</strong> <code style="font-size: 11px; background: #e9ecef; padding: 2px 4px; border-radius: 3px;">${val2}</code></div>`;
+      }
+      return `<div><strong>${key}:</strong> ${val2}</div>`;
+    }).join("");
     return `<div style="border: 2px solid #007acc; padding: 16px; margin: 10px 0; border-radius: 8px; background: #f8f9fa;">
-            <h3 style="margin-top: 0; color: #007acc;">${componentName}</h3>
-            ${Object.entries(values).map(([key, val2]) => `<div><strong>${key}:</strong> ${val2 || "N/A"}</div>`).join("")}
+            <h3 style="margin-top: 0; color: #007acc;">\u{1F9E9} ${componentName}</h3>
+            ${displayValues}
         </div>
         <script>
         let values = ${valuesScript};
+        console.log('${componentName} values:', values);
         </script>`;
   }
 };
