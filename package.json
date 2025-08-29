@@ -33,17 +33,10 @@
     "views": {
       "vscExtension": [
         {
+          "type": "webview",
           "id": "vscExtension.quickAccess",
-          "name": "Open Extension",
+          "name": "Quick Access",
           "when": "true"
-        }
-      ]
-    },
-    "menus": {
-      "view/item/context": [
-        {
-          "command": "vscExtension.showWebview",
-          "when": "view == vscExtension.quickAccess"
         }
       ]
     }

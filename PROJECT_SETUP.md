@@ -2,12 +2,13 @@
 
 ## Architecture Overview
 
-This VS Code extension integrates a React-based user interface within VS Code webviews, providing a command palette action and a sidebar tree view that directly executes the webview command.
+This VS Code extension integrates a React-based user interface within VS Code webviews, providing both a command palette action and an interactive sidebar webview with buttons and controls for quick access to extension functionality.
 
 ### Key Components
 
 - **Extension Host**: TypeScript-based VS Code extension (`src/extension.ts`)
-- **React UI**: Vite-powered React application (`src/ui/`)
+- **Main React UI**: Vite-powered React application (`src/ui/`) for full-panel webviews
+- **Sidebar Webview**: Interactive HTML interface with buttons and VS Code theme integration
 - **Build System**: ESBuild for extension bundling, Vite for React UI
 
 ## Dependencies
@@ -64,12 +65,14 @@ VSCodeExtension_React/
 
 ### Key Features
 
-1. **Webview Integration**: Creates VS Code webview panels with React UI
-2. **Activity Bar**: Adds extension icon to VS Code activity bar with tree view
-3. **Command Registration**: Registers `vscExtension.showWebview` command
-4. **Tree Data Provider**: Implements `QuickAccessProvider` for sidebar interaction
-5. **CSP Security**: Implements Content Security Policy for webviews
-6. **Asset Loading**: Handles React build assets (JS/CSS) in webview context
+1. **Dual Webview System**: Creates both full-panel React webviews and sidebar webview interfaces
+2. **Interactive Sidebar**: Custom HTML webview with buttons, sections, and VS Code theme integration
+3. **Activity Bar Integration**: Extension icon in activity bar opens interactive sidebar
+4. **Command Registration**: Registers `vscExtension.showWebview` command for main panel
+5. **Message Communication**: Bidirectional messaging between sidebar webview and extension host
+6. **CSP Security**: Implements Content Security Policy for both webview types
+7. **Theme Integration**: Sidebar automatically adapts to VS Code light/dark themes
+8. **Asset Loading**: Handles React build assets (JS/CSS) in main webview context
 
 ### Build Configuration
 
@@ -122,8 +125,11 @@ VSCodeExtension_React/
 2. **Test extension**:
    - Open project in VS Code
    - Press `F5` to launch Extension Development Host
-   - Click on the extension icon in the Activity Bar
-   - Click "Open Extension Panel" in the sidebar to launch the React UI
+   - Click on the extension icon in the Activity Bar to open the interactive sidebar
+   - Use the sidebar buttons to:
+     - Open the main React panel
+     - Test VS Code integration features
+     - Access quick tools and settings
 
 ### Available Scripts
 
@@ -142,21 +148,56 @@ VSCodeExtension_React/
 ## Important Notes
 
 - Extension requires VS Code ^1.96.0
-- React UI builds to `src/ui/dist/` which extension loads
-- CSP headers are configured for webview security
+- React UI builds to `src/ui/dist/` which extension loads for main panels
+- CSP headers are configured for both sidebar and main webview security
 - Extension supports both command palette and activity bar access
-- Sidebar shows a tree view with "Open Extension Panel" item that executes the webview command
-- No webview content is displayed in the sidebar itself - it only provides navigation to open the main panel
+- Sidebar contains interactive webview with buttons and VS Code theme integration
+- Main React panel opens in separate editor tab when requested from sidebar
 
 ## Current Implementation Details
 
 ### Extension Activation
 - Activates on `onCommand:vscExtension.showWebview`
-- Registers tree data provider for sidebar navigation
-- Creates webview panel when command is executed
+- Registers `SidebarWebviewProvider` for sidebar webview interface
+- Creates both sidebar webview and main React panel when needed
 
-### Sidebar Integration
-- Activity bar icon opens a sidebar panel
-- Sidebar contains `QuickAccessProvider` tree data provider
-- Single tree item "Open Extension Panel" executes the main command
-- No data provider errors - uses proper TreeDataProvider implementation
+### Sidebar Implementation
+- **WebviewViewProvider**: Uses `SidebarWebviewProvider` class implementing `vscode.WebviewViewProvider`
+- **Interactive Content**: Custom HTML with buttons, sections, and VS Code CSS variables
+- **Message Handling**: Processes messages from sidebar buttons to execute commands
+- **Theme Integration**: Automatically matches VS Code's current theme (light/dark)
+
+### Sidebar Features
+- **Quick Actions Section**: 
+  - 📋 Open Extension Panel (launches main React UI)
+  - 💬 Show Alert (demonstrates VS Code integration)  
+  - ⚙️ Settings (placeholder for future features)
+- **Tools Section**: Customizable tool buttons for extension functionality
+- **Info Display**: Shows extension version and status information
+
+### Message Communication
+```typescript
+// Sidebar to Extension Host
+webview.postMessage({
+    command: 'openMainPanel' | 'alert',
+    text?: string
+});
+
+// Extension Host handles messages
+switch (message.command) {
+    case 'openMainPanel':
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        break;
+    case 'alert':
+        vscode.window.showInformationMessage(message.text);
+        break;
+}
+```
+
+### Extensibility
+The sidebar webview slot can be easily extended with:
+- Additional button sections
+- Form inputs and controls
+- Real-time status displays
+- Integration with external APIs
+- Custom styling and themes
