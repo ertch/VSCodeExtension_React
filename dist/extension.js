@@ -26620,6 +26620,160 @@ var vscode = __toESM(require("vscode"));
 var path = __toESM(require("path"));
 var fs = __toESM(require("fs"));
 
+// src/snippetDefinitions.ts
+var snippetDefinitions = {
+  "Layout": {
+    attributes: {
+      campaignNr: "",
+      campaignTitle: "",
+      jsFiles: "",
+      header_imgs: "",
+      header_title: "",
+      pattern: "",
+      query: ""
+    },
+    childs: {}
+  },
+  "NavTabs": {
+    attributes: { tabs: "" },
+    childs: {}
+  },
+  "TabWrapper": {
+    attributes: {},
+    childs: {}
+  },
+  "TabPage": {
+    attributes: {
+      id: "",
+      tab: "",
+      isVisible: ""
+    },
+    childs: {}
+  },
+  "Field": {
+    attributes: {
+      id: "",
+      legend: "",
+      klasse: ""
+    },
+    childs: {}
+  },
+  "Input": {
+    attributes: {
+      id: "",
+      label: "",
+      type: "",
+      validate: "",
+      blur: "",
+      preset: "",
+      required: ""
+    },
+    childs: {}
+  },
+  "Select": {
+    attributes: {
+      id: "",
+      label: "",
+      call: "",
+      firstOption: "",
+      options: ""
+    },
+    childs: {}
+  },
+  "Gatekeeper": {
+    attributes: {
+      id: "",
+      label: "",
+      options: "",
+      actions: "",
+      gate: "",
+      submitTo: "",
+      pageLock: "",
+      required: "",
+      firstOption: ""
+    },
+    childs: {}
+  },
+  "Gate": {
+    attributes: {
+      id: "",
+      klasse: ""
+    },
+    childs: {}
+  },
+  "GateGroup": {
+    attributes: {
+      id: "",
+      klasse: "",
+      group: ""
+    },
+    childs: {}
+  },
+  "SQL_Select": {
+    attributes: {
+      id: "",
+      label: "",
+      call: "",
+      load: "",
+      required: ""
+    },
+    childs: {}
+  },
+  "Suggestion": {
+    attributes: {
+      id: "",
+      label: "",
+      options: "",
+      actions: "",
+      type: "",
+      validate: "",
+      gatekeeper: "",
+      gate: "",
+      submitTo: ""
+    },
+    childs: {}
+  },
+  "ConBlock": {
+    attributes: {
+      id: "",
+      klasse: "",
+      group: "",
+      If: "",
+      setPosSale: ""
+    },
+    childs: {}
+  },
+  "RecordBtn": {
+    attributes: {
+      id: "",
+      callState: "",
+      showInfo: "",
+      txt_info: "",
+      txt_btn: ""
+    },
+    childs: {}
+  },
+  "FinishBtn": {
+    attributes: {
+      auto: ""
+    },
+    childs: {}
+  },
+  "NextPageBtn": {
+    attributes: {},
+    childs: {}
+  }
+};
+var staticConfigBlock = `
+<div style="border: 2px solid #333; padding: 12px; margin: 10px 0; background: #f5f5f5; border-radius: 8px;">
+    <h3 style="margin-top: 0;">Static Config Block</h3>
+    <div style="font-size: 12px; color: #666;">
+        <div><strong>Layout</strong> \u2192 NavTabs \u2192 TabWrapper</div>
+        <div>Diese Struktur ist immer vorhanden</div>
+    </div>
+</div>
+`;
+
 // node_modules/cheerio/dist/esm/options.js
 var defaultOpts = {
   _useHtmlParser2: false
@@ -40980,83 +41134,120 @@ var STRINGS = {
 var undici = __toESM(require_undici(), 1);
 var import_whatwg_mimetype = __toESM(require_mime_type(), 1);
 
-// src/extension.ts
-var mainPanel;
-var snippetDefinitions = {
-  "Layout": {
-    attributes: { campaignNr: "", campaignTitle: "", jsFiles: "", header_imgs: "", header_title: "", pattern: "", query: "" },
-    childs: {}
-  },
-  "NavTabs": {
-    attributes: { tabs: "" },
-    childs: {}
-  },
-  "TabWrapper": {
-    attributes: {},
-    childs: {}
-  },
-  "TabPage": {
-    attributes: { id: "", tab: "", isVisible: "" },
-    childs: {}
-  },
-  "Field": {
-    attributes: { id: "", legend: "", klasse: "" },
-    childs: {}
-  },
-  "Input": {
-    attributes: { id: "", label: "", type: "", validate: "", blur: "", preset: "", required: "" },
-    childs: {}
-  },
-  "Select": {
-    attributes: { id: "", label: "", call: "", firstOption: "", options: "" },
-    childs: {}
-  },
-  "Gatekeeper": {
-    attributes: { id: "", label: "", options: "", actions: "", gate: "", submitTo: "", pageLock: "", required: "", firstOption: "" },
-    childs: {}
-  },
-  "Gate": {
-    attributes: { id: "", klasse: "" },
-    childs: {}
-  },
-  "GateGroup": {
-    attributes: { id: "", klasse: "", group: "" },
-    childs: {}
-  },
-  "SQL_Select": {
-    attributes: { id: "", label: "", call: "", load: "", required: "" },
-    childs: {}
-  },
-  "Suggestion": {
-    attributes: { id: "", label: "", options: "", actions: "", type: "", validate: "", gatekeeper: "", gate: "", submitTo: "" },
-    childs: {}
-  },
-  "ConBlock": {
-    attributes: { id: "", klasse: "", group: "", If: "", setPosSale: "" },
-    childs: {}
-  },
-  "RecordBtn": {
-    attributes: { id: "", callState: "", showInfo: "", txt_info: "", txt_btn: "" },
-    childs: {}
-  },
-  "FinishBtn": {
-    attributes: { auto: "" },
-    childs: {}
-  },
-  "NextPageBtn": {
-    attributes: {},
-    childs: {}
+// src/astroParser.ts
+var AstroParser = class {
+  /**
+   * Parse Astro file content and find components
+   */
+  static findComponents(astroContent) {
+    const $2 = load(astroContent, { xmlMode: true });
+    const foundComponents = [];
+    Object.keys(snippetDefinitions).forEach((componentName) => {
+      if ($2(componentName).length > 0) {
+        foundComponents.push(componentName);
+      }
+    });
+    return foundComponents;
+  }
+  /**
+   * Extract attributes from a specific component in Astro content
+   */
+  static extractComponentAttributes(componentName, astroContent) {
+    const $2 = load(astroContent, { xmlMode: true });
+    const element = $2(componentName).first();
+    if (element.length === 0) {
+      return {};
+    }
+    const definition = snippetDefinitions[componentName];
+    if (!definition) {
+      return {};
+    }
+    const values = {};
+    Object.keys(definition.attributes).forEach((attr2) => {
+      values[attr2] = element.attr(attr2) || "";
+    });
+    return values;
+  }
+  /**
+   * Generate HTML snippet with values script for a component
+   */
+  static generateSnippet(componentName, values) {
+    const valuesScript = JSON.stringify(values, null, 2);
+    return `<div style="border: 2px solid #007acc; padding: 16px; margin: 10px 0; border-radius: 8px; background: #f8f9fa;">
+            <h3 style="margin-top: 0; color: #007acc;">${componentName}</h3>
+            ${Object.entries(values).map(([key, val2]) => `<div><strong>${key}:</strong> ${val2 || "N/A"}</div>`).join("")}
+        </div>
+        <script>
+        let values = ${valuesScript};
+        </script>`;
   }
 };
-var staticConfigBlock = `
-<div style="border: 2px solid #333; padding: 12px; margin: 10px 0; background: #f5f5f5; border-radius: 8px;">
-    <h3 style="margin-top: 0;">\u{1F4CB} Static Config Block</h3>
-    <div style="font-size: 12px; color: #666;">
-        <div><strong>Layout</strong> \u2192 NavTabs \u2192 TabWrapper</div>
-        <div>Diese Struktur ist immer vorhanden</div>
+
+// src/sidebarHtml.ts
+var sidebarHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: var(--vscode-font-family); padding: 10px; }
+        .button { display: block; width: 100%; padding: 8px; margin: 4px 0; background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 4px; cursor: pointer; }
+        .section { margin: 16px 0; }
+        .section-title { font-weight: bold; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <div class="section-title">Astro Code Generator</div>
+        <button class="button" onclick="readAstroFile()">Read Astro File</button>
+        <button class="button" onclick="openMainPanel()">Open Panel</button>
     </div>
-</div>
-`;
+    
+    <div class="section">
+        <div class="section-title">Components</div>
+        <details>
+            <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Layout</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                <button class="button" onclick="insertSnippet('Layout')" style="padding: 4px; font-size: 9px;">Layout</button>
+                <button class="button" onclick="insertSnippet('NavTabs')" style="padding: 4px; font-size: 9px;">NavTabs</button>
+                <button class="button" onclick="insertSnippet('TabWrapper')" style="padding: 4px; font-size: 9px;">TabWrapper</button>
+                <button class="button" onclick="insertSnippet('TabPage')" style="padding: 4px; font-size: 9px;">TabPage</button>
+                <button class="button" onclick="insertSnippet('Field')" style="padding: 4px; font-size: 9px;">Field</button>
+            </div>
+        </details>
+        <details>
+            <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Inputs</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                <button class="button" onclick="insertSnippet('Input')" style="padding: 4px; font-size: 9px;">Input</button>
+                <button class="button" onclick="insertSnippet('Select')" style="padding: 4px; font-size: 9px;">Select</button>
+                <button class="button" onclick="insertSnippet('Gatekeeper')" style="padding: 4px; font-size: 9px;">Gatekeeper</button>
+                <button class="button" onclick="insertSnippet('Gate')" style="padding: 4px; font-size: 9px;">Gate</button>
+                <button class="button" onclick="insertSnippet('GateGroup')" style="padding: 4px; font-size: 9px;">GateGroup</button>
+                <button class="button" onclick="insertSnippet('SQL_Select')" style="padding: 4px; font-size: 9px;">SQL_Select</button>
+                <button class="button" onclick="insertSnippet('Suggestion')" style="padding: 4px; font-size: 9px;">Suggestion</button>
+                <button class="button" onclick="insertSnippet('ConBlock')" style="padding: 4px; font-size: 9px;">ConBlock</button>
+            </div>
+        </details>
+        <details>
+            <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Buttons</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                <button class="button" onclick="insertSnippet('RecordBtn')" style="padding: 4px; font-size: 9px;">RecordBtn</button>
+                <button class="button" onclick="insertSnippet('FinishBtn')" style="padding: 4px; font-size: 9px;">FinishBtn</button>
+                <button class="button" onclick="insertSnippet('NextPageBtn')" style="padding: 4px; font-size: 9px;">NextPageBtn</button>
+            </div>
+        </details>
+    </div>
+    
+    <script>
+        const vscode = acquireVsCodeApi();
+        function openMainPanel() { vscode.postMessage({command: 'openMainPanel'}); }
+        function insertSnippet(tool) { vscode.postMessage({command: 'insertSnippet', tool: tool}); }
+        function readAstroFile() { vscode.postMessage({command: 'readAstroFile'}); }
+    </script>
+</body>
+</html>`;
+
+// src/extension.ts
+var mainPanel;
 function activate(context) {
   let disposable = vscode.commands.registerCommand("vscExtension.showWebview", () => {
     if (mainPanel) {
@@ -41120,36 +41311,25 @@ var SidebarWebviewProvider = class {
   }
   handleSnippetInsertion(componentName) {
     vscode.commands.executeCommand("vscExtension.showWebview");
-    try {
-      const snippet = this.generateSnippet(componentName);
-      setTimeout(() => {
-        if (mainPanel) {
-          mainPanel.webview.postMessage({
-            command: "insertSnippet",
-            tool: componentName,
-            content: snippet
-          });
-        }
-      }, 100);
-    } catch (error) {
-      vscode.window.showErrorMessage(`Error: ${error}`);
-    }
+    const snippet = this.generateSnippet(componentName);
+    setTimeout(() => mainPanel?.webview.postMessage({
+      command: "insertSnippet",
+      tool: componentName,
+      content: snippet
+    }), 100);
   }
   readAstroFile() {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return;
-    const folder = workspaceFolders[0];
+    const folder = vscode.workspace.workspaceFolders?.[0];
+    if (!folder) return;
     const srcPagesPath = path.join(folder.uri.fsPath, "src", "pages");
-    if (fs.existsSync(srcPagesPath)) {
-      const entries = fs.readdirSync(srcPagesPath, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
-          const indexPath = path.join(srcPagesPath, entry.name, "index.astro");
-          if (fs.existsSync(indexPath)) {
-            this.astroContent = fs.readFileSync(indexPath, "utf-8");
-            this.generateFromAstro();
-            return;
-          }
+    if (!fs.existsSync(srcPagesPath)) return;
+    for (const entry of fs.readdirSync(srcPagesPath, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        const indexPath = path.join(srcPagesPath, entry.name, "index.astro");
+        if (fs.existsSync(indexPath)) {
+          this.astroContent = fs.readFileSync(indexPath, "utf-8");
+          this.generateFromAstro();
+          return;
         }
       }
     }
@@ -41158,110 +41338,23 @@ var SidebarWebviewProvider = class {
     if (!this.astroContent) return;
     vscode.commands.executeCommand("vscExtension.showWebview");
     setTimeout(() => {
-      if (mainPanel) {
-        mainPanel.webview.postMessage({
+      mainPanel?.webview.postMessage({ command: "insertSnippet", tool: "StaticConfig", content: staticConfigBlock });
+      AstroParser.findComponents(this.astroContent).forEach((component, index2) => {
+        setTimeout(() => mainPanel?.webview.postMessage({
           command: "insertSnippet",
-          tool: "StaticConfig",
-          content: staticConfigBlock
-        });
-        const $2 = load(this.astroContent, { xmlMode: true });
-        const foundComponents = [];
-        Object.keys(snippetDefinitions).forEach((componentName) => {
-          if ($2(componentName).length > 0) {
-            foundComponents.push(componentName);
-          }
-        });
-        foundComponents.forEach((component, index2) => {
-          setTimeout(() => {
-            if (mainPanel) {
-              const snippet = this.generateSnippet(component);
-              mainPanel.webview.postMessage({
-                command: "insertSnippet",
-                tool: component,
-                content: snippet
-              });
-            }
-          }, (index2 + 1) * 200);
-        });
-      }
+          tool: component,
+          content: this.generateSnippet(component)
+        }), (index2 + 1) * 200);
+      });
     }, 100);
   }
   generateSnippet(componentName) {
-    if (!this.astroContent) {
-      return `<div style="padding: 16px; border: 1px solid #ccc; margin: 10px 0;"><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
-    }
-    const $2 = load(this.astroContent, { xmlMode: true });
-    const element = $2(componentName).first();
-    if (element.length === 0) {
-      return `<div style="padding: 16px; border: 1px solid #ccc; margin: 10px 0;"><h3>${componentName}</h3><p>Component not found</p></div>`;
-    }
-    const definition = snippetDefinitions[componentName];
-    if (!definition) {
-      return `<div style="padding: 16px; border: 1px solid #ccc; margin: 10px 0;"><h3>${componentName}</h3><p>No definition found</p></div>`;
-    }
-    const values = {};
-    Object.keys(definition.attributes).forEach((attr2) => {
-      values[attr2] = element.attr(attr2) || "";
-    });
-    const valuesScript = JSON.stringify(values, null, 2);
-    return `<div style="border: 2px solid #007acc; padding: 16px; margin: 10px 0; border-radius: 8px; background: #f8f9fa;">
-    <h3 style="margin-top: 0; color: #007acc;">\u{1F9E9} ${componentName}</h3>
-    ${Object.entries(values).map(([key, val2]) => `<div><strong>${key}:</strong> ${val2 || "N/A"}</div>`).join("")}
-</div>
-<script>
-let values = ${valuesScript};
-console.log('${componentName} values:', values);
-</script>`;
+    if (!this.astroContent) return `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
+    const values = AstroParser.extractComponentAttributes(componentName, this.astroContent);
+    return AstroParser.generateSnippet(componentName, values);
   }
   getHtmlForWebview() {
-    return `<!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: var(--vscode-font-family); padding: 10px; }
-                .button { display: block; width: 100%; padding: 8px; margin: 4px 0; background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 4px; cursor: pointer; }
-                .section { margin: 16px 0; }
-                .section-title { font-weight: bold; margin-bottom: 8px; }
-            </style>
-        </head>
-        <body>
-            <div class="section">
-                <div class="section-title">Astro Code Generator</div>
-                <button class="button" onclick="readAstroFile()">\u{1F4D6} Read Astro File</button>
-                <button class="button" onclick="openMainPanel()">\u{1F4CB} Open Panel</button>
-            </div>
-            
-            <div class="section">
-                <div class="section-title">Components</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <button class="button" onclick="insertSnippet('Layout')" style="padding: 4px; font-size: 9px;">\u{1F680} Layout</button>
-                    <button class="button" onclick="insertSnippet('NavTabs')" style="padding: 4px; font-size: 9px;">\u{1F4CB} NavTabs</button>
-                    <button class="button" onclick="insertSnippet('TabWrapper')" style="padding: 4px; font-size: 9px;">\u{1F4E6} TabWrapper</button>
-                    <button class="button" onclick="insertSnippet('TabPage')" style="padding: 4px; font-size: 9px;">\u{1F4C4} TabPage</button>
-                    <button class="button" onclick="insertSnippet('Field')" style="padding: 4px; font-size: 9px;">\u{1F3F7}\uFE0F Field</button>
-                    <button class="button" onclick="insertSnippet('Input')" style="padding: 4px; font-size: 9px;">\u{1F4DD} Input</button>
-                    <button class="button" onclick="insertSnippet('Select')" style="padding: 4px; font-size: 9px;">\u{1F53D} Select</button>
-                    <button class="button" onclick="insertSnippet('Gatekeeper')" style="padding: 4px; font-size: 9px;">\u{1F6AA} Gatekeeper</button>
-                    <button class="button" onclick="insertSnippet('Gate')" style="padding: 4px; font-size: 9px;">\u{1F513} Gate</button>
-                    <button class="button" onclick="insertSnippet('GateGroup')" style="padding: 4px; font-size: 9px;">\u{1F5C2}\uFE0F GateGroup</button>
-                    <button class="button" onclick="insertSnippet('SQL_Select')" style="padding: 4px; font-size: 9px;">\u{1F5C4}\uFE0F SQL_Select</button>
-                    <button class="button" onclick="insertSnippet('Suggestion')" style="padding: 4px; font-size: 9px;">\u{1F4A1} Suggestion</button>
-                    <button class="button" onclick="insertSnippet('ConBlock')" style="padding: 4px; font-size: 9px;">\u{1F9E9} ConBlock</button>
-                    <button class="button" onclick="insertSnippet('RecordBtn')" style="padding: 4px; font-size: 9px;">\u{1F399}\uFE0F RecordBtn</button>
-                    <button class="button" onclick="insertSnippet('FinishBtn')" style="padding: 4px; font-size: 9px;">\u2705 FinishBtn</button>
-                    <button class="button" onclick="insertSnippet('NextPageBtn')" style="padding: 4px; font-size: 9px;">\u27A1\uFE0F NextPageBtn</button>
-                </div>
-            </div>
-            
-            <script>
-                const vscode = acquireVsCodeApi();
-                function openMainPanel() { vscode.postMessage({command: 'openMainPanel'}); }
-                function insertSnippet(tool) { vscode.postMessage({command: 'insertSnippet', tool: tool}); }
-                function readAstroFile() { vscode.postMessage({command: 'readAstroFile'}); }
-            </script>
-        </body>
-        </html>`;
+    return sidebarHtml;
   }
 };
 function deactivate() {
