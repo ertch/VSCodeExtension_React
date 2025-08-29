@@ -21,16 +21,29 @@
         "title": "Open vscExtension Panel"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscExtension",
+          "title": "VSC Extension",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vscExtension": [
+        {
+          "id": "vscExtension.quickAccess",
+          "name": "Open Extension",
+          "when": "true"
+        }
+      ]
+    },
     "menus": {
-      "activityBar": [
+      "view/item/context": [
         {
           "command": "vscExtension.showWebview",
-          "when": "true",
-          "group": "navigation",
-          "icon": {
-            "light": "media/icon.png",
-            "dark": "media/icon.png"
-          }
+          "when": "view == vscExtension.quickAccess"
         }
       ]
     }

@@ -68,37 +68,31 @@ function activate(context) {
         `);
     panel.webview.html = html;
   });
+  const treeDataProvider = new QuickAccessProvider();
+  vscode.window.registerTreeDataProvider("vscExtension.quickAccess", treeDataProvider);
   context.subscriptions.push(disposable);
-  const viewProvider = new vscExtensionViewProvider(context);
-  context.subscriptions.push(vscode.window.registerWebviewViewProvider("vscExtension.view", viewProvider));
 }
-var vscExtensionViewProvider = class {
-  constructor(context) {
-    this.context = context;
+var QuickAccessProvider = class {
+  getTreeItem(element) {
+    return element;
   }
-  resolveWebviewView(webviewView, context, token) {
-    this._view = webviewView;
-    webviewView.webview.options = {
-      enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, "src", "ui", "dist"))]
+  getChildren(element) {
+    if (!element) {
+      return Promise.resolve([new QuickAccessItem("Open Extension Panel", vscode.TreeItemCollapsibleState.None)]);
+    }
+    return Promise.resolve([]);
+  }
+};
+var QuickAccessItem = class extends vscode.TreeItem {
+  constructor(label, collapsibleState) {
+    super(label, collapsibleState);
+    this.label = label;
+    this.collapsibleState = collapsibleState;
+    this.command = {
+      command: "vscExtension.showWebview",
+      title: "Open Extension",
+      arguments: []
     };
-    const indexPath = vscode.Uri.file(path.join(this.context.extensionPath, "src/ui/dist", "index.html"));
-    let html = fs.readFileSync(indexPath.fsPath, "utf-8");
-    const scriptUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, "src/ui/dist/assets/index.js")));
-    const styleUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, "src/ui/dist/assets/index.css")));
-    const cspSource = webviewView.webview.cspSource;
-    const cspMetaTag = `
-            <meta http-equiv="Content-Security-Policy" content="
-                default-src 'self' ${cspSource}; 
-                script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; 
-                style-src 'unsafe-inline' ${cspSource} ${styleUri};
-            ">
-        `;
-    html = html.replace("<head>", `<head>${cspMetaTag}
-            <link rel="stylesheet" href="${styleUri}">
-            <script type="module" src="${scriptUri}" defer></script>
-        `);
-    webviewView.webview.html = html;
   }
 };
 function deactivate() {

@@ -42,53 +42,39 @@ export function activate(context: vscode.ExtensionContext) {
         panel.webview.html = html;
     });
 
-    context.subscriptions.push(disposable);
+    // Simple tree data provider for the sidebar
+    const treeDataProvider = new QuickAccessProvider();
+    vscode.window.registerTreeDataProvider('vscExtension.quickAccess', treeDataProvider);
 
-    // Registriere die View in der Aktivitätsleiste (Sidebar)
-    const viewProvider = new vscExtensionViewProvider(context);
-    context.subscriptions.push(vscode.window.registerWebviewViewProvider('vscExtension.view', viewProvider));
+    context.subscriptions.push(disposable);
 }
 
-class vscExtensionViewProvider implements vscode.WebviewViewProvider {
-    private _view?: vscode.WebviewView;
+class QuickAccessProvider implements vscode.TreeDataProvider<QuickAccessItem> {
+    getTreeItem(element: QuickAccessItem): vscode.TreeItem {
+        return element;
+    }
 
-    constructor(private readonly context: vscode.ExtensionContext) {}
-
-    resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, token: vscode.CancellationToken) {
-        this._view = webviewView;
-
-        // Setze Webview-Optionen
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'src', 'ui', 'dist'))],
-        };
-
-        // Lade `index.html`
-        const indexPath = vscode.Uri.file(path.join(this.context.extensionPath, 'src/ui/dist', 'index.html'));
-        let html = fs.readFileSync(indexPath.fsPath, 'utf-8');
-
-        // Webview-URIs für Assets (JS & CSS)
-        const scriptUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, 'src/ui/dist/assets/index.js')));
-        const styleUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, 'src/ui/dist/assets/index.css')));
-
-        // CSP-Header setzen
-        const cspSource = webviewView.webview.cspSource;
-        const cspMetaTag = `
-            <meta http-equiv="Content-Security-Policy" content="
-                default-src 'self' ${cspSource}; 
-                script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; 
-                style-src 'unsafe-inline' ${cspSource} ${styleUri};
-            ">
-        `;
-
-        // Setze den HTML-Inhalt
-        html = html.replace('<head>', `<head>${cspMetaTag}
-            <link rel="stylesheet" href="${styleUri}">
-            <script type="module" src="${scriptUri}" defer></script>
-        `);
-
-        webviewView.webview.html = html;
+    getChildren(element?: QuickAccessItem): Thenable<QuickAccessItem[]> {
+        if (!element) {
+            return Promise.resolve([new QuickAccessItem('Open Extension Panel', vscode.TreeItemCollapsibleState.None)]);
+        }
+        return Promise.resolve([]);
     }
 }
+
+class QuickAccessItem extends vscode.TreeItem {
+    constructor(
+        public readonly label: string,
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    ) {
+        super(label, collapsibleState);
+        this.command = {
+            command: 'vscExtension.showWebview',
+            title: 'Open Extension',
+            arguments: []
+        };
+    }
+}
+
 
 export function deactivate() {}
