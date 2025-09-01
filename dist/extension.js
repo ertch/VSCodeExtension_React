@@ -26624,143 +26624,223 @@ var fs = __toESM(require("fs"));
 var snippetDefinitions = {
   "Layout": {
     attributes: {
-      campaignNr: "",
-      campaignTitle: "",
-      jsFiles: "",
-      header_imgs: "",
-      header_title: "",
-      pattern: "",
-      query: ""
+      campaignNr: { value: "", type: "text", requierd: true },
+      campaignTitle: { value: "", type: "text", requierd: true },
+      jsFiles: { value: "", type: "text", requierd: true },
+      header_imgs: { value: "", type: "text", requierd: true },
+      header_title: { value: "", type: "text", requierd: true },
+      pattern: { value: "", type: "text", requierd: true },
+      query: { value: "", type: "text", requierd: true }
     },
+    canBeParent: true,
     childs: {}
   },
   "NavTabs": {
-    attributes: { tabs: "" },
+    attributes: { value: "", type: "textarea", requierd: true },
+    canBeParent: false,
     childs: {}
   },
   "TabWrapper": {
     attributes: {},
+    canBeParent: true,
     childs: {}
   },
   "TabPage": {
     attributes: {
-      id: "",
-      tab: "",
-      isVisible: ""
+      id: { value: "", type: "text", requierd: false },
+      tab: { value: "", type: "text", requierd: true },
+      isVisible: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: true,
     childs: {}
   },
   "Field": {
     attributes: {
-      id: "",
-      legend: "",
-      klasse: ""
+      id: { value: "", type: "text", requierd: false },
+      legend: { value: "", type: "text", requierd: true },
+      klasse: { value: "", type: "text", requierd: false },
+      group: { value: "", type: "text", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: true,
     childs: {}
   },
   "Input": {
     attributes: {
-      id: "",
-      label: "",
-      type: "",
-      validate: "",
-      blur: "",
-      preset: "",
-      required: ""
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      type: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      value: { value: "", type: "text", requierd: false },
+      maxlength: { value: "", type: "text", requierd: false },
+      regex: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      blur: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      validate: { value: "", type: "text", requierd: true },
+      min: { value: "", type: "text", requierd: false },
+      max: { value: "", type: "text", requierd: false },
+      oc: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: false,
     childs: {}
   },
   "Select": {
     attributes: {
-      id: "",
-      label: "",
-      call: "",
-      firstOption: "",
-      options: ""
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      options: { value: "", type: "textarea", requierd: false },
+      actions: { value: "", type: "textarea", requierd: false },
+      firstOption: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      requiredValue: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: false,
     childs: {}
   },
   "Gatekeeper": {
     attributes: {
-      id: "",
-      label: "",
-      options: "",
-      actions: "",
-      gate: "",
-      submitTo: "",
-      pageLock: "",
-      required: "",
-      firstOption: ""
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      options: { value: "", type: "textarea", requierd: false },
+      actions: { value: "", type: "textarea", requierd: false },
+      gate: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      firstOption: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      pageLock: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: false,
     childs: {}
   },
   "Gate": {
     attributes: {
-      id: "",
-      klasse: ""
+      id: { value: "", type: "text", requierd: true },
+      grp: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: true,
     childs: {}
   },
   "GateGroup": {
     attributes: {
-      id: "",
-      klasse: "",
-      group: ""
+      id: { value: "", type: "text", requierd: true },
+      group: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: true,
     childs: {}
   },
   "SQL_Select": {
     attributes: {
-      id: "",
-      label: "",
-      call: "",
-      load: "",
-      required: ""
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      load: { value: "", type: "text", requierd: true },
+      trigger: { value: "", type: "textarea", requierd: false },
+      requiredValue: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: false,
     childs: {}
   },
   "Suggestion": {
     attributes: {
-      id: "",
-      label: "",
-      options: "",
-      actions: "",
-      type: "",
-      validate: "",
-      gatekeeper: "",
-      gate: "",
-      submitTo: ""
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      options: { value: "", type: "textarea", requierd: true },
+      gatekeeper: { value: "", type: "checkbox", requierd: false },
+      actions: { value: "", type: "textarea", requierd: false },
+      type: { value: "", type: "text", requierd: false },
+      gate: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      maxlength: { value: "", type: "text", requierd: false },
+      pattern: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      inject: { value: "", type: "text", requierd: false },
+      validate: { value: "", type: "text", requierd: false },
+      value: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: false,
+    childs: {}
+  },
+  "textField": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      row: { value: "", type: "text", requierd: true },
+      col: { value: "", type: "text", requierd: true },
+      call: { value: "", type: "text", requierd: false },
+      value: { value: "", type: "text", requierd: false },
+      MaxLength: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      validate: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
     childs: {}
   },
   "ConBlock": {
     attributes: {
-      id: "",
-      klasse: "",
-      group: "",
-      If: "",
-      setPosSale: ""
+      id: { value: "", type: "text", requierd: false },
+      If: { value: "", type: "textarea", requierd: true },
+      group: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      setPosSale: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: true,
     childs: {}
   },
   "RecordBtn": {
     attributes: {
-      id: "",
-      callState: "",
-      showInfo: "",
-      txt_info: "",
-      txt_btn: ""
+      id: { value: "", type: "text", requierd: true },
+      showInfo: { value: "", type: "checkbox", requierd: false },
+      centered: { value: "", type: "checkbox", requierd: false },
+      txt_info: { value: "", type: "text", requierd: false },
+      txt_btn: { value: "", type: "text", requierd: false },
+      callState: { value: "", type: "text", requierd: false }
     },
+    canBeParent: false,
     childs: {}
   },
   "FinishBtn": {
     attributes: {
-      auto: ""
+      auto: { value: "", type: "checkbox", requierd: false },
+      queryLib: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
     },
+    canBeParent: false,
     childs: {}
   },
   "NextPageBtn": {
     attributes: {},
+    canBeParent: false,
     childs: {}
   }
 };
@@ -41200,50 +41280,70 @@ var sidebarHtml = `<!DOCTYPE html>
     <style>
         body { font-family: var(--vscode-font-family); padding: 10px; }
         .button { display: block; width: 100%; padding: 8px; margin: 4px 0; background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 4px; cursor: pointer; }
+        .button:hover { opacity: 0.8; }
+        .button-file { background: var(--vscode-button-secondaryBackground); }
+        .button-generate { background: var(--vscode-button-background); font-weight: bold; }
+        .button-clear { background: var(--vscode-errorForeground); color: white; }
         .section { margin: 16px 0; }
-        .section-title { font-weight: bold; margin-bottom: 8px; }
+        .section-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        .small-button { padding: 4px; font-size: 10px; }
+        hr { border: none; border-top: 1px solid var(--vscode-panel-border); margin: 16px 0; }
     </style>
 </head>
 <body>
     <div class="section">
-        <div class="section-title">Astro Code Generator</div>
-        <button class="button" onclick="readAstroFile()">Read Astro File</button>
-        <button class="button" onclick="openMainPanel()">Open Panel</button>
+        <div class="section-title">File Operations</div>
+        <button class="button button-file" onclick="readAstroFile()">Load Astro File</button>
+        <button class="button button-file" onclick="openMainPanel()">Open Canvas</button>
+        <button class="button button-clear" onclick="clearAllComponents()">Clear All</button>
     </div>
     
+    <hr>
+    
     <div class="section">
-        <div class="section-title">Components</div>
+        <div class="section-title">Add Components</div>
         <details>
             <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Layout</summary>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <button class="button" onclick="insertSnippet('Layout')" style="padding: 4px; font-size: 9px;">Layout</button>
-                <button class="button" onclick="insertSnippet('NavTabs')" style="padding: 4px; font-size: 9px;">NavTabs</button>
-                <button class="button" onclick="insertSnippet('TabWrapper')" style="padding: 4px; font-size: 9px;">TabWrapper</button>
-                <button class="button" onclick="insertSnippet('TabPage')" style="padding: 4px; font-size: 9px;">TabPage</button>
-                <button class="button" onclick="insertSnippet('Field')" style="padding: 4px; font-size: 9px;">Field</button>
-            </div>
+            
+                <button class="button small-button" onclick="addComponent('Layout')">+ Layout</button>
+                <button class="button small-button" onclick="addComponent('NavTabs')">+ NavTabs</button>
+                <button class="button small-button" onclick="addComponent('TabWrapper')">+ TabWrapper</button>
+                <button class="button small-button" onclick="addComponent('TabPage')">+ TabPage</button>
+            
+        </details>
+        <details>
+            <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">SchaltLogik</summary>
+            <button class="button small-button" onclick="addComponent('Gatekeeper')">+ Gatekeeper</button>
+            <button class="button small-button" onclick="addComponent('Suggestion')">+ Suggestion</button>
+            <button class="button small-button" onclick="addComponent('Gate')">+ Gate</button>
+            <button class="button small-button" onclick="addComponent('GateGroup')">+ GateGroup</button>
+            <button class="button small-button" onclick="addComponent('ConBlock')">+ ConBlock</button>
+            <button class="button small-button" onclick="addComponent('Field')">+ Field</button>
         </details>
         <details>
             <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Inputs</summary>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <button class="button" onclick="insertSnippet('Input')" style="padding: 4px; font-size: 9px;">Input</button>
-                <button class="button" onclick="insertSnippet('Select')" style="padding: 4px; font-size: 9px;">Select</button>
-                <button class="button" onclick="insertSnippet('Gatekeeper')" style="padding: 4px; font-size: 9px;">Gatekeeper</button>
-                <button class="button" onclick="insertSnippet('Gate')" style="padding: 4px; font-size: 9px;">Gate</button>
-                <button class="button" onclick="insertSnippet('GateGroup')" style="padding: 4px; font-size: 9px;">GateGroup</button>
-                <button class="button" onclick="insertSnippet('SQL_Select')" style="padding: 4px; font-size: 9px;">SQL_Select</button>
-                <button class="button" onclick="insertSnippet('Suggestion')" style="padding: 4px; font-size: 9px;">Suggestion</button>
-                <button class="button" onclick="insertSnippet('ConBlock')" style="padding: 4px; font-size: 9px;">ConBlock</button>
-            </div>
+            
+                <button class="button small-button" onclick="addComponent('Input')">+ Input</button>
+                <button class="button small-button" onclick="addComponent('textField')">+ textField</button>
+                <button class="button small-button" onclick="addComponent('Select')">+ Select</button>
+                <button class="button small-button" onclick="addComponent('SQL_Select')">+ SQL_Select</button>
+                
+            
         </details>
         <details>
             <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Buttons</summary>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <button class="button" onclick="insertSnippet('RecordBtn')" style="padding: 4px; font-size: 9px;">RecordBtn</button>
-                <button class="button" onclick="insertSnippet('FinishBtn')" style="padding: 4px; font-size: 9px;">FinishBtn</button>
-                <button class="button" onclick="insertSnippet('NextPageBtn')" style="padding: 4px; font-size: 9px;">NextPageBtn</button>
-            </div>
+           
+                <button class="button small-button" onclick="addComponent('RecordBtn')">+ RecordBtn</button>
+                <button class="button small-button" onclick="addComponent('FinishBtn')">+ FinishBtn</button>
+                <button class="button small-button" onclick="addComponent('NextPageBtn')">+ NextPageBtn</button>
+            
         </details>
+    </div>
+    
+    <hr>
+    
+    <div class="section">
+        <button class="button button-generate" onclick="generateCode()">\u26A1 Generate Astro Code</button>
     </div>
     
     <script>
@@ -41251,6 +41351,13 @@ var sidebarHtml = `<!DOCTYPE html>
         function openMainPanel() { vscode.postMessage({command: 'openMainPanel'}); }
         function insertSnippet(tool) { vscode.postMessage({command: 'insertSnippet', tool: tool}); }
         function readAstroFile() { vscode.postMessage({command: 'readAstroFile'}); }
+        function addComponent(tool) { vscode.postMessage({command: 'addComponent', tool: tool}); }
+        function generateCode() { vscode.postMessage({command: 'generateCode'}); }
+        function clearAllComponents() { 
+            if (confirm('Are you sure you want to clear all components?')) {
+                vscode.postMessage({command: 'clearAll'}); 
+            }
+        }
     </script>
 </body>
 </html>`;
@@ -41312,6 +41419,15 @@ var SidebarWebviewProvider = class {
           case "readAstroFile":
             this.readAstroFile();
             break;
+          case "addComponent":
+            this.handleAddComponent(message.tool);
+            break;
+          case "generateCode":
+            this.handleGenerateCode();
+            break;
+          case "clearAll":
+            this.handleClearAll();
+            break;
         }
       },
       void 0,
@@ -41325,6 +41441,25 @@ var SidebarWebviewProvider = class {
       command: "insertSnippet",
       tool: componentName,
       content: snippet
+    }), 100);
+  }
+  handleAddComponent(componentName) {
+    vscode.commands.executeCommand("vscExtension.showWebview");
+    setTimeout(() => mainPanel?.webview.postMessage({
+      command: "addComponent",
+      tool: componentName
+    }), 100);
+  }
+  handleGenerateCode() {
+    vscode.commands.executeCommand("vscExtension.showWebview");
+    setTimeout(() => mainPanel?.webview.postMessage({
+      command: "generateCode"
+    }), 100);
+  }
+  handleClearAll() {
+    vscode.commands.executeCommand("vscExtension.showWebview");
+    setTimeout(() => mainPanel?.webview.postMessage({
+      command: "clearAll"
     }), 100);
   }
   readAstroFile() {

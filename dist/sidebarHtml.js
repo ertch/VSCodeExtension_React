@@ -8,50 +8,70 @@ exports.sidebarHtml = `<!DOCTYPE html>
     <style>
         body { font-family: var(--vscode-font-family); padding: 10px; }
         .button { display: block; width: 100%; padding: 8px; margin: 4px 0; background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 4px; cursor: pointer; }
+        .button:hover { opacity: 0.8; }
+        .button-file { background: var(--vscode-button-secondaryBackground); }
+        .button-generate { background: var(--vscode-button-background); font-weight: bold; }
+        .button-clear { background: var(--vscode-errorForeground); color: white; }
         .section { margin: 16px 0; }
-        .section-title { font-weight: bold; margin-bottom: 8px; }
+        .section-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        .small-button { padding: 4px; font-size: 10px; }
+        hr { border: none; border-top: 1px solid var(--vscode-panel-border); margin: 16px 0; }
     </style>
 </head>
 <body>
     <div class="section">
-        <div class="section-title">Astro Code Generator</div>
-        <button class="button" onclick="readAstroFile()">Read Astro File</button>
-        <button class="button" onclick="openMainPanel()">Open Panel</button>
+        <div class="section-title">File Operations</div>
+        <button class="button button-file" onclick="readAstroFile()">Load Astro File</button>
+        <button class="button button-file" onclick="openMainPanel()">Open Canvas</button>
+        <button class="button button-clear" onclick="clearAllComponents()">Clear All</button>
     </div>
     
+    <hr>
+    
     <div class="section">
-        <div class="section-title">Components</div>
+        <div class="section-title">Add Components</div>
         <details>
             <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Layout</summary>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <button class="button" onclick="insertSnippet('Layout')" style="padding: 4px; font-size: 9px;">Layout</button>
-                <button class="button" onclick="insertSnippet('NavTabs')" style="padding: 4px; font-size: 9px;">NavTabs</button>
-                <button class="button" onclick="insertSnippet('TabWrapper')" style="padding: 4px; font-size: 9px;">TabWrapper</button>
-                <button class="button" onclick="insertSnippet('TabPage')" style="padding: 4px; font-size: 9px;">TabPage</button>
-                <button class="button" onclick="insertSnippet('Field')" style="padding: 4px; font-size: 9px;">Field</button>
-            </div>
+            
+                <button class="button small-button" onclick="addComponent('Layout')">+ Layout</button>
+                <button class="button small-button" onclick="addComponent('NavTabs')">+ NavTabs</button>
+                <button class="button small-button" onclick="addComponent('TabWrapper')">+ TabWrapper</button>
+                <button class="button small-button" onclick="addComponent('TabPage')">+ TabPage</button>
+            
+        </details>
+        <details>
+            <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">SchaltLogik</summary>
+            <button class="button small-button" onclick="addComponent('Gatekeeper')">+ Gatekeeper</button>
+            <button class="button small-button" onclick="addComponent('Suggestion')">+ Suggestion</button>
+            <button class="button small-button" onclick="addComponent('Gate')">+ Gate</button>
+            <button class="button small-button" onclick="addComponent('GateGroup')">+ GateGroup</button>
+            <button class="button small-button" onclick="addComponent('ConBlock')">+ ConBlock</button>
+            <button class="button small-button" onclick="addComponent('Field')">+ Field</button>
         </details>
         <details>
             <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Inputs</summary>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <button class="button" onclick="insertSnippet('Input')" style="padding: 4px; font-size: 9px;">Input</button>
-                <button class="button" onclick="insertSnippet('Select')" style="padding: 4px; font-size: 9px;">Select</button>
-                <button class="button" onclick="insertSnippet('Gatekeeper')" style="padding: 4px; font-size: 9px;">Gatekeeper</button>
-                <button class="button" onclick="insertSnippet('Gate')" style="padding: 4px; font-size: 9px;">Gate</button>
-                <button class="button" onclick="insertSnippet('GateGroup')" style="padding: 4px; font-size: 9px;">GateGroup</button>
-                <button class="button" onclick="insertSnippet('SQL_Select')" style="padding: 4px; font-size: 9px;">SQL_Select</button>
-                <button class="button" onclick="insertSnippet('Suggestion')" style="padding: 4px; font-size: 9px;">Suggestion</button>
-                <button class="button" onclick="insertSnippet('ConBlock')" style="padding: 4px; font-size: 9px;">ConBlock</button>
-            </div>
+            
+                <button class="button small-button" onclick="addComponent('Input')">+ Input</button>
+                <button class="button small-button" onclick="addComponent('textField')">+ textField</button>
+                <button class="button small-button" onclick="addComponent('Select')">+ Select</button>
+                <button class="button small-button" onclick="addComponent('SQL_Select')">+ SQL_Select</button>
+                
+            
         </details>
         <details>
             <summary style="cursor: pointer; font-weight: bold; margin-bottom: 8px;">Buttons</summary>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                <button class="button" onclick="insertSnippet('RecordBtn')" style="padding: 4px; font-size: 9px;">RecordBtn</button>
-                <button class="button" onclick="insertSnippet('FinishBtn')" style="padding: 4px; font-size: 9px;">FinishBtn</button>
-                <button class="button" onclick="insertSnippet('NextPageBtn')" style="padding: 4px; font-size: 9px;">NextPageBtn</button>
-            </div>
+           
+                <button class="button small-button" onclick="addComponent('RecordBtn')">+ RecordBtn</button>
+                <button class="button small-button" onclick="addComponent('FinishBtn')">+ FinishBtn</button>
+                <button class="button small-button" onclick="addComponent('NextPageBtn')">+ NextPageBtn</button>
+            
         </details>
+    </div>
+    
+    <hr>
+    
+    <div class="section">
+        <button class="button button-generate" onclick="generateCode()">⚡ Generate Astro Code</button>
     </div>
     
     <script>
@@ -59,6 +79,13 @@ exports.sidebarHtml = `<!DOCTYPE html>
         function openMainPanel() { vscode.postMessage({command: 'openMainPanel'}); }
         function insertSnippet(tool) { vscode.postMessage({command: 'insertSnippet', tool: tool}); }
         function readAstroFile() { vscode.postMessage({command: 'readAstroFile'}); }
+        function addComponent(tool) { vscode.postMessage({command: 'addComponent', tool: tool}); }
+        function generateCode() { vscode.postMessage({command: 'generateCode'}); }
+        function clearAllComponents() { 
+            if (confirm('Are you sure you want to clear all components?')) {
+                vscode.postMessage({command: 'clearAll'}); 
+            }
+        }
     </script>
 </body>
 </html>`;

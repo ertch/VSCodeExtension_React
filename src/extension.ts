@@ -67,6 +67,15 @@ class SidebarWebviewProvider implements vscode.WebviewViewProvider {
                     case 'readAstroFile':
                         this.readAstroFile();
                         break;
+                    case 'addComponent':
+                        this.handleAddComponent(message.tool);
+                        break;
+                    case 'generateCode':
+                        this.handleGenerateCode();
+                        break;
+                    case 'clearAll':
+                        this.handleClearAll();
+                        break;
                 }
             },
             undefined,
@@ -82,6 +91,31 @@ class SidebarWebviewProvider implements vscode.WebviewViewProvider {
             command: 'insertSnippet',
             tool: componentName,
             content: snippet
+        }), 100);
+    }
+
+    private handleAddComponent(componentName: string) {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'addComponent',
+            tool: componentName
+        }), 100);
+    }
+
+    private handleGenerateCode() {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'generateCode'
+        }), 100);
+    }
+
+    private handleClearAll() {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'clearAll'
         }), 100);
     }
 
