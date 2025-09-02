@@ -1,20 +1,19 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { snippetDefinitions } from '../../../snippetDefinitions'
-
-interface Component {
-  id: string
-  type: string
-  attributes: Record<string, any>
-  children: Component[]
-}
-
-type DropPos = 'before' | 'inside' | 'after'
-type DropTargetId = string | 'ROOT'
-interface DropIndicator {
-  targetId: DropTargetId
-  position: DropPos
-}
+import { 
+  Component, 
+  DropIndicator, 
+  moveNode, 
+  updateAttribute 
+} from '../utils/treeOperations'
+import { 
+  createDragDropHandlers, 
+  getDropIndicatorStyles, 
+  getRootDropIndicatorStyles 
+} from '../utils/dragDropUtils'
+import { extractAttributes } from '../utils/attributeExtraction'
+import { generateAstroCode } from '../utils/astroCodeGenerator'
+import { getDefinition, createComponent } from '../utils/componentManagement'
 
 export default function AstroEditor() {
   const [components, setComponents] = useState<Component[]>([])
@@ -23,9 +22,17 @@ export default function AstroEditor() {
   const componentsRef = useRef<Component[]>(components)
   const listRef = useRef<HTMLDivElement | null>(null)
 
+  const dragDropState = { draggedId, dropIndicator }
+
   useEffect(() => {
     componentsRef.current = components
   }, [components])
+
+  // Message handling
+  const addComponent = (type: string, overrides: Record<string, any> = {}) => {
+    const newComponent = createComponent(type, overrides)
+    setComponents(prev => [...prev, newComponent])
+  }
 
   // Einmaliger Message-Listener (keine Abhängigkeit zu components)
   useEffect(() => {
@@ -36,6 +43,10 @@ export default function AstroEditor() {
           addComponent(tool, extractAttributes(content))
           break
         case 'loadComponents':
+          setComponents(Array.isArray(incomingComponents) ? incomingComponents : [])
+          break
+        case 'loadComponentHierarchy':
+          // New: Load complete hierarchy with nesting
           setComponents(Array.isArray(incomingComponents) ? incomingComponents : [])
           break
         case 'addComponent':
@@ -58,317 +69,40 @@ export default function AstroEditor() {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  // ---- snippet defs helpers ----
-  const getDefinition = (type: string) =>
-    snippetDefinitions[type as keyof typeof snippetDefinitions] as any
-
-  const defaultsForType = (type: string): Record<string, any> => {
-    const def = getDefinition(type)
-    const out: Record<string, any> = {}
-    if (def?.attributes) {
-      for (const [key, config] of Object.entries(def.attributes)) {
-        if (config && typeof config === 'object' && 'value' in config) {
-          out[key] = (config as any).value ?? ''
-        } else {
-          out[key] = ''
-        }
-      }
-    }
-    return out
+  // Create drag and drop handlers
+  const handleDrop = (draggedId: string, dropIndicator: DropIndicator) => {
+    setComponents(prev => moveNode(prev, draggedId, dropIndicator, prev.length))
   }
 
-  const addComponent = (type: string, overrides: Record<string, any> = {}) => {
-    const attributes = { ...defaultsForType(type), ...overrides }
-    const newComponent: Component = {
-      id: generateId(),
-      type,
-      attributes,
-      children: [],
-    }
-    setComponents(prev => [...prev, newComponent])
+  const dragDropHandlers = createDragDropHandlers(
+    dragDropState,
+    setDraggedId,
+    setDropIndicator,
+    handleDrop,
+    components
+  )
+
+  // Attribute update handler
+  const handleUpdateAttribute = (id: string, key: string, value: any) => {
+    setComponents(prev => updateAttribute(prev, id, key, value))
   }
 
-  // ---- util: ids, parsing, tree ops ----
-  const generateId = () =>
-    Date.now().toString() + Math.random().toString(36).substring(2, 11)
 
-  // Sichere Extraktion aus <script>let values={...};</script>
-  const extractAttributes = (content: string): Record<string, any> => {
-    try {
-      if (!content) return {}
-      const scriptMatch = content.match(/<script>([\s\S]*?)<\/script>/)
-      if (!scriptMatch) return {}
-      const scriptContent = scriptMatch[1]
-      const valuesMatch = scriptContent.match(/let\s+values\s*=\s*({[\s\S]*?});/)
-      if (!valuesMatch) return {}
-
-      const valuesStr = valuesMatch[1]
-      const parsed = new Function(`"use strict"; return (${valuesStr});`)() as Record<string, any>
-
-      const cleaned: Record<string, any> = {}
-      for (const [k, v] of Object.entries(parsed)) {
-        if (v !== '' && v !== undefined && v !== null) {
-          cleaned[k] = v === 'true' ? true : v === 'false' ? false : v
-        }
-      }
-      return cleaned
-    } catch {
-      return {}
-    }
-  }
-
-  const findById = (nodes: Component[], id: string): Component | null => {
-    for (const n of nodes) {
-      if (n.id === id) return n
-      const found = findById(n.children, id)
-      if (found) return found
-    }
-    return null
-  }
-
-  const containsId = (node: Component, targetId: string): boolean => {
-    if (node.id === targetId) return true
-    for (const c of node.children) {
-      if (containsId(c, targetId)) return true
-    }
-    return false
-  }
-
-  // Liefert parentId (null = Root) + Index eines Knotens
-  const findParentAndIndex = (
-    nodes: Component[],
-    id: string,
-    parentId: string | null = null
-  ): { parentId: string | null; index: number } | null => {
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i]
-      if (n.id === id) return { parentId, index: i }
-      const sub = findParentAndIndex(n.children, id, n.id)
-      if (sub) return sub
-    }
-    return null
-  }
-
-  // Entfernt Knoten; gibt neuen Baum + entfernten Knoten
-  const removeById = (
-    nodes: Component[],
-    id: string
-  ): { nodes: Component[]; removed: Component | null } => {
-    const next: Component[] = []
-    let removed: Component | null = null
-
-    for (const n of nodes) {
-      if (n.id === id) {
-        removed = n
-        continue
-      }
-      const res = removeById(n.children, id)
-      if (res.removed && !removed) removed = res.removed
-      next.push({ ...n, children: res.nodes })
-    }
-    return { nodes: next, removed }
-  }
-
-  // Fügt child bei parentId an Index ein (parentId null -> Root)
-  const insertAt = (
-    nodes: Component[],
-    parentId: string | null,
-    index: number,
-    child: Component
-  ): Component[] => {
-    if (parentId === null) {
-      const i = Math.max(0, Math.min(index, nodes.length))
-      return [...nodes.slice(0, i), child, ...nodes.slice(i)]
-    }
-    return nodes.map(n =>
-      n.id === parentId
-        ? {
-            ...n,
-            children: [
-              ...n.children.slice(0, Math.max(0, Math.min(index, n.children.length))),
-              child,
-              ...n.children.slice(Math.max(0, Math.min(index, n.children.length))),
-            ],
-          }
-        : { ...n, children: insertAt(n.children, parentId, index, child) }
-    )
-  }
-
-  // Ist Ziel im eigenen Subtree? -> verbieten (verhindert Zyklen/Löschung)
-  const wouldCreateCycle = (nodes: Component[], sourceId: string, targetId: DropTargetId) => {
-    if (targetId === 'ROOT') return false
-    const sourceNode = findById(nodes, sourceId)
-    if (!sourceNode) return false
-    return containsId(sourceNode, targetId)
-  }
-
-  // Atomares Move: Nur wenn Quelle + Ziel valide → anwenden, sonst unverändert lassen
-  const moveNode = (
-    nodes: Component[],
-    sourceId: string,
-    drop: DropIndicator
-  ): Component[] => {
-    if (!drop) return nodes
-    if (drop.targetId !== 'ROOT' && sourceId === drop.targetId) return nodes
-    if (wouldCreateCycle(nodes, sourceId, drop.targetId)) return nodes
-
-    const srcInfo = findParentAndIndex(nodes, sourceId)
-    if (!srcInfo) return nodes
-
-    let destParentId: string | null
-    let destIndex: number
-
-    if (drop.targetId === 'ROOT') {
-      destParentId = null
-      destIndex = drop.position === 'before' ? 0 : componentsRef.current.length
-    } else {
-      const target = findById(nodes, drop.targetId)
-      if (!target) return nodes
-
-      if (drop.position === 'inside') {
-        destParentId = target.id
-        destIndex = target.children.length
-      } else {
-        const tInfo = findParentAndIndex(nodes, target.id)
-        if (!tInfo) return nodes
-        destParentId = tInfo.parentId
-        destIndex = tInfo.index + (drop.position === 'after' ? 1 : 0)
-
-        // Reordering im selben Parent korrigieren (Index verschiebt sich nach Remove)
-        if (destParentId === srcInfo.parentId && srcInfo.index < destIndex) {
-          destIndex -= 1
-        }
-      }
-    }
-
-    // Entfernen + Einfügen (Rollback bei Problemen)
-    const { nodes: without, removed } = removeById(nodes, sourceId)
-    if (!removed) return nodes
-
-    // Extra-Schutz: nicht in eigenen (jetzt entfernten) Subtree einfügen
-    if (drop.targetId !== 'ROOT') {
-      // Wenn Ziel unterhalb der entfernten Quelle lag, existiert es nach removeById nicht mehr
-      const targetStillExists = !!findById(
-        drop.position === 'inside' ? without : without, // gleicher Baum
-        drop.targetId
-      )
-      if (!targetStillExists && drop.targetId !== 'ROOT') {
-        return nodes // Rollback
-      }
-    }
-
-    return insertAt(without, destParentId, destIndex, removed)
-  }
-
-  const updateAttribute = (id: string, key: string, value: any) => {
-    const update = (nodes: Component[]): Component[] =>
-      nodes.map(n =>
-        n.id === id
-          ? { ...n, attributes: { ...n.attributes, [key]: value } }
-          : { ...n, children: update(n.children) }
-      )
-    setComponents(update)
-  }
-
-  const generateAstroCode = (nodes: Component[]) => {
-    const render = (comp: Component, depth = 0): string => {
-      const indent = '  '.repeat(depth)
-      const attrs = Object.entries(comp.attributes)
-        .filter(([, v]) => v !== '' && v !== false && v !== undefined && v !== null)
-        .map(([k, v]) => `${k}="${v}"`)
-        .join(' ')
-      const opening = `${indent}<${comp.type}${attrs ? ' ' + attrs : ''}>`
-      if (!comp.children.length) return `${opening}</${comp.type}>`
-      const children = comp.children.map(c => render(c, depth + 1)).join('\n')
-      return `${opening}\n${children}\n${indent}</${comp.type}>`
-    }
-    return nodes.map(n => render(n)).join('\n\n')
-  }
-
-  // ---- Drag & Drop ----
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggedId(id)
-    setDropIndicator(null)
-    e.dataTransfer.effectAllowed = 'move'
-    // Optional: eigenes Drag-Image vermeiden, damit die Karte sichtbar bleibt
-    // e.dataTransfer.setDragImage(new Image(), 0, 0)
-  }
-
-  const computeNodeDropPos = (
-    e: React.DragEvent,
-    comp: Component,
-    canBeParent: boolean
-  ): DropPos => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    const offsetY = e.clientY - rect.top
-    const third = rect.height / 3
-    if (offsetY < third) return 'before'
-    if (offsetY > 2 * third) return 'after'
-    return canBeParent ? 'inside' : offsetY < rect.height / 2 ? 'before' : 'after'
-  }
-
-  const handleNodeDragOver = (e: React.DragEvent, comp: Component) => {
-    if (!draggedId) return
-    e.preventDefault()
-    e.stopPropagation()
-
-    const canBeParent = !!getDefinition(comp.type)?.canBeParent
-    const pos = computeNodeDropPos(e, comp, canBeParent)
-
-    const invalid =
-      draggedId === comp.id || wouldCreateCycle(componentsRef.current, draggedId, comp.id)
-
-    e.dataTransfer.dropEffect = invalid ? 'none' : 'move'
-    setDropIndicator({ targetId: comp.id, position: pos })
-  }
-
-  const handleRootDragOver = (e: React.DragEvent) => {
-    if (!draggedId) return
-    if (!listRef.current) return
-    e.preventDefault()
-
-    const rect = listRef.current.getBoundingClientRect()
-    const offsetY = e.clientY - rect.top
-    const pos: DropPos = offsetY < rect.height / 2 ? 'before' : 'after'
-    e.dataTransfer.dropEffect = 'move'
-    setDropIndicator({ targetId: 'ROOT', position: pos })
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!draggedId || !dropIndicator) {
-      setDraggedId(null)
-      setDropIndicator(null)
-      return
-    }
-    setComponents(prev => moveNode(prev, draggedId, dropIndicator))
-    setDraggedId(null)
-    setDropIndicator(null)
-  }
-
-  const handleDragEnd = () => {
-    setDraggedId(null)
-    setDropIndicator(null)
-  }
 
   // ---- Render ----
   const renderNode = (comp: Component, depth = 0) => {
     const definition = getDefinition(comp.type)
     const canBeParent = !!definition?.canBeParent
-
-    const isBefore = dropIndicator?.targetId === comp.id && dropIndicator.position === 'before'
-    const isInside = dropIndicator?.targetId === comp.id && dropIndicator.position === 'inside'
-    const isAfter = dropIndicator?.targetId === comp.id && dropIndicator.position === 'after'
+    const dropStyles = getDropIndicatorStyles(comp, dropIndicator, draggedId)
 
     return (
       <div
         key={comp.id}
         draggable
-        onDragStart={e => handleDragStart(e, comp.id)}
-        onDragOver={e => handleNodeDragOver(e, comp)}
-        onDrop={handleDrop}
-        onDragEnd={handleDragEnd}
+        onDragStart={e => dragDropHandlers.handleDragStart(e, comp.id)}
+        onDragOver={e => dragDropHandlers.handleNodeDragOver(e, comp, canBeParent)}
+        onDrop={dragDropHandlers.handleDrop}
+        onDragEnd={dragDropHandlers.handleDragEnd}
         style={{
           position: 'relative',
           marginLeft: depth * 20,
@@ -376,16 +110,8 @@ export default function AstroEditor() {
           margin: '8px 0',
           border: '1px solid #ddd',
           borderRadius: '6px',
-          backgroundColor: isInside ? '#e3f2fd' : '#f8f9fa',
-          opacity: draggedId === comp.id ? 0.5 : 1,
           cursor: 'move',
-          // Visuelle Drop-Bars
-          boxShadow: [
-            isBefore ? 'inset 0 3px 0 0 #1976d2' : '',
-            isAfter ? 'inset 0 -3px 0 0 #1976d2' : '',
-          ]
-            .filter(Boolean)
-            .join(', '),
+          ...dropStyles,
         }}
       >
         <h4 style={{ margin: '0 0 8px 0' }}>{comp.type}</h4>
@@ -419,12 +145,12 @@ export default function AstroEditor() {
                     <input
                       type="checkbox"
                       checked={currentValue === true || currentValue === 'true'}
-                      onChange={e => updateAttribute(comp.id, key, e.target.checked)}
+                      onChange={e => handleUpdateAttribute(comp.id, key, e.target.checked)}
                     />
                   ) : attrConfig.type === 'textarea' ? (
                     <textarea
                       value={currentValue}
-                      onChange={e => updateAttribute(comp.id, key, e.target.value)}
+                      onChange={e => handleUpdateAttribute(comp.id, key, e.target.value)}
                       rows={3}
                       style={{ width: '100%', fontSize: '12px' }}
                     />
@@ -432,7 +158,7 @@ export default function AstroEditor() {
                     <input
                       type="text"
                       value={currentValue}
-                      onChange={e => updateAttribute(comp.id, key, e.target.value)}
+                      onChange={e => handleUpdateAttribute(comp.id, key, e.target.value)}
                       style={{ width: '100%', fontSize: '12px' }}
                     />
                   )}
@@ -454,20 +180,14 @@ export default function AstroEditor() {
 
         <div
           ref={listRef}
-          onDragOver={handleRootDragOver}
-          onDrop={handleDrop}
-          onDragEnd={handleDragEnd}
+          onDragOver={e => dragDropHandlers.handleRootDragOver(e, listRef, components.length)}
+          onDrop={dragDropHandlers.handleDrop}
+          onDragEnd={dragDropHandlers.handleDragEnd}
           style={{
             minHeight: 80,
             border: components.length === 0 ? '2px dashed #bbb' : undefined,
             padding: 8,
-            // Root-Drop-Indikator
-            boxShadow:
-              dropIndicator?.targetId === 'ROOT'
-                ? dropIndicator.position === 'before'
-                  ? 'inset 0 3px 0 0 #1976d2'
-                  : 'inset 0 -3px 0 0 #1976d2'
-                : undefined,
+            ...getRootDropIndicatorStyles(dropIndicator, components.length),
           }}
         >
           <h3>Components ({components.length})</h3>

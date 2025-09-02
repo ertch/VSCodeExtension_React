@@ -140,11 +140,12 @@ class SidebarWebviewProvider implements vscode.WebviewViewProvider {
         vscode.commands.executeCommand('vscExtension.showWebview');
         
         setTimeout(() => {
-            mainPanel?.webview.postMessage({ command: 'insertSnippet', tool: 'StaticConfig', content: staticConfigBlock });
-            AstroParser.findComponents(this.astroContent).forEach((component, index) => 
-                setTimeout(() => mainPanel?.webview.postMessage({
-                    command: 'insertSnippet', tool: component, content: this.generateSnippet(component)
-                }), (index + 1) * 200));
+            // Parse complete hierarchy instead of individual components
+            const hierarchy = AstroParser.parseComponentHierarchy(this.astroContent);
+            mainPanel?.webview.postMessage({ 
+                command: 'loadComponentHierarchy', 
+                components: hierarchy 
+            });
         }, 100);
     }
 

@@ -26620,240 +26620,6 @@ var vscode = __toESM(require("vscode"));
 var path = __toESM(require("path"));
 var fs = __toESM(require("fs"));
 
-// src/snippetDefinitions.ts
-var snippetDefinitions = {
-  "Layout": {
-    attributes: {
-      campaignNr: { value: "", type: "text", requierd: true },
-      campaignTitle: { value: "", type: "text", requierd: true },
-      jsFiles: { value: "", type: "text", requierd: true },
-      header_imgs: { value: "", type: "text", requierd: true },
-      header_title: { value: "", type: "text", requierd: true },
-      pattern: { value: "", type: "text", requierd: true },
-      query: { value: "", type: "text", requierd: true }
-    },
-    canBeParent: true,
-    childs: {}
-  },
-  "NavTabs": {
-    attributes: { value: "", type: "textarea", requierd: true },
-    canBeParent: false,
-    childs: {}
-  },
-  "TabWrapper": {
-    attributes: {},
-    canBeParent: true,
-    childs: {}
-  },
-  "TabPage": {
-    attributes: {
-      id: { value: "", type: "text", requierd: false },
-      tab: { value: "", type: "text", requierd: true },
-      isVisible: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: true,
-    childs: {}
-  },
-  "Field": {
-    attributes: {
-      id: { value: "", type: "text", requierd: false },
-      legend: { value: "", type: "text", requierd: true },
-      klasse: { value: "", type: "text", requierd: false },
-      group: { value: "", type: "text", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: true,
-    childs: {}
-  },
-  "Input": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      type: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      value: { value: "", type: "text", requierd: false },
-      maxlength: { value: "", type: "text", requierd: false },
-      regex: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      blur: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      validate: { value: "", type: "text", requierd: true },
-      min: { value: "", type: "text", requierd: false },
-      max: { value: "", type: "text", requierd: false },
-      oc: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "Select": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      options: { value: "", type: "textarea", requierd: false },
-      actions: { value: "", type: "textarea", requierd: false },
-      firstOption: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      requiredValue: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "Gatekeeper": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      options: { value: "", type: "textarea", requierd: false },
-      actions: { value: "", type: "textarea", requierd: false },
-      gate: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      firstOption: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      pageLock: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "Gate": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      grp: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: true,
-    childs: {}
-  },
-  "GateGroup": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      group: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: true,
-    childs: {}
-  },
-  "SQL_Select": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      load: { value: "", type: "text", requierd: true },
-      trigger: { value: "", type: "textarea", requierd: false },
-      requiredValue: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "Suggestion": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      options: { value: "", type: "textarea", requierd: true },
-      gatekeeper: { value: "", type: "checkbox", requierd: false },
-      actions: { value: "", type: "textarea", requierd: false },
-      type: { value: "", type: "text", requierd: false },
-      gate: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      maxlength: { value: "", type: "text", requierd: false },
-      pattern: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      inject: { value: "", type: "text", requierd: false },
-      validate: { value: "", type: "text", requierd: false },
-      value: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "textField": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      row: { value: "", type: "text", requierd: true },
-      col: { value: "", type: "text", requierd: true },
-      call: { value: "", type: "text", requierd: false },
-      value: { value: "", type: "text", requierd: false },
-      MaxLength: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      validate: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "ConBlock": {
-    attributes: {
-      id: { value: "", type: "text", requierd: false },
-      If: { value: "", type: "textarea", requierd: true },
-      group: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      setPosSale: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: true,
-    childs: {}
-  },
-  "RecordBtn": {
-    attributes: {
-      id: { value: "", type: "text", requierd: true },
-      showInfo: { value: "", type: "checkbox", requierd: false },
-      centered: { value: "", type: "checkbox", requierd: false },
-      txt_info: { value: "", type: "text", requierd: false },
-      txt_btn: { value: "", type: "text", requierd: false },
-      callState: { value: "", type: "text", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "FinishBtn": {
-    attributes: {
-      auto: { value: "", type: "checkbox", requierd: false },
-      queryLib: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
-    },
-    canBeParent: false,
-    childs: {}
-  },
-  "NextPageBtn": {
-    attributes: {},
-    canBeParent: false,
-    childs: {}
-  }
-};
-var staticConfigBlock = `
-<div style="border: 2px solid #333; padding: 12px; margin: 10px 0; background: #f5f5f5; border-radius: 8px;">
-    <h3 style="margin-top: 0;">Static Config Block</h3>
-    <div style="font-size: 12px; color: #666;">
-        <div><strong>Layout</strong> \u2192 NavTabs \u2192 TabWrapper</div>
-        <div>Diese Struktur ist immer vorhanden</div>
-    </div>
-</div>
-`;
-
 // node_modules/cheerio/dist/esm/options.js
 var defaultOpts = {
   _useHtmlParser2: false
@@ -41214,11 +40980,341 @@ var STRINGS = {
 var undici = __toESM(require_undici(), 1);
 var import_whatwg_mimetype = __toESM(require_mime_type(), 1);
 
+// src/snippetDefinitions.ts
+var snippetDefinitions = {
+  "Layout": {
+    attributes: {
+      campaignNr: { value: "", type: "text", requierd: true },
+      campaignTitle: { value: "", type: "text", requierd: true },
+      jsFiles: { value: "", type: "text", requierd: true },
+      header_imgs: { value: "", type: "text", requierd: true },
+      header_title: { value: "", type: "text", requierd: true },
+      pattern: { value: "", type: "text", requierd: true },
+      query: { value: "", type: "text", requierd: true }
+    },
+    canBeParent: true,
+    childs: {}
+  },
+  "NavTabs": {
+    attributes: { value: "", type: "textarea", requierd: true },
+    canBeParent: false,
+    childs: {}
+  },
+  "TabWrapper": {
+    attributes: {},
+    canBeParent: true,
+    childs: {}
+  },
+  "TabPage": {
+    attributes: {
+      id: { value: "", type: "text", requierd: false },
+      tab: { value: "", type: "text", requierd: true },
+      isVisible: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: true,
+    childs: {}
+  },
+  "Field": {
+    attributes: {
+      id: { value: "", type: "text", requierd: false },
+      legend: { value: "", type: "text", requierd: true },
+      klasse: { value: "", type: "text", requierd: false },
+      group: { value: "", type: "text", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: true,
+    childs: {}
+  },
+  "Input": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      type: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      value: { value: "", type: "text", requierd: false },
+      maxlength: { value: "", type: "text", requierd: false },
+      regex: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      blur: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      validate: { value: "", type: "text", requierd: true },
+      min: { value: "", type: "text", requierd: false },
+      max: { value: "", type: "text", requierd: false },
+      oc: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "Select": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      options: { value: "", type: "textarea", requierd: false },
+      actions: { value: "", type: "textarea", requierd: false },
+      firstOption: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      requiredValue: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "Gatekeeper": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      options: { value: "", type: "textarea", requierd: false },
+      actions: { value: "", type: "textarea", requierd: false },
+      gate: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      firstOption: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      pageLock: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "Gate": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      grp: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: true,
+    childs: {}
+  },
+  "GateGroup": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      group: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: true,
+    childs: {}
+  },
+  "SQL_Select": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      load: { value: "", type: "text", requierd: true },
+      trigger: { value: "", type: "textarea", requierd: false },
+      requiredValue: { value: "", type: "text", requierd: false },
+      call: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "Suggestion": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      options: { value: "", type: "textarea", requierd: true },
+      gatekeeper: { value: "", type: "checkbox", requierd: false },
+      actions: { value: "", type: "textarea", requierd: false },
+      type: { value: "", type: "text", requierd: false },
+      gate: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      maxlength: { value: "", type: "text", requierd: false },
+      pattern: { value: "", type: "text", requierd: false },
+      preset: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      inject: { value: "", type: "text", requierd: false },
+      validate: { value: "", type: "text", requierd: false },
+      value: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      disabled: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "textField": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      label: { value: "", type: "text", requierd: true },
+      row: { value: "", type: "text", requierd: true },
+      col: { value: "", type: "text", requierd: true },
+      call: { value: "", type: "text", requierd: false },
+      value: { value: "", type: "text", requierd: false },
+      MaxLength: { value: "", type: "text", requierd: false },
+      submitTo: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      validate: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "ConBlock": {
+    attributes: {
+      id: { value: "", type: "text", requierd: false },
+      If: { value: "", type: "textarea", requierd: true },
+      group: { value: "", type: "text", requierd: false },
+      klasse: { value: "", type: "text", requierd: false },
+      required: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false },
+      setPosSale: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: true,
+    childs: {}
+  },
+  "RecordBtn": {
+    attributes: {
+      id: { value: "", type: "text", requierd: true },
+      showInfo: { value: "", type: "checkbox", requierd: false },
+      centered: { value: "", type: "checkbox", requierd: false },
+      txt_info: { value: "", type: "text", requierd: false },
+      txt_btn: { value: "", type: "text", requierd: false },
+      callState: { value: "", type: "text", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "FinishBtn": {
+    attributes: {
+      auto: { value: "", type: "checkbox", requierd: false },
+      queryLib: { value: "", type: "checkbox", requierd: false },
+      hidden: { value: "", type: "checkbox", requierd: false }
+    },
+    canBeParent: false,
+    childs: {}
+  },
+  "NextPageBtn": {
+    attributes: {},
+    canBeParent: false,
+    childs: {}
+  }
+};
+
 // src/astroParser.ts
 var AstroParser = class {
   static findComponents(astroContent) {
     const $2 = load(astroContent, { xmlMode: true });
     return Object.keys(snippetDefinitions).filter((name) => $2(name).length > 0);
+  }
+  static parseComponentHierarchy(astroContent) {
+    const $2 = load(astroContent, { xmlMode: true });
+    const componentNames = Object.keys(snippetDefinitions);
+    let componentCounter = 0;
+    const generateId = () => `comp_${Date.now()}_${++componentCounter}`;
+    const parseElement = (element) => {
+      if (element.type !== "tag") return null;
+      const tagName = element.name;
+      if (!componentNames.includes(tagName)) return null;
+      const attributes2 = this.extractElementAttributesFromSource(astroContent, tagName, element);
+      const children2 = [];
+      $2(element).children().each((_, child) => {
+        const childComponent = parseElement(child);
+        if (childComponent) {
+          children2.push(childComponent);
+        }
+      });
+      return {
+        id: generateId(),
+        type: tagName,
+        attributes: attributes2,
+        children: children2
+      };
+    };
+    const topLevelComponents = [];
+    const body = $2("body").length > 0 ? $2("body") : $2.root();
+    body.children().each((_, element) => {
+      const component = parseElement(element);
+      if (component) {
+        topLevelComponents.push(component);
+      }
+    });
+    return topLevelComponents;
+  }
+  // New method: Extract attributes directly from a Cheerio element instance
+  static extractElementAttributes(element, componentName) {
+    const definition = snippetDefinitions[componentName];
+    if (!definition?.attributes) return {};
+    const attributes2 = {};
+    Object.keys(definition.attributes).forEach((attr2) => {
+      attributes2[attr2] = "";
+    });
+    const elementHtml = element.toString();
+    const tagMatch = new RegExp(`<${componentName}([\\s\\S]*?)(?:>|/>)`, "i").exec(elementHtml);
+    if (tagMatch && tagMatch[1]) {
+      const rawAttrs = tagMatch[1].trim();
+      this.extractComplexAttributes(rawAttrs, attributes2, definition);
+    }
+    return attributes2;
+  }
+  // New method: Extract attributes from original source HTML to avoid Cheerio parsing issues
+  static extractElementAttributesFromSource(sourceHtml, componentName, element) {
+    const definition = snippetDefinitions[componentName];
+    if (!definition?.attributes) return {};
+    const attributes2 = {};
+    Object.keys(definition.attributes).forEach((attr2) => {
+      attributes2[attr2] = "";
+    });
+    const extractedAttrs = this.extractComponentAttributes(componentName, sourceHtml);
+    Object.entries(extractedAttrs).forEach(([key, value]) => {
+      if (key in attributes2) {
+        if (value === "true") {
+          attributes2[key] = true;
+        } else if (value === "false") {
+          attributes2[key] = false;
+        } else {
+          attributes2[key] = value || "";
+        }
+      }
+    });
+    return attributes2;
+  }
+  // Helper method: Extract complex attributes (arrays, objects, functions) from attribute string
+  static extractComplexAttributes(attrs, attributes2, definition) {
+    [...attrs.matchAll(/(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g)].forEach(([, key, , value]) => {
+      if (key in attributes2) {
+        attributes2[key] = value;
+      }
+    });
+    Object.keys(definition.attributes).forEach((attr2) => {
+      if (attributes2[attr2]) return;
+      const funcMatch = new RegExp(`${attr2}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`).exec(attrs);
+      const braceMatch = new RegExp(`${attr2}\\s*=\\s*\\{`).exec(attrs);
+      if (funcMatch) {
+        const content = this.extractBrackets(attrs, funcMatch.index + funcMatch[0].length - 1, "(", ")");
+        if (content) {
+          const fullValue = attrs.substring(
+            funcMatch.index + attr2.length + 1,
+            funcMatch.index + funcMatch[0].length + content.length + 1
+          ).trim();
+          attributes2[attr2] = fullValue;
+        }
+      } else if (braceMatch) {
+        const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, "{", "}");
+        if (content !== null) {
+          attributes2[attr2] = `{${content}}`;
+        }
+      }
+    });
+    [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)].forEach(([, attr2]) => {
+      if (attr2 in attributes2 && !attributes2[attr2]) {
+        attributes2[attr2] = "true";
+      }
+    });
   }
   static extractComponentAttributes(componentName, astroContent) {
     const definition = snippetDefinitions[componentName];
@@ -41238,7 +41334,9 @@ var AstroParser = class {
         if (content) values[attr2] = attrs.substring(funcMatch.index + attr2.length + 1, funcMatch.index + funcMatch[0].length + content.length);
       } else if (braceMatch) {
         const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, "{", "}");
-        if (content) values[attr2] = content.replace(/\s+/g, " ").trim();
+        if (content !== null) {
+          values[attr2] = `{${content}}`;
+        }
       }
     });
     [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)].forEach(([, attr2]) => attr2 in values && !values[attr2] && (values[attr2] = "true"));
@@ -41477,12 +41575,11 @@ var SidebarWebviewProvider = class {
     if (!this.astroContent) return;
     vscode.commands.executeCommand("vscExtension.showWebview");
     setTimeout(() => {
-      mainPanel?.webview.postMessage({ command: "insertSnippet", tool: "StaticConfig", content: staticConfigBlock });
-      AstroParser.findComponents(this.astroContent).forEach((component, index2) => setTimeout(() => mainPanel?.webview.postMessage({
-        command: "insertSnippet",
-        tool: component,
-        content: this.generateSnippet(component)
-      }), (index2 + 1) * 200));
+      const hierarchy = AstroParser.parseComponentHierarchy(this.astroContent);
+      mainPanel?.webview.postMessage({
+        command: "loadComponentHierarchy",
+        components: hierarchy
+      });
     }, 100);
   }
   generateSnippet(componentName) {
