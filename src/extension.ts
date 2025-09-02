@@ -1,93 +1,162 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { staticConfigBlock } from './snippetDefinitions';
+import { AstroParser } from './astroParser';
+import { sidebarHtml } from './sidebarHtml';
+
+let mainPanel: vscode.WebviewPanel | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
-    // Registriere den Befehl für das Haupt-Webview
     let disposable = vscode.commands.registerCommand('vscExtension.showWebview', () => {
-        const panel = vscode.window.createWebviewPanel(
-            'extensionWebview',
-            'VSC-ExtensionName',
-            vscode.ViewColumn.One,
+        if (mainPanel) {
+            mainPanel.reveal(vscode.ViewColumn.One);
+            return;
+        }
+
+        mainPanel = vscode.window.createWebviewPanel(
+            'extensionWebview', 'Astro Code Generator', vscode.ViewColumn.One,
             {
                 enableScripts: true,
                 localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'src', 'ui', 'dist'))],
-                retainContextWhenHidden: true, // Behalte die Webview aktiv, wenn sie versteckt wird
+                retainContextWhenHidden: true
             }
         );
 
+        mainPanel.onDidDispose(() => { mainPanel = undefined; });
+
         const indexPath = vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist', 'index.html'));
         let html = fs.readFileSync(indexPath.fsPath, 'utf-8');
-
-        // Webview-URIs für Assets (JS & CSS)
-        const scriptUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist/assets/index.js')));
-        const styleUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist/assets/index.css')));
-
-        // CSP-Header setzen
-        const cspSource = panel.webview.cspSource;
-        const cspMetaTag = `
-            <meta http-equiv="Content-Security-Policy" content="
-                default-src 'self' ${cspSource}; 
-                script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; 
-                style-src 'unsafe-inline' ${cspSource} ${styleUri};
-            ">
-        `;
-
-        // Setze den HTML-Inhalt
-        html = html.replace('<head>', `<head>${cspMetaTag}
+        
+        const scriptUri = mainPanel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist/assets/index.js')));
+        const styleUri = mainPanel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist/assets/index.css')));
+        const cspSource = mainPanel.webview.cspSource;
+        
+        html = html.replace('<head>', `<head>
+            <meta http-equiv="Content-Security-Policy" content="default-src 'self' ${cspSource}; script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; style-src 'unsafe-inline' ${cspSource} ${styleUri};">
             <link rel="stylesheet" href="${styleUri}">
             <script type="module" src="${scriptUri}" defer></script>
         `);
 
-        panel.webview.html = html;
+        mainPanel.webview.html = html;
     });
 
+    const sidebarProvider = new SidebarWebviewProvider(context);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider('vscExtension.quickAccess', sidebarProvider));
     context.subscriptions.push(disposable);
-
-    // Registriere die View in der Aktivitätsleiste (Sidebar)
-    const viewProvider = new vscExtensionViewProvider(context);
-    context.subscriptions.push(vscode.window.registerWebviewViewProvider('vscExtension.view', viewProvider));
 }
 
-class vscExtensionViewProvider implements vscode.WebviewViewProvider {
-    private _view?: vscode.WebviewView;
+class SidebarWebviewProvider implements vscode.WebviewViewProvider {
+    private astroContent: string = '';
 
     constructor(private readonly context: vscode.ExtensionContext) {}
 
-    resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, token: vscode.CancellationToken) {
-        this._view = webviewView;
+    resolveWebviewView(webviewView: vscode.WebviewView) {
+        webviewView.webview.options = { enableScripts: true };
+        webviewView.webview.html = this.getHtmlForWebview();
 
-        // Setze Webview-Optionen
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'src', 'ui', 'dist'))],
-        };
+        webviewView.webview.onDidReceiveMessage(
+            message => {
+                switch (message.command) {
+                    case 'openMainPanel':
+                        vscode.commands.executeCommand('vscExtension.showWebview');
+                        break;
+                    case 'insertSnippet':
+                        this.handleSnippetInsertion(message.tool);
+                        break;
+                    case 'readAstroFile':
+                        this.readAstroFile();
+                        break;
+                    case 'addComponent':
+                        this.handleAddComponent(message.tool);
+                        break;
+                    case 'generateCode':
+                        this.handleGenerateCode();
+                        break;
+                    case 'clearAll':
+                        this.handleClearAll();
+                        break;
+                }
+            },
+            undefined,
+            this.context.subscriptions
+        );
+    }
 
-        // Lade `index.html`
-        const indexPath = vscode.Uri.file(path.join(this.context.extensionPath, 'src/ui/dist', 'index.html'));
-        let html = fs.readFileSync(indexPath.fsPath, 'utf-8');
+    private handleSnippetInsertion(componentName: string) {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        const snippet = this.generateSnippet(componentName);
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'insertSnippet',
+            tool: componentName,
+            content: snippet
+        }), 100);
+    }
 
-        // Webview-URIs für Assets (JS & CSS)
-        const scriptUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, 'src/ui/dist/assets/index.js')));
-        const styleUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, 'src/ui/dist/assets/index.css')));
+    private handleAddComponent(componentName: string) {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'addComponent',
+            tool: componentName
+        }), 100);
+    }
 
-        // CSP-Header setzen
-        const cspSource = webviewView.webview.cspSource;
-        const cspMetaTag = `
-            <meta http-equiv="Content-Security-Policy" content="
-                default-src 'self' ${cspSource}; 
-                script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; 
-                style-src 'unsafe-inline' ${cspSource} ${styleUri};
-            ">
-        `;
+    private handleGenerateCode() {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'generateCode'
+        }), 100);
+    }
 
-        // Setze den HTML-Inhalt
-        html = html.replace('<head>', `<head>${cspMetaTag}
-            <link rel="stylesheet" href="${styleUri}">
-            <script type="module" src="${scriptUri}" defer></script>
-        `);
+    private handleClearAll() {
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => mainPanel?.webview.postMessage({
+            command: 'clearAll'
+        }), 100);
+    }
 
-        webviewView.webview.html = html;
+    private readAstroFile() {
+        const folder = vscode.workspace.workspaceFolders?.[0];
+        if (!folder) return;
+        
+        const srcPages = path.join(folder.uri.fsPath, 'src', 'pages');
+        if (!fs.existsSync(srcPages)) return;
+        
+        const indexPath = fs.readdirSync(srcPages, { withFileTypes: true })
+            .find(entry => entry.isDirectory() && fs.existsSync(path.join(srcPages, entry.name, 'index.astro')));
+            
+        if (indexPath) {
+            this.astroContent = fs.readFileSync(path.join(srcPages, indexPath.name, 'index.astro'), 'utf-8');
+            this.generateFromAstro();
+        }
+    }
+
+    private generateFromAstro() {
+        if (!this.astroContent) return;
+        vscode.commands.executeCommand('vscExtension.showWebview');
+        
+        setTimeout(() => {
+            // Parse complete hierarchy instead of individual components
+            const hierarchy = AstroParser.parseComponentHierarchy(this.astroContent);
+            mainPanel?.webview.postMessage({ 
+                command: 'loadComponentHierarchy', 
+                components: hierarchy 
+            });
+        }, 100);
+    }
+
+    private generateSnippet(componentName: string): string {
+        return this.astroContent 
+            ? AstroParser.generateSnippet(componentName, AstroParser.extractComponentAttributes(componentName, this.astroContent))
+            : `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;
+    }
+
+    private getHtmlForWebview(): string {
+        return sidebarHtml;
     }
 }
 

@@ -21,16 +21,22 @@
         "title": "Open vscExtension Panel"
       }
     ],
-    "menus": {
-      "activityBar": [
+    "viewsContainers": {
+      "activitybar": [
         {
-          "command": "vscExtension.showWebview",
-          "when": "true",
-          "group": "navigation",
-          "icon": {
-            "light": "media/icon.png",
-            "dark": "media/icon.png"
-          }
+          "id": "vscExtension",
+          "title": "VSC Extension",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vscExtension": [
+        {
+          "type": "webview",
+          "id": "vscExtension.quickAccess",
+          "name": "Quick Access",
+          "when": "true"
         }
       ]
     }
@@ -43,10 +49,14 @@
     "build": "npm run compile && cd src/ui && npm run build && cd ../.."
   },
   "devDependencies": {
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^22.13.1",
     "@types/vscode": "^1.96.0",
     "esbuild": "^0.24.2",
     "typescript": "^5.7.3",
     "vscode-test": "^1.5.0"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2"
   }
 }
