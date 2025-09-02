@@ -30675,8 +30675,8 @@ var attributeRules = {
     if (shouldIgnoreCase(data2, options)) {
       value = value.toLowerCase();
       return (elem) => {
-        const attr2 = adapter2.getAttributeValue(elem, name);
-        return attr2 != null && attr2.length === value.length && attr2.toLowerCase() === value && next2(elem);
+        const attr3 = adapter2.getAttributeValue(elem, name);
+        return attr3 != null && attr3.length === value.length && attr3.toLowerCase() === value && next2(elem);
       };
     }
     return (elem) => adapter2.getAttributeValue(elem, name) === value && next2(elem);
@@ -30689,13 +30689,13 @@ var attributeRules = {
     if (shouldIgnoreCase(data2, options)) {
       value = value.toLowerCase();
       return function hyphenIC(elem) {
-        const attr2 = adapter2.getAttributeValue(elem, name);
-        return attr2 != null && (attr2.length === len || attr2.charAt(len) === "-") && attr2.substr(0, len).toLowerCase() === value && next2(elem);
+        const attr3 = adapter2.getAttributeValue(elem, name);
+        return attr3 != null && (attr3.length === len || attr3.charAt(len) === "-") && attr3.substr(0, len).toLowerCase() === value && next2(elem);
       };
     }
     return function hyphen(elem) {
-      const attr2 = adapter2.getAttributeValue(elem, name);
-      return attr2 != null && (attr2.length === len || attr2.charAt(len) === "-") && attr2.substr(0, len) === value && next2(elem);
+      const attr3 = adapter2.getAttributeValue(elem, name);
+      return attr3 != null && (attr3.length === len || attr3.charAt(len) === "-") && attr3.substr(0, len) === value && next2(elem);
     };
   },
   element(next2, data2, options) {
@@ -30706,8 +30706,8 @@ var attributeRules = {
     }
     const regex = new RegExp(`(?:^|\\s)${escapeRegex(value)}(?:$|\\s)`, shouldIgnoreCase(data2, options) ? "i" : "");
     return function element(elem) {
-      const attr2 = adapter2.getAttributeValue(elem, name);
-      return attr2 != null && attr2.length >= value.length && regex.test(attr2) && next2(elem);
+      const attr3 = adapter2.getAttributeValue(elem, name);
+      return attr3 != null && attr3.length >= value.length && regex.test(attr3) && next2(elem);
     };
   },
   exists(next2, { name }, { adapter: adapter2 }) {
@@ -30724,8 +30724,8 @@ var attributeRules = {
     if (shouldIgnoreCase(data2, options)) {
       value = value.toLowerCase();
       return (elem) => {
-        const attr2 = adapter2.getAttributeValue(elem, name);
-        return attr2 != null && attr2.length >= len && attr2.substr(0, len).toLowerCase() === value && next2(elem);
+        const attr3 = adapter2.getAttributeValue(elem, name);
+        return attr3 != null && attr3.length >= len && attr3.substr(0, len).toLowerCase() === value && next2(elem);
       };
     }
     return (elem) => {
@@ -30762,8 +30762,8 @@ var attributeRules = {
     if (shouldIgnoreCase(data2, options)) {
       const regex = new RegExp(escapeRegex(value), "i");
       return function anyIC(elem) {
-        const attr2 = adapter2.getAttributeValue(elem, name);
-        return attr2 != null && attr2.length >= value.length && regex.test(attr2) && next2(elem);
+        const attr3 = adapter2.getAttributeValue(elem, name);
+        return attr3 != null && attr3.length >= value.length && regex.test(attr3) && next2(elem);
       };
     }
     return (elem) => {
@@ -30780,8 +30780,8 @@ var attributeRules = {
     } else if (shouldIgnoreCase(data2, options)) {
       value = value.toLowerCase();
       return (elem) => {
-        const attr2 = adapter2.getAttributeValue(elem, name);
-        return (attr2 == null || attr2.length !== value.length || attr2.toLowerCase() !== value) && next2(elem);
+        const attr3 = adapter2.getAttributeValue(elem, name);
+        return (attr3 == null || attr3.length !== value.length || attr3.toLowerCase() !== value) && next2(elem);
       };
     }
     return (elem) => adapter2.getAttributeValue(elem, name) !== value && next2(elem);
@@ -37043,7 +37043,7 @@ var defaultTreeAdapter = {
     }
   },
   adoptAttributes(recipient, attrs) {
-    const recipientAttrsMap = new Set(recipient.attrs.map((attr2) => attr2.name));
+    const recipientAttrsMap = new Set(recipient.attrs.map((attr3) => attr3.name));
     for (let j = 0; j < attrs.length; j++) {
       if (!recipientAttrsMap.has(attrs[j].name)) {
         recipient.attrs.push(attrs[j]);
@@ -37285,7 +37285,7 @@ var SVG_ATTRS_ADJUSTMENT_MAP = new Map([
   "xChannelSelector",
   "yChannelSelector",
   "zoomAndPan"
-].map((attr2) => [attr2.toLowerCase(), attr2]));
+].map((attr3) => [attr3.toLowerCase(), attr3]));
 var XML_ATTRS_ADJUSTMENT_MAP = /* @__PURE__ */ new Map([
   ["xlink:actuate", { prefix: "xlink", name: "actuate", namespace: NS.XLINK }],
   ["xlink:arcrole", { prefix: "xlink", name: "arcrole", namespace: NS.XLINK }],
@@ -40560,33 +40560,33 @@ function serializeElement(node, options) {
 }
 function serializeAttributes(node, { treeAdapter }) {
   let html3 = "";
-  for (const attr2 of treeAdapter.getAttrList(node)) {
+  for (const attr3 of treeAdapter.getAttrList(node)) {
     html3 += " ";
-    if (attr2.namespace) {
-      switch (attr2.namespace) {
+    if (attr3.namespace) {
+      switch (attr3.namespace) {
         case NS.XML: {
-          html3 += `xml:${attr2.name}`;
+          html3 += `xml:${attr3.name}`;
           break;
         }
         case NS.XMLNS: {
-          if (attr2.name !== "xmlns") {
+          if (attr3.name !== "xmlns") {
             html3 += "xmlns:";
           }
-          html3 += attr2.name;
+          html3 += attr3.name;
           break;
         }
         case NS.XLINK: {
-          html3 += `xlink:${attr2.name}`;
+          html3 += `xlink:${attr3.name}`;
           break;
         }
         default: {
-          html3 += `${attr2.prefix}:${attr2.name}`;
+          html3 += `${attr3.prefix}:${attr3.name}`;
         }
       }
     } else {
-      html3 += attr2.name;
+      html3 += attr3.name;
     }
-    html3 += `="${escapeAttribute2(attr2.value)}"`;
+    html3 += `="${escapeAttribute2(attr3.value)}"`;
   }
   return html3;
 }
@@ -40981,22 +40981,42 @@ var undici = __toESM(require_undici(), 1);
 var import_whatwg_mimetype = __toESM(require_mime_type(), 1);
 
 // src/snippetDefinitions.ts
+var attr2 = (type = "text", required = false) => ({
+  value: "",
+  type,
+  required
+});
+var requiredAttr = (type = "text") => attr2(type, true);
+var commonAttrs = {
+  id: requiredAttr(),
+  label: requiredAttr(),
+  klasse: attr2(),
+  required: attr2("checkbox"),
+  hidden: attr2("checkbox"),
+  disabled: attr2("checkbox"),
+  preset: attr2(),
+  call: attr2(),
+  submitTo: attr2(),
+  group: attr2()
+};
 var snippetDefinitions = {
   "Layout": {
     attributes: {
-      campaignNr: { value: "", type: "text", requierd: true },
-      campaignTitle: { value: "", type: "text", requierd: true },
-      jsFiles: { value: "", type: "text", requierd: true },
-      header_imgs: { value: "", type: "text", requierd: true },
-      header_title: { value: "", type: "text", requierd: true },
-      pattern: { value: "", type: "text", requierd: true },
-      query: { value: "", type: "text", requierd: true }
+      campaignNr: requiredAttr(),
+      campaignTitle: requiredAttr(),
+      jsFiles: requiredAttr(),
+      header_imgs: requiredAttr(),
+      header_title: requiredAttr(),
+      pattern: requiredAttr(),
+      query: requiredAttr()
     },
     canBeParent: true,
     childs: {}
   },
   "NavTabs": {
-    attributes: { value: "", type: "textarea", requierd: true },
+    attributes: {
+      tabs: requiredAttr("textarea")
+    },
     canBeParent: false,
     childs: {}
   },
@@ -41007,193 +41027,146 @@ var snippetDefinitions = {
   },
   "TabPage": {
     attributes: {
-      id: { value: "", type: "text", requierd: false },
-      tab: { value: "", type: "text", requierd: true },
-      isVisible: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      id: attr2(),
+      // Override to make optional
+      tab: requiredAttr(),
+      isVisible: attr2("checkbox")
     },
     canBeParent: true,
     childs: {}
   },
   "Field": {
     attributes: {
-      id: { value: "", type: "text", requierd: false },
-      legend: { value: "", type: "text", requierd: true },
-      klasse: { value: "", type: "text", requierd: false },
-      group: { value: "", type: "text", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      id: attr2(),
+      // Override to make optional
+      legend: requiredAttr()
     },
     canBeParent: true,
     childs: {}
   },
   "Input": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      type: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      value: { value: "", type: "text", requierd: false },
-      maxlength: { value: "", type: "text", requierd: false },
-      regex: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      blur: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      validate: { value: "", type: "text", requierd: true },
-      min: { value: "", type: "text", requierd: false },
-      max: { value: "", type: "text", requierd: false },
-      oc: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      type: attr2(),
+      value: attr2(),
+      maxlength: attr2(),
+      regex: attr2(),
+      blur: attr2(),
+      validate: requiredAttr(),
+      min: attr2(),
+      max: attr2(),
+      oc: attr2()
     },
     canBeParent: false,
     childs: {}
   },
   "Select": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      options: { value: "", type: "textarea", requierd: false },
-      actions: { value: "", type: "textarea", requierd: false },
-      firstOption: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      requiredValue: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      options: attr2("textarea"),
+      actions: attr2("textarea"),
+      firstOption: attr2(),
+      requiredValue: attr2()
     },
     canBeParent: false,
     childs: {}
   },
   "Gatekeeper": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      options: { value: "", type: "textarea", requierd: false },
-      actions: { value: "", type: "textarea", requierd: false },
-      gate: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      firstOption: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      pageLock: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      options: attr2("textarea"),
+      actions: attr2("textarea"),
+      gate: attr2(),
+      firstOption: attr2(),
+      pageLock: attr2("checkbox")
     },
     canBeParent: false,
     childs: {}
   },
   "Gate": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      grp: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      grp: attr2()
     },
     canBeParent: true,
     childs: {}
   },
   "GateGroup": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      group: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs
     },
     canBeParent: true,
     childs: {}
   },
   "SQL_Select": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      load: { value: "", type: "text", requierd: true },
-      trigger: { value: "", type: "textarea", requierd: false },
-      requiredValue: { value: "", type: "text", requierd: false },
-      call: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      load: requiredAttr(),
+      trigger: attr2("textarea"),
+      requiredValue: attr2()
     },
     canBeParent: false,
     childs: {}
   },
   "Suggestion": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      options: { value: "", type: "textarea", requierd: true },
-      gatekeeper: { value: "", type: "checkbox", requierd: false },
-      actions: { value: "", type: "textarea", requierd: false },
-      type: { value: "", type: "text", requierd: false },
-      gate: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      maxlength: { value: "", type: "text", requierd: false },
-      pattern: { value: "", type: "text", requierd: false },
-      preset: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      inject: { value: "", type: "text", requierd: false },
-      validate: { value: "", type: "text", requierd: false },
-      value: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      disabled: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      options: requiredAttr("textarea"),
+      gatekeeper: attr2("checkbox"),
+      actions: attr2("textarea"),
+      type: attr2(),
+      gate: attr2(),
+      maxlength: attr2(),
+      pattern: attr2(),
+      inject: attr2(),
+      validate: attr2(),
+      value: attr2()
     },
     canBeParent: false,
     childs: {}
   },
   "textField": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      label: { value: "", type: "text", requierd: true },
-      row: { value: "", type: "text", requierd: true },
-      col: { value: "", type: "text", requierd: true },
-      call: { value: "", type: "text", requierd: false },
-      value: { value: "", type: "text", requierd: false },
-      MaxLength: { value: "", type: "text", requierd: false },
-      submitTo: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      validate: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      row: requiredAttr(),
+      col: requiredAttr(),
+      value: attr2(),
+      MaxLength: attr2(),
+      validate: attr2()
     },
     canBeParent: false,
     childs: {}
   },
   "ConBlock": {
     attributes: {
-      id: { value: "", type: "text", requierd: false },
-      If: { value: "", type: "textarea", requierd: true },
-      group: { value: "", type: "text", requierd: false },
-      klasse: { value: "", type: "text", requierd: false },
-      required: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false },
-      setPosSale: { value: "", type: "checkbox", requierd: false }
+      ...commonAttrs,
+      id: attr2(),
+      // Override to make optional
+      If: requiredAttr("textarea"),
+      setPosSale: attr2("checkbox")
     },
     canBeParent: true,
     childs: {}
   },
   "RecordBtn": {
     attributes: {
-      id: { value: "", type: "text", requierd: true },
-      showInfo: { value: "", type: "checkbox", requierd: false },
-      centered: { value: "", type: "checkbox", requierd: false },
-      txt_info: { value: "", type: "text", requierd: false },
-      txt_btn: { value: "", type: "text", requierd: false },
-      callState: { value: "", type: "text", requierd: false }
+      id: requiredAttr(),
+      showInfo: attr2("checkbox"),
+      centered: attr2("checkbox"),
+      txt_info: attr2(),
+      txt_btn: attr2(),
+      callState: attr2()
     },
     canBeParent: false,
     childs: {}
   },
   "FinishBtn": {
     attributes: {
-      auto: { value: "", type: "checkbox", requierd: false },
-      queryLib: { value: "", type: "checkbox", requierd: false },
-      hidden: { value: "", type: "checkbox", requierd: false }
+      auto: attr2("checkbox"),
+      queryLib: attr2("checkbox"),
+      hidden: attr2("checkbox")
     },
     canBeParent: false,
     childs: {}
@@ -41207,6 +41180,22 @@ var snippetDefinitions = {
 
 // src/astroParser.ts
 var AstroParser = class {
+  static {
+    this.componentCounter = 0;
+  }
+  static {
+    // Precompiled regex patterns for better performance
+    this.PATTERNS = {
+      COMPONENT_REGEX: (name) => new RegExp(`<${name}([\\s\\S]*?)(?:>|/>)`, "i"),
+      STRING_ATTR: /(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g,
+      BOOLEAN_ATTR: /\s+(\w+)(?=\s|$|>)/g,
+      FUNC_ATTR: (attr3) => new RegExp(`${attr3}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`),
+      BRACE_ATTR: (attr3) => new RegExp(`${attr3}\\s*=\\s*\\{`)
+    };
+  }
+  static generateId() {
+    return `comp_${Date.now()}_${++this.componentCounter}`;
+  }
   static findComponents(astroContent) {
     const $2 = load(astroContent, { xmlMode: true });
     return Object.keys(snippetDefinitions).filter((name) => $2(name).length > 0);
@@ -41214,13 +41203,11 @@ var AstroParser = class {
   static parseComponentHierarchy(astroContent) {
     const $2 = load(astroContent, { xmlMode: true });
     const componentNames = Object.keys(snippetDefinitions);
-    let componentCounter = 0;
-    const generateId = () => `comp_${Date.now()}_${++componentCounter}`;
     const parseElement = (element) => {
-      if (element.type !== "tag") return null;
-      const tagName = element.name;
-      if (!componentNames.includes(tagName)) return null;
-      const attributes2 = this.extractElementAttributesFromSource(astroContent, tagName, element);
+      if (element.type !== "tag" || !componentNames.includes(element.name)) {
+        return null;
+      }
+      const attributes2 = this.extractComponentAttributes(element.name, astroContent);
       const children2 = [];
       $2(element).children().each((_, child) => {
         const childComponent = parseElement(child);
@@ -41229,9 +41216,9 @@ var AstroParser = class {
         }
       });
       return {
-        id: generateId(),
-        type: tagName,
-        attributes: attributes2,
+        id: this.generateId(),
+        type: element.name,
+        attributes: this.normalizeAttributes(attributes2),
         children: children2
       };
     };
@@ -41245,113 +41232,70 @@ var AstroParser = class {
     });
     return topLevelComponents;
   }
-  // New method: Extract attributes directly from a Cheerio element instance
-  static extractElementAttributes(element, componentName) {
-    const definition = snippetDefinitions[componentName];
-    if (!definition?.attributes) return {};
-    const attributes2 = {};
-    Object.keys(definition.attributes).forEach((attr2) => {
-      attributes2[attr2] = "";
-    });
-    const elementHtml = element.toString();
-    const tagMatch = new RegExp(`<${componentName}([\\s\\S]*?)(?:>|/>)`, "i").exec(elementHtml);
-    if (tagMatch && tagMatch[1]) {
-      const rawAttrs = tagMatch[1].trim();
-      this.extractComplexAttributes(rawAttrs, attributes2, definition);
-    }
-    return attributes2;
-  }
-  // New method: Extract attributes from original source HTML to avoid Cheerio parsing issues
-  static extractElementAttributesFromSource(sourceHtml, componentName, element) {
-    const definition = snippetDefinitions[componentName];
-    if (!definition?.attributes) return {};
-    const attributes2 = {};
-    Object.keys(definition.attributes).forEach((attr2) => {
-      attributes2[attr2] = "";
-    });
-    const extractedAttrs = this.extractComponentAttributes(componentName, sourceHtml);
-    Object.entries(extractedAttrs).forEach(([key, value]) => {
-      if (key in attributes2) {
-        if (value === "true") {
-          attributes2[key] = true;
-        } else if (value === "false") {
-          attributes2[key] = false;
-        } else {
-          attributes2[key] = value || "";
-        }
-      }
-    });
-    return attributes2;
-  }
-  // Helper method: Extract complex attributes (arrays, objects, functions) from attribute string
-  static extractComplexAttributes(attrs, attributes2, definition) {
-    [...attrs.matchAll(/(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g)].forEach(([, key, , value]) => {
-      if (key in attributes2) {
-        attributes2[key] = value;
-      }
-    });
-    Object.keys(definition.attributes).forEach((attr2) => {
-      if (attributes2[attr2]) return;
-      const funcMatch = new RegExp(`${attr2}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`).exec(attrs);
-      const braceMatch = new RegExp(`${attr2}\\s*=\\s*\\{`).exec(attrs);
-      if (funcMatch) {
-        const content = this.extractBrackets(attrs, funcMatch.index + funcMatch[0].length - 1, "(", ")");
-        if (content) {
-          const fullValue = attrs.substring(
-            funcMatch.index + attr2.length + 1,
-            funcMatch.index + funcMatch[0].length + content.length + 1
-          ).trim();
-          attributes2[attr2] = fullValue;
-        }
-      } else if (braceMatch) {
-        const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, "{", "}");
-        if (content !== null) {
-          attributes2[attr2] = `{${content}}`;
-        }
-      }
-    });
-    [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)].forEach(([, attr2]) => {
-      if (attr2 in attributes2 && !attributes2[attr2]) {
-        attributes2[attr2] = "true";
-      }
-    });
-  }
   static extractComponentAttributes(componentName, astroContent) {
     const definition = snippetDefinitions[componentName];
     if (!definition) return {};
-    const match = new RegExp(`<${componentName}([\\s\\S]*?)>`).exec(astroContent);
+    const match = this.PATTERNS.COMPONENT_REGEX(componentName).exec(astroContent);
     if (!match?.[1]) return {};
     const attrs = match[1];
     const values = {};
-    Object.keys(definition.attributes).forEach((attr2) => values[attr2] = "");
-    [...attrs.matchAll(/(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g)].forEach(([, key, , value]) => key in values && (values[key] = value));
-    Object.keys(definition.attributes).forEach((attr2) => {
-      if (values[attr2]) return;
-      const funcMatch = new RegExp(`${attr2}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`).exec(attrs);
-      const braceMatch = new RegExp(`${attr2}\\s*=\\s*\\{`).exec(attrs);
+    Object.keys(definition.attributes).forEach((attr3) => values[attr3] = "");
+    for (const [, key, , value] of attrs.matchAll(this.PATTERNS.STRING_ATTR)) {
+      if (key in values) {
+        values[key] = value;
+      }
+    }
+    this.extractComplexAttributes(attrs, values, definition);
+    for (const [, attr3] of attrs.matchAll(this.PATTERNS.BOOLEAN_ATTR)) {
+      if (attr3 in values && !values[attr3]) {
+        values[attr3] = "true";
+      }
+    }
+    return values;
+  }
+  static extractComplexAttributes(attrs, values, definition) {
+    Object.keys(definition.attributes).forEach((attr3) => {
+      if (values[attr3]) return;
+      const funcMatch = this.PATTERNS.FUNC_ATTR(attr3).exec(attrs);
+      const braceMatch = this.PATTERNS.BRACE_ATTR(attr3).exec(attrs);
       if (funcMatch) {
         const content = this.extractBrackets(attrs, funcMatch.index + funcMatch[0].length - 1, "(", ")");
-        if (content) values[attr2] = attrs.substring(funcMatch.index + attr2.length + 1, funcMatch.index + funcMatch[0].length + content.length);
+        if (content !== null) {
+          values[attr3] = attrs.substring(
+            funcMatch.index + attr3.length + 1,
+            funcMatch.index + funcMatch[0].length + content.length
+          ).trim();
+        }
       } else if (braceMatch) {
         const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, "{", "}");
         if (content !== null) {
-          values[attr2] = `{${content}}`;
+          values[attr3] = `{${content}}`;
         }
       }
     });
-    [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)].forEach(([, attr2]) => attr2 in values && !values[attr2] && (values[attr2] = "true"));
-    return values;
   }
   static extractBrackets(text3, startPos, open, close) {
-    let count = 0, endPos = -1;
+    let count = 0;
     for (let i = startPos; i < text3.length; i++) {
       if (text3[i] === open) count++;
       if (text3[i] === close && --count === 0) {
-        endPos = i;
-        break;
+        return text3.substring(startPos + 1, i);
       }
     }
-    return endPos !== -1 ? text3.substring(startPos + 1, endPos) : null;
+    return null;
+  }
+  static normalizeAttributes(attributes2) {
+    const normalized = {};
+    Object.entries(attributes2).forEach(([key, value]) => {
+      if (value === "true") {
+        normalized[key] = true;
+      } else if (value === "false") {
+        normalized[key] = false;
+      } else {
+        normalized[key] = value || "";
+      }
+    });
+    return normalized;
   }
   static generateSnippet(componentName, values) {
     const displayValues = Object.entries(values).map(([key, val2]) => {
@@ -41533,32 +41477,36 @@ var SidebarWebviewProvider = class {
     );
   }
   handleSnippetInsertion(componentName) {
-    vscode.commands.executeCommand("vscExtension.showWebview");
-    const snippet = this.generateSnippet(componentName);
-    setTimeout(() => mainPanel?.webview.postMessage({
-      command: "insertSnippet",
-      tool: componentName,
-      content: snippet
-    }), 100);
+    vscode.commands.executeCommand("vscExtension.showWebview").then(() => {
+      const snippet = this.generateSnippet(componentName);
+      mainPanel?.webview.postMessage({
+        command: "insertSnippet",
+        tool: componentName,
+        content: snippet
+      });
+    });
   }
   handleAddComponent(componentName) {
-    vscode.commands.executeCommand("vscExtension.showWebview");
-    setTimeout(() => mainPanel?.webview.postMessage({
-      command: "addComponent",
-      tool: componentName
-    }), 100);
+    vscode.commands.executeCommand("vscExtension.showWebview").then(() => {
+      mainPanel?.webview.postMessage({
+        command: "addComponent",
+        tool: componentName
+      });
+    });
   }
   handleGenerateCode() {
-    vscode.commands.executeCommand("vscExtension.showWebview");
-    setTimeout(() => mainPanel?.webview.postMessage({
-      command: "generateCode"
-    }), 100);
+    vscode.commands.executeCommand("vscExtension.showWebview").then(() => {
+      mainPanel?.webview.postMessage({
+        command: "generateCode"
+      });
+    });
   }
   handleClearAll() {
-    vscode.commands.executeCommand("vscExtension.showWebview");
-    setTimeout(() => mainPanel?.webview.postMessage({
-      command: "clearAll"
-    }), 100);
+    vscode.commands.executeCommand("vscExtension.showWebview").then(() => {
+      mainPanel?.webview.postMessage({
+        command: "clearAll"
+      });
+    });
   }
   readAstroFile() {
     const folder = vscode.workspace.workspaceFolders?.[0];
@@ -41573,14 +41521,13 @@ var SidebarWebviewProvider = class {
   }
   generateFromAstro() {
     if (!this.astroContent) return;
-    vscode.commands.executeCommand("vscExtension.showWebview");
-    setTimeout(() => {
+    vscode.commands.executeCommand("vscExtension.showWebview").then(() => {
       const hierarchy = AstroParser.parseComponentHierarchy(this.astroContent);
       mainPanel?.webview.postMessage({
         command: "loadComponentHierarchy",
         components: hierarchy
       });
-    }, 100);
+    });
   }
   generateSnippet(componentName) {
     return this.astroContent ? AstroParser.generateSnippet(componentName, AstroParser.extractComponentAttributes(componentName, this.astroContent)) : `<div><h3>${componentName}</h3><p>No Astro content loaded</p></div>`;

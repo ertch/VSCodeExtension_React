@@ -84,39 +84,39 @@ class SidebarWebviewProvider implements vscode.WebviewViewProvider {
     }
 
     private handleSnippetInsertion(componentName: string) {
-        vscode.commands.executeCommand('vscExtension.showWebview');
-        const snippet = this.generateSnippet(componentName);
-        
-        setTimeout(() => mainPanel?.webview.postMessage({
-            command: 'insertSnippet',
-            tool: componentName,
-            content: snippet
-        }), 100);
+        vscode.commands.executeCommand('vscExtension.showWebview').then(() => {
+            const snippet = this.generateSnippet(componentName);
+            mainPanel?.webview.postMessage({
+                command: 'insertSnippet',
+                tool: componentName,
+                content: snippet
+            });
+        });
     }
 
     private handleAddComponent(componentName: string) {
-        vscode.commands.executeCommand('vscExtension.showWebview');
-        
-        setTimeout(() => mainPanel?.webview.postMessage({
-            command: 'addComponent',
-            tool: componentName
-        }), 100);
+        vscode.commands.executeCommand('vscExtension.showWebview').then(() => {
+            mainPanel?.webview.postMessage({
+                command: 'addComponent',
+                tool: componentName
+            });
+        });
     }
 
     private handleGenerateCode() {
-        vscode.commands.executeCommand('vscExtension.showWebview');
-        
-        setTimeout(() => mainPanel?.webview.postMessage({
-            command: 'generateCode'
-        }), 100);
+        vscode.commands.executeCommand('vscExtension.showWebview').then(() => {
+            mainPanel?.webview.postMessage({
+                command: 'generateCode'
+            });
+        });
     }
 
     private handleClearAll() {
-        vscode.commands.executeCommand('vscExtension.showWebview');
-        
-        setTimeout(() => mainPanel?.webview.postMessage({
-            command: 'clearAll'
-        }), 100);
+        vscode.commands.executeCommand('vscExtension.showWebview').then(() => {
+            mainPanel?.webview.postMessage({
+                command: 'clearAll'
+            });
+        });
     }
 
     private readAstroFile() {
@@ -137,16 +137,13 @@ class SidebarWebviewProvider implements vscode.WebviewViewProvider {
 
     private generateFromAstro() {
         if (!this.astroContent) return;
-        vscode.commands.executeCommand('vscExtension.showWebview');
-        
-        setTimeout(() => {
-            // Parse complete hierarchy instead of individual components
+        vscode.commands.executeCommand('vscExtension.showWebview').then(() => {
             const hierarchy = AstroParser.parseComponentHierarchy(this.astroContent);
             mainPanel?.webview.postMessage({ 
                 command: 'loadComponentHierarchy', 
                 components: hierarchy 
             });
-        }, 100);
+        });
     }
 
     private generateSnippet(componentName: string): string {

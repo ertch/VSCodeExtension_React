@@ -9,6 +9,21 @@ interface Component {
 }
 
 export class AstroParser {
+    private static componentCounter = 0;
+    
+    // Precompiled regex patterns for better performance
+    private static readonly PATTERNS = {
+        COMPONENT_REGEX: (name: string) => new RegExp(`<${name}([\\s\\S]*?)(?:>|/>)`, 'i'),
+        STRING_ATTR: /(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g,
+        BOOLEAN_ATTR: /\s+(\w+)(?=\s|$|>)/g,
+        FUNC_ATTR: (attr: string) => new RegExp(`${attr}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`),
+        BRACE_ATTR: (attr: string) => new RegExp(`${attr}\\s*=\\s*\\{`)
+    };
+
+    private static generateId(): string {
+        return `comp_${Date.now()}_${++this.componentCounter}`;
+    }
+
     static findComponents(astroContent: string): string[] {
         const $ = cheerio.load(astroContent, { xmlMode: true });
         return Object.keys(snippetDefinitions).filter(name => $(name).length > 0);
@@ -17,23 +32,15 @@ export class AstroParser {
     static parseComponentHierarchy(astroContent: string): Component[] {
         const $ = cheerio.load(astroContent, { xmlMode: true });
         const componentNames = Object.keys(snippetDefinitions);
-        let componentCounter = 0;
-        
-        const generateId = () => `comp_${Date.now()}_${++componentCounter}`;
         
         const parseElement = (element: cheerio.Element): Component | null => {
-            // Check if element has tagName (is not a text node)
-            if (element.type !== 'tag') return null;
-            const tagName = element.name;
+            if (element.type !== 'tag' || !componentNames.includes(element.name)) {
+                return null;
+            }
             
-            // Skip if not a known component
-            if (!componentNames.includes(tagName)) return null;
-            
-            // Extract attributes from the original HTML content instead of processed Cheerio
-            const attributes = this.extractElementAttributesFromSource(astroContent, tagName, element);
-            
-            // Parse children recursively
+            const attributes = this.extractComponentAttributes(element.name, astroContent);
             const children: Component[] = [];
+            
             $(element).children().each((_, child) => {
                 const childComponent = parseElement(child);
                 if (childComponent) {
@@ -42,14 +49,13 @@ export class AstroParser {
             });
             
             return {
-                id: generateId(),
-                type: tagName,
-                attributes,
+                id: this.generateId(),
+                type: element.name,
+                attributes: this.normalizeAttributes(attributes),
                 children
             };
         };
         
-        // Find all top-level components
         const topLevelComponents: Component[] = [];
         const body = $('body').length > 0 ? $('body') : $.root();
         
@@ -63,160 +69,86 @@ export class AstroParser {
         return topLevelComponents;
     }
 
-    // New method: Extract attributes directly from a Cheerio element instance
-    static extractElementAttributes(element: cheerio.Cheerio, componentName: string): Record<string, any> {
-        const definition = snippetDefinitions[componentName as keyof typeof snippetDefinitions];
-        if (!definition?.attributes) return {};
-        
-        const attributes: Record<string, any> = {};
-        
-        // Initialize with empty values for all defined attributes
-        Object.keys(definition.attributes).forEach(attr => {
-            attributes[attr] = '';
-        });
-        
-        // Get the raw HTML string from the original source before Cheerio processed it
-        const elementHtml = element.toString();
-        
-        // Find the opening tag in the raw HTML - need to be more precise with the regex
-        const tagMatch = new RegExp(`<${componentName}([\\s\\S]*?)(?:>|\/>)`, 'i').exec(elementHtml);
-        
-        if (tagMatch && tagMatch[1]) {
-            const rawAttrs = tagMatch[1].trim();
-            
-            // Extract complex attributes directly from raw HTML string
-            this.extractComplexAttributes(rawAttrs, attributes, definition);
-        }
-        
-        return attributes;
-    }
-
-    // New method: Extract attributes from original source HTML to avoid Cheerio parsing issues
-    static extractElementAttributesFromSource(sourceHtml: string, componentName: string, element: cheerio.Element): Record<string, any> {
-        const definition = snippetDefinitions[componentName as keyof typeof snippetDefinitions];
-        if (!definition?.attributes) return {};
-        
-        const attributes: Record<string, any> = {};
-        
-        // Initialize with empty values for all defined attributes
-        Object.keys(definition.attributes).forEach(attr => {
-            attributes[attr] = '';
-        });
-        
-        // Simple approach: just extract from the existing extractComponentAttributes method
-        // which works correctly for individual components
-        const extractedAttrs = this.extractComponentAttributes(componentName, sourceHtml);
-        
-        // Convert string values to appropriate types and merge
-        Object.entries(extractedAttrs).forEach(([key, value]) => {
-            if (key in attributes) {
-                // Convert string values to appropriate types
-                if (value === 'true') {
-                    attributes[key] = true;
-                } else if (value === 'false') {
-                    attributes[key] = false;
-                } else {
-                    attributes[key] = value || '';
-                }
-            }
-        });
-        
-        return attributes;
-    }
-
-    // Helper method: Extract complex attributes (arrays, objects, functions) from attribute string
-    private static extractComplexAttributes(attrs: string, attributes: Record<string, any>, definition: any) {
-        // String attributes: attr="value" or attr='value'
-        [...attrs.matchAll(/(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g)]
-            .forEach(([, key, , value]) => {
-                if (key in attributes) {
-                    attributes[key] = value;
-                }
-            });
-        
-        // Function calls, arrays, objects with bracket/brace counting
-        Object.keys(definition.attributes).forEach(attr => {
-            if (attributes[attr]) return; // Skip if already set
-            
-            const funcMatch = new RegExp(`${attr}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`).exec(attrs);
-            const braceMatch = new RegExp(`${attr}\\s*=\\s*\\{`).exec(attrs);
-            
-            if (funcMatch) {
-                const content = this.extractBrackets(attrs, funcMatch.index + funcMatch[0].length - 1, '(', ')');
-                if (content) {
-                    // Include the function call with parentheses
-                    const fullValue = attrs.substring(
-                        funcMatch.index + attr.length + 1, 
-                        funcMatch.index + funcMatch[0].length + content.length + 1
-                    ).trim();
-                    attributes[attr] = fullValue;
-                }
-            } else if (braceMatch) {
-                const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, '{', '}');
-                if (content !== null) {
-                    // Include the braces in the final value: {content}
-                    attributes[attr] = `{${content}}`;
-                }
-            }
-        });
-        
-        // Boolean attributes
-        [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)]
-            .forEach(([, attr]) => {
-                if (attr in attributes && !attributes[attr]) {
-                    attributes[attr] = 'true';
-                }
-            });
-    }
-    
     static extractComponentAttributes(componentName: string, astroContent: string): Record<string, string> {
         const definition = snippetDefinitions[componentName as keyof typeof snippetDefinitions];
         if (!definition) return {};
         
-        const match = new RegExp(`<${componentName}([\\s\\S]*?)>`).exec(astroContent);
+        const match = this.PATTERNS.COMPONENT_REGEX(componentName).exec(astroContent);
         if (!match?.[1]) return {};
         
         const attrs = match[1];
         const values: Record<string, string> = {};
+        
+        // Initialize with empty values
         Object.keys(definition.attributes).forEach(attr => values[attr] = '');
         
-        // String attributes: attr="value" or attr='value'
-        [...attrs.matchAll(/(\w+)\s*=\s*(["'])((?:\\.|(?!\2)[^\\])*?)\2/g)]
-            .forEach(([, key, , value]) => key in values && (values[key] = value));
-        
-        // Function calls, arrays, objects with bracket/brace counting
-        Object.keys(definition.attributes).forEach(attr => {
-            if (values[attr]) return;
-            
-            const funcMatch = new RegExp(`${attr}\\s*=\\s*([a-zA-Z_][a-zA-Z0-9_]*\\s*\\()`).exec(attrs);
-            const braceMatch = new RegExp(`${attr}\\s*=\\s*\\{`).exec(attrs);
-            
-            if (funcMatch) {
-                const content = this.extractBrackets(attrs, funcMatch.index + funcMatch[0].length - 1, '(', ')');
-                if (content) values[attr] = attrs.substring(funcMatch.index + attr.length + 1, funcMatch.index + funcMatch[0].length + content.length);
-            } else if (braceMatch) {
-                const content = this.extractBrackets(attrs, braceMatch.index + braceMatch[0].length - 1, '{', '}');
-                if (content !== null) {
-                    // Include the braces in the final value: {content}
-                    values[attr] = `{${content}}`;
-                }
+        // Extract string attributes
+        for (const [, key, , value] of attrs.matchAll(this.PATTERNS.STRING_ATTR)) {
+            if (key in values) {
+                values[key] = value;
             }
-        });
+        }
         
-        // Boolean attributes
-        [...attrs.matchAll(/\s+(\w+)(?=\s|$|>)/g)]
-            .forEach(([, attr]) => attr in values && !values[attr] && (values[attr] = 'true'));
+        // Extract complex attributes (functions, objects)
+        this.extractComplexAttributes(attrs, values, definition);
+        
+        // Extract boolean attributes
+        for (const [, attr] of attrs.matchAll(this.PATTERNS.BOOLEAN_ATTR)) {
+            if (attr in values && !values[attr]) {
+                values[attr] = 'true';
+            }
+        }
         
         return values;
     }
     
+    private static extractComplexAttributes(attrs: string, values: Record<string, string>, definition: any): void {
+        Object.keys(definition.attributes).forEach(attr => {
+            if (values[attr]) return; // Skip if already set
+            
+            const funcMatch = this.PATTERNS.FUNC_ATTR(attr).exec(attrs);
+            const braceMatch = this.PATTERNS.BRACE_ATTR(attr).exec(attrs);
+            
+            if (funcMatch) {
+                const content = this.extractBrackets(attrs, funcMatch.index! + funcMatch[0].length - 1, '(', ')');
+                if (content !== null) {
+                    values[attr] = attrs.substring(
+                        funcMatch.index! + attr.length + 1, 
+                        funcMatch.index! + funcMatch[0].length + content.length
+                    ).trim();
+                }
+            } else if (braceMatch) {
+                const content = this.extractBrackets(attrs, braceMatch.index! + braceMatch[0].length - 1, '{', '}');
+                if (content !== null) {
+                    values[attr] = `{${content}}`;
+                }
+            }
+        });
+    }
+    
     private static extractBrackets(text: string, startPos: number, open: string, close: string): string | null {
-        let count = 0, endPos = -1;
+        let count = 0;
         for (let i = startPos; i < text.length; i++) {
             if (text[i] === open) count++;
-            if (text[i] === close && --count === 0) { endPos = i; break; }
+            if (text[i] === close && --count === 0) {
+                return text.substring(startPos + 1, i);
+            }
         }
-        return endPos !== -1 ? text.substring(startPos + 1, endPos) : null;
+        return null;
+    }
+    
+    private static normalizeAttributes(attributes: Record<string, string>): Record<string, any> {
+        const normalized: Record<string, any> = {};
+        Object.entries(attributes).forEach(([key, value]) => {
+            if (value === 'true') {
+                normalized[key] = true;
+            } else if (value === 'false') {
+                normalized[key] = false;
+            } else {
+                normalized[key] = value || '';
+            }
+        });
+        return normalized;
     }
     
     static generateSnippet(componentName: string, values: Record<string, string>): string {
