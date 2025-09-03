@@ -4,7 +4,10 @@ exports.default = Card;
 const React = require("react");
 require("../index.css");
 function Card() {
-    return (React.createElement("div", { className: 'mainCanvas' },
+    return (React.createElement("div", { className: 'mainCanvas', "data-codegen": "Card" },
         React.createElement("h1", null, "Test"),
-        React.createElement("p", null, "hier k\u00F6nnte ihre Werbung stehen")));
+        React.createElement("input", { id: "preview", type: "text" }),
+        React.createElement("details", null,
+            React.createElement("summary", null, "Attribute"),
+            React.createElement("input", { id: 'id', type: "text" }))));
 }
