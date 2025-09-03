@@ -11,29 +11,63 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscExtension.showWebview"
+    "onCommand:vscExtension.showWebview",
+    "onView:vscExtension.view"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscExtension",
+          "title": "TT-Editor",
+          "icon": "./media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "vscExtension": [
+        {
+          "type": "webview",
+          "id": "vscExtension.view",
+          "name": "Übersicht"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "vscExtension.showWebview",
         "title": "Open vscExtension Panel"
+      },
+      {
+        "command": "vscExtension.showWebview",
+        "title": "Start",
+        "category": "VSC-ExtensionName"
       }
     ],
-    "menus": {
-      "activityBar": [
+      "menus": {
+      "view/title": [
         {
           "command": "vscExtension.showWebview",
-          "when": "true",
-          "group": "navigation",
-          "icon": {
-            "light": "media/icon.png",
-            "dark": "media/icon.png"
-          }
+          "when": "view == vscExtension.view",
+          "group": "navigation@1",
+          "alt": "vscExtension.showWebview",
+          "icon": "$(play)"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "vscExtension.showWebview",
+          "when": "true"
         }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "vscExtension.view",
+        "contents": "Willkommen! [Starten](command:vscExtension.showWebview) um das Hauptfenster zu öffnen."
+      }
+    ]
   },
   "scripts": {
     "compile": "tsc && node esbuild.js",

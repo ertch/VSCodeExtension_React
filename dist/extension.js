@@ -37,68 +37,83 @@ module.exports = __toCommonJS(extension_exports);
 var vscode = __toESM(require("vscode"));
 var path = __toESM(require("path"));
 var fs = __toESM(require("fs"));
-function activate(context) {
-  let disposable = vscode.commands.registerCommand("vscExtension.showWebview", () => {
-    const panel = vscode.window.createWebviewPanel(
-      "extensionWebview",
-      "VSC-ExtensionName",
-      vscode.ViewColumn.One,
-      {
-        enableScripts: true,
-        localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "src", "ui", "dist"))],
-        retainContextWhenHidden: true
-        // Behalte die Webview aktiv, wenn sie versteckt wird
-      }
-    );
-    const indexPath = vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist", "index.html"));
-    let html = fs.readFileSync(indexPath.fsPath, "utf-8");
-    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.js")));
-    const styleUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.css")));
-    const cspSource = panel.webview.cspSource;
-    const cspMetaTag = `
-            <meta http-equiv="Content-Security-Policy" content="
-                default-src 'self' ${cspSource}; 
-                script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; 
-                style-src 'unsafe-inline' ${cspSource} ${styleUri};
-            ">
-        `;
-    html = html.replace("<head>", `<head>${cspMetaTag}
-            <link rel="stylesheet" href="${styleUri}">
-            <script type="module" src="${scriptUri}" defer></script>
-        `);
-    panel.webview.html = html;
+
+// src/sidebar.ts
+var sidebar_default = `<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <h3>TT-Editor</h3>
+        yo was geht
+    </body>
+</html>
+`;
+
+// src/extension.ts
+var mainPanel;
+function createOrShowMainPanel(context) {
+  if (mainPanel) {
+    mainPanel.reveal(vscode.ViewColumn.Active, false);
+    return;
+  }
+  mainPanel = vscode.window.createWebviewPanel(
+    "extensionWebview",
+    "TT-Editor",
+    { viewColumn: vscode.ViewColumn.Active, preserveFocus: false },
+    {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, "src", "ui", "dist"))],
+      retainContextWhenHidden: true
+    }
+  );
+  mainPanel.onDidDispose(() => {
+    mainPanel = void 0;
   });
-  context.subscriptions.push(disposable);
-  const viewProvider = new vscExtensionViewProvider(context);
-  context.subscriptions.push(vscode.window.registerWebviewViewProvider("vscExtension.view", viewProvider));
+  const indexPath = vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist", "index.html"));
+  let html = fs.readFileSync(indexPath.fsPath, "utf-8");
+  const scriptUri = mainPanel.webview.asWebviewUri(
+    vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.js"))
+  );
+  const styleUri = mainPanel.webview.asWebviewUri(
+    vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.css"))
+  );
+  const cspSource = mainPanel.webview.cspSource;
+  const cspMetaTag = `
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' ${cspSource};
+      script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri};
+      style-src 'unsafe-inline' ${cspSource} ${styleUri};
+    ">
+  `;
+  html = html.replace("<head>", `<head>${cspMetaTag}
+    <link rel="stylesheet" href="${styleUri}">
+    <script type="module" src="${scriptUri}" defer></script>
+  `);
+  mainPanel.webview.html = html;
 }
-var vscExtensionViewProvider = class {
+function activate(context) {
+  const showCmd = vscode.commands.registerCommand("vscExtension.showWebview", () => {
+    createOrShowMainPanel(context);
+  });
+  context.subscriptions.push(showCmd);
+  const viewProvider = new VscExtensionViewProvider(context);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider("vscExtension.view", viewProvider)
+  );
+}
+var VscExtensionViewProvider = class {
   constructor(context) {
     this.context = context;
   }
-  resolveWebviewView(webviewView, context, token) {
-    this._view = webviewView;
-    webviewView.webview.options = {
-      enableScripts: true,
-      localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, "src", "ui", "dist"))]
-    };
-    const indexPath = vscode.Uri.file(path.join(this.context.extensionPath, "src/ui/dist", "index.html"));
-    let html = fs.readFileSync(indexPath.fsPath, "utf-8");
-    const scriptUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, "src/ui/dist/assets/index.js")));
-    const styleUri = webviewView.webview.asWebviewUri(vscode.Uri.file(path.join(this.context.extensionPath, "src/ui/dist/assets/index.css")));
-    const cspSource = webviewView.webview.cspSource;
-    const cspMetaTag = `
-            <meta http-equiv="Content-Security-Policy" content="
-                default-src 'self' ${cspSource}; 
-                script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}; 
-                style-src 'unsafe-inline' ${cspSource} ${styleUri};
-            ">
-        `;
-    html = html.replace("<head>", `<head>${cspMetaTag}
-            <link rel="stylesheet" href="${styleUri}">
-            <script type="module" src="${scriptUri}" defer></script>
-        `);
-    webviewView.webview.html = html;
+  resolveWebviewView(webviewView) {
+    webviewView.webview.options = { enableScripts: false };
+    webviewView.webview.html = sidebar_default;
+    setTimeout(async () => {
+      try {
+        await vscode.commands.executeCommand("vscExtension.showWebview");
+      } finally {
+        await vscode.commands.executeCommand("workbench.action.closeSidebar");
+      }
+    }, 0);
   }
 };
 function deactivate() {
