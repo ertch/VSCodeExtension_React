@@ -1,68 +1,99 @@
-# VSCreact
+# TT-Editor Low-Code Extension
 
-## Overview
-VSCreact is a **VS Code extension** that provides a **low-code editing environment** for Astro projects. It allows users to create, configure, and manage Astro components via a GUI instead of manually editing code. The extension uses **React** for the frontend and generates Astro-compatible code dynamically.
+Lightweight Low-Code Editor für ttEditor Astro-Projekte.
 
-## Features
-- **Component-Based Editing**: Define and configure Astro components via an interactive UI.
-- **Code Generation**: Generates `index.astro` based on the configured components.
-- **Hot Reload Support**: Automatically updates the project on changes.
-- **Attribute-Based Logic**: Components are controlled exclusively via attributes.
-- **Drag-and-Drop Interface**: Easily arrange and modify components.
-- **Unique ID Handling**: Ensures component uniqueness to prevent errors.
+## 📦 Projektstruktur
 
-## Installation
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/ertch/VSCodeExtension_React
-   ```
-2. Navigate to the directory:
-   ```sh
-   cd VSCreact
-   ```
-3. Install dependencies:
-   ```sh
-   npm install
-   ```
-4. Build the extension:
-   ```sh
-   npm run build
-   ```
-5. Open VS Code and install the extension manually:
-   - Run `vsce package` (if required, install `vsce` via `npm install -g @vscode/vsce`).
-   - Install the generated `.vsix` file in VS Code.
+```
+newVersion/
+├── src/
+│   ├── extension.ts          # VS Code Extension Entry Point
+│   ├── webview.ts             # Webview Manager (Canvas)
+│   ├── shared/                # Shared Types zwischen Extension & Canvas
+│   │   ├── messageProtocol.ts
+│   │   └── projectConfig.ts
+│   ├── templates/             # Template Files
+│   │   └── defaultAstro.ts
+│   └── ui/                    # React Canvas Application
+│       └── src/
+│           ├── components/    # React Components
+│           ├── hooks/         # Custom Hooks
+│           ├── styles/        # CSS Modules
+│           └── utils/         # Utilities
+├── package.json               # Extension Package
+├── tsconfig.json              # TypeScript Config
+└── esbuild.js                 # Build Script
+```
 
-## Usage
-1. Open a project in **VS Code**.
-2. Activate the **VSCreact** extension.
-3. Use the GUI to add, configure, and manage components.
-4. Click the **Generate** button to create the `index.astro` file.
-5. Check the **Live Preview** to see updates immediately.
+## 🚀 Installation
 
-## Development Workflow
-### Code Generation
-- **Trigger**: The `Generate` button initiates the code generation.
-- **Process**:
-  - The UI-defined components are serialized.
-  - The `index.astro` file is dynamically created.
-  - The project’s hot-reload updates the preview.
+```bash
+# 1. Extension Dependencies
+npm install
 
-### GUI Structure
-- **Component Selector**: Choose components to add.
-- **Property Panel**: Modify attributes of selected components.
-- **Canvas Area**: Arrange components visually.
-- **Code Preview**: View the generated Astro code in real-time.
+# 2. Canvas Dependencies
+cd src/ui
+npm install
+cd ../..
 
-## Contribution
-### Prerequisites
-- **Node.js** (LTS version recommended)
-- **VS Code** (latest version)
-- **Astro Framework** (for testing compatibility)
+# 3. Build Extension
+npm run compile
 
-## Contact
-For issues, feature requests, or contributions, open an issue in the GitHub repository or contact the maintainers.
+# 4. Build Canvas
+cd src/ui
+npm run build
+cd ../..
+```
 
----
-**Maintainers:**
-- [etch](https://github.com/etch)
+## 🔧 Development
 
+```bash
+# Terminal 1: Extension Watch Mode
+npm run watch
+
+# Terminal 2: Canvas Dev Server
+cd src/ui
+npm run dev
+```
+
+## 📋 Features
+
+- ✅ Single-Projekt Validation (`.env.ttEditor-LC`)
+- ✅ Sidebar mit "Canvas öffnen" + "Projekt laden"
+- ✅ Drag & Drop Canvas (Toolbar rechts, Buttons unten)
+- ✅ 18 ttEditor-Komponenten als Cards
+- ✅ Attribute-Editing (Text + Checkbox)
+- ✅ JSON-Speicherung (`.ttEditor.json`)
+- ✅ Keyboard Shortcuts (Cmd+S, Delete)
+- ✅ Autosave (2s debounced)
+- ✅ Max 5 Levels Nesting
+- ✅ Versionierung
+
+## 📝 JSON Schema
+
+```json
+{
+  "version": "1.0",
+  "projectName": "mein-projekt",
+  "lastModified": "2025-10-29T14:30:00Z",
+  "tree": [
+    {
+      "id": "node_abc123",
+      "type": "SimpleInput",
+      "props": { "label": "Name", "required": true },
+      "children": [],
+      "codeGen": { "component": "SimpleInput" }
+    }
+  ],
+  "metadata": {}
+}
+```
+
+## 🎯 Roadmap
+
+- **Phase 1-2** (✅ Done): Extension + Canvas + Save/Load
+- **Phase 3** (Deferred): Code-Generierung (JSON → Astro)
+
+## 📄 License
+
+MIT

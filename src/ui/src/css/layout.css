@@ -1,9 +1,0 @@
-.layout_grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 10% 80% 20%;
-}
-
-.mainCanvas {
-    background-color: rgba(248, 248, 248, 0.548);
-}

@@ -1,0 +1,126 @@
+@import "../base/variables";
+@import "../base/colors";
+
+input,
+input::before,
+input::after,
+label::before,
+label::after,
+select {
+  transition-duration: 150ms;
+  transition-property: background-color, border-color, color, fill, stroke,
+    opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:hover {
+  border: 1px solid $green;
+  box-shadow: 0 0 0 1px $lightgrey;
+}
+
+.check_time {
+    &:hover {
+      border: 1px solid red;
+    }
+    
+    &::before{  
+      display: none;
+    }
+}
+
+input.errorborder:hover {
+  border: 1px solid rgb(248, 77, 77);
+}
+
+input[disabled] {
+  background-color: $lightgrey;
+  color: $darkgrey;
+  cursor: not-allowed;
+}
+
+input[readonly] {
+  background-color: $lightgrey;
+}
+
+textarea {
+  width: 100%;
+}
+
+/* Just inputs */
+.input-text,
+.input-textarea {
+  border: 1px solid $lightgrey;
+  border-radius: 2px;
+  display: flex;
+  flex-wrap: 2 1;
+  font-size: inherit;
+  height: 40px;
+  margin-bottom: 1.3em;
+  min-width: 148px;
+  padding: $baseunit * 0.25 $baseunit * 1 $baseunit * 0.125 $baseunit * 0.5;
+  width: 100%;
+  
+  &:focus {
+    border-color: $blue;
+  }
+}
+
+input[type="date"],
+input[type="number"] {
+  padding: $baseunit * 0.25 $baseunit * 0.5 $baseunit * 0.125;
+}
+
+.input-textarea {
+  display: block;
+  flex-wrap: unset;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin: 0px 5px;
+}
+
+// Fieldsets and its child. You love to love them.
+fieldset {
+  background-color: $softwhite;
+  border: 1px solid $darkgrey;
+  margin: 10px 0 15px;
+  padding: 5px 15px;
+  position: relative;
+}
+
+legend {
+  margin-top: 10px;
+  padding: 5px 50px 5px 0;
+  position: relative;
+  font-weight: bold;
+  left: -15px;
+  top: -15px;
+
+    &::before {
+      display: block;
+      content: "";
+      background-color:#a9a7aa;
+      height: 1px;
+      width: 150%;
+      position: absolute;
+      bottom: -1.5px;
+    }
+}
+
+.nextpage {
+  display: flex;
+  justify-content: center;
+  padding: 1em 0 0;
+
+    &--btn {
+      border-radius: 5px;
+        border: 1px solid black;
+        box-shadow: 0 1px 4px rgb(92, 90, 90);
+        background-color: rgb(102, 238, 102);
+        background-image: linear-gradient(to top, #32de41, #4ee44d, #64ea59, #76ef64, #87f570, #86f46e, #85f46d, #84f36b, #71eb5b, #5de449, #44dc36, #1fd41f);
+        height: 50px;
+        width: 200px;
+    }
+}

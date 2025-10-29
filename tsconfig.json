@@ -1,13 +1,15 @@
 {
-	"compilerOptions": {
-      "jsx": "react",
-	  "target": "ES6",
-	  "lib": ["ES2018", "DOM"],
-	  "module": "CommonJS",
-	  "outDir": "./dist",
-	  "rootDir": "./src",
-	  "strict": true
-	},
-	"exclude": ["node_modules", ".vscode-test"]
-  }
-  
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": ["ES2018", "DOM"],
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "exclude": ["node_modules", ".vscode-test", "src/ui"]
+}
