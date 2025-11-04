@@ -1,5 +1,4 @@
 import * as React from 'react'
-import '../../index.css'
 
 export default function ContainerCard() {
     return (
@@ -14,7 +13,7 @@ export default function ContainerCard() {
          }}
         >
             <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <strong style={{ fontSize: '14px', color: '#475569' }}>📦 Container</strong>
+                <strong style={{ fontSize: '14px', color: '#475569' }}>Container</strong>
                 <span style={{ fontSize: '11px', color: '#94a3b8' }}>(kann Kinder enthalten)</span>
             </div>
             <details style={{ marginTop: '8px' }}>

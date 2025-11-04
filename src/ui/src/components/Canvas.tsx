@@ -1,10 +1,21 @@
-import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect, ReactNode } from "react";
 import { draggable, dropTargetForElements, monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import type {
+  CanvasProps,
+  RootDropAreaProps,
+  SidebarProps,
+  PaletteButtonProps,
+  NodeWrapperProps,
+  TreeNode,
+  PerformDropParams,
+  DropPayload
+} from '../utils/types/canvas';
+import type { PaletteEntry } from '../utils/types/palette';
 
 // -----------------------
 // Beispiel-Palette (Fallback)
 // -----------------------
-const DefaultComponents = [
+const DefaultComponents: PaletteEntry[] = [
   {
     type: "Container",
     label: "Container",
@@ -71,7 +82,7 @@ const DefaultComponents = [
 // -----------------------
 // Styles
 // -----------------------
-const STYLES = {
+const STYLES: Record<string, React.CSSProperties> = {
   layout: {
     display: "grid",
     gridTemplateColumns: "1fr 280px",
@@ -223,11 +234,15 @@ const STYLES = {
 // -----------------------
 const genId = () => "n_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-function cloneDeep(o) {
+function cloneDeep<T>(o: T): T {
   return JSON.parse(JSON.stringify(o));
 }
 
-function findNodeAndParent(tree, id, parent = null) {
+function findNodeAndParent(
+  tree: TreeNode[],
+  id: string,
+  parent: TreeNode | null = null
+): { node: TreeNode; parent: TreeNode | null; index: number } | null {
   for (let i = 0; i < tree.length; i++) {
     const node = tree[i];
     if (node.id === id) return { node, parent, index: i };
@@ -237,7 +252,7 @@ function findNodeAndParent(tree, id, parent = null) {
   return null;
 }
 
-function removeNode(tree, id) {
+function removeNode(tree: TreeNode[], id: string): TreeNode | null {
   for (let i = 0; i < tree.length; i++) {
     const node = tree[i];
     if (node.id === id) {
@@ -250,26 +265,31 @@ function removeNode(tree, id) {
   return null;
 }
 
-function isDescendant(tree, maybeChildId, ancestorId) {
+function isDescendant(tree: TreeNode[], maybeChildId: string, ancestorId: string): boolean {
   const found = findNodeAndParent(tree, ancestorId, null);
   if (!found) return false;
   const stack = [...(found.node.children || [])];
   while (stack.length) {
     const n = stack.pop();
-    if (n.id === maybeChildId) return true;
-    if (n.children?.length) stack.push(...n.children);
+    if (n && n.id === maybeChildId) return true;
+    if (n?.children?.length) stack.push(...n.children);
   }
   return false;
 }
 
-function extractInputsFromElement(el) {
+function extractInputsFromElement(el: HTMLElement): Record<string, unknown> {
   const inputs = el.querySelectorAll("input, select, textarea");
-  const data = {};
+  const data: Record<string, unknown> = {};
   inputs.forEach((inp) => {
     if (inp.id === "preview") return;
-    if (inp.disabled) return;
+    if (inp instanceof HTMLInputElement || inp instanceof HTMLSelectElement || inp instanceof HTMLTextAreaElement) {
+      if (inp.disabled) return;
+    }
 
-    let key = inp.name || inp.id;
+    let key = '';
+    if (inp instanceof HTMLInputElement || inp instanceof HTMLSelectElement || inp instanceof HTMLTextAreaElement) {
+      key = inp.name || inp.id;
+    }
     if (!key) return;
 
     if (inp instanceof HTMLInputElement) {
@@ -296,24 +316,24 @@ function extractInputsFromElement(el) {
 // -----------------------
 // Canvas-Komponente
 // -----------------------
-export default function Canvas({ palette = DefaultComponents, initialNodes = [] }) {
+export default function Canvas({ palette = DefaultComponents, initialNodes = [] }: CanvasProps) {
   const paletteMap = useMemo(() => {
-    const map = {};
+    const map: Record<string, PaletteEntry> = {};
     palette.forEach((p) => (map[p.type] = p));
     return map;
   }, [palette]);
 
-  const [tree, setTree] = useState(() =>
+  const [tree, setTree] = useState<TreeNode[]>(() =>
     initialNodes.length ? initialNodes : []
   );
   const [exportJson, setExportJson] = useState("");
-  const formRef = useRef(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Unique Context ID für diesen Canvas (verhindert Cross-Canvas Drops)
   const uniqueContextId = useMemo(() => Symbol('canvas-context'), []);
 
   const createNodeFromType = useCallback(
-    (type) => {
+    (type: string): TreeNode | null => {
       const meta = paletteMap[type];
       if (!meta) return null;
       return {
@@ -329,7 +349,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   );
 
   const performDrop = useCallback(
-    ({ dropTargetId, zone, payload }) => {
+    ({ dropTargetId, zone, payload }: PerformDropParams) => {
       console.log('🎯 performDrop called:', { dropTargetId, zone, payload });
       if (!payload) return;
       let next = cloneDeep(tree);
@@ -414,7 +434,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   );
 
   const handleDelete = useCallback(
-    (id) => {
+    (id: string) => {
       const next = cloneDeep(tree);
       removeNode(next, id);
       setTree(next);
@@ -423,7 +443,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   );
 
   const renderNode = useCallback(
-    (node) => {
+    (node: TreeNode): ReactNode => {
       const meta = paletteMap[node.type];
       if (!meta) {
         return (
@@ -451,10 +471,10 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     const root = formRef.current;
     if (!root) return [];
 
-    const visit = (node) => {
+    const visit = (node: TreeNode) => {
       const wrapperEl = root.querySelector(`[data-node-id="${node.id}"]`);
       let codeGenRaw = wrapperEl?.getAttribute("data-codegen");
-      let codeGen = null;
+      let codeGen: unknown = null;
       if (codeGenRaw) {
         try {
           codeGen = JSON.parse(codeGenRaw);
@@ -462,7 +482,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
           codeGen = codeGenRaw;
         }
       }
-      const inputs = wrapperEl ? extractInputsFromElement(wrapperEl) : {};
+      const inputs = wrapperEl ? extractInputsFromElement(wrapperEl as HTMLElement) : {};
 
       return {
         id: node.id,
@@ -476,7 +496,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     return tree.map(visit);
   }, [tree]);
 
-  const onSubmit = (e) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const data = serializeTreeFromDOM();
     const json = JSON.stringify(data, null, 2);
@@ -484,7 +504,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     console.log("Canvas JSON:", data);
   };
 
-  const addViaClick = (type) => {
+  const addViaClick = (type: string) => {
     const node = createNodeFromType(type);
     if (!node) return;
     setTree((prev) => [...prev, node]);
@@ -572,8 +592,8 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
 // -----------------------
 // RootDropArea
 // -----------------------
-function RootDropArea({ tree, renderNode, uniqueContextId }) {
-  const dropRef = useRef(null);
+function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropAreaProps) {
+  const dropRef = useRef<HTMLDivElement>(null);
   const [isDraggedOver, setIsDraggedOver] = useState(false);
 
   useEffect(() => {
@@ -615,7 +635,7 @@ function RootDropArea({ tree, renderNode, uniqueContextId }) {
 // -----------------------
 // Sidebar mit Palette
 // -----------------------
-function Sidebar({ palette, onAddClick, uniqueContextId }) {
+function Sidebar({ palette, onAddClick, uniqueContextId }: SidebarProps) {
   return (
     <aside style={STYLES.sidebar}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Palette</div>
@@ -633,8 +653,8 @@ function Sidebar({ palette, onAddClick, uniqueContextId }) {
 // -----------------------
 // PaletteButton (draggable)
 // -----------------------
-function PaletteButton({ entry, onAddClick, uniqueContextId }) {
-  const buttonRef = useRef(null);
+function PaletteButton({ entry, onAddClick, uniqueContextId }: PaletteButtonProps) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const el = buttonRef.current;
@@ -665,11 +685,11 @@ function PaletteButton({ entry, onAddClick, uniqueContextId }) {
 // -----------------------
 // NodeWrapper
 // -----------------------
-function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }) {
-  const wrapperRef = useRef(null);
-  const contentRef = useRef(null);
-  const childrenRef = useRef(null);
-  const [dropIndicator, setDropIndicator] = useState(null);
+function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }: NodeWrapperProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const childrenRef = useRef<HTMLDivElement>(null);
+  const [dropIndicator, setDropIndicator] = useState<'above' | 'below' | 'inside' | null>(null);
 
   // Make node draggable
   useEffect(() => {
@@ -691,20 +711,17 @@ function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }) {
     const el = contentRef.current;
     if (!el) return;
 
-    const computeZone = (input, element) => {
+    const computeZone = (input: { clientY: number }, element: HTMLElement): 'above' | 'below' => {
       const rect = element.getBoundingClientRect();
       const y = input.clientY - rect.top;
       const h = rect.height;
 
       // Content-Bereich: nur above/below
-      let zone;
       if (y < h * 0.5) {
-        zone = "above";
+        return "above";
       } else {
-        zone = "below";
+        return "below";
       }
-
-      return zone;
     };
 
     return dropTargetForElements({

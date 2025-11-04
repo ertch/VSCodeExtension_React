@@ -1,0 +1,64 @@
+@import '../base/variables';
+@import '../base/colors';
+
+@font-face {
+  font-family: 'SalesFontor';
+  src: url('/include/fonts/salesfontor.woff2') format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Lineto Replica Pro';
+  font-style: normal;
+  font-weight: 700;
+  src:
+    local('Lineto Replica Pro'),
+    local('Lineto-Replica-Pro'),
+    url('/include/fonts/lineto-replica-pro-bold.woff2') format('woff2');
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Lineto Replica Pro', sans-serif;
+  font-weight: bold;
+}
+
+h1 {
+  display: block;
+  font-size: $baseunit * 1.75;
+  line-height: $baseunit * 1.5;
+  text-align: center;
+}
+
+h2 {
+  font-size: $baseunit * 1.5;
+  line-height: $baseunit * 2;
+}
+
+h3 {
+  font-size: $baseunit * 1.25;
+  line-height: $baseunit * 1.2;
+}
+
+h4 {
+  color: $blue;
+  font-size: $baseunit;
+  line-height: $baseunit * 1.5;
+  text-transform: uppercase;
+}
+
+a {
+  color: $anthracite;
+  text-decoration: underline;
+
+  &:hover {
+    color: $blue;
+  }
+}
+
+::placeholder {
+  color: $darkgrey;
+}

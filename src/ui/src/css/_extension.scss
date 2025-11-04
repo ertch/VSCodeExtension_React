@@ -1,0 +1,8 @@
+.attribute-input {
+    border-bottom: 1px solid gray;
+    display: grid;
+    gap: 2em;
+    grid-template-columns: 240px 340px 1fr;
+    margin-top: .3em;
+    padding-bottom: 5px;
+}

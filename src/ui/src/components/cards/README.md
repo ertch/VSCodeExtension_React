@@ -10,7 +10,6 @@ Erstelle eine neue `.tsx` Datei in diesem Ordner, z.B. `Card3.tsx`:
 
 ```tsx
 import * as React from 'react'
-import '../../index.css'
 
 export default function Card3() {
     return (
@@ -68,7 +67,7 @@ npm run build
 
 ## Hinweise
 
-- **CSS-Import**: Verwende immer `import '../../index.css'` (zwei Ebenen nach oben)
+- **CSS-Import**: Nicht mehr nötig - main.scss wird zentral importiert
 - **type**: Muss eindeutig sein für jede Card
 - **label**: Text, der in der Sidebar angezeigt wird
 - **canHaveChildren**:

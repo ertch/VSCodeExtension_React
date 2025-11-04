@@ -3,7 +3,7 @@
 
 import { PaletteEntry } from "../../utils/types/palette";
 import Card from "./Card";
-import Card2 from "./Card2";
+import SimpleInput from "./SimpleInput";
 import ContainerCard from "./ContainerCard";
 
 // Hier fügst du für jede neue Card einen Eintrag hinzu
@@ -16,11 +16,11 @@ export const cardComponents: PaletteEntry[] = [
     Component: Card,
   },
   {
-    type: "Card2",
-    label: "Card 2",
+    type: "SimpleInput",
+    label: "SimpleInput",
     canHaveChildren: false,
-    codeGen: { component: "Card2", variant: "default" },
-    Component: Card2,
+    codeGen: { component: "SimpleInput", variant: "default" },
+    Component: SimpleInput,
   },
   {
     type: "ContainerCard",
