@@ -11,6 +11,7 @@ import type {
   DropPayload
 } from '../utils/types/canvas';
 import type { PaletteEntry } from '../utils/types/palette';
+import { extractInputsFromElement } from '../utils/extractInputs';
 
 // -----------------------
 // Beispiel-Palette (Fallback)
@@ -20,7 +21,6 @@ const DefaultComponents: PaletteEntry[] = [
     type: "Container",
     label: "Container",
     canHaveChildren: true,
-    codeGen: { component: "Container", variant: "default" },
     Component: ({ children }) => (
       <div style={{ padding: "12px", border: "1px dashed #999", background: "#fafafa" }}>
         <div style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>Container</div>
@@ -32,7 +32,6 @@ const DefaultComponents: PaletteEntry[] = [
     type: "Heading",
     label: "Überschrift",
     canHaveChildren: false,
-    codeGen: { component: "Heading", level: 3 },
     Component: () => (
       <div>
         <h3 style={{ margin: 0 }}>Überschrift</h3>
@@ -44,7 +43,6 @@ const DefaultComponents: PaletteEntry[] = [
     type: "Paragraph",
     label: "Text",
     canHaveChildren: false,
-    codeGen: { component: "Paragraph" },
     Component: () => (
       <div>
         <p style={{ margin: "4px 0" }}>Lorem ipsum dolor sit amet…</p>
@@ -56,7 +54,6 @@ const DefaultComponents: PaletteEntry[] = [
     type: "InputField",
     label: "Eingabefeld",
     canHaveChildren: false,
-    codeGen: { component: "Input", role: "text" },
     Component: () => (
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <label style={{ minWidth: 80 }}>Label:</label>
@@ -69,7 +66,6 @@ const DefaultComponents: PaletteEntry[] = [
     type: "Button",
     label: "Button",
     canHaveChildren: false,
-    codeGen: { component: "Button", variant: "primary" },
     Component: () => (
       <div>
         <button type="button">Klick</button>
@@ -277,42 +273,6 @@ function isDescendant(tree: TreeNode[], maybeChildId: string, ancestorId: string
   return false;
 }
 
-function extractInputsFromElement(el: HTMLElement): Record<string, unknown> {
-  const inputs = el.querySelectorAll("input, select, textarea");
-  const data: Record<string, unknown> = {};
-  inputs.forEach((inp) => {
-    if (inp.id === "preview") return;
-    if (inp instanceof HTMLInputElement || inp instanceof HTMLSelectElement || inp instanceof HTMLTextAreaElement) {
-      if (inp.disabled) return;
-    }
-
-    let key = '';
-    if (inp instanceof HTMLInputElement || inp instanceof HTMLSelectElement || inp instanceof HTMLTextAreaElement) {
-      key = inp.name || inp.id;
-    }
-    if (!key) return;
-
-    if (inp instanceof HTMLInputElement) {
-      if (inp.type === "checkbox") {
-        data[key] = inp.checked;
-      } else if (inp.type === "radio") {
-        if (inp.checked) data[key] = inp.value;
-      } else {
-        data[key] = inp.value;
-      }
-    } else if (inp instanceof HTMLSelectElement) {
-      if (inp.multiple) {
-        data[key] = Array.from(inp.selectedOptions).map((o) => o.value);
-      } else {
-        data[key] = inp.value;
-      }
-    } else if (inp instanceof HTMLTextAreaElement) {
-      data[key] = inp.value;
-    }
-  });
-  return data;
-}
-
 // -----------------------
 // Canvas-Komponente
 // -----------------------
@@ -340,7 +300,6 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         id: genId(),
         type: meta.type,
         canHaveChildren: !!meta.canHaveChildren,
-        codeGen: meta.codeGen ?? { component: meta.type },
         props: {},
         children: [],
       };
@@ -471,23 +430,13 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     const root = formRef.current;
     if (!root) return [];
 
-    const visit = (node: TreeNode) => {
+    const visit = (node: TreeNode): any => {
       const wrapperEl = root.querySelector(`[data-node-id="${node.id}"]`);
-      let codeGenRaw = wrapperEl?.getAttribute("data-codegen");
-      let codeGen: unknown = null;
-      if (codeGenRaw) {
-        try {
-          codeGen = JSON.parse(codeGenRaw);
-        } catch {
-          codeGen = codeGenRaw;
-        }
-      }
       const inputs = wrapperEl ? extractInputsFromElement(wrapperEl as HTMLElement) : {};
 
       return {
         id: node.id,
         type: node.type,
-        codeGen,
         inputs,
         children: (node.children || []).map(visit),
       };
@@ -789,7 +738,6 @@ function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }: NodeWr
       ref={wrapperRef}
       style={STYLES.nodeWrapper}
       data-node-id={node.id}
-      data-codegen={JSON.stringify(node.codeGen ?? { component: node.type })}
     >
       {/* Drop-Indikatoren */}
       {dropIndicator === "above" && (
@@ -813,7 +761,7 @@ function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }: NodeWr
       </button>
 
       {/* Eigentliche Komponente - Drop-Target für above/below */}
-      <div ref={contentRef}>
+      <div ref={contentRef} data-content-area={node.id}>
         <Comp />
       </div>
 

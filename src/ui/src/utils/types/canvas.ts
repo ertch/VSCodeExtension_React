@@ -6,7 +6,6 @@ export interface TreeNode {
   id: string;
   type: string;
   canHaveChildren: boolean;
-  codeGen: unknown;
   props: Record<string, unknown>;
   children: TreeNode[];
 }
