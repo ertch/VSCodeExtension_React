@@ -1,11 +1,11 @@
 {
-  "name": "tteditor-lowcode",
-  "displayName": "ttEditor-LC",
-  "description": "Lightweight Low-Code Editor für ttEditor Astro-Projekte",
+  "name": "tteditor-extension",
+  "displayName": "TT-Editor Low-Code",
+  "description": "Visual canvas for building Astro components",
   "version": "1.0.0",
-  "publisher": "Erik Tchorz",
+  "publisher": "your-publisher",
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -15,24 +15,6 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "ttEditor",
-          "title": "TT-Editor",
-          "icon": "$(layout)"
-        }
-      ]
-    },
-    "views": {
-      "ttEditor": [
-        {
-          "type": "webview",
-          "id": "ttEditor.view",
-          "name": "Projekte"
-        }
-      ]
-    },
     "commands": [
       {
         "command": "ttEditor.openCanvas",
@@ -40,21 +22,46 @@
         "category": "TT-Editor"
       },
       {
-        "command": "ttEditor.saveConfig",
-        "title": "Konfiguration speichern",
+        "command": "ttEditor.generateCode",
+        "title": "Code generieren",
+        "category": "TT-Editor",
+        "enablement": "ttEditor.projectValid"
+      },
+      {
+        "command": "ttEditor.openFolder",
+        "title": "Ordner öffnen",
         "category": "TT-Editor"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ttEditor",
+          "title": "TT-Editor",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ttEditor": [
+        {
+          "id": "ttEditor.view",
+          "name": "TT-Editor"
+        }
+      ]
+    }
   },
   "scripts": {
-    "compile": "tsc && node esbuild.js",
-    "watch": "tsc --watch",
-    "build": "npm run compile && cd src/ui && npm run build && cd ../.."
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "build:ui": "cd src/ui && npm run build",
+    "build:all": "npm run build:ui && npm run compile"
   },
   "devDependencies": {
-    "@types/node": "^22.13.1",
-    "@types/vscode": "^1.96.0",
-    "esbuild": "^0.24.2",
-    "typescript": "^5.7.3"
-  }
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "esbuild": "^0.19.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {}
 }

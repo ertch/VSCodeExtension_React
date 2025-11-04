@@ -35,54 +35,112 @@ __export(extension_exports, {
 });
 module.exports = __toCommonJS(extension_exports);
 var vscode2 = __toESM(require("vscode"));
-var fs2 = __toESM(require("fs"));
 var path2 = __toESM(require("path"));
+var fs2 = __toESM(require("fs"));
 
 // src/webview.ts
 var vscode = __toESM(require("vscode"));
-var fs = __toESM(require("fs"));
 var path = __toESM(require("path"));
+var fs = __toESM(require("fs"));
+
+// src/shared/constants.ts
+var WEBVIEW_INIT_DELAY_MS = 100;
+var ASTRO_DIR = ".astro";
+var CONFIG_FILENAME = ".ttEditor.json";
+var CONFIG_VERSION = "1.0";
+var UI_TEXT = {
+  NO_WORKSPACE: "Kein Workspace",
+  VALID_PROJECT: "[OK] ttEditor Projekt",
+  STANDARD_WORKSPACE: "[ ] Standard Workspace",
+  CANVAS_LOADING: "Lade Canvas...",
+  CANVAS_EMPTY: "Canvas ist leer",
+  CANVAS_EMPTY_HINT: "Ziehe Komponenten aus der Toolbar hierher",
+  NO_COMPONENTS: "Keine Komponenten gefunden",
+  COMPONENT_PALETTE_TITLE: "Komponenten",
+  DELETE_CONFIRM: "wirklich loeschen?",
+  CLEAR_CANVAS_CONFIRM: "Canvas wirklich leeren? Alle Aenderungen gehen verloren.",
+  SAVE_SUCCESS: "Konfiguration gespeichert",
+  SAVE_ERROR: "Fehler beim Speichern",
+  LOAD_ERROR: "Fehler beim Laden",
+  NO_CONFIG_FOUND: "Keine gespeicherte Konfiguration gefunden",
+  INVALID_CONFIG: "Korrupte Konfigurationsdatei",
+  MAX_DEPTH_REACHED: "Maximale Verschachtelungstiefe erreicht",
+  CIRCULAR_DEPENDENCY: "Parent-Komponente kann nicht in eigenes Child verschoben werden",
+  CODE_GEN_NOT_AVAILABLE: "Code-Generator nur in ttEditor-Projekten verfuegbar",
+  OPEN_FOLDER_FIRST: "Bitte oeffne zuerst einen Ordner/Workspace"
+};
+var BUTTON_LABELS = {
+  OPEN_FOLDER: "Ordner oeffnen",
+  OPEN_CANVAS: "Canvas oeffnen",
+  GENERATE_CODE: "Code generieren",
+  SAVE: "Speichern",
+  LOAD: "Laden",
+  CLEAR: "Canvas leeren"
+};
 
 // src/shared/projectConfig.ts
-function validateProjectConfig(config) {
-  if (!config || typeof config !== "object") {
-    return false;
-  }
-  if (config.version !== "1.0") {
-    console.warn("ProjectConfig: Unsupported version", config.version);
-    return false;
-  }
-  if (!config.projectName || typeof config.projectName !== "string") {
-    return false;
-  }
-  if (!config.lastModified || typeof config.lastModified !== "string") {
-    return false;
-  }
-  if (!Array.isArray(config.tree)) {
-    return false;
-  }
-  return config.tree.every(validateComponentNode);
-}
 function validateComponentNode(node) {
   if (!node || typeof node !== "object") {
+    console.warn("validateComponentNode: Node is not an object", node);
     return false;
   }
   if (!node.id || typeof node.id !== "string") {
+    console.warn("validateComponentNode: Missing or invalid id", node);
     return false;
   }
   if (!node.type || typeof node.type !== "string") {
+    console.warn("validateComponentNode: Missing or invalid type", node);
     return false;
   }
   if (!node.props || typeof node.props !== "object") {
+    console.warn("validateComponentNode: Missing or invalid props", node);
     return false;
   }
-  if (!Array.isArray(node.children)) {
+  if (!node.compName || typeof node.compName !== "string") {
+    console.warn("validateComponentNode: Missing or invalid compName", node);
     return false;
   }
-  if (!node.codeGen || typeof node.codeGen !== "object") {
+  if (node.children !== void 0) {
+    if (!Array.isArray(node.children)) {
+      console.warn("validateComponentNode: Children is not an array", node);
+      return false;
+    }
+    return node.children.every((child) => validateComponentNode(child));
+  }
+  return true;
+}
+function validateProjectConfig(config) {
+  if (!config || typeof config !== "object") {
+    console.warn("validateProjectConfig: Config is not an object", config);
     return false;
   }
-  return node.children.every(validateComponentNode);
+  if (config.version !== CONFIG_VERSION) {
+    console.warn(
+      `validateProjectConfig: Unsupported version ${config.version}, expected ${CONFIG_VERSION}`
+    );
+    return false;
+  }
+  if (!config.projectName || typeof config.projectName !== "string") {
+    console.warn("validateProjectConfig: Missing or invalid projectName", config);
+    return false;
+  }
+  if (!config.lastModified || typeof config.lastModified !== "string") {
+    console.warn("validateProjectConfig: Missing or invalid lastModified", config);
+    return false;
+  }
+  if (!Array.isArray(config.tree)) {
+    console.warn("validateProjectConfig: Tree is not an array", config);
+    return false;
+  }
+  if (!config.metadata || typeof config.metadata !== "object") {
+    console.warn("validateProjectConfig: Missing or invalid metadata", config);
+    return false;
+  }
+  const allValid = config.tree.every((node) => validateComponentNode(node));
+  if (!allValid) {
+    console.warn("validateProjectConfig: Invalid nodes found in tree");
+  }
+  return allValid;
 }
 function updateTimestamp(config) {
   return {
@@ -98,32 +156,73 @@ function createCanvasWebview(context, workspaceRoot, isValidProject) {
     canvasPanel.reveal(vscode.ViewColumn.One);
     return canvasPanel;
   }
-  const projectName = path.basename(workspaceRoot);
   canvasPanel = vscode.window.createWebviewPanel(
     "ttEditorCanvas",
-    `${projectName} - Canvas`,
+    // viewType (unique ID)
+    `${path.basename(workspaceRoot)} - Canvas`,
+    // Title (dynamic)
     vscode.ViewColumn.One,
+    // Position
     {
       enableScripts: true,
+      // REQUIRED for React
       retainContextWhenHidden: true,
+      // Keep state when hidden
       localResourceRoots: [
+        // Security: allowed resource paths
         vscode.Uri.file(path.join(context.extensionPath, "src", "ui", "dist"))
       ]
     }
   );
   canvasPanel.webview.html = getCanvasHTML(canvasPanel.webview, context);
-  canvasPanel.onDidDispose(() => {
-    canvasPanel = void 0;
-  }, null, context.subscriptions);
-  canvasPanel.webview.onDidReceiveMessage(
-    async (message) => {
-      await handleWebviewMessage(message, canvasPanel, workspaceRoot);
+  canvasPanel.onDidDispose(
+    () => {
+      canvasPanel = void 0;
+      console.log("TT-Editor: Canvas panel disposed");
     },
     null,
     context.subscriptions
   );
+  canvasPanel.webview.onDidReceiveMessage(
+    async (message) => handleWebviewMessage(message, canvasPanel, workspaceRoot),
+    null,
+    context.subscriptions
+  );
+  const projectName = path.basename(workspaceRoot);
   sendInitMessage(canvasPanel, workspaceRoot, projectName, isValidProject);
+  console.log("TT-Editor: Canvas panel created");
   return canvasPanel;
+}
+function getCanvasHTML(webview, context) {
+  const distPath = path.join(context.extensionPath, "src", "ui", "dist");
+  const htmlPath = path.join(distPath, "index.html");
+  if (!fs.existsSync(htmlPath)) {
+    console.error("TT-Editor: UI build not found at", htmlPath);
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head><meta charset="UTF-8"></head>
+        <body>
+          <h1>Fehler: UI Build nicht gefunden</h1>
+          <p>Bitte f\xFChre <code>cd src/ui && npm run build</code> aus.</p>
+        </body>
+      </html>
+    `;
+  }
+  let html = fs.readFileSync(htmlPath, "utf-8");
+  const scriptUri = webview.asWebviewUri(
+    vscode.Uri.file(path.join(distPath, "assets", "index.js"))
+  );
+  const styleUri = webview.asWebviewUri(
+    vscode.Uri.file(path.join(distPath, "assets", "index.css"))
+  );
+  html = html.replace("./assets/index.js", scriptUri.toString()).replace("./assets/index.css", styleUri.toString()).replace(
+    "<head>",
+    `<head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' ${webview.cspSource}; style-src 'unsafe-inline' ${webview.cspSource}; img-src ${webview.cspSource} https:; font-src ${webview.cspSource};">
+        <script>window.vscodeApi = acquireVsCodeApi();</script>`
+  );
+  return html;
 }
 async function handleWebviewMessage(message, panel, workspaceRoot) {
   switch (message.type) {
@@ -136,6 +235,9 @@ async function handleWebviewMessage(message, panel, workspaceRoot) {
     case "LOAD_REQUEST":
       await handleLoadRequest(panel, workspaceRoot);
       break;
+    case "GENERATE_CODE":
+      await handleGenerateCode(message.payload, workspaceRoot);
+      break;
     default:
       console.warn("TT-Editor: Unknown message type", message);
   }
@@ -146,23 +248,26 @@ async function handleSave(config, panel, workspaceRoot) {
       throw new Error("Invalid project configuration");
     }
     const updatedConfig = updateTimestamp(config);
-    const configPath = path.join(workspaceRoot, ".ttEditor.json");
-    fs.writeFileSync(configPath, JSON.stringify(updatedConfig, null, 2), "utf-8");
-    console.log("TT-Editor: Configuration saved", configPath);
-    const successMsg = {
+    const configPath = path.join(workspaceRoot, CONFIG_FILENAME);
+    fs.writeFileSync(
+      configPath,
+      JSON.stringify(updatedConfig, null, 2),
+      "utf-8"
+    );
+    console.log("TT-Editor: Configuration saved to", configPath);
+    panel.webview.postMessage({
       type: "SAVE_SUCCESS",
       filePath: configPath
-    };
-    panel.webview.postMessage(successMsg);
+    });
     vscode.window.showInformationMessage("TT-Editor: Konfiguration gespeichert");
   } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
     console.error("TT-Editor: Save failed", err);
-    const errorMsg = {
+    panel.webview.postMessage({
       type: "ERROR",
-      message: `Fehler beim Speichern: ${err}`
-    };
-    panel.webview.postMessage(errorMsg);
-    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Speichern - ${err}`);
+      message: `Fehler beim Speichern: ${errorMessage}`
+    });
+    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Speichern - ${errorMessage}`);
   }
 }
 async function handleLoadRequest(panel, workspaceRoot) {
@@ -172,144 +277,126 @@ async function handleLoadRequest(panel, workspaceRoot) {
       vscode.window.showWarningMessage("TT-Editor: Keine gespeicherte Konfiguration gefunden");
       return;
     }
-    const loadMsg = {
+    panel.webview.postMessage({
       type: "LOAD_RESPONSE",
       payload: config
-    };
-    panel.webview.postMessage(loadMsg);
+    });
     console.log("TT-Editor: Configuration loaded");
+    vscode.window.showInformationMessage("TT-Editor: Konfiguration geladen");
   } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
     console.error("TT-Editor: Load failed", err);
-    const errorMsg = {
+    panel.webview.postMessage({
       type: "ERROR",
-      message: `Fehler beim Laden: ${err}`
-    };
-    panel.webview.postMessage(errorMsg);
-    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Laden - ${err}`);
+      message: `Fehler beim Laden: ${errorMessage}`
+    });
+    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Laden - ${errorMessage}`);
+  }
+}
+async function handleGenerateCode(astroCode, workspaceRoot) {
+  try {
+    const astroFilePath = path.join(workspaceRoot, "index.astro");
+    fs.writeFileSync(astroFilePath, astroCode, "utf-8");
+    console.log("TT-Editor: Astro code generated at", astroFilePath);
+    const doc = await vscode.workspace.openTextDocument(astroFilePath);
+    await vscode.window.showTextDocument(doc);
+    vscode.window.showInformationMessage("TT-Editor: Astro Code generiert!");
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("TT-Editor: Code generation failed", err);
+    vscode.window.showErrorMessage(`TT-Editor: Code-Generierung fehlgeschlagen - ${errorMessage}`);
   }
 }
 function loadConfig(workspaceRoot) {
-  const configPath = path.join(workspaceRoot, ".ttEditor.json");
+  const configPath = path.join(workspaceRoot, CONFIG_FILENAME);
   if (!fs.existsSync(configPath)) {
-    console.log("TT-Editor: No .ttEditor.json found");
+    console.log("TT-Editor: No config file found at", configPath);
     return null;
   }
   try {
-    const content = fs.readFileSync(configPath, "utf-8");
-    const config = JSON.parse(content);
+    const configContent = fs.readFileSync(configPath, "utf-8");
+    const config = JSON.parse(configContent);
     if (!validateProjectConfig(config)) {
       throw new Error("Invalid configuration format");
     }
     return config;
   } catch (err) {
-    console.error("TT-Editor: Failed to load config", err);
-    throw new Error(`Korrupte Konfigurationsdatei: ${err}`);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    throw new Error(`Korrupte Konfigurationsdatei: ${errorMessage}`);
   }
 }
 function sendInitMessage(panel, workspaceRoot, projectName, isValidProject) {
-  const config = loadConfig(workspaceRoot);
-  const initMsg = {
-    type: "INIT",
-    payload: {
-      projectName,
-      config: config || null,
-      isValidProject
-    }
-  };
   setTimeout(() => {
-    panel.webview.postMessage(initMsg);
-    console.log("TT-Editor: INIT message sent", { isValidProject });
-  }, 100);
-}
-function getCanvasHTML(webview, context) {
-  const indexPath = vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist", "index.html"));
-  let html = fs.readFileSync(indexPath.fsPath, "utf-8");
-  const scriptUri = webview.asWebviewUri(
-    vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.js"))
-  );
-  const styleUri = webview.asWebviewUri(
-    vscode.Uri.file(path.join(context.extensionPath, "src/ui/dist/assets/index.css"))
-  );
-  const cspSource = webview.cspSource;
-  const cspMetaTag = `
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self' ${cspSource};
-      script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri};
-      style-src 'unsafe-inline' ${cspSource} ${styleUri};
-    ">
-  `;
-  html = html.replace("<head>", `<head>${cspMetaTag}
-    <link rel="stylesheet" href="${styleUri}">
-    <script>
-      window.vscodeApi = acquireVsCodeApi();
-      console.log('VS Code API injected:', !!window.vscodeApi);
-    </script>
-    <script type="module" src="${scriptUri}" defer></script>
-  `);
-  return html;
+    const config = loadConfig(workspaceRoot);
+    panel.webview.postMessage({
+      type: "INIT",
+      payload: {
+        projectName,
+        config,
+        isValidProject
+      }
+    });
+    console.log("TT-Editor: INIT message sent", { projectName, hasConfig: !!config, isValidProject });
+  }, WEBVIEW_INIT_DELAY_MS);
 }
 
 // src/extension.ts
 function activate(context) {
-  console.log("TT-Editor Extension: Activating...");
-  const workspaceRoot = getWorkspaceRoot();
-  const isValid = workspaceRoot ? validateProject(workspaceRoot) : false;
+  var _a, _b;
+  console.log("TT-Editor: Extension activating...");
+  const workspaceRoot = ((_b = (_a = vscode2.workspace.workspaceFolders) == null ? void 0 : _a[0]) == null ? void 0 : _b.uri.fsPath) || null;
+  const astroDir = workspaceRoot ? path2.join(workspaceRoot, ASTRO_DIR) : null;
+  const isValidProject = astroDir ? fs2.existsSync(astroDir) && fs2.statSync(astroDir).isDirectory() : false;
+  vscode2.commands.executeCommand("setContext", "ttEditor.projectValid", isValidProject);
   if (!workspaceRoot) {
     console.log("TT-Editor: No workspace open - waiting for user to open folder");
-  } else if (isValid) {
-    console.log("TT-Editor: Valid project detected - Code Generator enabled");
-    vscode2.commands.executeCommand("setContext", "ttEditor.projectValid", true);
   } else {
-    console.log("TT-Editor: No ttEditor project - Code Generator disabled");
-    vscode2.commands.executeCommand("setContext", "ttEditor.projectValid", false);
+    const status = isValidProject ? UI_TEXT.VALID_PROJECT + " - Code Generator enabled" : UI_TEXT.STANDARD_WORKSPACE + " - Code Generator disabled";
+    console.log(`TT-Editor: ${status}`);
   }
-  registerCommands(context, workspaceRoot, isValid);
-  const sidebarProvider = new TTEditorSidebarProvider(context, workspaceRoot, isValid);
+  registerCommands(context, workspaceRoot, isValidProject);
+  const provider = new TTEditorSidebarProvider(context, workspaceRoot, isValidProject);
   context.subscriptions.push(
-    vscode2.window.registerWebviewViewProvider("ttEditor.view", sidebarProvider)
+    vscode2.window.registerWebviewViewProvider(
+      "ttEditor.view",
+      provider,
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true
+        }
+      }
+    )
   );
-  console.log("TT-Editor Extension: Activated successfully");
+  console.log('TT-Editor: Sidebar provider registered for view ID "ttEditor.view"');
 }
 function deactivate() {
-  console.log("TT-Editor Extension: Deactivated");
-}
-function validateProject(workspaceRoot) {
-  const envPath = path2.join(workspaceRoot, "src", ".env.ttEditor-LC");
-  if (!fs2.existsSync(envPath)) {
-    console.log("TT-Editor: .env.ttEditor-LC not found");
-    return false;
-  }
-  try {
-    const content = fs2.readFileSync(envPath, "utf-8");
-    const match = content.match(/EDITOR_TYPE\s*=\s*["']?([^"'\n\r]+)["']?/);
-    if (!match) {
-      console.warn("TT-Editor: EDITOR_TYPE not defined in .env.ttEditor-LC");
-      return false;
-    }
-    console.log(`TT-Editor: EDITOR_TYPE = ${match[1]}`);
-    return true;
-  } catch (err) {
-    console.error("TT-Editor: Error reading .env.ttEditor-LC", err);
-    return false;
-  }
-}
-function getWorkspaceRoot() {
-  const workspaceFolders = vscode2.workspace.workspaceFolders;
-  if (!workspaceFolders || workspaceFolders.length === 0) {
-    return null;
-  }
-  return workspaceFolders[0].uri.fsPath;
+  console.log("TT-Editor: Extension deactivated");
 }
 function registerCommands(context, workspaceRoot, isValidProject) {
-  const openCanvas = vscode2.commands.registerCommand("ttEditor.openCanvas", () => {
-    if (!workspaceRoot) {
-      vscode2.window.showWarningMessage("TT-Editor: Bitte \xF6ffne zuerst einen Ordner/Workspace.");
-      return;
-    }
-    console.log("TT-Editor: Opening Canvas...");
-    createCanvasWebview(context, workspaceRoot, isValidProject);
-  });
-  context.subscriptions.push(openCanvas);
+  context.subscriptions.push(
+    vscode2.commands.registerCommand("ttEditor.openCanvas", () => {
+      if (!workspaceRoot) {
+        return vscode2.window.showWarningMessage(UI_TEXT.OPEN_FOLDER_FIRST);
+      }
+      createCanvasWebview(context, workspaceRoot, isValidProject);
+    })
+  );
+  context.subscriptions.push(
+    vscode2.commands.registerCommand("ttEditor.generateCode", () => {
+      if (!workspaceRoot) {
+        return vscode2.window.showWarningMessage(UI_TEXT.OPEN_FOLDER_FIRST);
+      }
+      if (!isValidProject) {
+        return vscode2.window.showWarningMessage(UI_TEXT.CODE_GEN_NOT_AVAILABLE);
+      }
+      vscode2.window.showInformationMessage("TT-Editor: Code-Generator wird gestartet...");
+    })
+  );
+  context.subscriptions.push(
+    vscode2.commands.registerCommand("ttEditor.openFolder", () => {
+      vscode2.commands.executeCommand("vscode.openFolder");
+    })
+  );
 }
 var TTEditorSidebarProvider = class {
   constructor(context, workspaceRoot, isValidProject) {
@@ -318,141 +405,92 @@ var TTEditorSidebarProvider = class {
     this.isValidProject = isValidProject;
   }
   resolveWebviewView(webviewView) {
+    console.log("TT-Editor: Sidebar resolveWebviewView called");
     webviewView.webview.options = {
       enableScripts: true
     };
-    webviewView.webview.html = this.getHtmlForWebview();
-    webviewView.webview.onDidReceiveMessage(async (message) => {
-      switch (message.command) {
-        case "open-canvas":
-          vscode2.commands.executeCommand("ttEditor.openCanvas");
-          break;
-        case "load-project":
-          vscode2.commands.executeCommand("ttEditor.openCanvas");
-          break;
-        case "open-folder":
-          vscode2.commands.executeCommand("vscode.openFolder");
-          break;
+    webviewView.webview.html = this.getSidebarHTML();
+    console.log("TT-Editor: Sidebar HTML set");
+    webviewView.webview.onDidReceiveMessage(({ type }) => {
+      if (type === "open-canvas") {
+        vscode2.commands.executeCommand("ttEditor.openCanvas");
+      } else if (type === "open-folder") {
+        vscode2.commands.executeCommand("ttEditor.openFolder");
+      } else if (type === "generate-code") {
+        vscode2.commands.executeCommand("ttEditor.generateCode");
       }
     });
   }
-  getHtmlForWebview() {
-    const nonce = getNonce();
-    const workspaceName = this.workspaceRoot ? path2.basename(this.workspaceRoot) : "Kein Workspace";
-    return `<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TT-Editor</title>
-  <style>
-    body {
-      padding: 10px;
-      color: var(--vscode-foreground);
-      font-family: var(--vscode-font-family);
-      font-size: var(--vscode-font-size);
-    }
-    h3 {
-      margin: 0 0 16px 0;
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      color: var(--vscode-descriptionForeground);
-    }
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      background: var(--vscode-button-background);
-      color: var(--vscode-button-foreground);
-      border: none;
-      border-radius: 2px;
-      cursor: pointer;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .btn:hover {
-      background: var(--vscode-button-hoverBackground);
-    }
-    .btn-secondary {
-      background: var(--vscode-button-secondaryBackground);
-      color: var(--vscode-button-secondaryForeground);
-    }
-    .btn-secondary:hover {
-      background: var(--vscode-button-secondaryHoverBackground);
-    }
-    .project-info {
-      margin-top: 20px;
-      padding: 12px;
-      background: var(--vscode-editor-background);
-      border: 1px solid var(--vscode-panel-border);
-      border-radius: 4px;
-      font-size: 12px;
-    }
-    .project-info-label {
-      color: var(--vscode-descriptionForeground);
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .project-info-value {
-      color: var(--vscode-foreground);
-    }
-  </style>
-</head>
-<body>
-  <h3>TT-Editor Low-Code</h3>
+  getSidebarHTML() {
+    const projectName = this.workspaceRoot ? path2.basename(this.workspaceRoot) : UI_TEXT.NO_WORKSPACE;
+    const projectStatus = this.isValidProject ? UI_TEXT.VALID_PROJECT : UI_TEXT.STANDARD_WORKSPACE;
+    return `
+      <!DOCTYPE html>
+      <html lang="de">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body {
+              padding: 16px;
+              font-family: var(--vscode-font-family);
+              color: var(--vscode-foreground);
+              background: var(--vscode-editor-background);
+            }
+            h3 { margin-top: 0; font-size: 14px; }
+            p { font-size: 12px; margin: 8px 0; color: var(--vscode-descriptionForeground); }
+            button {
+              width: 100%;
+              padding: 8px 12px;
+              margin: 6px 0;
+              border: none;
+              border-radius: 2px;
+              cursor: pointer;
+              font-size: 13px;
+              background: var(--vscode-button-background);
+              color: var(--vscode-button-foreground);
+            }
+            button:hover {
+              background: var(--vscode-button-hoverBackground);
+            }
+            button:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+            .btn-secondary {
+              background: var(--vscode-button-secondaryBackground);
+              color: var(--vscode-button-secondaryForeground);
+            }
+            .btn-secondary:hover {
+              background: var(--vscode-button-secondaryHoverBackground);
+            }
+          </style>
+        </head>
+        <body>
+          <h3>TT-Editor</h3>
+          <p><strong>Projekt:</strong> ${projectName}</p>
+          <p><strong>Status:</strong> ${projectStatus}</p>
 
-  ${!this.workspaceRoot ? `
-  <div style="padding: 12px; margin-bottom: 16px; background: var(--vscode-inputValidation-warningBackground); border: 1px solid var(--vscode-inputValidation-warningBorder); border-radius: 4px; font-size: 12px;">
-    \u26A0\uFE0F Kein Ordner ge\xF6ffnet
-  </div>
-  <button class="btn" onclick="openFolder()">
-    \u{1F4C1} Ordner \xF6ffnen
-  </button>
-  ` : `
-  <button class="btn" onclick="openCanvas()">
-    Canvas \xF6ffnen
-  </button>
+          ${!this.workspaceRoot ? `
+            <button onclick="openFolder()">${BUTTON_LABELS.OPEN_FOLDER}</button>
+          ` : `
+            <button onclick="openCanvas()">${BUTTON_LABELS.OPEN_CANVAS}</button>
+            <button class="btn-secondary" onclick="generateCode()" ${!this.isValidProject ? "disabled" : ""}>
+              ${BUTTON_LABELS.GENERATE_CODE}
+            </button>
+          `}
 
-  <button class="btn btn-secondary" onclick="loadProject()">
-    Projekt laden
-  </button>
-
-  <div class="project-info">
-    <div class="project-info-label">Projekt:</div>
-    <div class="project-info-value">${workspaceName}</div>
-  </div>
-  `}
-
-  <script nonce="${nonce}">
-    const vscode = acquireVsCodeApi();
-
-    function openCanvas() {
-      vscode.postMessage({ command: 'open-canvas' });
-    }
-
-    function loadProject() {
-      vscode.postMessage({ command: 'load-project' });
-    }
-
-    function openFolder() {
-      vscode.postMessage({ command: 'open-folder' });
-    }
-  </script>
-</body>
-</html>`;
+          <script>
+            const vscode = acquireVsCodeApi();
+            function openCanvas() { vscode.postMessage({ type: 'open-canvas' }); }
+            function openFolder() { vscode.postMessage({ type: 'open-folder' }); }
+            function generateCode() { vscode.postMessage({ type: 'generate-code' }); }
+          </script>
+        </body>
+      </html>
+    `;
   }
 };
-function getNonce() {
-  let text = "";
-  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   activate,

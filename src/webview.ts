@@ -1,51 +1,57 @@
-/**
- * Webview Manager
- * Erstellt und verwaltet das Canvas Webview
- */
+// src/webview.ts
 
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
-import {
-  ExtensionToCanvasMessage,
+import * as fs from 'fs';
+import type {
   CanvasToExtensionMessage,
-  ProjectConfig,
+  ExtensionToCanvasMessage,
+  ProjectConfig
 } from './shared/messageProtocol';
 import {
   validateProjectConfig,
-  createEmptyConfig,
-  updateTimestamp,
+  updateTimestamp
 } from './shared/projectConfig';
+import {
+  CONFIG_FILENAME,
+  WEBVIEW_INIT_DELAY_MS
+} from './shared/constants';
+
+// ============================================================================
+// SINGLETON PATTERN FOR CANVAS PANEL
+// ============================================================================
 
 let canvasPanel: vscode.WebviewPanel | undefined;
 
-// ============================================================================
-// CREATE WEBVIEW
-// ============================================================================
-
+/**
+ * Creates or reveals the canvas webview panel
+ *
+ * SINGLETON (DEUTSCH):
+ * - Nur EIN Canvas-Panel kann existieren
+ * - Wiederholtes Aufrufen revealed existierendes Panel
+ * - Panel wird automatisch disposed bei Schließen
+ */
 export function createCanvasWebview(
   context: vscode.ExtensionContext,
   workspaceRoot: string,
   isValidProject: boolean
 ): vscode.WebviewPanel {
-  // If panel exists, reveal it
+  // Reveal existing panel if it exists
   if (canvasPanel) {
     canvasPanel.reveal(vscode.ViewColumn.One);
     return canvasPanel;
   }
 
-  const projectName = path.basename(workspaceRoot);
-
   // Create new panel
   canvasPanel = vscode.window.createWebviewPanel(
-    'ttEditorCanvas',
-    `${projectName} - Canvas`,
-    vscode.ViewColumn.One,
+    'ttEditorCanvas',                               // viewType (unique ID)
+    `${path.basename(workspaceRoot)} - Canvas`,     // Title (dynamic)
+    vscode.ViewColumn.One,                          // Position
     {
-      enableScripts: true,
-      retainContextWhenHidden: true,
-      localResourceRoots: [
-        vscode.Uri.file(path.join(context.extensionPath, 'src', 'ui', 'dist')),
+      enableScripts: true,                          // REQUIRED for React
+      retainContextWhenHidden: true,                // Keep state when hidden
+      localResourceRoots: [                         // Security: allowed resource paths
+        vscode.Uri.file(path.join(context.extensionPath, 'src', 'ui', 'dist'))
       ],
     }
   );
@@ -54,29 +60,102 @@ export function createCanvasWebview(
   canvasPanel.webview.html = getCanvasHTML(canvasPanel.webview, context);
 
   // Handle disposal
-  canvasPanel.onDidDispose(() => {
-    canvasPanel = undefined;
-  }, null, context.subscriptions);
-
-  // Handle messages from Canvas
-  canvasPanel.webview.onDidReceiveMessage(
-    async (message: CanvasToExtensionMessage) => {
-      await handleWebviewMessage(message, canvasPanel!, workspaceRoot);
+  canvasPanel.onDidDispose(
+    () => {
+      canvasPanel = undefined;
+      console.log('TT-Editor: Canvas panel disposed');
     },
     null,
     context.subscriptions
   );
 
-  // Send initial config
+  // Handle messages from webview
+  canvasPanel.webview.onDidReceiveMessage(
+    async (message: CanvasToExtensionMessage) =>
+      handleWebviewMessage(message, canvasPanel!, workspaceRoot),
+    null,
+    context.subscriptions
+  );
+
+  // Send initial message
+  const projectName = path.basename(workspaceRoot);
   sendInitMessage(canvasPanel, workspaceRoot, projectName, isValidProject);
 
+  console.log('TT-Editor: Canvas panel created');
   return canvasPanel;
 }
 
 // ============================================================================
-// MESSAGE HANDLER
+// HTML GENERATION
 // ============================================================================
 
+/**
+ * Generates HTML for canvas webview
+ *
+ * WICHTIG (DEUTSCH):
+ * - Lädt kompilierten Vite-Build aus src/ui/dist
+ * - Transformiert Pfade mit asWebviewUri() für Security
+ * - Injiziert Content Security Policy
+ * - Injiziert vscodeApi global BEFORE React loads
+ */
+function getCanvasHTML(
+  webview: vscode.Webview,
+  context: vscode.ExtensionContext
+): string {
+  const distPath = path.join(context.extensionPath, 'src', 'ui', 'dist');
+  const htmlPath = path.join(distPath, 'index.html');
+
+  // Check if build exists
+  if (!fs.existsSync(htmlPath)) {
+    console.error('TT-Editor: UI build not found at', htmlPath);
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head><meta charset="UTF-8"></head>
+        <body>
+          <h1>Fehler: UI Build nicht gefunden</h1>
+          <p>Bitte führe <code>cd src/ui && npm run build</code> aus.</p>
+        </body>
+      </html>
+    `;
+  }
+
+  let html = fs.readFileSync(htmlPath, 'utf-8');
+
+  // Transform asset URIs
+  const scriptUri = webview.asWebviewUri(
+    vscode.Uri.file(path.join(distPath, 'assets', 'index.js'))
+  );
+  const styleUri = webview.asWebviewUri(
+    vscode.Uri.file(path.join(distPath, 'assets', 'index.css'))
+  );
+
+  // Replace paths and inject CSP + vscodeApi
+  html = html
+    .replace('./assets/index.js', scriptUri.toString())
+    .replace('./assets/index.css', styleUri.toString())
+    .replace(
+      '<head>',
+      `<head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' ${webview.cspSource}; style-src 'unsafe-inline' ${webview.cspSource}; img-src ${webview.cspSource} https:; font-src ${webview.cspSource};">
+        <script>window.vscodeApi = acquireVsCodeApi();</script>`
+    );
+
+  return html;
+}
+
+// ============================================================================
+// MESSAGE HANDLING
+// ============================================================================
+
+/**
+ * Central message dispatcher
+ *
+ * FLOW (DEUTSCH):
+ * - Empfängt Messages vom Webview
+ * - Routet basierend auf Type
+ * - Delegiert an spezialisierte Handler
+ */
 export async function handleWebviewMessage(
   message: CanvasToExtensionMessage,
   panel: vscode.WebviewPanel,
@@ -95,22 +174,31 @@ export async function handleWebviewMessage(
       await handleLoadRequest(panel, workspaceRoot);
       break;
 
+    case 'GENERATE_CODE':
+      await handleGenerateCode(message.payload, workspaceRoot);
+      break;
+
     default:
       console.warn('TT-Editor: Unknown message type', message);
   }
 }
 
-// ============================================================================
-// SAVE HANDLER
-// ============================================================================
-
+/**
+ * Handles SAVE message
+ *
+ * STEPS (DEUTSCH):
+ * 1. Validiere Config mit validateProjectConfig()
+ * 2. Update Timestamp
+ * 3. Schreibe JSON-Datei
+ * 4. Sende SAVE_SUCCESS oder ERROR zurück
+ */
 async function handleSave(
   config: ProjectConfig,
   panel: vscode.WebviewPanel,
   workspaceRoot: string
 ): Promise<void> {
   try {
-    // Validate config
+    // Validate
     if (!validateProjectConfig(config)) {
       throw new Error('Invalid project configuration');
     }
@@ -118,87 +206,118 @@ async function handleSave(
     // Update timestamp
     const updatedConfig = updateTimestamp(config);
 
-    // Write to file
-    const configPath = path.join(workspaceRoot, '.ttEditor.json');
-    fs.writeFileSync(configPath, JSON.stringify(updatedConfig, null, 2), 'utf-8');
+    // Write file
+    const configPath = path.join(workspaceRoot, CONFIG_FILENAME);
+    fs.writeFileSync(
+      configPath,
+      JSON.stringify(updatedConfig, null, 2),
+      'utf-8'
+    );
 
-    console.log('TT-Editor: Configuration saved', configPath);
-
-    // Send success message
-    const successMsg: ExtensionToCanvasMessage = {
+    // Success feedback
+    console.log('TT-Editor: Configuration saved to', configPath);
+    panel.webview.postMessage({
       type: 'SAVE_SUCCESS',
       filePath: configPath,
-    };
-    panel.webview.postMessage(successMsg);
-
+    } as ExtensionToCanvasMessage);
     vscode.window.showInformationMessage('TT-Editor: Konfiguration gespeichert');
   } catch (err) {
+    // Error feedback
+    const errorMessage = err instanceof Error ? err.message : String(err);
     console.error('TT-Editor: Save failed', err);
-
-    const errorMsg: ExtensionToCanvasMessage = {
+    panel.webview.postMessage({
       type: 'ERROR',
-      message: `Fehler beim Speichern: ${err}`,
-    };
-    panel.webview.postMessage(errorMsg);
-
-    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Speichern - ${err}`);
+      message: `Fehler beim Speichern: ${errorMessage}`,
+    } as ExtensionToCanvasMessage);
+    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Speichern - ${errorMessage}`);
   }
 }
 
-// ============================================================================
-// LOAD HANDLER
-// ============================================================================
-
+/**
+ * Handles LOAD_REQUEST message
+ *
+ * STEPS (DEUTSCH):
+ * 1. Lade Config aus .ttEditor.json
+ * 2. Validiere
+ * 3. Sende LOAD_RESPONSE oder ERROR zurück
+ */
 async function handleLoadRequest(
   panel: vscode.WebviewPanel,
   workspaceRoot: string
 ): Promise<void> {
   try {
     const config = loadConfig(workspaceRoot);
-
     if (!config) {
       vscode.window.showWarningMessage('TT-Editor: Keine gespeicherte Konfiguration gefunden');
       return;
     }
 
-    const loadMsg: ExtensionToCanvasMessage = {
+    panel.webview.postMessage({
       type: 'LOAD_RESPONSE',
       payload: config,
-    };
-    panel.webview.postMessage(loadMsg);
-
+    } as ExtensionToCanvasMessage);
     console.log('TT-Editor: Configuration loaded');
+    vscode.window.showInformationMessage('TT-Editor: Konfiguration geladen');
   } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
     console.error('TT-Editor: Load failed', err);
-
-    const errorMsg: ExtensionToCanvasMessage = {
+    panel.webview.postMessage({
       type: 'ERROR',
-      message: `Fehler beim Laden: ${err}`,
-    };
-    panel.webview.postMessage(errorMsg);
-
-    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Laden - ${err}`);
+      message: `Fehler beim Laden: ${errorMessage}`,
+    } as ExtensionToCanvasMessage);
+    vscode.window.showErrorMessage(`TT-Editor: Fehler beim Laden - ${errorMessage}`);
   }
 }
 
-// ============================================================================
-// CONFIG I/O
-// ============================================================================
+/**
+ * Handles GENERATE_CODE message
+ *
+ * STEPS (DEUTSCH):
+ * 1. Empfange generierten Astro-Code vom Webview
+ * 2. Schreibe in index.astro Datei
+ * 3. Öffne generierte Datei
+ * 4. Zeige Success-Message
+ */
+async function handleGenerateCode(
+  astroCode: string,
+  workspaceRoot: string
+): Promise<void> {
+  try {
+    const astroFilePath = path.join(workspaceRoot, 'index.astro');
+    fs.writeFileSync(astroFilePath, astroCode, 'utf-8');
+    console.log('TT-Editor: Astro code generated at', astroFilePath);
+
+    // Open generated file
+    const doc = await vscode.workspace.openTextDocument(astroFilePath);
+    await vscode.window.showTextDocument(doc);
+
+    vscode.window.showInformationMessage('TT-Editor: Astro Code generiert!');
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error('TT-Editor: Code generation failed', err);
+    vscode.window.showErrorMessage(`TT-Editor: Code-Generierung fehlgeschlagen - ${errorMessage}`);
+  }
+}
 
 /**
- * Lädt .ttEditor.json aus Workspace Root
+ * Loads config from .ttEditor.json
+ *
+ * RETURN (DEUTSCH):
+ * - ProjectConfig wenn Datei existiert und valid
+ * - null wenn Datei nicht existiert
+ * - wirft Error bei korrupter Datei
  */
 function loadConfig(workspaceRoot: string): ProjectConfig | null {
-  const configPath = path.join(workspaceRoot, '.ttEditor.json');
+  const configPath = path.join(workspaceRoot, CONFIG_FILENAME);
 
   if (!fs.existsSync(configPath)) {
-    console.log('TT-Editor: No .ttEditor.json found');
+    console.log('TT-Editor: No config file found at', configPath);
     return null;
   }
 
   try {
-    const content = fs.readFileSync(configPath, 'utf-8');
-    const config = JSON.parse(content);
+    const configContent = fs.readFileSync(configPath, 'utf-8');
+    const config = JSON.parse(configContent);
 
     if (!validateProjectConfig(config)) {
       throw new Error('Invalid configuration format');
@@ -206,13 +325,18 @@ function loadConfig(workspaceRoot: string): ProjectConfig | null {
 
     return config;
   } catch (err) {
-    console.error('TT-Editor: Failed to load config', err);
-    throw new Error(`Korrupte Konfigurationsdatei: ${err}`);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    throw new Error(`Korrupte Konfigurationsdatei: ${errorMessage}`);
   }
 }
 
 /**
- * Sendet INIT Message an Canvas mit optional geladener Config
+ * Sends initial INIT message to webview
+ *
+ * TIMING (DEUTSCH):
+ * - Wartet 100ms (WEBVIEW_INIT_DELAY_MS) bevor Message gesendet wird
+ * - Grund: Webview braucht Zeit zum Laden
+ * - PROBLEM: Race Condition möglich - besser wäre auf READY-Message zu warten
  */
 function sendInitMessage(
   panel: vscode.WebviewPanel,
@@ -220,70 +344,18 @@ function sendInitMessage(
   projectName: string,
   isValidProject: boolean
 ): void {
-  const config = loadConfig(workspaceRoot);
-
-  const initMsg: ExtensionToCanvasMessage = {
-    type: 'INIT',
-    payload: {
-      projectName,
-      config: config || null,
-      isValidProject,
-    },
-  };
-
-  // Send after short delay to ensure webview is ready
   setTimeout(() => {
-    panel.webview.postMessage(initMsg);
-    console.log('TT-Editor: INIT message sent', { isValidProject });
-  }, 100);
-}
+    const config = loadConfig(workspaceRoot);
 
-// ============================================================================
-// HTML GENERATION
-// ============================================================================
+    panel.webview.postMessage({
+      type: 'INIT',
+      payload: {
+        projectName,
+        config,
+        isValidProject,
+      },
+    } as ExtensionToCanvasMessage);
 
-function getCanvasHTML(
-  webview: vscode.Webview,
-  context: vscode.ExtensionContext
-): string {
-  // Read the built index.html from Vite
-  const indexPath = vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist', 'index.html'));
-  let html = fs.readFileSync(indexPath.fsPath, 'utf-8');
-
-  const scriptUri = webview.asWebviewUri(
-    vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist/assets/index.js'))
-  );
-  const styleUri = webview.asWebviewUri(
-    vscode.Uri.file(path.join(context.extensionPath, 'src/ui/dist/assets/index.css'))
-  );
-
-  const cspSource = webview.cspSource;
-  const cspMetaTag = `
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self' ${cspSource};
-      script-src 'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri};
-      style-src 'unsafe-inline' ${cspSource} ${styleUri};
-    ">
-  `;
-
-  // Inject CSP, styles, and scripts into the head
-  html = html.replace('<head>', `<head>${cspMetaTag}
-    <link rel="stylesheet" href="${styleUri}">
-    <script>
-      window.vscodeApi = acquireVsCodeApi();
-      console.log('VS Code API injected:', !!window.vscodeApi);
-    </script>
-    <script type="module" src="${scriptUri}" defer></script>
-  `);
-
-  return html;
-}
-
-function getNonce(): string {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
+    console.log('TT-Editor: INIT message sent', { projectName, hasConfig: !!config, isValidProject });
+  }, WEBVIEW_INIT_DELAY_MS);
 }
