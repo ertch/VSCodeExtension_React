@@ -1,13 +1,9 @@
 // components/palette/index.ts
 import { PaletteEntry } from "../types/palette";
-import Card from "../../components/Card";
+import { cardComponents } from "../../components/cards";
 
+// Automatischer Import aller Cards aus dem cards Ordner
 export const previewComponents: PaletteEntry[] = [
-  {
-    type: "Card",
-    label: "Card",
-    canHaveChildren: false,
-    codeGen: "<Card>", // String ist auch ok
-    Component: Card,
-  },
+  ...cardComponents,
+  // Hier kannst du weitere Komponenten-Gruppen hinzufügen
 ];

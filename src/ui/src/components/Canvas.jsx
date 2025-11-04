@@ -1,12 +1,10 @@
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import Card from './Card';
+import { draggable, dropTargetForElements, monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+
 // -----------------------
 // Beispiel-Palette (Fallback)
-// Du kannst eigene .tsx-Komponenten samt Metadaten über das Canvas-Prop "palette" übergeben.
-// Jede Komponente: { type, label, canHaveChildren, Component, codeGen }
 // -----------------------
 const DefaultComponents = [
-  Card,
   {
     type: "Container",
     label: "Container",
@@ -27,7 +25,6 @@ const DefaultComponents = [
     Component: () => (
       <div>
         <h3 style={{ margin: 0 }}>Überschrift</h3>
-        {/* Beispiel-Inputs, die beim Export gelesen werden */}
         <input name="text" placeholder="Text der Überschrift" />
       </div>
     ),
@@ -72,7 +69,7 @@ const DefaultComponents = [
 ];
 
 // -----------------------
-// Styles (inline, damit die Datei autark ist)
+// Styles
 // -----------------------
 const STYLES = {
   layout: {
@@ -152,32 +149,29 @@ const STYLES = {
     gap: 8,
     marginTop: 8,
   },
-  dropLineTop: {
+  dropIndicator: {
     position: "absolute",
+    left: 8,
+    right: 8,
+    height: 4,
+    background: "#4f46e5",
+    borderRadius: 2,
+    boxShadow: "0 0 0 2px rgba(79,70,229,0.25)",
+    pointerEvents: "none",
+  },
+  dropIndicatorTop: {
     top: -2,
-    left: 8,
-    right: 8,
-    height: 4,
-    background: "#4f46e5",
-    borderRadius: 2,
-    boxShadow: "0 0 0 2px rgba(79,70,229,0.25)",
   },
-  dropLineBottom: {
-    position: "absolute",
+  dropIndicatorBottom: {
     bottom: -2,
-    left: 8,
-    right: 8,
-    height: 4,
-    background: "#4f46e5",
-    borderRadius: 2,
-    boxShadow: "0 0 0 2px rgba(79,70,229,0.25)",
   },
-  dropInside: {
+  dropIndicatorInside: {
     position: "absolute",
     inset: 0,
     border: "2px dashed #4f46e5",
     borderRadius: 8,
     background: "rgba(79,70,229,0.06)",
+    pointerEvents: "none",
   },
   toolbar: {
     display: "flex",
@@ -272,7 +266,7 @@ function extractInputsFromElement(el) {
   const inputs = el.querySelectorAll("input, select, textarea");
   const data = {};
   inputs.forEach((inp) => {
-    if (inp.id === "preview") return; // explizit ignorieren
+    if (inp.id === "preview") return;
     if (inp.disabled) return;
 
     let key = inp.name || inp.id;
@@ -312,21 +306,11 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   const [tree, setTree] = useState(() =>
     initialNodes.length ? initialNodes : []
   );
-  const [hover, setHover] = useState({ targetId: null, zone: null }); // zone: 'above' | 'inside' | 'below'
-  const [dragging, setDragging] = useState(null); // { kind: 'NEW', type } | { kind: 'MOVE', nodeId }
   const [exportJson, setExportJson] = useState("");
   const formRef = useRef(null);
 
-  useEffect(() => {
-    // Vorsichtige Bereinigung von Hover bei Mausverlassen
-    const onLeave = () => setHover({ targetId: null, zone: null });
-    window.addEventListener("dragend", onLeave);
-    window.addEventListener("drop", onLeave);
-    return () => {
-      window.removeEventListener("dragend", onLeave);
-      window.removeEventListener("drop", onLeave);
-    };
-  }, []);
+  // Unique Context ID für diesen Canvas (verhindert Cross-Canvas Drops)
+  const uniqueContextId = useMemo(() => Symbol('canvas-context'), []);
 
   const createNodeFromType = useCallback(
     (type) => {
@@ -337,48 +321,16 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         type: meta.type,
         canHaveChildren: !!meta.canHaveChildren,
         codeGen: meta.codeGen ?? { component: meta.type },
-        props: {}, // Platz für spätere erweiterte Props
+        props: {},
         children: [],
       };
     },
     [paletteMap]
   );
 
-  const handlePaletteDragStart = (e, type) => {
-    e.dataTransfer.effectAllowed = "copy";
-    e.dataTransfer.setData(
-      "application/x-canvas",
-      JSON.stringify({ kind: "NEW", type })
-    );
-    setDragging({ kind: "NEW", type });
-  };
-
-  const handleNodeDragStart = (e, nodeId) => {
-    e.stopPropagation();
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData(
-      "application/x-canvas",
-      JSON.stringify({ kind: "MOVE", nodeId })
-    );
-    setDragging({ kind: "MOVE", nodeId });
-  };
-
-  const computeZone = (e, targetNode) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const h = rect.height || 1;
-    const topBand = h * 0.3;
-    const bottomBand = h * 0.3;
-
-    let zone = null;
-    if (y <= topBand) zone = "above";
-    else if (y >= h - bottomBand) zone = "below";
-    else zone = targetNode?.canHaveChildren ? "inside" : y < h / 2 ? "above" : "below";
-    return zone;
-  };
-
   const performDrop = useCallback(
     ({ dropTargetId, zone, payload }) => {
+      console.log('🎯 performDrop called:', { dropTargetId, zone, payload });
       if (!payload) return;
       let next = cloneDeep(tree);
 
@@ -387,7 +339,6 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         if (!newNode) return;
 
         if (!dropTargetId) {
-          // ins Root am Ende
           next.push(newNode);
           setTree(next);
           return;
@@ -396,14 +347,24 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         const found = findNodeAndParent(next, dropTargetId);
         if (!found) return;
 
+        console.log('📦 Target node:', {
+          nodeId: found.node.id,
+          type: found.node.type,
+          canHaveChildren: found.node.canHaveChildren,
+          zone: zone
+        });
+
         if (zone === "inside" && found.node.canHaveChildren) {
+          console.log('✅ Inserting as child!');
           found.node.children = found.node.children || [];
           found.node.children.push(newNode);
         } else {
-          // Als Geschwister über/unter dem target
+          console.log('❌ Inserting as sibling because:', {
+            zoneIsInside: zone === "inside",
+            canHaveChildren: found.node.canHaveChildren
+          });
           const parent = found.parent;
           if (!parent) {
-            // target liegt im Root
             const insertIndex = zone === "above" ? found.index : found.index + 1;
             next.splice(insertIndex, 0, newNode);
           } else {
@@ -416,15 +377,13 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         setTree(next);
       } else if (payload.kind === "MOVE") {
         const movingId = payload.nodeId;
-        if (movingId === dropTargetId) return; // auf sich selbst droppen -> noop
-        if (dropTargetId && isDescendant(next, dropTargetId, movingId)) return; // nicht in eigenes Kind droppen
+        if (movingId === dropTargetId) return;
+        if (dropTargetId && isDescendant(next, dropTargetId, movingId)) return;
 
-        // Node extrahieren
         const movingNode = removeNode(next, movingId);
         if (!movingNode) return;
 
         if (!dropTargetId) {
-          // ans Root anhängen
           next.push(movingNode);
           setTree(next);
           return;
@@ -437,7 +396,6 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
           found.node.children = found.node.children || [];
           found.node.children.push(movingNode);
         } else {
-          // Als Geschwister über/unter dem target
           const parent = found.parent;
           if (!parent) {
             const insertIndex = zone === "above" ? found.index : found.index + 1;
@@ -454,26 +412,6 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     },
     [tree, createNodeFromType]
   );
-
-  const handleRootDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = dragging?.kind === "NEW" ? "copy" : "move";
-    setHover((h) =>
-      h.targetId ? h : { targetId: null, zone: "inside" } // Root als inside markiert
-    );
-  };
-
-  const handleRootDrop = (e) => {
-    e.preventDefault();
-    let payload = dragging;
-    try {
-      const raw = e.dataTransfer.getData("application/x-canvas");
-      if (raw) payload = JSON.parse(raw);
-    } catch {}
-    performDrop({ dropTargetId: null, zone: "inside", payload });
-    setHover({ targetId: null, zone: null });
-    setDragging(null);
-  };
 
   const handleDelete = useCallback(
     (id) => {
@@ -500,22 +438,16 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
           node={node}
           meta={meta}
           onDelete={handleDelete}
-          onDragStart={handleNodeDragStart}
-          onDragOver={computeZone}
-          onDrop={performDrop}
-          isHovering={hover.targetId === node.id ? hover.zone : null}
-          setHover={setHover}
+          uniqueContextId={uniqueContextId}
         >
           {node.children?.map((child) => renderNode(child))}
         </NodeWrapper>
       );
     },
-    [paletteMap, handleDelete, handleNodeDragStart, computeZone, performDrop, hover]
+    [paletteMap, handleDelete, uniqueContextId]
   );
 
   const serializeTreeFromDOM = useCallback(() => {
-    // Baut die Struktur anhand der State-Baumform auf
-    // und liest pro Node DOM: data-codegen + Inputs (ausser id="preview")
     const root = formRef.current;
     if (!root) return [];
 
@@ -527,7 +459,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         try {
           codeGen = JSON.parse(codeGenRaw);
         } catch {
-          codeGen = codeGenRaw; // falls kein JSON
+          codeGen = codeGenRaw;
         }
       }
       const inputs = wrapperEl ? extractInputsFromElement(wrapperEl) : {};
@@ -549,8 +481,6 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     const data = serializeTreeFromDOM();
     const json = JSON.stringify(data, null, 2);
     setExportJson(json);
-    // Hier könntest du statt setExportJson auch ein fetch/emit machen
-    // z.B. window.dispatchEvent(new CustomEvent('canvas-export', { detail: data }));
     console.log("Canvas JSON:", data);
   };
 
@@ -560,6 +490,41 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     setTree((prev) => [...prev, node]);
   };
 
+  // Globaler Monitor: Fängt alle Drop-Events ab und verarbeitet sie zentral
+  useEffect(() => {
+    return monitorForElements({
+      canMonitor: ({ source }) => source.data.contextId === uniqueContextId,
+      onDrop: ({ location, source }) => {
+        const { dropTargets } = location.current;
+
+        // Kein Drop-Target gefunden
+        if (dropTargets.length === 0) {
+          console.log('❌ No drop targets found');
+          return;
+        }
+
+        // Nimm das INNERSTE Drop-Target (Index 0 ist das tiefste/innerste)
+        const [innermostTarget] = dropTargets;
+        const dropTargetId = innermostTarget.data.nodeId;
+        const zone = innermostTarget.data.zone;
+
+        console.log('🎯 Monitor: Drop detected', {
+          sourceData: source.data,
+          innermostTarget: dropTargetId,
+          zone,
+          totalTargets: dropTargets.length,
+        });
+
+        // Verarbeite den Drop einmalig über die zentrale Funktion
+        performDrop({
+          dropTargetId: dropTargetId ?? null,
+          zone,
+          payload: source.data,
+        });
+      },
+    });
+  }, [uniqueContextId, performDrop]);
+
   return (
     <div style={STYLES.layout}>
       <div style={STYLES.canvasArea}>
@@ -568,28 +533,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
             Ziehe Komponenten aus der rechten Palette auf die Fläche. Drop-Indikatoren zeigen dir: oben, unten oder innen.
           </div>
 
-          <div
-            style={{
-              ...STYLES.rootDropArea,
-              outline:
-                hover.targetId === null && hover.zone === "inside"
-                  ? "2px dashed #4f46e5"
-                  : "none",
-              outlineOffset: -2,
-            }}
-            onDragOver={handleRootDragOver}
-            onDrop={handleRootDrop}
-            onDragLeave={() => {
-              if (!dragging) setHover({ targetId: null, zone: null });
-            }}
-          >
-            {tree.length === 0 && (
-              <div style={{ color: "#9ca3af", fontSize: 13 }}>
-                Leerer Canvas – droppe etwas hier hinein…
-              </div>
-            )}
-            {tree.map((n) => renderNode(n))}
-          </div>
+          <RootDropArea tree={tree} renderNode={renderNode} uniqueContextId={uniqueContextId} />
 
           <div style={STYLES.toolbar}>
             <button type="submit" style={STYLES.primaryBtn}>
@@ -620,80 +564,206 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         </form>
       </div>
 
-      <aside style={STYLES.sidebar}>
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>Palette</div>
-        {palette.map((p) => (
-          <button
-            key={p.type}
-            style={STYLES.paletteButton}
-            draggable
-            onDragStart={(e) => handlePaletteDragStart(e, p.type)}
-            onClick={() => addViaClick(p.type)}
-            title="Ziehen zum Platzieren, Klick fügt unten ein"
-          >
-            {p.label}
-          </button>
-        ))}
-        <div style={{ marginTop: 16, fontSize: 12, color: "#6b7280" }}>
-          Tipp: Du kannst deine eigenen .tsx-Komponenten mit Metadaten via Prop
-          palette an Canvas übergeben.
-        </div>
-      </aside>
+      <Sidebar palette={palette} onAddClick={addViaClick} uniqueContextId={uniqueContextId} />
     </div>
   );
 }
 
 // -----------------------
-// NodeWrapper: einzelner Canvas-Knoten mit Wrapper, Del-Button & DnD-Zonen
+// RootDropArea
 // -----------------------
-function NodeWrapper({
-  node,
-  meta,
-  onDelete,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  isHovering, // 'above' | 'inside' | 'below' | null
-  setHover,
-  children,
-}) {
+function RootDropArea({ tree, renderNode, uniqueContextId }) {
+  const dropRef = useRef(null);
+  const [isDraggedOver, setIsDraggedOver] = useState(false);
+
+  useEffect(() => {
+    const el = dropRef.current;
+    if (!el) return;
+
+    return dropTargetForElements({
+      element: el,
+      canDrop: ({ source }) => source.data.contextId === uniqueContextId,
+      getData: () => ({
+        nodeId: null, // Root-Level
+        zone: "inside",
+      }),
+      onDragEnter: () => setIsDraggedOver(true),
+      onDragLeave: () => setIsDraggedOver(false),
+      onDrop: () => setIsDraggedOver(false),
+    });
+  }, [uniqueContextId]);
+
+  return (
+    <div
+      ref={dropRef}
+      style={{
+        ...STYLES.rootDropArea,
+        outline: isDraggedOver ? "2px dashed #4f46e5" : "none",
+        outlineOffset: -2,
+      }}
+    >
+      {tree.length === 0 && (
+        <div style={{ color: "#9ca3af", fontSize: 13 }}>
+          Leerer Canvas – droppe etwas hier hinein…
+        </div>
+      )}
+      {tree.map((n) => renderNode(n))}
+    </div>
+  );
+}
+
+// -----------------------
+// Sidebar mit Palette
+// -----------------------
+function Sidebar({ palette, onAddClick, uniqueContextId }) {
+  return (
+    <aside style={STYLES.sidebar}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Palette</div>
+      {palette.map((p) => (
+        <PaletteButton key={p.type} entry={p} onAddClick={onAddClick} uniqueContextId={uniqueContextId} />
+      ))}
+      <div style={{ marginTop: 16, fontSize: 12, color: "#6b7280" }}>
+        Tipp: Du kannst deine eigenen .tsx-Komponenten mit Metadaten via Prop
+        palette an Canvas übergeben.
+      </div>
+    </aside>
+  );
+}
+
+// -----------------------
+// PaletteButton (draggable)
+// -----------------------
+function PaletteButton({ entry, onAddClick, uniqueContextId }) {
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const el = buttonRef.current;
+    if (!el) return;
+
+    return draggable({
+      element: el,
+      getInitialData: () => ({
+        kind: "NEW",
+        type: entry.type,
+        contextId: uniqueContextId,
+      }),
+    });
+  }, [entry.type, uniqueContextId]);
+
+  return (
+    <button
+      ref={buttonRef}
+      style={STYLES.paletteButton}
+      onClick={() => onAddClick(entry.type)}
+      title="Ziehen zum Platzieren, Klick fügt unten ein"
+    >
+      {entry.label}
+    </button>
+  );
+}
+
+// -----------------------
+// NodeWrapper
+// -----------------------
+function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }) {
   const wrapperRef = useRef(null);
+  const contentRef = useRef(null);
+  const childrenRef = useRef(null);
+  const [dropIndicator, setDropIndicator] = useState(null);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const zone = onDragOver(e, node);
-    setHover({ targetId: node.id, zone });
-    e.dataTransfer.dropEffect = "move";
-  };
+  // Make node draggable
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    return draggable({
+      element: el,
+      getInitialData: () => ({
+        kind: "MOVE",
+        nodeId: node.id,
+        contextId: uniqueContextId,
+      }),
+    });
+  }, [node.id, uniqueContextId]);
 
-    let payload = null;
-    try {
-      const raw = e.dataTransfer.getData("application/x-canvas");
-      if (raw) payload = JSON.parse(raw);
-    } catch {}
+  // Make node content a drop target (for above/below)
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
 
-    // Zone nochmals berechnen (falls nötig)
-    let zone = onDragOver(e, node);
-    // Falls inside nicht erlaubt, automatisch auf above/below abbilden
-    if (zone === "inside" && !node.canHaveChildren) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const y = e.clientY - rect.top;
-      zone = y < rect.height / 2 ? "above" : "below";
-    }
+    const computeZone = (input, element) => {
+      const rect = element.getBoundingClientRect();
+      const y = input.clientY - rect.top;
+      const h = rect.height;
 
-    onDrop({ dropTargetId: node.id, zone, payload });
-    setHover({ targetId: null, zone: null });
-  };
+      // Content-Bereich: nur above/below
+      let zone;
+      if (y < h * 0.5) {
+        zone = "above";
+      } else {
+        zone = "below";
+      }
 
-  const handleDragLeave = (e) => {
-    e.stopPropagation();
-    setHover((h) => (h.targetId === node.id ? { targetId: null, zone: null } : h));
-  };
+      return zone;
+    };
+
+    return dropTargetForElements({
+      element: el,
+      canDrop: ({ source }) => source.data.contextId === uniqueContextId,
+      getData: ({ input, element }) => {
+        const zone = computeZone(input, element);
+        return { nodeId: node.id, zone };
+      },
+      onDragEnter: ({ self }) => {
+        setDropIndicator(self.data.zone);
+      },
+      onDrag: ({ self }) => {
+        setDropIndicator(self.data.zone);
+      },
+      onDragLeave: () => {
+        setDropIndicator(null);
+      },
+      onDrop: () => {
+        // Entfernt: Drop-Verarbeitung erfolgt jetzt zentral im Monitor
+        setDropIndicator(null);
+      },
+    });
+  }, [node.id, uniqueContextId]);
+
+  // Make children area a drop target (only for containers, always "inside")
+  useEffect(() => {
+    if (!node.canHaveChildren) return;
+
+    const el = childrenRef.current;
+    if (!el) return;
+
+    console.log('👶 Registering children drop target for', node.id);
+
+    return dropTargetForElements({
+      element: el,
+      canDrop: ({ source }) => source.data.contextId === uniqueContextId,
+      getData: () => {
+        console.log('👶 Children area getData - forcing "inside" zone for node:', node.id);
+        return { nodeId: node.id, zone: "inside" };
+      },
+      onDragEnter: () => {
+        console.log('👶 onDragEnter - children area');
+        setDropIndicator("inside");
+      },
+      onDrag: () => {
+        setDropIndicator("inside");
+      },
+      onDragLeave: () => {
+        console.log('👶 onDragLeave - children area');
+        setDropIndicator(null);
+      },
+      onDrop: () => {
+        // Entfernt: Drop-Verarbeitung erfolgt jetzt zentral im Monitor
+        console.log('👶 Children drop triggered - Monitor wird verarbeiten');
+        setDropIndicator(null);
+      },
+    });
+  }, [node.id, node.canHaveChildren, uniqueContextId]);
 
   const Comp = meta.Component;
 
@@ -701,18 +771,19 @@ function NodeWrapper({
     <div
       ref={wrapperRef}
       style={STYLES.nodeWrapper}
-      draggable
-      onDragStart={(e) => onDragStart(e, node.id)}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-      onDragLeave={handleDragLeave}
       data-node-id={node.id}
       data-codegen={JSON.stringify(node.codeGen ?? { component: node.type })}
     >
       {/* Drop-Indikatoren */}
-      {isHovering === "above" && <div style={STYLES.dropLineTop} />}
-      {isHovering === "below" && <div style={STYLES.dropLineBottom} />}
-      {isHovering === "inside" && node.canHaveChildren && <div style={STYLES.dropInside} />}
+      {dropIndicator === "above" && (
+        <div style={{ ...STYLES.dropIndicator, ...STYLES.dropIndicatorTop }} />
+      )}
+      {dropIndicator === "below" && (
+        <div style={{ ...STYLES.dropIndicator, ...STYLES.dropIndicatorBottom }} />
+      )}
+      {dropIndicator === "inside" && node.canHaveChildren && (
+        <div style={STYLES.dropIndicatorInside} />
+      )}
 
       {/* Delete-Button */}
       <button
@@ -724,40 +795,33 @@ function NodeWrapper({
         <TrashIcon />
       </button>
 
-      {/* Eigentliche Komponente */}
-      <Comp>
-        {/* Kindslot ist nur visuell relevant, echtes Rendering passiert unten */}
-      </Comp>
-
-      {/* Kinder-Spalte (nur Darstellung – echte DnD-Logik sitzt auf wrapper) */}
-      <div
-        style={STYLES.childrenColumn}
-        onDragOver={(e) => {
-          // Leeres Kindgebiet soll "inside" ermöglichen
-          e.preventDefault();
-          e.stopPropagation();
-          if (node.canHaveChildren) {
-            setHover({ targetId: node.id, zone: "inside" });
-          }
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          let payload = null;
-          try {
-            const raw = e.dataTransfer.getData("application/x-canvas");
-            if (raw) payload = JSON.parse(raw);
-          } catch {}
-          onDrop({
-            dropTargetId: node.id,
-            zone: node.canHaveChildren ? "inside" : "below",
-            payload,
-          });
-          setHover({ targetId: null, zone: null });
-        }}
-      >
-        {children}
+      {/* Eigentliche Komponente - Drop-Target für above/below */}
+      <div ref={contentRef}>
+        <Comp />
       </div>
+
+      {/* Kinder-Spalte - Separates Drop-Target nur für "inside" */}
+      {node.canHaveChildren && (
+        <div
+          ref={childrenRef}
+          style={{
+            ...STYLES.childrenColumn,
+            minHeight: children?.length > 0 ? 'auto' : 40,
+            border: dropIndicator === 'inside' ? '2px dashed #4f46e5' : '1px dashed #e5e7eb',
+            borderRadius: 6,
+            padding: 8,
+            background: dropIndicator === 'inside' ? 'rgba(79,70,229,0.06)' : 'transparent'
+          }}
+        >
+          {children?.length > 0 ? (
+            children
+          ) : (
+            <div style={{ fontSize: 12, color: '#9ca3af', textAlign: 'center', padding: 8 }}>
+              Drop hier hinein...
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
