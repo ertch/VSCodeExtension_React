@@ -1,4 +1,4 @@
-import GenericCard, { CardConfig } from './GenericCard'
+import BaseCard, { CardConfig } from './CardLayout/BaseCard'
 
 const simpleInputConfig: CardConfig = {
   defaultName: 'SimpleInput',
@@ -32,5 +32,5 @@ const simpleInputConfig: CardConfig = {
 }
 
 export default function SimpleInputCard({ id }: { id: string }) {
-  return <GenericCard id={id} config={simpleInputConfig} />
+  return <BaseCard id={id} config={simpleInputConfig} />
 }

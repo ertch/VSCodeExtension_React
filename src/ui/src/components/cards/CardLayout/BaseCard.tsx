@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState, useEffect } from 'react'
-import { useNamedElements } from '../../contexts/NamedElementsContext'
-import Input_TrippleList from '../inputs/Input_TrippleList'
+import { useNamedElements } from '../../../contexts/NamedElementsContext'
+import Input_TrippleList from '../../inputs/Input_TrippleList'
 
 export interface CardAttribute {
   name: string
@@ -18,12 +18,12 @@ export interface CardConfig {
   renderPreview: (name: string, id: string) => React.ReactNode
 }
 
-interface GenericCardProps {
+interface BaseCardProps {
   id: string
   config: CardConfig
 }
 
-export default function GenericCard({ id, config }: GenericCardProps) {
+export default function BaseCard({ id, config }: BaseCardProps) {
   const [name, setName] = useState(config.defaultName)
   const { updateElementName, unregisterElement } = useNamedElements()
 
