@@ -12,6 +12,7 @@ import type {
 } from '../utils/types/canvas';
 import type { PaletteEntry } from '../utils/types/palette';
 import { extractInputsFromElement } from '../utils/extractInputs';
+import { NamedElementsProvider } from '../contexts/NamedElementsContext';
 
 // -----------------------
 // Beispiel-Palette (Fallback)
@@ -495,46 +496,48 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   }, [uniqueContextId, performDrop]);
 
   return (
-    <div style={STYLES.layout}>
-      <div style={STYLES.canvasArea}>
-        <form ref={formRef} onSubmit={onSubmit} style={STYLES.form}>
-          <div style={STYLES.addHint}>
-            Ziehe Komponenten aus der rechten Palette auf die Fläche. Drop-Indikatoren zeigen dir: oben, unten oder innen.
-          </div>
+    <NamedElementsProvider>
+      <div style={STYLES.layout}>
+        <div style={STYLES.canvasArea}>
+          <form ref={formRef} onSubmit={onSubmit} style={STYLES.form}>
+            <div style={STYLES.addHint}>
+              Ziehe Komponenten aus der rechten Palette auf die Fläche. Drop-Indikatoren zeigen dir: oben, unten oder innen.
+            </div>
 
-          <RootDropArea tree={tree} renderNode={renderNode} uniqueContextId={uniqueContextId} />
+            <RootDropArea tree={tree} renderNode={renderNode} uniqueContextId={uniqueContextId} />
 
-          <div style={STYLES.toolbar}>
-            <button type="submit" style={STYLES.primaryBtn}>
-              JSON exportieren
-            </button>
-            <button
-              type="button"
-              style={STYLES.secondaryBtn}
-              onClick={() => {
-                setTree([]);
-                setExportJson("");
-              }}
-            >
-              Canvas leeren
-            </button>
-          </div>
+            <div style={STYLES.toolbar}>
+              <button type="submit" style={STYLES.primaryBtn}>
+                JSON exportieren
+              </button>
+              <button
+                type="button"
+                style={STYLES.secondaryBtn}
+                onClick={() => {
+                  setTree([]);
+                  setExportJson("");
+                }}
+              >
+                Canvas leeren
+              </button>
+            </div>
 
-          <div style={STYLES.previewBox}>
-            <div style={STYLES.previewHeader}>Vorschau (wird beim Export ignoriert, id="preview")</div>
-            <textarea
-              id="preview"
-              readOnly
-              style={STYLES.previewArea}
-              value={exportJson}
-              placeholder="Exportiere, um die JSON-Struktur hier zu sehen…"
-            />
-          </div>
-        </form>
+            <div style={STYLES.previewBox}>
+              <div style={STYLES.previewHeader}>Vorschau (wird beim Export ignoriert, id="preview")</div>
+              <textarea
+                id="preview"
+                readOnly
+                style={STYLES.previewArea}
+                value={exportJson}
+                placeholder="Exportiere, um die JSON-Struktur hier zu sehen…"
+              />
+            </div>
+          </form>
+        </div>
+
+        <Sidebar palette={palette} onAddClick={addViaClick} uniqueContextId={uniqueContextId} />
       </div>
-
-      <Sidebar palette={palette} onAddClick={addViaClick} uniqueContextId={uniqueContextId} />
-    </div>
+    </NamedElementsProvider>
   );
 }
 
@@ -703,29 +706,22 @@ function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }: NodeWr
     const el = childrenRef.current;
     if (!el) return;
 
-    console.log('👶 Registering children drop target for', node.id);
-
     return dropTargetForElements({
       element: el,
       canDrop: ({ source }) => source.data.contextId === uniqueContextId,
       getData: () => {
-        console.log('👶 Children area getData - forcing "inside" zone for node:', node.id);
         return { nodeId: node.id, zone: "inside" };
       },
       onDragEnter: () => {
-        console.log('👶 onDragEnter - children area');
         setDropIndicator("inside");
       },
       onDrag: () => {
         setDropIndicator("inside");
       },
       onDragLeave: () => {
-        console.log('👶 onDragLeave - children area');
         setDropIndicator(null);
       },
       onDrop: () => {
-        // Entfernt: Drop-Verarbeitung erfolgt jetzt zentral im Monitor
-        console.log('👶 Children drop triggered - Monitor wird verarbeiten');
         setDropIndicator(null);
       },
     });

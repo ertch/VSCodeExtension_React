@@ -12,24 +12,21 @@ export const cardComponents: PaletteEntry[] = [
     type: "Card",
     label: "Card (Standard)",
     canHaveChildren: false,
-    codeGen: { component: "Card", variant: "default" },
     Component: Card,
   },
   {
     type: "SimpleInput",
     label: "SimpleInput",
     canHaveChildren: false,
-    codeGen: { component: "SimpleInput", variant: "default" },
     Component: SimpleInput,
   },
   {
     type: "ContainerCard",
     label: "Container Card",
     canHaveChildren: true,  // Kann andere Cards enthalten!
-    codeGen: { component: "ContainerCard", variant: "container" },
     Component: ContainerCard,
   },
 ];
 
 // Optional: Einzelexporte für direkten Import
-export { Card, Card2, ContainerCard };
+export { Card, SimpleInput, ContainerCard };

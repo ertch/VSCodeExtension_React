@@ -1,5 +1,7 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNamedElements } from '../../contexts/NamedElementsContext'
+import Input_TrippleList from '../inputs/Input_TrippleList';
 
 export default function Card(props: { id: string }) {
     const attributes = [
@@ -14,16 +16,27 @@ export default function Card(props: { id: string }) {
         { name: 'onchange', type: 'function', toolTip: ' ', optional: true },
         { name: 'onblur', type: 'function', toolTip: ' ', optional: true },
         { name: 'data-vali', type: 'string', toolTip: ' ', optional: true },
-        { name: 'data-submit', type: 'tripple_single', toolTip: ' ', optional: true },
+        { name: 'data-submit', type: 'tripple_list', toolTip: ' Hallo Ich blockiere dich', optional: true },
         { name: 'data-call', type: 'string', toolTip: ' ', optional: true },
         { name: 'min', type: 'string', toolTip: ' ', optional: true },
         { name: 'max', type: 'string', toolTip: ' ', optional: true },
     ];
 
     const [name, setName] = useState('SimpleInput');
+    const { updateElementName, unregisterElement } = useNamedElements();
+
     const handleNewName = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setName(event.target.value);
+        const newName = event.target.value;
+        setName(newName);
+        updateElementName(props.id, newName);
     };
+
+    // Cleanup beim Unmount (Card wird gelöscht)
+    useEffect(() => {
+        return () => {
+            unregisterElement(props.id);
+        };
+    }, [props.id, unregisterElement]);
 
     return (
         <div className='mainCanvas'
@@ -48,30 +61,39 @@ export default function Card(props: { id: string }) {
 
                     {attributes.map((attr) => {
                         let inputElement;
+                        let toolTipElement;
                         switch (attr.type) {
                             case 'checkbox':
                                 inputElement = <input type="checkbox" name={attr.name}/>;
+                                toolTipElement = <span>{attr.toolTip}</span>
                                 break;
                             case 'string':
                                 inputElement = <input type="text" name={attr.name} />;
+                                toolTipElement = <span>{attr.toolTip}</span>
                                 break;
                             case 'function':
                                 inputElement = <input type="text" name={attr.name} />;
+                                toolTipElement = <span>{attr.toolTip}</span>
                                 break;
                             case 'double_single':
                                 inputElement = <input type="text" name={attr.name} />;
+                                toolTipElement = <span>{attr.toolTip}</span>
                                 break;
                             case 'double_list':
                                 inputElement = <input type="text" name={attr.name} />;
+                                <span className='d-none'>{attr.toolTip}</span>
                                 break;
                             case 'tripple_single':
                                 inputElement = <input type="text" name={attr.name} />;
+                                <span className='d-none'>{attr.toolTip}</span>
                                 break;
                             case 'tripple_list':
-                                inputElement = <input type="text" name={attr.name} />;
+                                inputElement = <Input_TrippleList id={attr.name} />;
+                                <span className='d-none'>{attr.toolTip}</span>
                                 break;
                             default:
                                 inputElement = <input type="text" name={attr.name} />;
+                                toolTipElement = <span>{attr.toolTip}</span>
                                 break;
                         }
                         return (
@@ -80,7 +102,7 @@ export default function Card(props: { id: string }) {
                                     {attr.name} {attr.optional ? ' (optional)' : ' (required)'}
                                 </label>
                                 {inputElement}
-                                <div>{attr.toolTip}</div>
+                                {toolTipElement}
                             </div>
                         );
                     })}
