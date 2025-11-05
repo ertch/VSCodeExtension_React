@@ -77,11 +77,6 @@ export function deleteTab(state: TabState, id: string): TabState {
     return state;
   }
 
-  // Tab mit Inhalt warnt
-  if (tab.tree.length > 0) {
-    return state;
-  }
-
   const filtered = state.tabs.filter(t => t.id !== id);
 
   // TabIndices neu vergeben
