@@ -34,11 +34,7 @@ export default function CanvasForm({
 
   return (
     <form ref={formRef} className="canvas-form">
-      <div className="canvas-hint">
-        Ziehe Komponenten aus der rechten Palette auf die Fläche. Drop-Indikatoren zeigen dir: oben, unten oder innen.
-      </div>
 
-      {/* Render alle Tabs, nur aktiver ist sichtbar */}
       {tabState.tabs.map((tab, index) => (
         <div key={tab.id} className={tab.id === tabState.activeTabId ? '' : 'd-none'}>
           <TabPage

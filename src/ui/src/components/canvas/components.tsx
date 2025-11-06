@@ -114,10 +114,6 @@ export function Sidebar({ palette, onAddClick, uniqueContextId }: SidebarProps) 
       {palette.map((p) => (
         <PaletteButton key={p.type} entry={p} onAddClick={onAddClick} uniqueContextId={uniqueContextId} />
       ))}
-      <div className="canvas-sidebar__tip">
-        Tipp: Du kannst deine eigenen .tsx-Komponenten mit Metadaten via Prop
-        palette an Canvas übergeben.
-      </div>
     </aside>
   );
 }

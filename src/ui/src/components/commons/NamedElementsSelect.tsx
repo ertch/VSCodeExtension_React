@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNamedElements } from '../contexts/NamedElementsContext';
+import { useNamedElements } from '../../contexts/NamedElementsContext';
 
 interface NamedElementsSelectProps {
   value?: string;
