@@ -3,29 +3,27 @@ import { TabState } from '../../../utils/tabState';
 import { TreeNode } from '../../../utils/types/canvas';
 import TabPage from '../../cards/TabPage';
 import { RootDropArea } from '../components';
-import CanvasToolbar from './CanvasToolbar';
-import CanvasPreview from './CanvasPreview';
 
 interface CanvasFormProps {
   formRef: RefObject<HTMLFormElement>;
-  onSubmit: (e: FormEvent) => void;
   tabState: TabState;
   renderNode: (node: TreeNode) => ReactNode;
   uniqueContextId: symbol;
+  onRead: () => void;
+  onLoad: () => void;
   onClear: () => void;
-  exportJson: string;
   onTabNameChange: (tabId: string, newName: string) => void;
   onTabIndexChange: (tabId: string, newIndex: number) => void;
 }
 
 export default function CanvasForm({
   formRef,
-  onSubmit,
   tabState,
   renderNode,
   uniqueContextId,
+  onRead,
+  onLoad,
   onClear,
-  exportJson,
   onTabNameChange,
   onTabIndexChange
 }: CanvasFormProps) {
@@ -35,7 +33,7 @@ export default function CanvasForm({
   const maxTabIndex = dynamicTabsCount;
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="canvas-form">
+    <form ref={formRef} className="canvas-form">
       <div className="canvas-hint">
         Ziehe Komponenten aus der rechten Palette auf die Fläche. Drop-Indikatoren zeigen dir: oben, unten oder innen.
       </div>
@@ -56,8 +54,17 @@ export default function CanvasForm({
         </div>
       ))}
 
-      <CanvasToolbar onExport={onSubmit} onClear={onClear} />
-      <CanvasPreview exportJson={exportJson} />
+      <div className="canvas-toolbar">
+        <button type="button" className="canvas-btn canvas-btn--primary" onClick={onRead}>
+          Canvas auslesen
+        </button>
+        <button type="button" className="canvas-btn canvas-btn--secondary" onClick={onLoad}>
+          Canvas laden
+        </button>
+        <button type="button" className="canvas-btn canvas-btn--secondary" onClick={onClear}>
+          Canvas leeren
+        </button>
+      </div>
     </form>
   );
 }

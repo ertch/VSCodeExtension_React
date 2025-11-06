@@ -14,6 +14,7 @@ import { DefaultComponents, Sidebar } from './canvas/components';
 import { NodeWrapper } from './canvas/NodeWrapper';
 import TabNavigation from './canvas/tab-system/TabNavigation';
 import CanvasForm from './canvas/canvas-form/CanvasForm';
+import { downloadJSON } from '../utils/downloadJSON';
 
 // -----------------------
 // Canvas-Komponente
@@ -32,6 +33,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   const tree = activeTab.tree;
 
   const [exportJson, setExportJson] = useState("");
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   // Unique Context ID für diesen Canvas (verhindert Cross-Canvas Drops)
@@ -158,7 +160,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     [paletteMap, handleDelete, uniqueContextId]
   );
 
-  const serializeTreeFromDOM = useCallback(() => {
+  const serializeCurrentTabFromDOM = useCallback(() => {
     const root = formRef.current;
     if (!root) return [];
 
@@ -177,12 +179,56 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
     return tree.map(visit);
   }, [tree]);
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = serializeTreeFromDOM();
-    const json = JSON.stringify(data, null, 2);
+  const handleReadCanvas = useCallback(async () => {
+    // Sortiere Tabs nach tabIndex (wichtig für Reihenfolge!)
+    const sortedTabs = [...tabState.tabs].sort((a, b) => a.tabIndex - b.tabIndex);
+    const originalActiveTabId = tabState.activeTabId;
+    const results: any[] = [];
+
+    // Durchlaufe ALLE Tabs und lese Inputs aus
+    for (const tab of sortedTabs) {
+      // Tab aktivieren (um Inputs aus DOM zu lesen)
+      setTabState(prev => switchTab(prev, tab.id));
+
+      // Warten bis DOM gerendert ist (React Batch Update)
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Jetzt Inputs vom aktiven Tab auslesen
+      const root = formRef.current;
+      if (root) {
+        const visit = (node: TreeNode): any => {
+          const wrapperEl = root.querySelector(`[data-node-id="${node.id}"]`);
+          const inputs = wrapperEl ? extractInputsFromElement(wrapperEl as HTMLElement) : {};
+
+          return {
+            id: node.id,
+            type: node.type,
+            inputs,
+            children: (node.children || []).map(visit),
+          };
+        };
+
+        results.push({
+          type: "TabPage",
+          name: tab.name,
+          tabIndex: tab.tabIndex,
+          children: tab.tree.map(visit)
+        });
+      }
+    }
+
+    // Zurück zum ursprünglichen Tab
+    setTabState(prev => switchTab(prev, originalActiveTabId));
+
+    // Dialog öffnen mit gesammelten Daten
+    const json = JSON.stringify(results, null, 2);
     setExportJson(json);
-  };
+    setIsDetailsOpen(true);
+  }, [tabState.tabs, tabState.activeTabId]);
+
+  const handleLoadCanvas = useCallback(() => {
+    console.log('Canvas laden - noch nicht implementiert');
+  }, []);
 
   const addViaClick = (type: string) => {
     const node = createNodeFromType(type);
@@ -198,7 +244,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
   const handleClearTab = useCallback(() => {
     setTabState(prev => updateTabTree(prev, prev.activeTabId, []));
     setExportJson("");
-  }, [tabState.activeTabId]);
+  }, []);
 
   // Globaler Monitor: Fängt alle Drop-Events ab und verarbeitet sie zentral
   useEffect(() => {
@@ -239,12 +285,12 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
 
           <CanvasForm
             formRef={formRef}
-            onSubmit={onSubmit}
             tabState={tabState}
             renderNode={renderNode}
             uniqueContextId={uniqueContextId}
+            onRead={handleReadCanvas}
+            onLoad={handleLoadCanvas}
             onClear={handleClearTab}
-            exportJson={exportJson}
             onTabNameChange={(tabId, newName) =>
               setTabState(prev => updateTabName(prev, tabId, newName))
             }
@@ -256,6 +302,59 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
 
         <Sidebar palette={palette} onAddClick={addViaClick} uniqueContextId={uniqueContextId} />
       </div>
+
+      {/* Canvas Details Dialog */}
+      {isDetailsOpen && (
+        <>
+          <div className="confirm-dialog-backdrop" onClick={() => setIsDetailsOpen(false)} />
+          <div className="confirm-dialog canvas-details" role="dialog" aria-modal="true" aria-labelledby="canvas-details-title">
+            <div className="confirm-dialog__header">
+              <h3 id="canvas-details-title">Canvas Details</h3>
+              <button type="button" onClick={() => setIsDetailsOpen(false)} className="closedialog">
+                <span className="glyph glyph-close"></span>
+              </button>
+            </div>
+            <div className="canvas-details__content">
+              <textarea
+                readOnly
+                value={exportJson}
+                className="canvas-details__json"
+                placeholder="Noch keine Daten exportiert..."
+              />
+              <div className="canvas-details__actions">
+                <button
+                  type="button"
+                  className="canvas-btn canvas-btn--primary"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(exportJson);
+                      console.log('JSON in Zwischenablage kopiert');
+                    } catch (err) {
+                      console.error('Kopieren fehlgeschlagen:', err);
+                    }
+                  }}
+                >
+                  JSON Text kopieren
+                </button>
+                <button
+                  type="button"
+                  className="canvas-btn canvas-btn--primary"
+                  onClick={() => downloadJSON(exportJson)}
+                >
+                  JSON exportieren
+                </button>
+                <button
+                  type="button"
+                  className="canvas-btn canvas-btn--secondary"
+                  disabled
+                >
+                  Code generieren
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </NamedElementsProvider>
   );
 }
