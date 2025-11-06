@@ -1,9 +1,4 @@
-import { useState, ReactNode } from 'react';
-
-export function getCurrentTabsAmount() {
-    const tabs = document.querySelectorAll('.page_content');
-    return tabs.length - 1;
-}
+import { useState, useEffect, ReactNode } from 'react';
 
 interface TabPageProps {
     children?: ReactNode;
@@ -26,6 +21,15 @@ export default function TabPage({
 }: TabPageProps) {
     const [tabName, setTabName] = useState(initialName);
     const [stateTabNumber, setStateTabNumber] = useState(tabNumber);
+
+    // Sync props to state when they change
+    useEffect(() => {
+        setTabName(initialName);
+    }, [initialName]);
+
+    useEffect(() => {
+        setStateTabNumber(tabNumber);
+    }, [tabNumber]);
 
     const handleNewName = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newName = event.target.value;

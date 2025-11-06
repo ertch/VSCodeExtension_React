@@ -1,0 +1,41 @@
+---
+import { string } from 'astro/zod';
+
+interface Props {
+  id: string;
+  showInfo?: boolean;
+  centered?: boolean;
+  txt_info?: string;
+  txt_btn?: string;
+  callState?: string;
+}
+const { showInfo, callState, txt_info, txt_btn, centered, id} = Astro.props;
+let dNone = showInfo===true? "" : " d-none";
+let center = centered===true? "--centered" : "";
+let itxt = txt_info>""? `${txt_info}` : "Aufnahme läuft nur für Sie";
+let btxt = txt_btn>""? `${txt_btn}` : "Kunden aufnehmen";
+let cSt = callState>""? `${callState}` : "3";
+---
+
+<div
+    id={id} 
+    class=`input_form recordDisplay${center} grid-col_center`
+>
+    <div class=`recordDisplay__info${dNone}`>
+        <i class="glyph glyph-record"></i> 
+        {itxt}
+    </div>
+
+    <div 
+        class="go" 
+        id="recordDisplay_Btn"
+    >
+        <button
+            type="button"
+            onclick=`recordBtn('start',${cSt}, ${id})`
+        >
+            <i class="glyph glyph-circle"></i>
+            {btxt}
+        </button>
+    </div>
+</div>

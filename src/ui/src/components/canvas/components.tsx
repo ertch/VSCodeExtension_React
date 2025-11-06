@@ -4,68 +4,6 @@ import type { PaletteEntry } from '../../utils/types/palette';
 import type { RootDropAreaProps, SidebarProps, PaletteButtonProps } from '../../utils/types/canvas';
 
 // -----------------------
-// Default Components (Fallback Palette)
-// -----------------------
-export const DefaultComponents: PaletteEntry[] = [
-  {
-    type: "Container",
-    label: "Container",
-    canHaveChildren: true,
-    Component: ({ children }) => (
-      <div style={{ padding: "12px", border: "1px dashed #999", background: "#fafafa" }}>
-        <div style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>Container</div>
-        {children}
-      </div>
-    ),
-  },
-  {
-    type: "Heading",
-    label: "Überschrift",
-    canHaveChildren: false,
-    Component: () => (
-      <div>
-        <h3 style={{ margin: 0 }}>Überschrift</h3>
-        <input name="text" placeholder="Text der Überschrift" />
-      </div>
-    ),
-  },
-  {
-    type: "Paragraph",
-    label: "Text",
-    canHaveChildren: false,
-    Component: () => (
-      <div>
-        <p style={{ margin: "4px 0" }}>Lorem ipsum dolor sit amet…</p>
-        <textarea name="content" placeholder="Inhalt"></textarea>
-      </div>
-    ),
-  },
-  {
-    type: "InputField",
-    label: "Eingabefeld",
-    canHaveChildren: false,
-    Component: () => (
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <label style={{ minWidth: 80 }}>Label:</label>
-        <input name="label" placeholder="Label" />
-        <input name="value" placeholder="Wert" />
-      </div>
-    ),
-  },
-  {
-    type: "Button",
-    label: "Button",
-    canHaveChildren: false,
-    Component: () => (
-      <div>
-        <button type="button">Klick</button>
-        <input name="buttonLabel" placeholder="Button-Text" />
-      </div>
-    ),
-  },
-];
-
-// -----------------------
 // RootDropArea
 // -----------------------
 export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropAreaProps) {

@@ -9,8 +9,8 @@ import type { PaletteEntry } from '../utils/types/palette';
 import { extractInputsFromElement } from '../utils/extractInputs';
 import { NamedElementsProvider } from '../contexts/NamedElementsContext';
 import { TabState, initTabState, addTab, deleteTab, updateTabTree, updateTabName, updateTabIndex, switchTab } from '../utils/tabState';
-import { genId, cloneDeep, findNodeAndParent, removeNode, isDescendant } from './canvas/tree-utils';
-import { DefaultComponents, Sidebar } from './canvas/components';
+import { genId, cloneDeep, findNodeAndParent, removeNode, isDescendant, insertNode } from './canvas/tree-utils';
+import { Sidebar } from './canvas/components';
 import { NodeWrapper } from './canvas/NodeWrapper';
 import TabNavigation from './canvas/tab-system/TabNavigation';
 import CanvasForm from './canvas/canvas-form/CanvasForm';
@@ -19,7 +19,7 @@ import { downloadJSON } from '../utils/downloadJSON';
 // -----------------------
 // Canvas-Komponente
 // -----------------------
-export default function Canvas({ palette = DefaultComponents, initialNodes = [] }: CanvasProps) {
+export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
   const paletteMap = useMemo(() => {
     const map: Record<string, PaletteEntry> = {};
     palette.forEach((p) => (map[p.type] = p));
@@ -63,30 +63,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         const newNode = createNodeFromType(payload.type);
         if (!newNode) return;
 
-        if (!dropTargetId) {
-          next.push(newNode);
-          setTabState(prev => updateTabTree(prev, tabState.activeTabId, next));
-          return;
-        }
-
-        const found = findNodeAndParent(next, dropTargetId);
-        if (!found) return;
-
-        if (zone === "inside" && found.node.canHaveChildren) {
-          found.node.children = found.node.children || [];
-          found.node.children.push(newNode);
-        } else {
-          const parent = found.parent;
-          if (!parent) {
-            const insertIndex = zone === "above" ? found.index : found.index + 1;
-            next.splice(insertIndex, 0, newNode);
-          } else {
-            const list = parent.children || [];
-            const insertIndex = zone === "above" ? found.index : found.index + 1;
-            list.splice(insertIndex, 0, newNode);
-            parent.children = list;
-          }
-        }
+        insertNode(next, dropTargetId, zone, newNode);
         setTabState(prev => updateTabTree(prev, tabState.activeTabId, next));
       } else if (payload.kind === "MOVE") {
         const movingId = payload.nodeId;
@@ -96,30 +73,7 @@ export default function Canvas({ palette = DefaultComponents, initialNodes = [] 
         const movingNode = removeNode(next, movingId);
         if (!movingNode) return;
 
-        if (!dropTargetId) {
-          next.push(movingNode);
-          setTabState(prev => updateTabTree(prev, tabState.activeTabId, next));
-          return;
-        }
-
-        const found = findNodeAndParent(next, dropTargetId);
-        if (!found) return;
-
-        if (zone === "inside" && found.node.canHaveChildren) {
-          found.node.children = found.node.children || [];
-          found.node.children.push(movingNode);
-        } else {
-          const parent = found.parent;
-          if (!parent) {
-            const insertIndex = zone === "above" ? found.index : found.index + 1;
-            next.splice(insertIndex, 0, movingNode);
-          } else {
-            const list = parent.children || [];
-            const insertIndex = zone === "above" ? found.index : found.index + 1;
-            list.splice(insertIndex, 0, movingNode);
-            parent.children = list;
-          }
-        }
+        insertNode(next, dropTargetId, zone, movingNode);
         setTabState(prev => updateTabTree(prev, tabState.activeTabId, next));
       }
     },

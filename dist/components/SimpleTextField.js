@@ -1,4 +1,7 @@
 "use strict";
+// TODO: Alte Generator-Funktion für Legacy-System
+// Muss für neues cardComponents-System neu geschrieben werden
+// Siehe: src/ui/src/components/cards/
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateSimpleTextfield = generateSimpleTextfield;
 function generateSimpleTextfield(props) {

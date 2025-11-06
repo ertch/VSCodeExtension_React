@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { useNamedElements } from '../../../contexts/NamedElementsContext'
 import Input_TrippleList from '../../inputs/Input_TrippleList'
@@ -10,20 +9,27 @@ export interface CardAttribute {
   optional: boolean
 }
 
+export interface SlotProps {
+  children: React.ReactNode
+  ref: React.RefObject<HTMLDivElement>
+  isEmpty: boolean
+}
+
 export interface CardConfig {
   defaultName: string
   attributes: CardAttribute[]
   canBeParent?: boolean
   codegenName: string
-  renderPreview: (name: string, id: string) => React.ReactNode
+  renderPreview: (name: string, id: string, slotProps?: SlotProps) => React.ReactNode
 }
 
 interface BaseCardProps {
   id: string
   config: CardConfig
+  slotProps?: SlotProps
 }
 
-export default function BaseCard({ id, config }: BaseCardProps) {
+export default function BaseCard({ id, config, slotProps }: BaseCardProps) {
   const [name, setName] = useState(config.defaultName)
   const { updateElementName, unregisterElement } = useNamedElements()
 
@@ -64,7 +70,7 @@ export default function BaseCard({ id, config }: BaseCardProps) {
       id={id}
     >
       <div className='preview'>
-        {config.renderPreview(name, id)}
+        {config.renderPreview(name, id, slotProps)}
       </div>
 
       <details>

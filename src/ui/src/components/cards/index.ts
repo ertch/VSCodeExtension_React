@@ -2,6 +2,7 @@
 
 import { PaletteEntry } from "../../utils/types/palette";
 import SimpleInput from "./SimpleInput";
+import SimpleFieldset from "./SimpleFieldset";
 
 export const cardComponents: PaletteEntry<any>[] = [
   {
@@ -10,7 +11,12 @@ export const cardComponents: PaletteEntry<any>[] = [
     canHaveChildren: false,
     Component: SimpleInput,
   },
-  
+  {
+    type: "SimpleFieldset",
+    label: "SimpleFieldset",
+    canHaveChildren: true,
+    Component: SimpleFieldset,
+  },
 ];
 
-export { SimpleInput };
+export { SimpleInput, SimpleFieldset };

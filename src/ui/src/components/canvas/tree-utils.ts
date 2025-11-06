@@ -49,3 +49,41 @@ export function isDescendant(tree: TreeNode[], maybeChildId: string, ancestorId:
   }
   return false;
 }
+
+// Insert Node into Tree at Target Position
+export function insertNode(
+  tree: TreeNode[],
+  targetId: string | null,
+  zone: 'above' | 'below' | 'inside',
+  nodeToInsert: TreeNode
+): void {
+  // Root-level insertion
+  if (!targetId) {
+    tree.push(nodeToInsert);
+    return;
+  }
+
+  const found = findNodeAndParent(tree, targetId);
+  if (!found) return;
+
+  // Inside insertion (if target can have children)
+  if (zone === 'inside' && found.node.canHaveChildren) {
+    found.node.children = found.node.children || [];
+    found.node.children.push(nodeToInsert);
+    return;
+  }
+
+  // Above/Below insertion
+  const parent = found.parent;
+  const insertIndex = zone === 'above' ? found.index : found.index + 1;
+
+  if (!parent) {
+    // Insert at root level
+    tree.splice(insertIndex, 0, nodeToInsert);
+  } else {
+    // Insert as sibling
+    const list = parent.children || [];
+    list.splice(insertIndex, 0, nodeToInsert);
+    parent.children = list;
+  }
+}

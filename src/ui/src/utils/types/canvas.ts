@@ -41,12 +41,9 @@ export interface NodeWrapperProps {
   children?: ReactNode;
 }
 
-export interface DropPayload {
-  kind: 'NEW' | 'MOVE';
-  type?: string;
-  nodeId?: string;
-  contextId: symbol;
-}
+export type DropPayload =
+  | { kind: 'NEW'; type: string; contextId: symbol }
+  | { kind: 'MOVE'; nodeId: string; contextId: symbol };
 
 export interface PerformDropParams {
   dropTargetId: string | null;

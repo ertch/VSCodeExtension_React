@@ -95,6 +95,13 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
 
   const Comp = meta.Component;
 
+  // Bereite Slot-Props vor (nur für canHaveChildren)
+  const slotProps = node.canHaveChildren ? {
+    children,
+    ref: childrenRef,
+    isEmpty: !children || children.length === 0,
+  } : undefined;
+
   return (
     <div
       ref={wrapperRef}
@@ -124,27 +131,8 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
 
       {/* Eigentliche Komponente - Drop-Target für above/below */}
       <div ref={contentRef} data-content-area={node.id}>
-        <Comp />
+        <Comp slotProps={slotProps} />
       </div>
-
-      {/* Kinder-Spalte - Separates Drop-Target nur für "inside" */}
-      {node.canHaveChildren && (
-        <div
-          ref={childrenRef}
-          className={`canvas-children-column ${dropIndicator === 'inside' ? 'is-inside' : ''}`}
-          style={{
-            minHeight: children?.length > 0 ? 'auto' : 40
-          }}
-        >
-          {children?.length > 0 ? (
-            children
-          ) : (
-            <div className="canvas-children-empty">
-              Drop hier hinein...
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ReactNode, RefObject, FormEvent } from 'react';
+import { ReactNode, RefObject } from 'react';
 import { TabState } from '../../../utils/tabState';
 import { TreeNode } from '../../../utils/types/canvas';
 import TabPage from '../../cards/TabPage';

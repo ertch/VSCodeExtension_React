@@ -2,6 +2,11 @@ import * as fs from "fs";
 import * as path from "path";
 import { generateSimpleTextfield } from "../components/SimpleTextField";
 
+// TODO: Generator ist nicht kompatibel mit neuem cardComponents-System
+// Muss angepasst werden für BaseCard, SimpleInput, etc.
+// Button "Code generieren" ist aktuell disabled (Canvas.tsx:349)
+// Der Generator kennt nur alte SimpleTextField-Komponente, nicht die neuen Cards
+
 const generatedIds = new Set<string>();
 
 export function generateUniqueId(baseId: string): string {

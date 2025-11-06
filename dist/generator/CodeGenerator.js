@@ -5,6 +5,10 @@ exports.generateAndSaveAstroFile = generateAndSaveAstroFile;
 const fs = require("fs");
 const path = require("path");
 const SimpleTextField_1 = require("../components/SimpleTextField");
+// TODO: Generator ist nicht kompatibel mit neuem cardComponents-System
+// Muss angepasst werden für BaseCard, SimpleInput, etc.
+// Button "Code generieren" ist aktuell disabled (Canvas.tsx:349)
+// Der Generator kennt nur alte SimpleTextField-Komponente, nicht die neuen Cards
 const generatedIds = new Set();
 function generateUniqueId(baseId) {
     let uniqueId = baseId;

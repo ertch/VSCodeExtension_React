@@ -1,3 +1,7 @@
+// TODO: Alte Generator-Funktion für Legacy-System
+// Muss für neues cardComponents-System neu geschrieben werden
+// Siehe: src/ui/src/components/cards/
+
 export function generateSimpleTextfield(props: {
     id: string;
     label: string;
