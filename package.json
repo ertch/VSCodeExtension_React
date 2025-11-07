@@ -1,86 +1,36 @@
 {
-  "name": "vscextension",
-  "displayName": "vscExtension",
-  "description": "vscExtension with react",
-  "version": "0.0.1",
-  "publisher": "your-name",
+  "name": "tt-editor-refactored",
+  "version": "1.0.0",
+  "description": "Refactored TT-Editor VSCode Extension",
+  "main": "./dist/extension.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
   "engines": {
     "vscode": "^1.96.0"
   },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onCommand:vscExtension.showWebview",
-    "onView:vscExtension.view"
-  ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "vscExtension",
-          "title": "TT-Editor",
-          "icon": "./media/icon.png"
-        }
-      ]
-    },
-    "views": {
-      "vscExtension": [
-        {
-          "type": "webview",
-          "id": "vscExtension.view",
-          "name": "Übersicht"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "vscExtension.showWebview",
-        "title": "Open vscExtension Panel"
-      },
-      {
-        "command": "vscExtension.showWebview",
-        "title": "Start",
-        "category": "VSC-ExtensionName"
-      }
-    ],
-      "menus": {
-      "view/title": [
-        {
-          "command": "vscExtension.showWebview",
-          "when": "view == vscExtension.view",
-          "group": "navigation@1",
-          "alt": "vscExtension.showWebview",
-          "icon": "$(play)"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "vscExtension.showWebview",
-          "when": "true"
-        }
-      ]
-    },
-    "viewsWelcome": [
-      {
-        "view": "vscExtension.view",
-        "contents": "Willkommen! [Starten](command:vscExtension.showWebview) um das Hauptfenster zu öffnen."
-      }
-    ]
-  },
-  "scripts": {
-    "compile": "tsc && node esbuild.js",
-    "watch": "tsc --watch",
-    "pretest": "npm run compile",
-    "test": "vscode-test",
-    "build": "npm run compile && cd src/ui && npm run build && cd ../.."
-  },
   "devDependencies": {
+    "@testing-library/react": "^14.0.0",
+    "@types/jest": "^29.5.0",
     "@types/node": "^22.13.1",
+    "@types/react": "^18.2.0",
     "@types/vscode": "^1.96.0",
-    "esbuild": "^0.24.2",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-jest": "^29.1.0",
     "typescript": "^5.7.3",
-    "vscode-test": "^1.5.0"
-  }
+    "zod": "^3.22.0"
+  },
+  "keywords": [
+    "vscode-extension",
+    "tt-editor"
+  ],
+  "author": "",
+  "license": "ISC"
 }

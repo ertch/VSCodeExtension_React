@@ -1,0 +1,1 @@
+{"version":3,"file":"SidebarProvider.d.ts","sourceRoot":"","sources":["../../src/providers/SidebarProvider.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,MAAM,MAAM,QAAQ,CAAC;AAEjC,qBAAa,eAAgB,YAAW,MAAM,CAAC,mBAAmB;IACpD,OAAO,CAAC,QAAQ,CAAC,OAAO;gBAAP,OAAO,EAAE,MAAM,CAAC,gBAAgB;IAE7D,kBAAkB,CAAC,WAAW,EAAE,MAAM,CAAC,WAAW,GAAG,IAAI;IAczD;;OAEG;IACH,OAAO,CAAC,cAAc;CAiCvB"}
