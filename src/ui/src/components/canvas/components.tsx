@@ -12,6 +12,32 @@ export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropArea
     const el = dropRef.current;
     if (!el) return;
 
+    /**
+     * Helper: Prüft ob die RootDropArea das innerste "inside" Target ist.
+     * Verhindert dass die RootDropArea highlightet, wenn über verschachtelte Nodes gehovered wird.
+     */
+    const isInnermostInsideTarget = (targets: readonly unknown[]): boolean => {
+      if (!targets || targets.length === 0) {
+        return true;
+      }
+
+      const innermostTarget = targets[0];
+
+      if (
+        innermostTarget &&
+        typeof innermostTarget === 'object' &&
+        'data' in innermostTarget &&
+        innermostTarget.data &&
+        typeof innermostTarget.data === 'object' &&
+        'nodeId' in innermostTarget.data
+      ) {
+        // RootDropArea hat nodeId: null
+        return innermostTarget.data.nodeId === null;
+      }
+
+      return true;
+    };
+
     return dropTargetForElements({
       element: el,
       canDrop: ({ source }) => source.data.contextId === uniqueContextId,
@@ -19,7 +45,21 @@ export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropArea
         nodeId: null, // Root-Level
         zone: "inside",
       }),
-      onDragEnter: () => setIsDraggedOver(true),
+      onDragEnter: ({ location }) => {
+        // Nur highlighten wenn RootDropArea das innerste Target ist
+        if (!isInnermostInsideTarget(location.current.dropTargets)) {
+          return;
+        }
+        setIsDraggedOver(true);
+      },
+      onDrag: ({ location }) => {
+        // Nur highlighten wenn RootDropArea das innerste Target ist
+        if (!isInnermostInsideTarget(location.current.dropTargets)) {
+          setIsDraggedOver(false);
+          return;
+        }
+        setIsDraggedOver(true);
+      },
       onDragLeave: () => setIsDraggedOver(false),
       onDrop: () => setIsDraggedOver(false),
     });
