@@ -16,10 +16,10 @@ export interface SlotProps {
 }
 
 export interface CardConfig {
-  defaultName: string
+  defaultName?: string
   attributes: CardAttribute[]
   canBeParent?: boolean
-  codegenName: string
+  codegenName?: string
   renderPreview: (name: string, id: string, slotProps?: SlotProps) => React.ReactNode
 }
 

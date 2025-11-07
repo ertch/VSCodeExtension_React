@@ -13,11 +13,11 @@ const simpleFieldsetConfig: CardConfig = {
   renderPreview: (name, id, slotProps) => (
     <fieldset id={id}>
       <legend>{name}</legend>
-      {slotProps && <Slot ref={slotProps.ref} isEmpty={slotProps.isEmpty}>{slotProps.children}</Slot>}
+      {slotProps && <Slot innerRef={slotProps.ref} isEmpty={slotProps.isEmpty}>{slotProps.children}</Slot>}
     </fieldset>
   )
 }
 
-export default function SimpleFieldsetCard({ id }: { id: string }) {
-  return <BaseCard id={id} config={simpleFieldsetConfig} />
+export default function SimpleFieldsetCard({ id, slotProps }: { id: string, slotProps?: import('./CardLayout/BaseCard').SlotProps }) {
+  return <BaseCard id={id} config={simpleFieldsetConfig} slotProps={slotProps} />
 }

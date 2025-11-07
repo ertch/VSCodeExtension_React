@@ -3,9 +3,7 @@ import { draggable, dropTargetForElements } from '@atlaskit/pragmatic-drag-and-d
 import type { PaletteEntry } from '../../utils/types/palette';
 import type { RootDropAreaProps, SidebarProps, PaletteButtonProps } from '../../utils/types/canvas';
 
-// -----------------------
 // RootDropArea
-// -----------------------
 export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropAreaProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [isDraggedOver, setIsDraggedOver] = useState(false);
@@ -34,7 +32,7 @@ export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropArea
     >
       {tree.length === 0 && (
         <div className="canvas-empty-hint">
-          Leerer Canvas – droppe etwas hier hinein…
+          Leerer Canvas – ziehe eine Card aus der Seitenleiste hierher
         </div>
       )}
       {tree.map((n) => renderNode(n))}
@@ -48,7 +46,7 @@ export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropArea
 export function Sidebar({ palette, onAddClick, uniqueContextId }: SidebarProps) {
   return (
     <aside className="canvas-sidebar">
-      <div className="canvas-sidebar__title">Palette</div>
+      <div className="canvas-sidebar__title">Komponentenauswahl</div>
       {palette.map((p) => (
         <PaletteButton key={p.type} entry={p} onAddClick={onAddClick} uniqueContextId={uniqueContextId} />
       ))}

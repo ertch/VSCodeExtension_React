@@ -6,7 +6,7 @@ import { TrashIcon } from './components';
 export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }: NodeWrapperProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const childrenRef = useRef<HTMLDivElement>(null);
+  const [childrenEl, setChildrenEl] = useState<HTMLDivElement | null>(null);
   const [dropIndicator, setDropIndicator] = useState<'above' | 'below' | 'inside' | null>(null);
 
   // Make node draggable
@@ -69,7 +69,7 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
   useEffect(() => {
     if (!node.canHaveChildren) return;
 
-    const el = childrenRef.current;
+    const el = childrenEl;
     if (!el) return;
 
     return dropTargetForElements({
@@ -91,14 +91,14 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
         setDropIndicator(null);
       },
     });
-  }, [node.id, node.canHaveChildren, uniqueContextId]);
+  }, [node.id, node.canHaveChildren, uniqueContextId, childrenEl]);
 
   const Comp = meta.Component;
 
   // Bereite Slot-Props vor (nur für canHaveChildren)
   const slotProps = node.canHaveChildren ? {
     children,
-    ref: childrenRef,
+    ref: setChildrenEl,
     isEmpty: !children || children.length === 0,
   } : undefined;
 
