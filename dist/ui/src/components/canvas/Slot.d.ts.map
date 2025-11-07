@@ -1,0 +1,1 @@
+{"version":3,"file":"Slot.d.ts","sourceRoot":"","sources":["../../../../../src/ui/src/components/canvas/Slot.tsx"],"names":[],"mappings":"AAAA,UAAU,SAAS;IACjB,QAAQ,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC;IAC3B,OAAO,CAAC,EAAE,OAAO,CAAC;IAClB,QAAQ,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC,cAAc,CAAC,CAAC;CAC5C;AAED,wBAAgB,IAAI,CAAC,EAAE,QAAQ,EAAE,OAAO,EAAE,QAAQ,EAAE,EAAE,SAAS,2CAe9D"}

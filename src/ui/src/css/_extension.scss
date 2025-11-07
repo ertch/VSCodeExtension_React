@@ -1,0 +1,21 @@
+.attribute-input {
+    border-bottom: 1px solid gray;
+    display: grid;
+    gap: 2em;
+    grid-template-columns: 240px 340px 1fr;
+    margin-top: .3em;
+    padding-bottom: 5px;
+
+    &_tripple {
+        @extend .attribute-input;
+        margin-top: 0;
+        gap: .5em;
+        grid-template-columns: 180px 180px 180px;
+    }
+}
+
+.tab-attributes {
+    display: flex;
+    width: 500px;
+    gap: 2em;
+}

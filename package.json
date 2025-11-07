@@ -1,17 +1,49 @@
 {
   "name": "tt-editor-refactored",
+  "displayName": "TT-Editor",
+  "description": "Refactored TT-Editor VSCode Extension - GUI for LowCode",
   "version": "1.0.0",
-  "description": "Refactored TT-Editor VSCode Extension",
+  "publisher": "dein-name",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscExtension.showWebview",
+        "title": "Open TT-Editor Panel",
+        "icon": "$(window)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "tt-editor-sidebar",
+          "title": "TT-Editor",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "tt-editor-sidebar": [
+        {
+          "type": "webview",
+          "id": "vscExtension.view",
+          "name": "TT-Editor"
+        }
+      ]
+    }
+  },
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build": "tsc",
+    "build": "tsc && cd src/ui && npm run build && cd ../..",
     "watch": "tsc --watch"
-  },
-  "engines": {
-    "vscode": "^1.96.0"
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",

@@ -1,0 +1,88 @@
+@import '../base/colors';
+@import '../base/fonts';
+@import '../base/variables';
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+}
+
+/**
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+
+button,
+input {
+  overflow: visible;
+}
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+
+button,
+select {
+  text-transform: none;
+}
+
+/**
+ * Correct the inability to style clickable types in iOS and Safari.
+ */
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  appearance: button;
+}
+
+/* btn styling */
+
+.go button {
+	border: 1px solid #333;
+	border-radius: 5px;
+	height: 46px;
+	margin-top: 10px;
+	width: 185px;
+}
+
+.go button:hover {
+	background-blend-mode: darken;
+	cursor: pointer;
+}
+
+#go_negativ {
+	border-color: #6e0a0a;
+	background-image: $button-red;
+	box-shadow: 0 1px 4px rgb(92, 90, 90);
+}
+
+#abschlussBtn {
+	border-color: #0d8d0d;
+	background-image: $button-green;
+	box-shadow: 0 1px 4px rgb(92, 90, 90);
+}
+
+#go_wiedervorlage {
+	border-color: #2d95ae;
+	background-image: $button-blue;
+	box-shadow: 0 1px 4px rgb(92, 90, 90);
+}
+
+#go_ane {
+	border-color: #bbbb23;
+	background-image: $button-yellow;
+	box-shadow: 0 1px 4px rgb(92, 90, 90);
+}
+
+#go_abfax {
+	border-color: #939393;
+	background-image: $button-gray;
+	box-shadow: 0 1px 4px rgb(92, 90, 90);
+}
