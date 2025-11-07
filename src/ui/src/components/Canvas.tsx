@@ -15,6 +15,7 @@ import { NodeWrapper } from './canvas/NodeWrapper';
 import TabNavigation from './canvas/tab-system/TabNavigation';
 import CanvasForm from './canvas/canvas-form/CanvasForm';
 import { downloadJSON } from '../utils/downloadJSON';
+import { downloadAstro } from '../utils/downloadAstro';
 
 // -----------------------
 // Canvas-Komponente
@@ -34,7 +35,9 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
 
   const [exportJson, setExportJson] = useState("");
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [showMetaForm, setShowMetaForm] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const metaFormRef = useRef<HTMLFormElement>(null);
 
   // Unique Context ID für diesen Canvas (verhindert Cross-Canvas Drops)
   const uniqueContextId = useMemo(() => Symbol('canvas-context'), []);
@@ -184,6 +187,39 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
     console.log('Canvas laden - noch nicht implementiert');
   }, []);
 
+  const handleGenerateAstroCode = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!metaFormRef.current) return;
+
+    const formData = new FormData(metaFormRef.current);
+    const metadata = {
+      campaignNr: formData.get('campaignNr') as string,
+      campaignTitle: formData.get('campaignTitle') as string,
+      headerTitle: formData.get('headerTitle') as string,
+      headerImg: formData.get('headerImg') as string,
+    };
+
+    // JSON-Daten parsen
+    const jsonData = JSON.parse(exportJson);
+
+    // Import mergeAstro
+    try {
+      const { mergeAstro } = await import('@generator/AstroMerger');
+      const astroCode = mergeAstro(jsonData, metadata);
+
+      // Astro-Datei direkt herunterladen
+      downloadAstro(astroCode, 'index.astro');
+
+      console.log('Astro-Datei wurde heruntergeladen');
+    } catch (error) {
+      console.error('Fehler beim Generieren der Astro-Datei:', error);
+    }
+
+    // Formular schließen
+    setShowMetaForm(false);
+  }, [exportJson]);
+
   const addViaClick = (type: string) => {
     const node = createNodeFromType(type);
     if (!node) return;
@@ -300,11 +336,87 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
                 <button
                   type="button"
                   className="canvas-btn canvas-btn--secondary"
-                  disabled
+                  onClick={() => {
+                    setIsDetailsOpen(false);
+                    setShowMetaForm(true);
+                  }}
+                  disabled={!exportJson}
                 >
                   Code generieren
                 </button>
               </div>
+
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Kampagnen-Informationen Dialog */}
+      {showMetaForm && (
+        <>
+          <div className="confirm-dialog-backdrop" onClick={() => setShowMetaForm(false)} />
+          <div className="confirm-dialog canvas-details" role="dialog" aria-modal="true" aria-labelledby="meta-form-title">
+            <div className="confirm-dialog__header">
+              <h3 id="meta-form-title">Kampagnen-Informationen</h3>
+              <button type="button" onClick={() => setShowMetaForm(false)} className="closedialog">
+                <span className="glyph glyph-close"></span>
+              </button>
+            </div>
+            <div className="canvas-details__content">
+              <form ref={metaFormRef} onSubmit={handleGenerateAstroCode}>
+                <div className="form-group">
+                  <label htmlFor="campaignNr">Campaign Number:</label>
+                  <input
+                    type="text"
+                    id="campaignNr"
+                    name="campaignNr"
+                    required
+                    placeholder="z.B. 001"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="campaignTitle">Campaign Title:</label>
+                  <input
+                    type="text"
+                    id="campaignTitle"
+                    name="campaignTitle"
+                    required
+                    placeholder="z.B. Meine Kampagne"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="headerTitle">Header Title:</label>
+                  <input
+                    type="text"
+                    id="headerTitle"
+                    name="headerTitle"
+                    required
+                    placeholder="z.B. Willkommen"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="headerImg">Header Image:</label>
+                  <input
+                    type="text"
+                    id="headerImg"
+                    name="headerImg"
+                    required
+                    placeholder="z.B. header.png"
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="canvas-btn canvas-btn--primary">
+                    Astro-Datei generieren
+                  </button>
+                  <button
+                    type="button"
+                    className="canvas-btn canvas-btn--secondary"
+                    onClick={() => setShowMetaForm(false)}
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </>

@@ -24,48 +24,98 @@ interface WrapperConfig {
   wrapAll?: (html: string) => string;
 }
 
-// Hauptfunktion
-export function generateHTML(
-  entities: Entity | Entity[], 
-  wrapperConfig: WrapperConfig = {}
-): string {
-  const entitiesArray = Array.isArray(entities) ? entities : [entities];
-  const htmlParts = entitiesArray.map(entity => generateSingleEntity(entity, wrapperConfig));
-  
-  const combinedHTML = htmlParts.join('\n');
-  
-  if (wrapperConfig.wrapAll) {
-    return wrapperConfig.wrapAll(combinedHTML);
-  }
-  
-  return combinedHTML;
+// Rückgabe-Typ für erweiterte HTML-Generierung
+export interface GenerateHTMLResult {
+  tabs: string[][];  // [["tab1", "tab_id", "Name"], ...]
+  components: string[];  // ["Gate", "SimpleSelect", ...]
+  html: string;
 }
 
-// Einzelne Entity verarbeiten
+// Hauptfunktion mit Einrückung - Erweiterte Version
+export function generateHTML(
+  entities: Entity | Entity[],
+  wrapperConfig: WrapperConfig = {}
+): GenerateHTMLResult {
+  const entitiesArray = Array.isArray(entities) ? entities : [entities];
+  const tabs: string[][] = [];
+  const componentsSet = new Set<string>();
+
+  // HTML generieren und dabei tabs + components sammeln
+  const htmlParts = entitiesArray.map((entity, index) => {
+    // Tabs sammeln (Start-Tab überspringen)
+    if (entity.type === 'TabPage') {
+      const tabPage = entity as TabPageEntity;
+      if (tabPage.name !== 'Start' && tabPage.tabIndex > 0) {
+        tabs.push([
+          `tab${tabPage.tabIndex}`,
+          `tab_${tabPage.name}`,
+          tabPage.name
+        ]);
+      }
+    }
+
+    // Components sammeln (rekursiv durch den Baum)
+    collectComponents(entity, componentsSet);
+
+    return generateSingleEntity(entity, wrapperConfig, 0);
+  });
+
+  const combinedHTML = htmlParts.join('\n');
+  const finalHTML = wrapperConfig.wrapAll ? wrapperConfig.wrapAll(combinedHTML) : combinedHTML;
+
+  return {
+    tabs,
+    components: Array.from(componentsSet),
+    html: finalHTML
+  };
+}
+
+// Hilfsfunktion: Sammelt alle verwendeten Component-Typen
+function collectComponents(entity: Entity, componentsSet: Set<string>): void {
+  if (entity.type !== 'TabPage') {
+    componentsSet.add(entity.type);
+  }
+
+  if (entity.children) {
+    entity.children.forEach(child => collectComponents(child, componentsSet));
+  }
+}
+
+// Einzelne Entity mit Einrückungstiefe verarbeiten
 function generateSingleEntity(
   entity: Entity, 
-  wrapperConfig: WrapperConfig
+  wrapperConfig: WrapperConfig,
+  depth: number = 0
 ): string {
+  const indent = '  '.repeat(depth);
+  
   const tagName = entity.type;
   const attributes = extractAttributes(entity);
   const attributesString = buildAttributesString(attributes);
   
-  // Rekursiv Children verarbeiten
+  // Rekursiv Children mit erhöhter Tiefe verarbeiten
   const childrenHTML = entity.children && entity.children.length > 0
-    ? entity.children.map(child => generateSingleEntity(child, wrapperConfig)).join('\n')
+    ? entity.children.map(child => 
+        generateSingleEntity(child, wrapperConfig, depth + 1)
+      ).join('\n')
     : '';
   
-  // HTML erstellen
-  let html = childrenHTML
-    ? `<${tagName}${attributesString}>\n${childrenHTML}\n</${tagName}>`
-    : `<${tagName}${attributesString} />`;
-  
-  // Entity-spezifische Wrapper
-  if (wrapperConfig.before) {
-    html = wrapperConfig.before(entity) + html;
+  // HTML mit korrekter Einrückung erstellen
+  let html: string;
+  if (childrenHTML) {
+    html = `${indent}<${tagName}${attributesString}>\n${childrenHTML}\n${indent}</${tagName}>`;
+  } else {
+    html = `${indent}<${tagName}${attributesString} />`;
   }
-  if (wrapperConfig.after) {
-    html = html + wrapperConfig.after(entity);
+  
+  // Entity-spezifische Wrapper (nur auf oberster Ebene)
+  if (depth === 0) {
+    if (wrapperConfig.before) {
+      html = wrapperConfig.before(entity) + '\n' + html;
+    }
+    if (wrapperConfig.after) {
+      html = html + '\n' + wrapperConfig.after(entity);
+    }
   }
   
   return html;
@@ -74,21 +124,17 @@ function generateSingleEntity(
 // Attribute extrahieren basierend auf Entity-Typ
 function extractAttributes(entity: Entity): Record<string, any> {
   const attributes: Record<string, any> = {};
-  
+
   if (entity.type === 'TabPage') {
-    // TabPage: Attribute auf oberster Ebene
+    // TabPage: name wird zu id und name, tabIndex wird zu tab (als String)
     const tabPage = entity as TabPageEntity;
     attributes.id = tabPage.name;
-    attributes.name = tabPage.name; // name wird zu id UND name
-    attributes.tab = tabPage.tabIndex;
+    attributes.name = tabPage.name;
+    attributes.tab = String('tab' + tabPage.tabIndex);
   } else {
-    // Standard: Attribute aus inputs
+    // Standard: name aus inputs wird zu id
     const standardEntity = entity as StandardEntity;
-    if (standardEntity.id) {
-      attributes.id = standardEntity.id;
-    }
     
-    // Inputs verarbeiten und gruppierte Attribute sammeln
     if (standardEntity.inputs) {
       const processedInputs = processInputs(standardEntity.inputs);
       Object.assign(attributes, processedInputs);
@@ -103,8 +149,19 @@ function processInputs(inputs: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
   const groupedAttributes: Record<string, any[]> = {};
   
+  // Zuerst name verarbeiten für id
+  if (inputs.name && inputs.name !== '') {
+    result.id = inputs.name;
+    result.name = inputs.name;
+  }
+  
   Object.entries(inputs).forEach(([key, value]) => {
-    // Prüfen ob es ein numeriertes Attribut ist (z.B. actions_trigger_0)
+    // Skip empty values und name (bereits verarbeitet)
+    if (value === '' || value === null || value === undefined || key === 'name') {
+      return;
+    }
+    
+    // Prüfen ob es ein numeriertes Attribut ist
     const match = key.match(/^(.+?)_(\d+)$/);
     
     if (match) {
@@ -116,7 +173,6 @@ function processInputs(inputs: Record<string, any>): Record<string, any> {
         groupedAttributes[baseKey] = [];
       }
       
-      // Sicherstellen dass Array groß genug ist
       while (groupedAttributes[baseKey].length <= numIndex) {
         groupedAttributes[baseKey].push(null);
       }
@@ -124,16 +180,7 @@ function processInputs(inputs: Record<string, any>): Record<string, any> {
       groupedAttributes[baseKey][numIndex] = value;
     } else {
       // Normales Attribut
-      if (key === 'name') {
-        // name wird zu id UND name
-        result.id = value;
-        result.name = value;
-      } else if (key === 'class') {
-        // class bleibt class (nicht klasse, da wir HTML generieren)
-        if (value !== '') {
-          result.class = value;
-        }
-      } else if (shouldIncludeAttribute(key, value)) {
+      if (shouldIncludeAttribute(key, value)) {
         result[key] = value;
       }
     }
@@ -302,14 +349,19 @@ function formatAttribute(key: string, value: any): string {
     return `${key}={[${formattedArray}]}`;
   }
   
-  // Numbers
+  // Numbers - Astro Syntax mit geschweiften Klammern
   if (typeof value === 'number') {
     return `${key}={${value}}`;
   }
   
   // Strings
-  if (typeof value === 'string') {
+  if (typeof value === 'string' && value !== '') {
     return `${key}="${value}"`;
+  }
+  
+  // Objects (für komplexere Astro-Props)
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    return `${key}={${JSON.stringify(value)}}`;
   }
   
   return '';
@@ -319,13 +371,13 @@ function formatAttribute(key: string, value: any): string {
 const wrapperConfig: WrapperConfig = {
   before: (entity) => {
     if (entity.type === 'TabPage') {
-      return `<!-- TabPage: ${(entity as TabPageEntity).name} -->\n`;
+      return `<!-- TabPage: ${(entity as TabPageEntity).name} -->`;
     }
     return '';
   },
   after: (entity) => {
     if (entity.type === 'TabPage') {
-      return '\n<!-- /TabPage -->';
+      return '<!-- /TabPage -->';
     }
     return '';
   },
