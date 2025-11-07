@@ -17,101 +17,124 @@ import SimpleTextfield from "./SimpleTextfield";
 import WeiterButton from "./WeiterButton";
 
 export const cardComponents: PaletteEntry<any>[] = [
+  // Inputs
   {
-    type: "SimpleInput",    // Type identifier for code gen
-    label: "SimpleInput",   // Label shown in the palette
-    canHaveChildren: false, // enable Dropzone for child components
-    Component: SimpleInput, // actual React component
-  },
-  {
-    type: "SimpleFieldset",
-    label: "SimpleFieldset",
-    canHaveChildren: true,
-    Component: SimpleFieldset,
-  },
-  {
-    type: "Bild",
-    label: "Bild",
+    type: "SimpleInput",
+    label: "Simple Input",
+    category: "Inputs",
     canHaveChildren: false,
-    Component: Bild,
+    Component: SimpleInput,
   },
   {
-    type: "ConBlock",
-    label: "ConBlock",
-    canHaveChildren: true,
-    Component: ConBlock,
+    type: "SimpleTextfield",
+    label: "Simple Textfield",
+    category: "Inputs",
+    canHaveChildren: false,
+    Component: SimpleTextfield,
   },
+  {
+    type: "SuggestionInput",
+    label: "Suggestion Input",
+    category: "Inputs",
+    canHaveChildren: false,
+    Component: SuggestionInput,
+  },
+  {
+    type: "RadioButton",
+    label: "Radio Button",
+    category: "Inputs",
+    canHaveChildren: false,
+    Component: RadioButton,
+  },
+  {
+    type: "SimpleSelect",
+    label: "Simple Select",
+    category: "Inputs",
+    canHaveChildren: false,
+    Component: SimpleSelect,
+  },
+  {
+    type: "GatekeeperSelect",
+    label: "Gatekeeper Select",
+    category: "Inputs",
+    canHaveChildren: false,
+    Component: GatekeeperSelect,
+  },
+  {
+    type: "SQLinjectionSelect",
+    label: "SQL Injection Select",
+    category: "Inputs",
+    canHaveChildren: false,
+    Component: SQLinjectionSelect,
+  },
+
+  // Buttons
   {
     type: "FinishButton",
-    label: "FinishButton",
+    label: "Finish Button",
+    category: "Buttons",
     canHaveChildren: false,
     Component: FinishButton,
   },
   {
+    type: "WeiterButton",
+    label: "Weiter Button",
+    category: "Buttons",
+    canHaveChildren: false,
+    Component: WeiterButton,
+  },
+  {
     type: "FootButtons",
-    label: "FootButtons",
+    label: "Foot Buttons",
+    category: "Buttons",
     canHaveChildren: false,
     Component: FootButtons,
   },
   {
+    type: "RecordButton",
+    label: "Record Button",
+    category: "Buttons",
+    canHaveChildren: false,
+    Component: RecordButton,
+  },
+
+  // Containers
+  {
+    type: "SimpleFieldset",
+    label: "Simple Fieldset",
+    category: "Containers",
+    canHaveChildren: true,
+    Component: SimpleFieldset,
+  },
+  {
+    type: "ConBlock",
+    label: "Con Block",
+    category: "Containers",
+    canHaveChildren: true,
+    Component: ConBlock,
+  },
+  {
     type: "Gate",
     label: "Gate",
+    category: "Containers",
     canHaveChildren: true,
     Component: Gate,
   },
   {
     type: "GateGroup",
-    label: "GateGroup",
+    label: "Gate Group",
+    category: "Containers",
     canHaveChildren: true,
     Component: GateGroup,
   },
+
+  // Media
   {
-    type: "GatekeeperSelect",
-    label: "GatekeeperSelect",
+    type: "Bild",
+    label: "Bild",
+    category: "Media",
     canHaveChildren: false,
-    Component: GatekeeperSelect,
-  },
-  {
-    type: "RadioButton",
-    label: "RadioButton",
-    canHaveChildren: false,
-    Component: RadioButton,
-  },
-  {
-    type: "RecordButton",
-    label: "RecordButton",
-    canHaveChildren: false,
-    Component: RecordButton,
-  },
-  {
-    type: "SimpleSelect",
-    label: "SimpleSelect",
-    canHaveChildren: false,
-    Component: SimpleSelect,
-  },
-  {
-    type: "SQLinjectionSelect",
-    label: "SQLinjectionSelect",
-    canHaveChildren: false,
-    Component: SQLinjectionSelect,
-  },
-  {
-    type: "SuggestionInput",
-    label: "SuggestionInput",
-    canHaveChildren: false,
-    Component: SuggestionInput,
-  },
-  {
-    type: "SimpleTextfield",
-    label: "SimpleTextfield",
-    canHaveChildren: false,
-    Component: SimpleTextfield,
-  },
-  {
-    type: "WeiterButton",
-    label: "WeiterButton",
-    canHaveChildren: false,
-    Component: WeiterButton,
+    Component: Bild,
   },
 ];
 

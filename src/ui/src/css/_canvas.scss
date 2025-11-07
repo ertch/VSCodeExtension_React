@@ -74,6 +74,49 @@
     margin-bottom: 1em;
   }
 
+  &__category {
+    margin-bottom: 12px;
+  }
+
+  &__category-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+
+  &__category-icon {
+    margin-right: 8px;
+    font-size: 10px;
+    color: #6b7280;
+  }
+
+  &__category-name {
+    flex: 1;
+  }
+
+  &__category-count {
+    font-size: 11px;
+    color: #9ca3af;
+    font-weight: 400;
+  }
+
+  &__category-items {
+    padding-top: 8px;
+  }
+
   &__tip {
     margin-top: 16px;
     font-size: 12px;

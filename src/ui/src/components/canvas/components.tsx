@@ -81,14 +81,48 @@ export function RootDropArea({ tree, renderNode, uniqueContextId }: RootDropArea
 }
 
 // -----------------------
-// Sidebar mit Palette
+// Sidebar mit Palette (kategorisiert)
 // -----------------------
 export function Sidebar({ palette, onAddClick, uniqueContextId }: SidebarProps) {
+  // Gruppiere nach Kategorien
+  const categorized = palette.reduce((acc, entry) => {
+    const cat = entry.category || 'Uncategorized';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(entry);
+    return acc;
+  }, {} as Record<string, PaletteEntry[]>);
+
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(
+    () => Object.keys(categorized).reduce((acc, cat) => ({ ...acc, [cat]: true }), {})
+  );
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
   return (
     <aside className="canvas-sidebar">
       <div className="canvas-sidebar__title">Komponentenauswahl</div>
-      {palette.map((p) => (
-        <PaletteButton key={p.type} entry={p} onAddClick={onAddClick} uniqueContextId={uniqueContextId} />
+      {Object.entries(categorized).map(([category, entries]) => (
+        <div key={category} className="canvas-sidebar__category">
+          <button
+            className="canvas-sidebar__category-header"
+            onClick={() => toggleCategory(category)}
+          >
+            <span className="canvas-sidebar__category-icon">
+              {expandedCategories[category] ? '▼' : '▶'}
+            </span>
+            <span className="canvas-sidebar__category-name">{category}</span>
+            <span className="canvas-sidebar__category-count">({entries.length})</span>
+          </button>
+          {expandedCategories[category] && (
+            <div className="canvas-sidebar__category-items">
+              {entries.map((p) => (
+                <PaletteButton key={p.type} entry={p} onAddClick={onAddClick} uniqueContextId={uniqueContextId} />
+              ))}
+            </div>
+          )}
+        </div>
       ))}
     </aside>
   );
