@@ -12,12 +12,15 @@ const BaseEntitySchema = z.object({
   type: z.string().min(1, 'Entity type cannot be empty'),
 });
 
-// TabPage Schema
-const TabPageEntitySchema = BaseEntitySchema.extend({
-  type: z.literal('TabPage'),
-  name: z.string().min(1, 'TabPage name is required'),
-  tabIndex: z.number().int().nonnegative('TabIndex must be non-negative'),
-});
+// TabPage Schema (with lazy children for recursion)
+const TabPageEntitySchema = z.lazy(() =>
+  BaseEntitySchema.extend({
+    type: z.literal('TabPage'),
+    name: z.string().min(1, 'TabPage name is required'),
+    tabIndex: z.number().int().nonnegative('TabIndex must be non-negative'),
+    children: z.array(EntitySchema).optional(),
+  })
+);
 
 // Input Value Schema (recursive)
 const InputValueSchema: z.ZodType<any> = z.lazy(() =>

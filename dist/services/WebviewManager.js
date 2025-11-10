@@ -158,18 +158,28 @@ class WebviewManager {
      */
     async handleAstroGeneration(data) {
         try {
+            this.outputChannel.appendLine('[WebviewManager] Starting Astro generation...');
+            this.outputChannel.appendLine(`[WebviewManager] Metadata: ${JSON.stringify(data.metadata)}`);
+            this.outputChannel.appendLine(`[WebviewManager] JSON data length: ${JSON.stringify(data.jsonData).length} characters`);
             const { mergeAstro } = await Promise.resolve().then(() => __importStar(require('../generator')));
+            this.outputChannel.appendLine('[WebviewManager] Generator module imported successfully');
             const astroCode = mergeAstro(data.jsonData, data.metadata);
+            this.outputChannel.appendLine(`[WebviewManager] Astro code generated: ${astroCode.length} characters`);
+            this.outputChannel.appendLine(`[WebviewManager] First 100 chars: ${astroCode.substring(0, 100)}`);
             // Send back to webview for download
             this.panel?.webview.postMessage({
                 type: 'astroGenerated',
                 data: { astroCode, filename: 'index.astro' }
             });
-            this.outputChannel.appendLine('[WebviewManager] Astro code generated successfully');
+            this.outputChannel.appendLine('[WebviewManager] Astro code sent to webview for download');
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorStack = error instanceof Error ? error.stack : '';
             this.outputChannel.appendLine(`[WebviewManager] Astro generation failed: ${errorMessage}`);
+            if (errorStack) {
+                this.outputChannel.appendLine(`[WebviewManager] Stack trace: ${errorStack}`);
+            }
             this.panel?.webview.postMessage({
                 type: 'astroError',
                 data: { error: errorMessage }

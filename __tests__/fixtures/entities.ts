@@ -62,6 +62,37 @@ export const TEST_ENTITIES = {
     }
   },
 
+  tabPageWithChildren: {
+    type: 'TabPage',
+    name: 'TestTab',
+    tabIndex: 1,
+    children: [
+      {
+        type: 'Gate',
+        inputs: { name: 'gate1', class: 'primary' },
+        children: [
+          {
+            type: 'Button',
+            inputs: { name: 'btn1', label: 'Click Me' },
+            children: []
+          } as StandardEntity
+        ]
+      } as StandardEntity,
+      {
+        type: 'InfoText',
+        inputs: { name: 'info1', text: 'Test Info' },
+        children: []
+      } as StandardEntity
+    ]
+  } as TabPageEntity,
+
+  emptyTabPage: {
+    type: 'TabPage',
+    name: 'Empty',
+    tabIndex: 0,
+    children: []
+  } as TabPageEntity,
+
   invalidEntity: {
     type: '',
     inputs: {}

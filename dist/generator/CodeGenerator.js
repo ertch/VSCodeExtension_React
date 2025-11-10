@@ -61,30 +61,37 @@ class CodeGenerator {
      * Recursively collect all component types used in entity tree
      */
     collectComponents(entity, componentsSet) {
+        // Defensive programming: Guard against undefined/null entities
+        if (!entity || typeof entity !== 'object' || !entity.type) {
+            console.warn('[CodeGenerator] Invalid entity encountered in collectComponents:', entity);
+            return;
+        }
+        // TabPage is never added to components (statically imported in AstroMerger)
         if (entity.type !== 'TabPage') {
             componentsSet.add(entity.type);
-            // Only StandardEntity has children (type guard)
-            const standardEntity = entity;
-            if (standardEntity.children) {
-                standardEntity.children.forEach((child) => this.collectComponents(child, componentsSet));
-            }
+        }
+        // Recurse into children for ALL entity types (including TabPage)
+        if (entity.children) {
+            entity.children.forEach((child) => this.collectComponents(child, componentsSet));
         }
     }
     /**
      * Render entity to HTML string with indentation
      */
     renderEntity(entity, wrapperConfig, depth) {
+        // Defensive programming: Guard against undefined/null entities
+        if (!entity || !entity.type) {
+            console.warn('[CodeGenerator] Invalid entity encountered in renderEntity:', entity);
+            return ''; // Return empty string instead of crashing
+        }
         const indent = '  '.repeat(depth);
         const tagName = entity.type;
         const attributes = this.extractAttributes(entity);
         const attributesString = (0, Formatters_1.buildAttributesString)(attributes);
-        // Render children recursively (only StandardEntity has children)
+        // Render children recursively (for ALL entity types including TabPage)
         let childrenHTML = '';
-        if (entity.type !== 'TabPage') {
-            const standardEntity = entity;
-            if (standardEntity.children?.length) {
-                childrenHTML = standardEntity.children.map((child) => this.renderEntity(child, wrapperConfig, depth + 1)).join('\n');
-            }
+        if (entity.children?.length) {
+            childrenHTML = entity.children.map((child) => this.renderEntity(child, wrapperConfig, depth + 1)).join('\n');
         }
         // Build HTML
         let html;

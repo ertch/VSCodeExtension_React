@@ -5,9 +5,12 @@ const bildConfig: CardConfig = {
   codegenName: 'Bild',
   canBeParent: false,
   attributes: [
-    { name: 'dateiname', type: 'string', toolTip: 'Filename of the image (path will be added automatically)', optional: false },
+    { name: 'dateiname', 
+      type: 'string', 
+      toolTip: 'Filename of the image (path will be added automatically)', 
+      optional: false },
   ],
-  renderPreview: (name, id) => (
+  renderPreview: (name) => (
     <>
       <div>
         <img src="placeholder.png" alt={name} style={{ maxWidth: '100%', height: 'auto' }} />

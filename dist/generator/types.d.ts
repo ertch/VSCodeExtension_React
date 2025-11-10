@@ -11,6 +11,8 @@ export interface TabPageEntity {
     type: 'TabPage';
     name: string;
     tabIndex: number;
+    children?: Entity[];
+    inputs?: never;
 }
 export type InputValue = string | number | boolean | InputValue[];
 export interface EntityInputs {

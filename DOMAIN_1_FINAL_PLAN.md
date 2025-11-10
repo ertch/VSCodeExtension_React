@@ -425,7 +425,14 @@ export interface TabPageEntity extends BaseEntity {
   type: 'TabPage';
   name: string;
   tabIndex: number;
-  children?: never; // TabPage hat keine children
+  children?: Entity[]; // TabPage contains canvas tree children
+  inputs?: never;      // TabPage has no inputs (only name/tabIndex metadata)
+
+  // NOTE: TabPage is a structural container component that:
+  // - Is always statically imported (AstroMerger.ts)
+  // - Carries metadata as attributes (name, tabIndex → id, name, tab)
+  // - Contains canvas-tree elements as children
+  // - Does NOT appear in the dynamic components list
 }
 
 export interface StandardEntity extends BaseEntity {

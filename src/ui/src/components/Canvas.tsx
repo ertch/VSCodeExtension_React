@@ -1,3 +1,4 @@
+/// <reference path="../vscode.d.ts" />
 import { useCallback, useMemo, useRef, useState, useEffect, ReactNode } from "react";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import type {
@@ -224,13 +225,16 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
     const jsonData = JSON.parse(exportJson);
 
     // Send to extension backend for Astro generation
-    if (window.vscode) {
-      window.vscode.postMessage({
+    console.log('[Canvas] VSCode API available:', !!window.vscodeApi);
+    if (window.vscodeApi) {
+      console.log('[Canvas] Sending generateAstro message to backend');
+      window.vscodeApi.postMessage({
         type: 'generateAstro',
         data: { jsonData, metadata }
       });
     } else {
       // Fallback: JSON export when not in VSCode
+      console.warn('[Canvas] VSCode API not available, falling back to JSON export');
       downloadJSON(jsonData, 'export.json');
     }
 

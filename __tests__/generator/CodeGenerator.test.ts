@@ -180,4 +180,50 @@ describe('CodeGenerator', () => {
       expect(result.components).toContain('Button');
     });
   });
+
+  describe('TabPage with children', () => {
+    it('should render TabPage with nested children', () => {
+      const result = generator.generate(TEST_ENTITIES.tabPageWithChildren, { validate: false });
+
+      // Check HTML structure
+      expect(result.html).toContain('<TabPage');
+      expect(result.html).toContain('</TabPage>');  // NOT self-closing!
+      expect(result.html).toContain('<Gate');
+      expect(result.html).toContain('<Button');
+      expect(result.html).toContain('<InfoText');
+
+      // Check component collection
+      expect(result.components).toContain('Gate');
+      expect(result.components).toContain('Button');
+      expect(result.components).toContain('InfoText');
+      expect(result.components).not.toContain('TabPage');  // Not in dynamic imports
+
+      // Check nesting structure
+      const htmlLines = result.html.split('\n');
+      const tabPageIndex = htmlLines.findIndex(line => line.includes('<TabPage'));
+      const gateIndex = htmlLines.findIndex(line => line.includes('<Gate'));
+      const closeTabPageIndex = htmlLines.findIndex(line => line.includes('</TabPage>'));
+
+      expect(gateIndex).toBeGreaterThan(tabPageIndex);
+      expect(closeTabPageIndex).toBeGreaterThan(gateIndex);
+    });
+
+    it('should handle empty TabPage', () => {
+      const result = generator.generate(TEST_ENTITIES.emptyTabPage, { validate: false });
+
+      expect(result.html).toContain('<TabPage');
+      expect(result.html).toContain('/>');  // Self-closing when empty
+      expect(result.tabs).toHaveLength(0);  // Skip Start tab (tabIndex 0)
+    });
+
+    it('should collect components from TabPage children recursively', () => {
+      const result = generator.generate(TEST_ENTITIES.tabPageWithChildren, { validate: false });
+
+      // Should collect nested Button inside Gate
+      expect(result.components).toContain('Button');
+      expect(result.components).toContain('Gate');
+      expect(result.components).toContain('InfoText');
+      expect(result.components).toHaveLength(3);
+    });
+  });
 });

@@ -13,6 +13,8 @@ export interface TabPageEntity {
   type: 'TabPage';
   name: string;
   tabIndex: number;
+  children?: Entity[];  // TabPage contains canvas tree children
+  inputs?: never;       // TabPage has no inputs (only name/tabIndex metadata)
 }
 
 export type InputValue = string | number | boolean | InputValue[];
