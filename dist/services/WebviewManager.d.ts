@@ -31,6 +31,14 @@ export declare class WebviewManager {
      */
     private buildCSP;
     /**
+     * Handle messages from webview
+     */
+    private handleMessage;
+    /**
+     * Generate Astro file from JSON data
+     */
+    private handleAstroGeneration;
+    /**
      * Clear HTML cache (e.g., after hot reload)
      */
     clearCache(): void;

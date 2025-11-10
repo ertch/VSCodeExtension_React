@@ -42,6 +42,26 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
   // Unique Context ID für diesen Canvas (verhindert Cross-Canvas Drops)
   const uniqueContextId = useMemo(() => Symbol('canvas-context'), []);
 
+  // Listen for messages from extension backend
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      switch (message.type) {
+        case 'astroGenerated':
+          downloadAstro(message.data.astroCode, message.data.filename);
+          console.log('Astro file generated successfully');
+          break;
+        case 'astroError':
+          console.error('Astro generation error:', message.data.error);
+          alert(`Astro Generation fehlgeschlagen: ${message.data.error}`);
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   const createNodeFromType = useCallback(
     (type: string): TreeNode | null => {
       const meta = paletteMap[type];
@@ -203,12 +223,16 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
     // JSON-Daten parsen
     const jsonData = JSON.parse(exportJson);
 
-    // TODO: AstroMerger wurde im Refactoring entfernt
-    // Das Feature muss neu implementiert werden mit dem refactored CodeGenerator
-    console.warn('Astro export temporarily disabled during refactoring');
-
-    // Fallback: JSON export
-    downloadJSON(jsonData, 'export.json');
+    // Send to extension backend for Astro generation
+    if (window.vscode) {
+      window.vscode.postMessage({
+        type: 'generateAstro',
+        data: { jsonData, metadata }
+      });
+    } else {
+      // Fallback: JSON export when not in VSCode
+      downloadJSON(jsonData, 'export.json');
+    }
 
     // Formular schließen
     setShowMetaForm(false);

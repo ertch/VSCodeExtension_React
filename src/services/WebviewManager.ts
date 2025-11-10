@@ -49,6 +49,13 @@ export class WebviewManager {
         this.outputChannel.appendLine('[WebviewManager] Panel disposed');
       });
 
+      // Setup message handler
+      this.panel.webview.onDidReceiveMessage(
+        message => this.handleMessage(message),
+        null,
+        this.context.subscriptions
+      );
+
       const html = await this.loadIndexHTML(this.panel.webview);
       this.panel.webview.html = html;
 
@@ -135,6 +142,45 @@ export class WebviewManager {
       style-src 'unsafe-inline' ${cspSource} ${styleUri};
     ">
   `;
+  }
+
+  /**
+   * Handle messages from webview
+   */
+  private async handleMessage(message: any): Promise<void> {
+    switch (message.type) {
+      case 'generateAstro':
+        await this.handleAstroGeneration(message.data);
+        break;
+      default:
+        this.outputChannel.appendLine(`[WebviewManager] Unknown message type: ${message.type}`);
+    }
+  }
+
+  /**
+   * Generate Astro file from JSON data
+   */
+  private async handleAstroGeneration(data: { jsonData: any; metadata: any }): Promise<void> {
+    try {
+      const { mergeAstro } = await import('../generator');
+      const astroCode = mergeAstro(data.jsonData, data.metadata);
+
+      // Send back to webview for download
+      this.panel?.webview.postMessage({
+        type: 'astroGenerated',
+        data: { astroCode, filename: 'index.astro' }
+      });
+
+      this.outputChannel.appendLine('[WebviewManager] Astro code generated successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.outputChannel.appendLine(`[WebviewManager] Astro generation failed: ${errorMessage}`);
+
+      this.panel?.webview.postMessage({
+        type: 'astroError',
+        data: { error: errorMessage }
+      });
+    }
   }
 
   /**

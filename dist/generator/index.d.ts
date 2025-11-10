@@ -1,8 +1,9 @@
 /**
- * Generator Module - Public API Exports
+ * Generator Module Exports
  */
 export { CodeGenerator, generateHTML } from './CodeGenerator';
-export { validateEntity, validateEntities } from './validation';
-export { formatAttribute, buildAttributesString } from './Formatters';
-export type { Entity, TabPageEntity, StandardEntity, EntityInputs, GenerateHTMLResult, WrapperConfig, GenerateOptions } from './types';
+export { mergeAstro } from './AstroMerger';
+export type { AstroMetaData } from './AstroMerger';
+export * from './types';
+export * from './validation';
 //# sourceMappingURL=index.d.ts.map
