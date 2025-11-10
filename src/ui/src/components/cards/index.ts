@@ -4,7 +4,6 @@ import SimpleFieldset from "./SimpleFieldset";
 import Bild from "./Bild";
 import ConBlock from "./ConBlock";
 import FinishButton from "./FinishButton";
-import FootButtons from "./FootButtons";
 import Gate from "./Gate";
 import GateGroup from "./GateGroup";
 import GatekeeperSelect from "./GatekeeperSelect";
@@ -84,13 +83,6 @@ export const cardComponents: PaletteEntry<any>[] = [
     Component: WeiterButton,
   },
   {
-    type: "FootButtons",
-    label: "Foot Buttons",
-    category: "Buttons",
-    canHaveChildren: false,
-    Component: FootButtons,
-  },
-  {
     type: "RecordButton",
     label: "Record Button",
     category: "Buttons",
@@ -144,7 +136,6 @@ export {
   Bild,
   ConBlock,
   FinishButton,
-  FootButtons,
   Gate,
   GateGroup,
   GatekeeperSelect,

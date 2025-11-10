@@ -115,7 +115,7 @@ export class WebviewService {
     try {
       this.panel = vscode.window.createWebviewPanel(
         'extensionWebview',
-        'TT-Editor',
+        'ttEditor-LC',
         { viewColumn: vscode.ViewColumn.Active, preserveFocus: false },
         this.getWebviewOptions()
       );
@@ -125,7 +125,7 @@ export class WebviewService {
       const html = await this.resourceLoader.loadIndexHTML(this.panel.webview);
       this.panel.webview.html = html;
     } catch (error) {
-      vscode.window.showErrorMessage(`TT-Editor konnte nicht geöffnet werden: ${error.message}`);
+      vscode.window.showErrorMessage(`ttEditor-LC konnte nicht geöffnet werden: ${error.message}`);
       throw error;
     }
   }
@@ -256,11 +256,11 @@ export class SidebarViewProvider implements vscode.WebviewViewProvider {
 <html lang="de">
   <head>
     <meta charset="UTF-8">
-    <title>TT-Editor</title>
+    <title>ttEditor-LC</title>
   </head>
   <body>
     <div style="padding: 20px; text-align: center;">
-      <h3>TT-Editor</h3>
+      <h3>ttEditor-LC</h3>
       <p>Klicken Sie auf das Icon, um den Editor zu starten.</p>
     </div>
   </body>

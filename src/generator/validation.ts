@@ -6,13 +6,11 @@ import { z } from 'zod';
 import { Entity, TabPageEntity, StandardEntity } from './types';
 import { ValidationError } from '../errors/ExtensionErrors';
 
-// Base Schema
 const BaseEntitySchema = z.object({
   id: z.string().optional(),
   type: z.string().min(1, 'Entity type cannot be empty'),
 });
 
-// TabPage Schema (with lazy children for recursion)
 const TabPageEntitySchema = z.lazy(() =>
   BaseEntitySchema.extend({
     type: z.literal('TabPage'),
@@ -22,7 +20,6 @@ const TabPageEntitySchema = z.lazy(() =>
   })
 );
 
-// Input Value Schema (recursive)
 const InputValueSchema: z.ZodType<any> = z.lazy(() =>
   z.union([
     z.string(),
@@ -32,10 +29,8 @@ const InputValueSchema: z.ZodType<any> = z.lazy(() =>
   ])
 );
 
-// Entity Inputs Schema
 const EntityInputsSchema = z.record(z.string(), InputValueSchema.optional());
 
-// Standard Entity Schema (recursive)
 const StandardEntitySchema = z.lazy(() =>
   BaseEntitySchema.extend({
     inputs: EntityInputsSchema,
@@ -43,7 +38,6 @@ const StandardEntitySchema = z.lazy(() =>
   })
 );
 
-// Discriminated Union für Entity
 export const EntitySchema: z.ZodType<Entity> = z.union([
   TabPageEntitySchema,
   StandardEntitySchema,
@@ -53,7 +47,6 @@ export const EntitySchema: z.ZodType<Entity> = z.union([
  * Validate single Entity with conditional validation
  */
 export function validateEntity(data: unknown, skipValidation = false): Entity {
-  // Conditional Validation basierend auf Environment
   const shouldValidate = skipValidation
     ? false
     : (process.env.NODE_ENV !== 'production');

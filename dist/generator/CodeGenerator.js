@@ -17,15 +17,12 @@ class CodeGenerator {
         const { wrapperConfig = {}, validate = true } = options;
         try {
             const entitiesArray = Array.isArray(entities) ? entities : [entities];
-            // Optional: Validate input
             if (validate) {
                 (0, validation_1.validateEntities)(entitiesArray);
             }
             const tabs = [];
             const componentsSet = new Set();
-            // Generate HTML for each entity
             const htmlParts = entitiesArray.map((entity) => {
-                // Collect tabs (skip "Start" tab)
                 if (entity.type === 'TabPage') {
                     const tabPage = entity;
                     if (tabPage.name !== 'Start' && tabPage.tabIndex > 0) {
@@ -36,9 +33,7 @@ class CodeGenerator {
                         ]);
                     }
                 }
-                // Collect components
                 this.collectComponents(entity, componentsSet);
-                // Render entity to HTML
                 return this.renderEntity(entity, wrapperConfig, 0);
             });
             const combinedHTML = htmlParts.join('\n');
@@ -50,7 +45,6 @@ class CodeGenerator {
             };
         }
         catch (error) {
-            // Let ValidationError propagate unchanged
             if (error instanceof ExtensionErrors_1.ValidationError) {
                 throw error;
             }
@@ -138,7 +132,6 @@ class CodeGenerator {
     processInputs(inputs) {
         const result = {};
         const groupedAttributes = {};
-        // Handle 'name' for ID
         if (inputs.name && inputs.name !== '') {
             result.id = inputs.name;
             result.name = inputs.name;
@@ -147,7 +140,6 @@ class CodeGenerator {
             if (value === '' || value === null || value === undefined || key === 'name') {
                 return;
             }
-            // Check if it's a numbered attribute (e.g., actions_trigger_0)
             const match = key.match(/^(.+?)_(\d+)$/);
             if (match) {
                 const [, baseKey, index] = match;
@@ -161,13 +153,11 @@ class CodeGenerator {
                 groupedAttributes[baseKey][numIndex] = value;
             }
             else {
-                // Normal attribute
                 if (this.shouldIncludeAttribute(key, value)) {
                     result[key] = value;
                 }
             }
         });
-        // Process grouped attributes
         this.processGroupedAttributes(groupedAttributes, inputs, result);
         return result;
     }
@@ -177,28 +167,24 @@ class CodeGenerator {
     processGroupedAttributes(grouped, originalInputs, result) {
         Object.entries(grouped).forEach(([baseKey]) => {
             if (baseKey.startsWith('actions_')) {
-                // Triple_List for actions
                 const actions = this.buildTripleList(originalInputs);
                 if (actions.length > 0) {
                     result.actions = actions;
                 }
             }
             else if (baseKey === 'options') {
-                // Double_List for options
                 const options = this.buildDoubleList(grouped[baseKey]);
                 if (options.length > 0) {
                     result.options = options;
                 }
             }
             else if (baseKey === 'If') {
-                // Mix_List for If-conditions
                 const ifConditions = this.buildMixList('If', originalInputs);
                 if (ifConditions.length > 0) {
                     result.If = ifConditions;
                 }
             }
         });
-        // Handle firstOption (Double_Single)
         if (originalInputs.firstOption) {
             const firstOptionValue = originalInputs.firstOption;
             if (firstOptionValue && firstOptionValue !== '') {

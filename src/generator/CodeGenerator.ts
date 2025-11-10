@@ -26,7 +26,6 @@ export class CodeGenerator {
     try {
       const entitiesArray = Array.isArray(entities) ? entities : [entities];
 
-      // Optional: Validate input
       if (validate) {
         validateEntities(entitiesArray);
       }
@@ -34,9 +33,7 @@ export class CodeGenerator {
       const tabs: string[][] = [];
       const componentsSet = new Set<string>();
 
-      // Generate HTML for each entity
       const htmlParts = entitiesArray.map((entity) => {
-        // Collect tabs (skip "Start" tab)
         if (entity.type === 'TabPage') {
           const tabPage = entity as TabPageEntity;
           if (tabPage.name !== 'Start' && tabPage.tabIndex > 0) {
@@ -48,10 +45,7 @@ export class CodeGenerator {
           }
         }
 
-        // Collect components
         this.collectComponents(entity, componentsSet);
-
-        // Render entity to HTML
         return this.renderEntity(entity, wrapperConfig, 0);
       });
 
@@ -64,7 +58,6 @@ export class CodeGenerator {
         html: finalHTML
       };
     } catch (error) {
-      // Let ValidationError propagate unchanged
       if (error instanceof ValidationError) {
         throw error;
       }
@@ -170,7 +163,6 @@ export class CodeGenerator {
     const result: Record<string, any> = {};
     const groupedAttributes: Record<string, any[]> = {};
 
-    // Handle 'name' for ID
     if (inputs.name && inputs.name !== '') {
       result.id = inputs.name;
       result.name = inputs.name;
@@ -181,7 +173,6 @@ export class CodeGenerator {
         return;
       }
 
-      // Check if it's a numbered attribute (e.g., actions_trigger_0)
       const match = key.match(/^(.+?)_(\d+)$/);
 
       if (match) {
@@ -198,14 +189,12 @@ export class CodeGenerator {
 
         groupedAttributes[baseKey][numIndex] = value;
       } else {
-        // Normal attribute
         if (this.shouldIncludeAttribute(key, value)) {
           result[key] = value;
         }
       }
     });
 
-    // Process grouped attributes
     this.processGroupedAttributes(groupedAttributes, inputs, result);
 
     return result;
@@ -221,19 +210,16 @@ export class CodeGenerator {
   ): void {
     Object.entries(grouped).forEach(([baseKey]) => {
       if (baseKey.startsWith('actions_')) {
-        // Triple_List for actions
         const actions = this.buildTripleList(originalInputs);
         if (actions.length > 0) {
           result.actions = actions;
         }
       } else if (baseKey === 'options') {
-        // Double_List for options
         const options = this.buildDoubleList(grouped[baseKey]);
         if (options.length > 0) {
           result.options = options;
         }
       } else if (baseKey === 'If') {
-        // Mix_List for If-conditions
         const ifConditions = this.buildMixList('If', originalInputs);
         if (ifConditions.length > 0) {
           result.If = ifConditions;
@@ -241,7 +227,6 @@ export class CodeGenerator {
       }
     });
 
-    // Handle firstOption (Double_Single)
     if (originalInputs.firstOption) {
       const firstOptionValue = originalInputs.firstOption;
       if (firstOptionValue && firstOptionValue !== '') {

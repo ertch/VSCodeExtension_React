@@ -30,7 +30,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TT-Editor</title>
+    <title>ttEditor-LC</title>
     <style>
       body {
         font-family: var(--vscode-font-family);
@@ -52,7 +52,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     </style>
   </head>
   <body>
-    <h3>TT-Editor</h3>
+    <h3>ttEditor-LC</h3>
     <p>Klicken Sie auf das Icon, um den Editor zu starten.</p>
   </body>
 </html>`;

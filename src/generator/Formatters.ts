@@ -6,27 +6,22 @@
  * Format single attribute for HTML/Astro output
  */
 export function formatAttribute(key: string, value: any): string {
-  // Boolean true als einzelnes Attribut
   if (value === true) {
     return key;
   }
 
-  // Arrays
   if (Array.isArray(value)) {
     return formatArray(key, value);
   }
 
-  // Numbers - Astro Syntax mit geschweiften Klammern
   if (typeof value === 'number') {
     return `${key}={${value}}`;
   }
 
-  // Strings - mit XSS Protection
   if (typeof value === 'string' && value !== '') {
     return `${key}="${escapeHTML(value)}"`;
   }
 
-  // Objects
   if (typeof value === 'object' && value !== null) {
     return `${key}={${JSON.stringify(value)}}`;
   }
@@ -39,14 +34,12 @@ export function formatAttribute(key: string, value: any): string {
  */
 function formatArray(key: string, value: any[]): string {
   if (value.length > 0 && Array.isArray(value[0])) {
-    // Nested Arrays (Triple_List, Double_List, Mix_List)
     const formattedArray = value.map(item =>
       `[${item.map((v: any) => JSON.stringify(v)).join(', ')}]`
     ).join(', ');
     return `${key}={[${formattedArray}]}`;
   }
 
-  // Simple Array (Double_Single)
   const formattedArray = value.map((v: any) => JSON.stringify(v)).join(', ');
   return `${key}={[${formattedArray}]}`;
 }

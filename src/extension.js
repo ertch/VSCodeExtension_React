@@ -1,6 +1,6 @@
 "use strict";
 /**
- * TT-Editor Extension Entry Point
+ * ttEditor-LC Extension Entry Point
  * Refactored with Clean Architecture
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -25,9 +25,9 @@ let outputChannel;
  */
 function activate(context) {
     // Create output channel for logging
-    outputChannel = vscode.window.createOutputChannel('TT-Editor');
+    outputChannel = vscode.window.createOutputChannel('ttEditor-LC');
     context.subscriptions.push(outputChannel);
-    outputChannel.appendLine('[Extension] Activating TT-Editor...');
+    outputChannel.appendLine('[Extension] Activating ttEditor-LC...');
     // Initialize Webview Manager
     webviewManager = new WebviewManager_1.WebviewManager(context, outputChannel);
     // Register Show Webview Command
@@ -51,7 +51,7 @@ function activate(context) {
             outputChannel.appendLine('[Extension] Extension deactivated');
         }
     });
-    outputChannel.appendLine('[Extension] TT-Editor activated successfully');
+    outputChannel.appendLine('[Extension] ttEditor-LC activated successfully');
 }
 /**
  * Extension Deactivation

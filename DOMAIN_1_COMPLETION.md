@@ -314,4 +314,4 @@ Gemäß REFACTORING_GUIDE.md:
 
 **Erstellt:** 2025-11-07
 **Autor:** Claude (Anthropic)
-**Projekt:** TT-Editor VSCode Extension Refactoring v2.0
+**Projekt:** ttEditor-LC VSCode Extension Refactoring v2.0

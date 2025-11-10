@@ -1,5 +1,5 @@
 /**
- * Custom Error Classes für TT-Editor Extension
+ * Custom Error Classes für ttEditor-LC Extension
  */
 
 export class ResourceLoadError extends Error {

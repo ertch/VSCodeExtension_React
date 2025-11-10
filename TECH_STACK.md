@@ -1,4 +1,4 @@
-# TT-Editor Tech Stack
+# ttEditor-LC Tech Stack
 
 ## Core Technologies
 

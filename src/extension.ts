@@ -1,7 +1,3 @@
-/**
- * TT-Editor Extension Entry Point
- * Refactored with Clean Architecture
- */
 
 import * as vscode from 'vscode';
 import { WebviewManager } from './services/WebviewManager';
@@ -10,15 +6,13 @@ import { SidebarProvider } from './providers/SidebarProvider';
 let webviewManager: WebviewManager;
 let outputChannel: vscode.OutputChannel;
 
-/**
- * Extension Activation
- */
+//Extension Activation
 export function activate(context: vscode.ExtensionContext) {
   // Create output channel for logging
-  outputChannel = vscode.window.createOutputChannel('TT-Editor');
+  outputChannel = vscode.window.createOutputChannel('ttEditor-LC');
   context.subscriptions.push(outputChannel);
 
-  outputChannel.appendLine('[Extension] Activating TT-Editor...');
+  outputChannel.appendLine('[Extension] Activating ttEditor-LC...');
 
   // Initialize Webview Manager
   webviewManager = new WebviewManager(context, outputChannel);
@@ -48,12 +42,11 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  outputChannel.appendLine('[Extension] TT-Editor activated successfully');
+  outputChannel.appendLine('[Extension] ttEditor-LC activated successfully');
 }
 
-/**
- * Extension Deactivation
- */
+//Extension Deactivation
+ 
 export function deactivate() {
   webviewManager?.dispose();
   outputChannel?.dispose();

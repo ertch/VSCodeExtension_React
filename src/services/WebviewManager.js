@@ -22,7 +22,7 @@ class WebviewManager {
         this.context = context;
         this.htmlCache = null;
         this.distPath = path.join(context.extensionPath, 'src', 'ui', 'dist');
-        this.outputChannel = outputChannel !== null && outputChannel !== void 0 ? outputChannel : vscode.window.createOutputChannel('TT-Editor');
+        this.outputChannel = outputChannel !== null && outputChannel !== void 0 ? outputChannel : vscode.window.createOutputChannel('ttEditor-LC');
     }
     /**
      * Create or show existing webview panel
@@ -36,7 +36,7 @@ class WebviewManager {
             }
             try {
                 this.outputChannel.appendLine('[WebviewManager] Creating new panel...');
-                this.panel = vscode.window.createWebviewPanel('extensionWebview', 'TT-Editor', { viewColumn: vscode.ViewColumn.Active, preserveFocus: false }, Object.assign(Object.assign({}, this.getWebviewOptions()), { retainContextWhenHidden: true }));
+                this.panel = vscode.window.createWebviewPanel('extensionWebview', 'ttEditor-LC', { viewColumn: vscode.ViewColumn.Active, preserveFocus: false }, Object.assign(Object.assign({}, this.getWebviewOptions()), { retainContextWhenHidden: true }));
                 this.panel.onDidDispose(() => {
                     this.panel = undefined;
                     this.outputChannel.appendLine('[WebviewManager] Panel disposed');
@@ -48,7 +48,7 @@ class WebviewManager {
             catch (error) {
                 const message = error instanceof Error ? error.message : String(error);
                 this.outputChannel.appendLine(`[WebviewManager] ERROR: ${message}`);
-                vscode.window.showErrorMessage(`TT-Editor konnte nicht geöffnet werden: ${message}`);
+                vscode.window.showErrorMessage(`ttEditor-LC konnte nicht geöffnet werden: ${message}`);
                 throw error;
             }
         });

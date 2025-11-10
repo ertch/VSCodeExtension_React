@@ -1,4 +1,4 @@
-# TT-Editor - Refactored VSCode Extension
+# ttEditor-LC - Refactored VSCode Extension
 
 **Version:** 2.0.0 (Refactored)
 **Status:** ✅ Domain 1 (Core Extension) Completed
@@ -7,7 +7,7 @@
 
 ## Überblick
 
-Dies ist die refactored Version der TT-Editor VSCode Extension mit verbesserter Architektur, höherer Code-Qualität und vollständiger Test-Coverage.
+Dies ist die refactored Version der ttEditor-LC VSCode Extension mit verbesserter Architektur, höherer Code-Qualität und vollständiger Test-Coverage.
 
 ### Hauptverbesserungen gegenüber v1.0
 
@@ -283,7 +283,7 @@ const result = formatAttribute('value', '<script>alert("XSS")</script>');
 [WebviewManager] ERROR: Failed to load resource
 
 // Im Extension-Code
-outputChannel.appendLine('[Extension] TT-Editor activated successfully');
+outputChannel.appendLine('[Extension] ttEditor-LC activated successfully');
 ```
 
 ### Debug-Modus
@@ -429,7 +429,7 @@ ISC
 ## Credits
 
 **Refactoring durchgeführt von:** Claude (Anthropic)
-**Original Extension:** TT-Editor v1.0
+**Original Extension:** ttEditor-LC v1.0
 **Refactoring-Datum:** 2025-11-07
 
 **Basierend auf:**
@@ -443,7 +443,7 @@ ISC
 
 Bei Fragen oder Problemen:
 1. Check die Tests: `npm test`
-2. Check die Logs: VSCode Output Channel "TT-Editor"
+2. Check die Logs: VSCode Output Channel "ttEditor-LC"
 3. Check die Dokumentation: Dieser README
 
 ---

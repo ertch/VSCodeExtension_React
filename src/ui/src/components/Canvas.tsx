@@ -50,7 +50,6 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
       switch (message.type) {
         case 'astroGenerated':
           downloadAstro(message.data.astroCode, message.data.filename);
-          console.log('Astro file generated successfully');
           break;
         case 'astroError':
           console.error('Astro generation error:', message.data.error);
@@ -205,7 +204,6 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
   }, [tabState.tabs, tabState.activeTabId]);
 
   const handleLoadCanvas = useCallback(() => {
-    console.log('Canvas laden - noch nicht implementiert');
   }, []);
 
   const handleGenerateAstroCode = useCallback(async (event: React.FormEvent) => {
@@ -224,17 +222,12 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
     // JSON-Daten parsen
     const jsonData = JSON.parse(exportJson);
 
-    // Send to extension backend for Astro generation
-    console.log('[Canvas] VSCode API available:', !!window.vscodeApi);
     if (window.vscodeApi) {
-      console.log('[Canvas] Sending generateAstro message to backend');
       window.vscodeApi.postMessage({
         type: 'generateAstro',
         data: { jsonData, metadata }
       });
     } else {
-      // Fallback: JSON export when not in VSCode
-      console.warn('[Canvas] VSCode API not available, falling back to JSON export');
       downloadJSON(jsonData, 'export.json');
     }
 
@@ -340,7 +333,6 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(exportJson);
-                      console.log('JSON in Zwischenablage kopiert');
                     } catch (err) {
                       console.error('Kopieren fehlgeschlagen:', err);
                     }

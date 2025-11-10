@@ -1,7 +1,7 @@
 {
-  "name": "tt-editor-refactored",
-  "displayName": "TT-Editor",
-  "description": "Refactored TT-Editor VSCode Extension - GUI for LowCode",
+  "name": "ttEditor-LC-refactored",
+  "displayName": "ttEditor-LC",
+  "description": "Refactored ttEditor-LC VSCode Extension - GUI for LowCode",
   "version": "1.0.0",
   "publisher": "dein-name",
   "engines": {
@@ -15,25 +15,25 @@
     "commands": [
       {
         "command": "vscExtension.showWebview",
-        "title": "Open TT-Editor Panel",
+        "title": "Open ttEditor-LC Panel",
         "icon": "$(window)"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "tt-editor-sidebar",
-          "title": "TT-Editor",
+          "id": "ttEditor-LC-sidebar",
+          "title": "ttEditor-LC",
           "icon": "media/icon.png"
         }
       ]
     },
     "views": {
-      "tt-editor-sidebar": [
+      "ttEditor-LC-sidebar": [
         {
           "type": "webview",
           "id": "vscExtension.view",
-          "name": "TT-Editor"
+          "name": "ttEditor-LC"
         }
       ]
     }
@@ -61,7 +61,7 @@
   },
   "keywords": [
     "vscode-extension",
-    "tt-editor"
+    "ttEditor-LC"
   ],
   "author": "",
   "license": "ISC"

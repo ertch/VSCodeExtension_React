@@ -1,7 +1,7 @@
 # Projekt-Analyse: Zusammenfassung
 
 **Datum:** 2025-11-07
-**Projekt:** VSCode Extension mit React UI (TT-Editor)
+**Projekt:** VSCode Extension mit React UI (ttEditor-LC)
 **Analysierte Dateien:** 53 TypeScript/TSX/JSX Dateien
 **Total LOC:** 3233 Zeilen
 **Bundle Size:** 248.25 kB JS (75.44 kB gzip) + 26.42 kB CSS (7.42 kB gzip)

@@ -175,7 +175,7 @@ export class WebviewManager {
     outputChannel?: vscode.OutputChannel
   ) {
     this.distPath = path.join(context.extensionPath, 'src', 'ui', 'dist');
-    this.outputChannel = outputChannel ?? vscode.window.createOutputChannel('TT-Editor');
+    this.outputChannel = outputChannel ?? vscode.window.createOutputChannel('ttEditor-LC');
   }
 
   async createOrShow(): Promise<void> {
@@ -190,7 +190,7 @@ export class WebviewManager {
 
       this.panel = vscode.window.createWebviewPanel(
         'extensionWebview',
-        'TT-Editor',
+        'ttEditor-LC',
         { viewColumn: vscode.ViewColumn.Active, preserveFocus: false },
         this.getWebviewOptions()
       );
@@ -207,7 +207,7 @@ export class WebviewManager {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.outputChannel.appendLine(`[WebviewManager] ERROR: ${message}`);
-      vscode.window.showErrorMessage(`TT-Editor konnte nicht geöffnet werden: ${message}`);
+      vscode.window.showErrorMessage(`ttEditor-LC konnte nicht geöffnet werden: ${message}`);
       throw error;
     }
   }
@@ -326,7 +326,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TT-Editor</title>
+    <title>ttEditor-LC</title>
     <style>
       body {
         font-family: var(--vscode-font-family);
@@ -345,7 +345,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     </style>
   </head>
   <body>
-    <h3>TT-Editor</h3>
+    <h3>ttEditor-LC</h3>
     <p>Klicken Sie auf das Icon, um den Editor zu starten.</p>
   </body>
 </html>`;
@@ -366,10 +366,10 @@ let outputChannel: vscode.OutputChannel;
 
 export function activate(context: vscode.ExtensionContext) {
   // Output Channel für Logging
-  outputChannel = vscode.window.createOutputChannel('TT-Editor');
+  outputChannel = vscode.window.createOutputChannel('ttEditor-LC');
   context.subscriptions.push(outputChannel);
 
-  outputChannel.appendLine('[Extension] Activating TT-Editor...');
+  outputChannel.appendLine('[Extension] Activating ttEditor-LC...');
 
   // Webview Manager
   webviewManager = new WebviewManager(context, outputChannel);
@@ -398,7 +398,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  outputChannel.appendLine('[Extension] TT-Editor activated successfully');
+  outputChannel.appendLine('[Extension] ttEditor-LC activated successfully');
 }
 
 export function deactivate() {
