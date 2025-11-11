@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Custom Error Classes für TT-Editor Extension
+ * Custom Error Classes für ttEditor-LC Extension
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GenerationError = exports.ValidationError = exports.ResourceLoadError = void 0;

@@ -62,6 +62,31 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
+  // Live DOM Preview: Send tree structure to sidebar
+  useEffect(() => {
+    // Rekursive Funktion zum Extrahieren der Component-Types mit Verschachtelung
+    const extractTypes = (nodes: TreeNode[], depth = 0): any[] => {
+      return nodes.flatMap(node => [
+        { type: node.type, depth, id: node.id, canHaveChildren: node.canHaveChildren },
+        ...extractTypes(node.children || [], depth + 1)
+      ]);
+    };
+
+    const components = extractTypes(tree);
+
+    // An Extension senden
+    if (window.vscodeApi) {
+      window.vscodeApi.postMessage({
+        type: 'previewUpdate',
+        data: {
+          components,
+          tabName: activeTab.name,
+          tabId: activeTab.id
+        }
+      });
+    }
+  }, [tree, activeTab.name, activeTab.id]); // Trigger bei Tree-Änderungen
+
   const createNodeFromType = useCallback(
     (type: string): TreeNode | null => {
       const meta = paletteMap[type];

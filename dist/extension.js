@@ -1,8 +1,4 @@
 "use strict";
-/**
- * TT-Editor Extension Entry Point
- * Refactored with Clean Architecture
- */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -44,17 +40,16 @@ const WebviewManager_1 = require("./services/WebviewManager");
 const SidebarProvider_1 = require("./providers/SidebarProvider");
 let webviewManager;
 let outputChannel;
-/**
- * Extension Activation
- */
 function activate(context) {
-    // Create output channel for logging
-    outputChannel = vscode.window.createOutputChannel('TT-Editor');
+    // Create output channel
+    outputChannel = vscode.window.createOutputChannel('ttEditor-LC');
     context.subscriptions.push(outputChannel);
-    outputChannel.appendLine('[Extension] Activating TT-Editor...');
-    // Initialize Webview Manager
-    webviewManager = new WebviewManager_1.WebviewManager(context, outputChannel);
-    // Register Show Webview Command
+    outputChannel.appendLine('[Extension] starte ttEditor-LC');
+    // Register Sidebar FIRST (so WebviewManager can reference it)
+    const sidebarProvider = new SidebarProvider_1.SidebarProvider(context);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider('vscExtension.view', sidebarProvider));
+    // Initialize Webview with SidebarProvider reference
+    webviewManager = new WebviewManager_1.WebviewManager(context, outputChannel, sidebarProvider);
     const showCommand = vscode.commands.registerCommand('vscExtension.showWebview', async () => {
         try {
             await webviewManager.createOrShow();
@@ -65,21 +60,14 @@ function activate(context) {
         }
     });
     context.subscriptions.push(showCommand);
-    // Register Sidebar View Provider
-    const sidebarProvider = new SidebarProvider_1.SidebarProvider(context);
-    context.subscriptions.push(vscode.window.registerWebviewViewProvider('vscExtension.view', sidebarProvider));
-    // Register disposal
     context.subscriptions.push({
         dispose: () => {
             webviewManager.dispose();
-            outputChannel.appendLine('[Extension] Extension deactivated');
+            outputChannel.appendLine('[Extension] Extension abgeschaltet');
         }
     });
-    outputChannel.appendLine('[Extension] TT-Editor activated successfully');
+    outputChannel.appendLine('[Extension] ttEditor-LC ist hochgefahren');
 }
-/**
- * Extension Deactivation
- */
 function deactivate() {
     webviewManager?.dispose();
     outputChannel?.dispose();

@@ -1,19 +1,23 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { ResourceLoadError } from '../errors/ExtensionErrors';
+import { SidebarProvider } from '../providers/SidebarProvider';
 
 export class WebviewManager {
   private panel: vscode.WebviewPanel | undefined;
   private readonly distPath: string;
   private htmlCache: string | null = null;
   private readonly outputChannel: vscode.OutputChannel;
+  private sidebarProvider?: SidebarProvider;
 
   constructor(
     private context: vscode.ExtensionContext,
-    outputChannel?: vscode.OutputChannel
+    outputChannel?: vscode.OutputChannel,
+    sidebarProvider?: SidebarProvider
   ) {
     this.distPath = path.join(context.extensionPath, 'src', 'ui', 'dist');
     this.outputChannel = outputChannel ?? vscode.window.createOutputChannel('ttEditor-LC');
+    this.sidebarProvider = sidebarProvider;
   }
   
   async createOrShow(): Promise<void> {
@@ -128,13 +132,33 @@ export class WebviewManager {
       case 'generateAstro':
         await this.handleAstroGeneration(message.data);
         break;
+      case 'previewUpdate':
+        await this.handlePreviewUpdate(message.data);
+        break;
       default:
         this.outputChannel.appendLine(`[WebviewManager] Unknown message type: ${message.type}`);
     }
   }
 
+  // Handle preview update from Canvas
+  private async handlePreviewUpdate(data: { components: any[]; tabName: string; tabId: string }): Promise<void> {
+    try {
+      this.outputChannel.appendLine(`[WebviewManager] Preview update received: ${data.components.length} components`);
+
+      // Forward to sidebar if available
+      if (this.sidebarProvider) {
+        this.sidebarProvider.updatePreview(data);
+      } else {
+        this.outputChannel.appendLine('[WebviewManager] No sidebar provider available');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.outputChannel.appendLine(`[WebviewManager] Preview update failed: ${errorMessage}`);
+    }
+  }
+
   //Generate Astro file from JSON data
-   
+
   private async handleAstroGeneration(data: { jsonData: any; metadata: any }): Promise<void> {
     try {
       this.outputChannel.appendLine('[WebviewManager] Starting Astro generation...');

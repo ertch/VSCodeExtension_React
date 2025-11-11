@@ -1,4 +1,3 @@
-
 import * as vscode from 'vscode';
 import { WebviewManager } from './services/WebviewManager';
 import { SidebarProvider } from './providers/SidebarProvider';
@@ -6,18 +5,21 @@ import { SidebarProvider } from './providers/SidebarProvider';
 let webviewManager: WebviewManager;
 let outputChannel: vscode.OutputChannel;
 
-//Extension Activation
 export function activate(context: vscode.ExtensionContext) {
-  // Create output channel for logging
+  // Create output channel
   outputChannel = vscode.window.createOutputChannel('ttEditor-LC');
   context.subscriptions.push(outputChannel);
 
-  outputChannel.appendLine('[Extension] Activating ttEditor-LC...');
+  outputChannel.appendLine('[Extension] starte ttEditor-LC');
 
-  // Initialize Webview Manager
-  webviewManager = new WebviewManager(context, outputChannel);
+  // Register Sidebar FIRST (so WebviewManager can reference it)
+  const sidebarProvider = new SidebarProvider(context);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider('vscExtension.view', sidebarProvider)
+  );
 
-  // Register Show Webview Command
+  // Initialize Webview with SidebarProvider reference
+  webviewManager = new WebviewManager(context, outputChannel, sidebarProvider);
   const showCommand = vscode.commands.registerCommand('vscExtension.showWebview', async () => {
     try {
       await webviewManager.createOrShow();
@@ -28,24 +30,15 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(showCommand);
 
-  // Register Sidebar View Provider
-  const sidebarProvider = new SidebarProvider(context);
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider('vscExtension.view', sidebarProvider)
-  );
-
-  // Register disposal
   context.subscriptions.push({
     dispose: () => {
       webviewManager.dispose();
-      outputChannel.appendLine('[Extension] Extension deactivated');
+      outputChannel.appendLine('[Extension] Extension abgeschaltet');
     }
   });
 
-  outputChannel.appendLine('[Extension] ttEditor-LC activated successfully');
+  outputChannel.appendLine('[Extension] ttEditor-LC ist hochgefahren');
 }
-
-//Extension Deactivation
  
 export function deactivate() {
   webviewManager?.dispose();

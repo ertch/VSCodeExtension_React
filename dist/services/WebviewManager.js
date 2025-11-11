@@ -1,8 +1,4 @@
 "use strict";
-/**
- * WebviewManager - Manages VSCode Webview Panel
- * Combines Panel Management + Resource Loading + CSP Building
- */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -42,32 +38,29 @@ const vscode = __importStar(require("vscode"));
 const path = __importStar(require("path"));
 const ExtensionErrors_1 = require("../errors/ExtensionErrors");
 class WebviewManager {
-    constructor(context, outputChannel) {
+    constructor(context, outputChannel, sidebarProvider) {
         this.context = context;
         this.htmlCache = null;
         this.distPath = path.join(context.extensionPath, 'src', 'ui', 'dist');
-        this.outputChannel = outputChannel ?? vscode.window.createOutputChannel('TT-Editor');
+        this.outputChannel = outputChannel ?? vscode.window.createOutputChannel('ttEditor-LC');
+        this.sidebarProvider = sidebarProvider;
     }
-    /**
-     * Create or show existing webview panel
-     */
     async createOrShow() {
         if (this.panel) {
             this.panel.reveal(vscode.ViewColumn.Active, false);
-            this.outputChannel.appendLine('[WebviewManager] Panel revealed');
+            this.outputChannel.appendLine('[WebviewManager] Panel angezeigt');
             return;
         }
         try {
-            this.outputChannel.appendLine('[WebviewManager] Creating new panel...');
-            this.panel = vscode.window.createWebviewPanel('extensionWebview', 'TT-Editor', { viewColumn: vscode.ViewColumn.Active, preserveFocus: false }, {
+            this.outputChannel.appendLine('[WebviewManager] Baue neues Panel');
+            this.panel = vscode.window.createWebviewPanel('extensionWebview', 'ttEditor-LC', { viewColumn: vscode.ViewColumn.Active, preserveFocus: false }, {
                 ...this.getWebviewOptions(),
                 retainContextWhenHidden: true
             });
             this.panel.onDidDispose(() => {
                 this.panel = undefined;
-                this.outputChannel.appendLine('[WebviewManager] Panel disposed');
+                this.outputChannel.appendLine('[WebviewManager] Panel verworfen');
             });
-            // Setup message handler
             this.panel.webview.onDidReceiveMessage(message => this.handleMessage(message), null, this.context.subscriptions);
             const html = await this.loadIndexHTML(this.panel.webview);
             this.panel.webview.html = html;
@@ -76,24 +69,17 @@ class WebviewManager {
         catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             this.outputChannel.appendLine(`[WebviewManager] ERROR: ${message}`);
-            vscode.window.showErrorMessage(`TT-Editor konnte nicht geöffnet werden: ${message}`);
+            vscode.window.showErrorMessage(`ttEditor-LC konnte nicht geöffnet werden: ${message}`);
             throw error;
         }
     }
-    /**
-     * Get webview options
-     */
     getWebviewOptions() {
         return {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(this.distPath)]
         };
     }
-    /**
-     * Load and cache index.html with injected resources
-     */
     async loadIndexHTML(webview) {
-        // Check cache first
         if (this.htmlCache) {
             this.outputChannel.appendLine('[WebviewManager] Using cached HTML');
             return this.htmlCache;
@@ -117,19 +103,14 @@ class WebviewManager {
             throw new ExtensionErrors_1.ResourceLoadError(indexPath.fsPath, error instanceof Error ? error : new Error(String(error)));
         }
     }
-    /**
-     * Convert local file path to webview URI
-     */
+    // Convert local file path to webview URI
     getWebviewUri(webview, relativePath) {
         const filePath = vscode.Uri.file(path.join(this.distPath, relativePath));
         return webview.asWebviewUri(filePath);
     }
-    /**
-     * Build Content Security Policy meta tag
-     */
+    // Content Security Policy meta tag
     buildCSP(webview, scriptUri, styleUri) {
         const cspSource = webview.cspSource;
-        // In Production: Restriktivere CSP (kein unsafe-eval)
         const scriptSrc = process.env.NODE_ENV === 'production'
             ? `'unsafe-inline' ${cspSource} ${scriptUri}`
             : `'unsafe-inline' 'unsafe-eval' ${cspSource} ${scriptUri}`;
@@ -141,21 +122,36 @@ class WebviewManager {
     ">
   `;
     }
-    /**
-     * Handle messages from webview
-     */
     async handleMessage(message) {
         switch (message.type) {
             case 'generateAstro':
                 await this.handleAstroGeneration(message.data);
                 break;
+            case 'previewUpdate':
+                await this.handlePreviewUpdate(message.data);
+                break;
             default:
                 this.outputChannel.appendLine(`[WebviewManager] Unknown message type: ${message.type}`);
         }
     }
-    /**
-     * Generate Astro file from JSON data
-     */
+    // Handle preview update from Canvas
+    async handlePreviewUpdate(data) {
+        try {
+            this.outputChannel.appendLine(`[WebviewManager] Preview update received: ${data.components.length} components`);
+            // Forward to sidebar if available
+            if (this.sidebarProvider) {
+                this.sidebarProvider.updatePreview(data);
+            }
+            else {
+                this.outputChannel.appendLine('[WebviewManager] No sidebar provider available');
+            }
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this.outputChannel.appendLine(`[WebviewManager] Preview update failed: ${errorMessage}`);
+        }
+    }
+    //Generate Astro file from JSON data
     async handleAstroGeneration(data) {
         try {
             this.outputChannel.appendLine('[WebviewManager] Starting Astro generation...');
@@ -186,16 +182,10 @@ class WebviewManager {
             });
         }
     }
-    /**
-     * Clear HTML cache (e.g., after hot reload)
-     */
     clearCache() {
         this.htmlCache = null;
         this.outputChannel.appendLine('[WebviewManager] Cache cleared');
     }
-    /**
-     * Dispose panel and cleanup
-     */
     dispose() {
         this.panel?.dispose();
         this.panel = undefined;

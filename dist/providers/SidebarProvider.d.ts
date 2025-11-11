@@ -1,14 +1,14 @@
-/**
- * SidebarProvider - Provides content for VSCode Sidebar View
- */
 import * as vscode from 'vscode';
 export declare class SidebarProvider implements vscode.WebviewViewProvider {
-    private readonly context;
+    private context;
+    private view?;
     constructor(context: vscode.ExtensionContext);
     resolveWebviewView(webviewView: vscode.WebviewView): void;
-    /**
-     * Generate professional sidebar HTML
-     */
+    updatePreview(data: {
+        components: any[];
+        tabName: string;
+        tabId: string;
+    }): void;
     private getSidebarHTML;
 }
 //# sourceMappingURL=SidebarProvider.d.ts.map
