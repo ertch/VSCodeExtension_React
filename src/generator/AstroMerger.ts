@@ -11,21 +11,17 @@ export function mergeAstro(
   jsonData: any,
   metadata: AstroMetaData
 ): string {
-  // HTML + Meta-Daten generieren
   const result: GenerateHTMLResult = generateHTML(jsonData);
   const { tabs, components, html } = result;
 
-  // Tabs-Array formatieren für Astro
   const tabsArrayString = tabs.length > 0
     ? tabs.map(tab => `            ["${tab[0]}", "${tab[1]}", "${tab[2]}"]`).join(',\n')
     : '';
 
-  // Import-Statements für alle verwendeten Components
   const componentImports = components
     .map(comp => `import ${comp} from "@/components/${comp}.astro";`)
     .join('\n');
 
-  // Vollständiges Astro-Template
   return `---
 import Layout from "@/layouts/Layout.astro";
 import NextPageBtn from "@/components/WeiterButton.astro";

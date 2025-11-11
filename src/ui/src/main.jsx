@@ -5,7 +5,6 @@ import Canvas from './components/Canvas.jsx';
 import { previewComponents } from "./utils/componentPalette";
 import "./css/main.scss";
 
-// VSCode Webview API initialisieren
 if (typeof window.acquireVsCodeApi !== 'undefined') {
   window.vscodeApi = window.acquireVsCodeApi();
 }

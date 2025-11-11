@@ -13,7 +13,7 @@ function createOrShowMainPanel(context: vscode.ExtensionContext) {
 
   mainPanel = vscode.window.createWebviewPanel(
     'extensionWebview',
-    'TT-Editor',
+    'ttEditor-LC',
     { viewColumn: vscode.ViewColumn.Active, preserveFocus: false },
     {
       enableScripts: true,
