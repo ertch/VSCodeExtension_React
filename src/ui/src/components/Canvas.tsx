@@ -256,7 +256,7 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
       downloadJSON(jsonData, 'export.json');
     }
 
-    // Formular schließen
+
     setShowMetaForm(false);
   }, [exportJson]);
 
@@ -276,7 +276,6 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
     setExportJson("");
   }, []);
 
-  // Globaler Monitor: Fängt alle Drop-Events ab und verarbeitet sie zentral
   useEffect(() => {
     return monitorForElements({
       canMonitor: ({ source }) => source.data.contextId === uniqueContextId,
@@ -287,12 +286,9 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
           return;
         }
 
-        // Nimm das INNERSTE Drop-Target (Index 0 ist das tiefste/innerste)
         const [innermostTarget] = dropTargets;
         const dropTargetId = innermostTarget.data.nodeId;
         const zone = innermostTarget.data.zone;
-
-        // Verarbeite den Drop einmalig über die zentrale Funktion
         performDrop({
           dropTargetId: dropTargetId ?? null,
           zone,
@@ -333,7 +329,6 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
         <Sidebar palette={palette} onAddClick={addViaClick} uniqueContextId={uniqueContextId} />
       </div>
 
-      {/* Canvas Details Dialog */}
       {isDetailsOpen && (
         <>
           <div className="confirm-dialog-backdrop" onClick={() => setIsDetailsOpen(false)} />
@@ -390,7 +385,6 @@ export default function Canvas({ palette, initialNodes = [] }: CanvasProps) {
         </>
       )}
 
-      {/* Kampagnen-Informationen Dialog */}
       {showMetaForm && (
         <>
           <div className="confirm-dialog-backdrop" onClick={() => setShowMetaForm(false)} />

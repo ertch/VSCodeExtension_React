@@ -1,9 +1,9 @@
 {
-  "name": "ttEditor-LC",
+  "name": "tteditor-lc",
   "displayName": "ttEditor-LC",
-  "description": "Refactored ttEditor-LC VSCode Extension - GUI for LowCode",
+  "description": "ttEditor-LC VSCode Extension",
   "version": "1.0.0",
-  "publisher": "dein-name",
+  "publisher": "Erik Tchorz",
   "engines": {
     "vscode": "^1.96.0"
   },

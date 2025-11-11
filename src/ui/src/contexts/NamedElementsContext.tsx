@@ -20,28 +20,27 @@ export function NamedElementsProvider({ children }: { children: React.ReactNode 
   const registerElement = useCallback((id: string, name: string) => {
     if (!name || name.trim() === '') return;
 
-    setNamedElements((prev) => {
+    setNamedElements((prev) => { // Duplikate ausschließen
       const exists = prev.find((el) => el.id === id);
       if (exists) {
-        // Update existing
         return prev.map((el) => (el.id === id ? { id, name } : el));
       }
-      // Add new
+      // Unbekannt --> neue Card hinzufügen
       return [...prev, { id, name }];
     });
   }, []);
 
+  // Card ohne Namen auschließen
   const unregisterElement = useCallback((id: string) => {
     setNamedElements((prev) => prev.filter((el) => el.id !== id));
   }, []);
 
+  // neuer Name --> aktualisieren zu registered
   const updateElementName = useCallback((id: string, name: string) => {
     if (!name || name.trim() === '') {
-      // Wenn kein Name, Element entfernen
       unregisterElement(id);
       return;
     }
-
     registerElement(id, name);
   }, [registerElement, unregisterElement]);
 

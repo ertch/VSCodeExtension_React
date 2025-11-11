@@ -3,9 +3,8 @@ import { ReactNode } from 'react';
 import { PaletteEntry } from './palette';
 import { EntityInputs } from '../generator/types';
 
-/**
- * TreeNode with type-safe props
- */
+//TreeNode with type-safe props
+
 export interface TreeNode {
   id: string;
   type: string;
