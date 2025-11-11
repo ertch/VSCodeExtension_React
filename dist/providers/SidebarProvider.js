@@ -57,8 +57,6 @@ class SidebarProvider {
                 }
             }
         });
-        // Don't auto-open main panel on startup anymore
-        // User can click the button when they want
     }
     updatePreview(data) {
         if (!this.view) {
@@ -175,7 +173,7 @@ class SidebarProvider {
           <h3>DOM Preview</h3>
             <div class="preview-tab-name" id="tabName">-</div>
             <div class="preview-placeholder" id="placeholder">
-              Warten auf Canvas-Änderungen...
+              Warten auf Canvas...
             </div>
             <div id="previewTree" style="display: none;"></div>
           </div>

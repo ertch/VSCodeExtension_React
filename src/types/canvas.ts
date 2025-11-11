@@ -1,16 +1,16 @@
 // types/canvas.ts
 import { ReactNode } from 'react';
 import { PaletteEntry } from './palette';
-import { EntityInputs } from '../generator/types'; // From Domain 1
+import { EntityInputs } from '../generator/types';
 
 /**
- * TreeNode with type-safe props (reuses EntityInputs from Domain 1)
+ * TreeNode with type-safe props
  */
 export interface TreeNode {
   id: string;
   type: string;
   canHaveChildren: boolean;
-  props: EntityInputs;  // ✅ Domain 1 integration (instead of Record<string, unknown>)
+  props: EntityInputs;
   children: TreeNode[];
 }
 

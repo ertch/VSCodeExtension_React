@@ -4,7 +4,7 @@ exports.extractInputsFromElement = extractInputsFromElement;
 /**
  * Extract form inputs from DOM element
  * @param el - Container element with data-node-id
- * @returns EntityInputs object (from Domain 1)
+ * @returns EntityInputs object
  */
 function extractInputsFromElement(el) {
     try {
