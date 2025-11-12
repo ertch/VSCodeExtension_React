@@ -24,17 +24,15 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
     });
   }, [node.id, uniqueContextId]);
 
-  // Make node content a drop target (for above/below)
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
 
-    const computeZone = (input: { clientY: number }, element: HTMLElement): 'above' | 'below' => {
+    const DropZone = (input: { clientY: number }, element: HTMLElement): 'above' | 'below' => {
       const rect = element.getBoundingClientRect();
       const y = input.clientY - rect.top;
       const h = rect.height;
 
-      // Content-Bereich: nur above/below
       if (y < h * 0.5) {
         return "above";
       } else {
@@ -42,27 +40,13 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
       }
     };
 
-    /**
-     * Helper: Prüft ob DIESER Node das innerste (erste) Drop-Target ist.
-     *
-     * Rationale:
-     * - location.current.dropTargets ist sortiert von INNERSTEM zu ÄUSSERSTEM
-     * - Nur das innerste Target soll visuelles Feedback geben
-     * - Performance: O(1) statt O(n) durch direkten Array-Zugriff
-     *
-     * @param targets - Array der aktuellen Drop-Targets (innermost first)
-     * @returns true wenn dieser Node highlighten darf
-     */
     const isInnermostTarget = (targets: readonly unknown[]): boolean => {
-      // Kein Target = sollte nicht vorkommen, aber safe guard
       if (!targets || targets.length === 0) {
         return true;
       }
 
-      // Prüfe ob das erste (innerste) Target dieser Node ist
       const innermostTarget = targets[0];
 
-      // Type Guard: Stelle sicher dass target die erwartete Struktur hat
       if (
         innermostTarget &&
         typeof innermostTarget === 'object' &&
@@ -73,9 +57,6 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
       ) {
         return innermostTarget.data.nodeId === node.id;
       }
-
-      // Fallback: Bei unerwarteter Struktur, erlaube Highlight
-      // (besser false positive als keine Visualisierung)
       return true;
     };
 
@@ -83,19 +64,16 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
       element: el,
       canDrop: ({ source }) => source.data.contextId === uniqueContextId,
       getData: ({ input, element }) => {
-        const zone = computeZone(input, element);
+        const zone = DropZone(input, element);
         return { nodeId: node.id, zone };
       },
 
-      onDragEnter: ({ self, location }) => {
-        // WICHTIG: Nur das innerste Target darf highlighten
-        // Verhindert Multi-Level Highlighting bei verschachtelten Nodes
+      // Verhindern von Multi-Highlighting 
+      onDragEnter: ({ self, location }) => { 
         if (!isInnermostTarget(location.current.dropTargets)) {
           return;
         }
 
-        // ZUSÄTZLICH: Prüfe ob das innerste Target eine "inside" Zone ist
-        // Falls ja, hat die Drop-Zone Priorität über above/below
         const innermostTarget = location.current.dropTargets[0];
         if (
           innermostTarget &&
@@ -106,24 +84,18 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
           'zone' in innermostTarget.data &&
           innermostTarget.data.zone === 'inside'
         ) {
-          return; // Drop-Zone hat Priorität
+          return; // Drop-Zone prioisieren
         }
 
         setDropIndicator(self.data.zone as 'above' | 'below');
       },
 
       onDrag: ({ self, location }) => {
-        // WICHTIG: Nur das innerste Target darf highlighten
-        // Verhindert Multi-Level Highlighting bei verschachtelten Nodes
         if (!isInnermostTarget(location.current.dropTargets)) {
-          // Entferne eventuelles vorheriges Highlight
-          // (wichtig falls sich die Target-Hierarchie geändert hat)
           setDropIndicator(null);
           return;
         }
 
-        // ZUSÄTZLICH: Prüfe ob das innerste Target eine "inside" Zone ist
-        // Falls ja, hat die Drop-Zone Priorität über above/below
         const innermostTarget = location.current.dropTargets[0];
         if (
           innermostTarget &&
@@ -134,7 +106,7 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
           'zone' in innermostTarget.data &&
           innermostTarget.data.zone === 'inside'
         ) {
-          setDropIndicator(null); // Entferne above/below Highlight
+          setDropIndicator(null); 
           return;
         }
 
@@ -142,28 +114,21 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
       },
 
       onDragLeave: () => {
-        // Immer Highlight entfernen beim Verlassen
         setDropIndicator(null);
       },
 
       onDrop: () => {
-        // Entfernt: Drop-Verarbeitung erfolgt jetzt zentral im Monitor
         setDropIndicator(null);
       },
     });
   }, [node.id, uniqueContextId]);
 
-  // Make children area a drop target (only for containers, always "inside")
   useEffect(() => {
     if (!node.canHaveChildren) return;
 
     const el = childrenEl;
     if (!el) return;
 
-    /**
-     * Helper: Prüft ob DIESER Node das innerste "inside" Drop-Target ist.
-     * Gleiche Logik wie bei above/below, aber für die Drop-Zone.
-     */
     const isInnermostInsideTarget = (targets: readonly unknown[]): boolean => {
       if (!targets || targets.length === 0) {
         return true;
@@ -192,8 +157,6 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
         return { nodeId: node.id, zone: "inside" };
       },
       onDragEnter: ({ location }) => {
-        // WICHTIG: Nur das innerste "inside" Target darf highlighten
-        // Verhindert dass Parent-Drop-Zones auch highlighten
         if (!isInnermostInsideTarget(location.current.dropTargets)) {
           return;
         }
@@ -202,7 +165,6 @@ export function NodeWrapper({ node, meta, onDelete, uniqueContextId, children }:
         el.classList.add('is-inside');
       },
       onDrag: ({ location }) => {
-        // WICHTIG: Nur das innerste "inside" Target darf highlighten
         if (!isInnermostInsideTarget(location.current.dropTargets)) {
           setDropIndicator(null);
           el.classList.remove('is-inside');

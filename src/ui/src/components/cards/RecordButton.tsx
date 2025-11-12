@@ -11,7 +11,7 @@ const recordButtonConfig: CardConfig = {
     { name: 'txt_btn', type: 'string', toolTip: 'Eigener Button-Text (Standard: "Kunden aufnehmen")', optional: true },
     { name: 'callState', type: 'string', toolTip: 'CallState-Parameter für recordBtn-Funktion (Standard: "3")', optional: true },
   ],
-  renderPreview: (name, id) => (
+  renderPreview: (id) => (
     <div
       id={id}
       className="input_form recordDisplay grid-col_center"

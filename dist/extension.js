@@ -40,10 +40,9 @@ var fs = __toESM(require("fs"));
 
 // src/sidebar.ts
 var sidebar_default = `<!DOCTYPE html>
-<html lang="en">
+<html lang="de">
     <body>
-        <h3>TT-Editor</h3>
-        yo was geht
+        <h3>ttEditor-LC</h3>
     </body>
 </html>
 `;
@@ -57,7 +56,7 @@ function createOrShowMainPanel(context) {
   }
   mainPanel = vscode.window.createWebviewPanel(
     "extensionWebview",
-    "TT-Editor",
+    "ttEditor-LC",
     { viewColumn: vscode.ViewColumn.Active, preserveFocus: false },
     {
       enableScripts: true,

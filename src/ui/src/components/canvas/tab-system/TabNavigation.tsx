@@ -23,10 +23,7 @@ export default function TabNavigation({
   onTabAdd
 }: TabNavigationProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmState | null>(null);
-
-  // Sortiere Tabs nach tabIndex
   const sortedTabs = [...tabState.tabs].sort((a, b) => a.tabIndex - b.tabIndex);
-
   const handleDeleteClick = (tabId: string, tabName: string, hasContent: boolean) => {
     setDeleteConfirm({ tabId, tabName, hasContent });
   };

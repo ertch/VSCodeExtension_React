@@ -50,3 +50,25 @@ export interface PerformDropParams {
   zone: string;
   payload: DropPayload;
 }
+
+// Serialization types for export/import
+export interface SerializedNode {
+  id: string;
+  type: string;
+  inputs: Record<string, unknown>;
+  children: SerializedNode[];
+}
+
+export interface SerializedTab {
+  type: 'TabPage';
+  name: string;
+  tabIndex: number;
+  children: SerializedNode[];
+}
+
+export interface AstroMetaData {
+  campaignNr: string;
+  campaignTitle: string;
+  headerTitle: string;
+  headerImg: string;
+}

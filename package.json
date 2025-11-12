@@ -70,8 +70,8 @@
     ]
   },
   "scripts": {
-    "compile": "tsc && node esbuild.js",
-    "watch": "tsc --watch",
+    "compile": "npx tsc && node esbuild.js",
+    "watch": "npx tsc --watch",
     "pretest": "npm run compile",
     "test": "vscode-test",
     "build": "npm run compile && cd src/ui && npm run build && cd ../.."
